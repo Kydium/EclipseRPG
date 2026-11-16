@@ -1,0 +1,337 @@
+# =========================================================
+#  Corrompidos y jefes de Crónicas del Eclipse
+#  Aparecen con: /eclipse spawn <id> <jugador> [cantidad]
+#  vida: vida total (20 = zombi normal)
+#  danio-extra: se suma al daño normal del mob · danio: reemplaza el daño base
+#  velocidad: 0.2 = +20% · escala: tamaño (1.0 normal)
+#  equipo: mano, mano2, casco, pecho, piernas, pies (material o custom:id)
+#  premios: se entregan a cada jugador cerca del jefe. una-vez: solo la primera vez
+#  esbirros: al bajar a la mitad de vida invoca "cantidad-esbirros" refuerzos
+# =========================================================
+mobs:
+
+  # ---------------- Acto 1 ----------------
+  zombi_corrompido:
+    tipo: zombie
+    nombre: "<dark_purple>☠ Zombi Corrompido"
+    vida: 30
+    danio-extra: 2
+    xp: 10
+    soles: 2
+    equipo: {casco: LEATHER_HELMET}
+  arana_corrompida:
+    tipo: spider
+    nombre: "<dark_purple>☠ Araña Corrompida"
+    vida: 30
+    danio-extra: 2
+    velocidad: 0.1
+    xp: 10
+    soles: 2
+  rondador_podrido:
+    tipo: zombie
+    nombre: "<red><bold>Rondador Podrido"
+    jefe: true
+    color-barra: RED
+    vida: 60
+    danio: 6
+    escala: 1.3
+    xp: 600
+    soles: 150
+    equipo: {mano: IRON_SWORD, casco: IRON_HELMET}
+    premios:
+      - {item: fragmento_solar_1}
+      - {item: hoja_del_alba}
+      - {item: fragmento_mejora}
+
+  # ---------------- Acto 2 ----------------
+  esqueleto_corrompido:
+    tipo: skeleton
+    nombre: "<dark_purple>☠ Esqueleto Corrompido"
+    vida: 40
+    danio-extra: 3
+    xp: 14
+    soles: 4
+    equipo: {mano: BOW, casco: CHAINMAIL_HELMET}
+  creeper_corrompido:
+    tipo: creeper
+    nombre: "<dark_purple>☠ Creeper Corrompido"
+    vida: 40
+    velocidad: 0.25
+    xp: 14
+    soles: 4
+  capataz_hueso:
+    tipo: skeleton
+    nombre: "<red><bold>Capataz Hueso"
+    jefe: true
+    vida: 90
+    danio: 8
+    escala: 1.3
+    xp: 1200
+    soles: 300
+    equipo: {mano: BOW, casco: IRON_HELMET, pecho: IRON_CHESTPLATE}
+    premios:
+      - {item: fragmento_solar_2}
+      - {item: pico_minero_perdido}
+
+  # ---------------- Acto 3 ----------------
+  saqueador_corrompido:
+    tipo: pillager
+    nombre: "<dark_purple>☠ Saqueador Corrompido"
+    vida: 50
+    danio-extra: 4
+    xp: 18
+    soles: 6
+    equipo: {mano: CROSSBOW}
+  vindicador_corrompido:
+    tipo: vindicator
+    nombre: "<dark_purple>☠ Vindicador Corrompido"
+    vida: 50
+    danio-extra: 4
+    xp: 18
+    soles: 6
+    equipo: {mano: IRON_AXE}
+  heraldo_mancha:
+    tipo: evoker
+    nombre: "<red><bold>Heraldo de la Mancha"
+    jefe: true
+    color-barra: PURPLE
+    vida: 120
+    danio: 9
+    escala: 1.3
+    xp: 1800
+    soles: 450
+    premios:
+      - {item: fragmento_solar_3}
+      - {item: ballesta_vigia}
+
+  # ---------------- Acto 4 ----------------
+  ahogado_corrompido:
+    tipo: drowned
+    nombre: "<dark_purple>☠ Ahogado Corrompido"
+    vida: 60
+    danio-extra: 5
+    xp: 22
+    soles: 8
+  guardian_corrompido:
+    tipo: guardian
+    nombre: "<dark_purple>☠ Guardián Corrompido"
+    vida: 60
+    danio-extra: 5
+    xp: 22
+    soles: 8
+  ahogado_coronado:
+    tipo: drowned
+    nombre: "<red><bold>Ahogado Coronado"
+    jefe: true
+    color-barra: BLUE
+    vida: 150
+    danio: 11
+    escala: 1.4
+    xp: 2400
+    soles: 600
+    equipo: {mano: TRIDENT, casco: GOLDEN_HELMET}
+    premios:
+      - {item: fragmento_solar_4}
+      - {item: tridente_marea_negra}
+
+  # ---------------- Acto 5 ----------------
+  husk_corrompido:
+    tipo: husk
+    nombre: "<dark_purple>☠ Husk Corrompido"
+    vida: 70
+    danio-extra: 6
+    xp: 26
+    soles: 10
+  bruja_corrompida:
+    tipo: witch
+    nombre: "<dark_purple>☠ Bruja Corrompida"
+    vida: 70
+    xp: 26
+    soles: 10
+  bruja_dunas:
+    tipo: witch
+    nombre: "<red><bold>Bruja de las Dunas"
+    jefe: true
+    color-barra: YELLOW
+    vida: 180
+    danio: 12
+    escala: 1.3
+    xp: 3000
+    soles: 750
+    esbirros: [husk_corrompido]
+    cantidad-esbirros: 3
+    premios:
+      - {item: fragmento_solar_5}
+      - {item: botas_viento_seco}
+
+  # ---------------- Acto 6 ----------------
+  blaze_corrompido:
+    tipo: blaze
+    nombre: "<dark_purple>☠ Blaze Corrompido"
+    vida: 85
+    danio-extra: 7
+    xp: 30
+    soles: 12
+  esqueleto_wither_corrompido:
+    tipo: wither_skeleton
+    nombre: "<dark_purple>☠ Esqueleto Wither Corrompido"
+    vida: 85
+    danio-extra: 7
+    xp: 30
+    soles: 12
+    equipo: {mano: STONE_SWORD}
+  senor_brasas:
+    tipo: wither_skeleton
+    nombre: "<red><bold>Señor de Brasas"
+    jefe: true
+    vida: 230
+    danio: 15
+    escala: 1.4
+    xp: 3600
+    soles: 900
+    equipo: {mano: NETHERITE_SWORD, casco: NETHERITE_HELMET}
+    efectos: ["fire_resistance:0"]
+    esbirros: [blaze_corrompido]
+    cantidad-esbirros: 3
+    premios:
+      - {item: fragmento_solar_6}
+      - {item: hacha_ignea}
+
+  # ---------------- Acto 7 ----------------
+  breeze_corrompido:
+    tipo: breeze
+    nombre: "<dark_purple>☠ Breeze Corrompido"
+    vida: 100
+    xp: 34
+    soles: 14
+  bogged_corrompido:
+    tipo: bogged
+    nombre: "<dark_purple>☠ Bogged Corrompido"
+    vida: 100
+    danio-extra: 8
+    xp: 34
+    soles: 14
+    equipo: {mano: BOW}
+  viento_encadenado:
+    tipo: breeze
+    nombre: "<red><bold>Viento Encadenado"
+    jefe: true
+    color-barra: WHITE
+    vida: 270
+    danio: 16
+    escala: 1.6
+    xp: 4200
+    soles: 1050
+    esbirros: [breeze_corrompido]
+    cantidad-esbirros: 3
+    premios:
+      - {item: fragmento_solar_7}
+      - {item: mazo_trueno}
+
+  # ---------------- Acto 8 ----------------
+  sombra_corrompida:
+    tipo: skeleton
+    nombre: "<dark_gray>☠ Sombra Corrompida"
+    vida: 120
+    danio-extra: 9
+    xp: 38
+    soles: 16
+    equipo: {mano: IRON_SWORD}
+    efectos: ["invisibility:0"]
+  sombra_velkar:
+    tipo: evoker
+    nombre: "<dark_purple><bold>Sombra de Velkar"
+    jefe: true
+    color-barra: PURPLE
+    vida: 320
+    danio: 18
+    escala: 1.4
+    xp: 4800
+    soles: 1200
+    esbirros: [sombra_corrompida]
+    cantidad-esbirros: 3
+    premios:
+      - {item: fragmento_solar_8}
+      - {item: capa_silencio}
+
+  # ---------------- Acto 9 ----------------
+  piglin_bruto_corrompido:
+    tipo: piglin_brute
+    nombre: "<dark_purple>☠ Piglin Bruto Corrompido"
+    vida: 140
+    danio-extra: 10
+    xp: 42
+    soles: 18
+    equipo: {mano: GOLDEN_AXE}
+  hoglin_corrompido:
+    tipo: hoglin
+    nombre: "<dark_purple>☠ Hoglin Corrompido"
+    vida: 140
+    danio-extra: 10
+    xp: 42
+    soles: 18
+  rey_ceniza:
+    tipo: piglin_brute
+    nombre: "<dark_red><bold>Rey de Ceniza"
+    jefe: true
+    vida: 400
+    danio: 20
+    escala: 1.5
+    xp: 5400
+    soles: 1350
+    equipo: {mano: NETHERITE_AXE, casco: NETHERITE_HELMET, pecho: NETHERITE_CHESTPLATE}
+    esbirros: [piglin_bruto_corrompido]
+    cantidad-esbirros: 3
+    premios:
+      - {item: fragmento_mejora, cantidad: 2}
+
+  # ---------------- Acto 10 ----------------
+  enderman_corrompido:
+    tipo: enderman
+    nombre: "<dark_purple>☠ Enderman Corrompido"
+    vida: 160
+    danio-extra: 12
+    xp: 46
+    soles: 20
+  shulker_corrompido:
+    tipo: shulker
+    nombre: "<dark_purple>☠ Shulker Corrompido"
+    vida: 160
+    xp: 46
+    soles: 20
+  guardian_eclipse:
+    tipo: wither_skeleton
+    nombre: "<black><bold>Guardián del Eclipse"
+    jefe: true
+    color-barra: PURPLE
+    vida: 450
+    danio: 22
+    escala: 1.7
+    velocidad: 0.15
+    xp: 8000
+    soles: 2500
+    equipo: {mano: NETHERITE_SWORD, casco: NETHERITE_HELMET, pecho: NETHERITE_CHESTPLATE, piernas: NETHERITE_LEGGINGS, pies: NETHERITE_BOOTS}
+    efectos: ["fire_resistance:0"]
+    esbirros: [enderman_corrompido, sombra_corrompida]
+    cantidad-esbirros: 4
+    premios:
+      - {item: fragmento_solar_10}
+
+# Jefes normales de Minecraft que también dan premios
+jefes-vanilla:
+  wither:
+    xp: 6000
+    soles: 1500
+    radio: 64
+    premios:
+      - {item: fragmento_solar_9}
+      - {item: armadura_ceniza_casco}
+      - {item: armadura_ceniza_pechera}
+      - {item: armadura_ceniza_grebas}
+      - {item: armadura_ceniza_botas}
+  ender_dragon:
+    xp: 8000
+    soles: 2000
+    radio: 200
+    premios:
+      - {item: fragmento_mejora, cantidad: 2}

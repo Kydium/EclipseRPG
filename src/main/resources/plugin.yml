@@ -1,0 +1,27 @@
+name: EclipseRPG
+version: '${version}'
+main: pe.kydium.eclipserpg.EclipseRPG
+api-version: '1.21'
+author: Kydium
+description: Niveles, Soles, tiendas, Corrompidos, jefes y Grietas para Crónicas del Eclipse
+softdepend: [Citizens, BetonQuest]
+
+commands:
+  nivel:
+    description: Ver tu nivel y repartir puntos de habilidad
+    aliases: [stats, habilidades]
+  soles:
+    description: Ver tus Soles
+    aliases: [dinero, money]
+  pagar:
+    description: Pagar Soles a otro jugador
+    usage: /pagar <jugador> <cantidad>
+  eclipse:
+    description: Administración de EclipseRPG
+    permission: eclipserpg.admin
+    aliases: [erpg]
+
+permissions:
+  eclipserpg.admin:
+    description: Comandos de administración (/eclipse)
+    default: op

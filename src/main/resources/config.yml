@@ -1,0 +1,116 @@
+# =========================================================
+#  EclipseRPG — Crónicas del Eclipse
+#  Moneda: Soles (☀). Colores con formato MiniMessage.
+# =========================================================
+
+zona-horaria: America/Lima      # para contratos diarios y mercado oscuro
+autoguardado-minutos: 5
+
+niveles:
+  nivel-maximo: 50
+  xp-por-nivel: 150             # XP para pasar del nivel N al N+1 = 150 x N
+  puntos-por-nivel: 1
+  niveles-por-tier: 5           # niveles 1-5 = tier 1 (Acto 1), 6-10 = tier 2...
+  mostrar-en-tab: true          # muestra [nivel] en la lista de jugadores
+
+stats:
+  costo-reinicio: 500
+  vida:
+    por-punto: 1.0
+    maximo: 20
+    descripcion: "+1 de vida (medio corazón) por punto"
+  fuerza:
+    por-punto: 0.5
+    maximo: 20
+    descripcion: "+0.5 de daño por punto"
+  defensa:
+    por-punto: 0.5
+    maximo: 20
+    descripcion: "+0.5 de armadura por punto"
+  agilidad:
+    por-punto: 1.0              # en %
+    maximo: 15
+    descripcion: "+1% de velocidad por punto"
+  fortuna:
+    por-punto: 3.0              # en %
+    maximo: 15
+    descripcion: "+3% de Soles y botín por punto"
+
+# Algunos mobs hostiles que aparecen solos se vuelven Corrompidos
+# con el tier del jugador más cercano.
+corrupcion:
+  probabilidad: 0.12
+  radio-jugador: 64
+  prob-fragmento: 0.01          # probabilidad de soltar un Fragmento de Mejora
+  tiers:                        # vida total, daño extra, XP y Soles al matarlo
+    - {vida: 30,  danio: 2,  xp: 10, soles: 2}
+    - {vida: 40,  danio: 3,  xp: 14, soles: 4}
+    - {vida: 50,  danio: 4,  xp: 18, soles: 6}
+    - {vida: 60,  danio: 5,  xp: 22, soles: 8}
+    - {vida: 70,  danio: 6,  xp: 26, soles: 10}
+    - {vida: 85,  danio: 7,  xp: 30, soles: 12}
+    - {vida: 100, danio: 8,  xp: 34, soles: 14}
+    - {vida: 120, danio: 9,  xp: 38, soles: 16}
+    - {vida: 140, danio: 10, xp: 42, soles: 18}
+    - {vida: 160, danio: 12, xp: 46, soles: 20}
+  nombres:
+    ZOMBIE: Zombi
+    HUSK: Husk
+    DROWNED: Ahogado
+    ZOMBIE_VILLAGER: Aldeano zombi
+    SKELETON: Esqueleto
+    STRAY: Esqueleto glacial
+    BOGGED: Bogged
+    SPIDER: Araña
+    CAVE_SPIDER: Araña de cueva
+    CREEPER: Creeper
+    ENDERMAN: Enderman
+    WITCH: Bruja
+    SLIME: Slime
+    PHANTOM: Phantom
+    BLAZE: Blaze
+    GHAST: Ghast
+    MAGMA_CUBE: Cubo de magma
+    WITHER_SKELETON: Esqueleto wither
+    PIGLIN_BRUTE: Piglin bruto
+    HOGLIN: Hoglin
+    ZOGLIN: Zoglin
+    PILLAGER: Saqueador
+    VINDICATOR: Vindicador
+    EVOKER: Evocador
+    GUARDIAN: Guardián
+    SILVERFISH: Lepisma
+    ENDERMITE: Endermite
+    SHULKER: Shulker
+    BREEZE: Breeze
+
+jefes:
+  soles-si-repite: 200          # si un jugador ya tiene el premio único del jefe
+
+mejoras:
+  maximo: 5                     # +5 de daño máximo en armas únicas
+
+grieta:
+  costo-por-tier: 50            # Soles para abrirla (x tier)
+  oleadas: 5
+  mobs-base: 3                  # enemigos = base + 2 x oleada + 2 x (jugadores - 1)
+  radio-grupo: 15               # amigos a esta distancia entran contigo
+  tiempo-maximo-minutos: 10
+  vida-guardian: 4.0            # el Guardián de la última oleada tiene x4 de vida
+  xp-por-tier: 300
+  soles-por-tier: 60
+  prob-fragmento: 0.25
+  mobs-por-tier:
+    1: [zombi_corrompido, arana_corrompida]
+    2: [esqueleto_corrompido, creeper_corrompido, zombi_corrompido]
+    3: [vindicador_corrompido, saqueador_corrompido]
+    4: [ahogado_corrompido, vindicador_corrompido]
+    5: [husk_corrompido, bruja_corrompida]
+    6: [esqueleto_wither_corrompido, blaze_corrompido]
+    7: [bogged_corrompido, breeze_corrompido]
+    8: [sombra_corrompida, esqueleto_wither_corrompido]
+    9: [piglin_bruto_corrompido, hoglin_corrompido]
+    10: [enderman_corrompido, piglin_bruto_corrompido, sombra_corrompida]
+
+# Se guarda con /eclipse setcampamento (destino del Pergamino del Campamento)
+campamento: {}

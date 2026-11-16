@@ -1,0 +1,542 @@
+package pe.kydium.eclipserpg.mobs;
+
+import net.kyori.adventure.bossbar.BossBar;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.Block;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Enemy;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Hoglin;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.PiglinAbstract;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import pe.kydium.eclipserpg.EclipseRPG;
+import pe.kydium.eclipserpg.data.PlayerData;
+import pe.kydium.eclipserpg.util.Keys;
+import pe.kydium.eclipserpg.util.Reg;
+import pe.kydium.eclipserpg.util.Txt;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
+
+/** Corrompidos, jefes, corrupción natural de mobs, barras de jefe y recompensas. */
+public final class MobManager implements Listener {
+
+    public record Prize(String item, int amount, boolean once) {}
+
+    public record Drop(String item, int amount, double chance) {}
+
+    public static final class MobDef {
+        public String id;
+        public EntityType type;
+        public String name;
+        public double health;
+        public double damageExtra;   // se suma al daño base del mob
+        public double damage;        // si > 0, reemplaza el daño base
+        public double speed;         // % extra de velocidad (0.2 = +20%)
+        public double scale = 1.0;
+        public boolean boss;
+        public String barColor = "PURPLE";
+        public long xp;
+        public long soles;
+        public final Map<String, String> equipment = new LinkedHashMap<>();
+        public final List<String> effects = new ArrayList<>();
+        public final List<Prize> prizes = new ArrayList<>();
+        public final List<Drop> drops = new ArrayList<>();
+        public final List<String> minions = new ArrayList<>();
+        public int minionCount = 3;
+    }
+
+    public record Tier(double health, double damage, long xp, long soles) {}
+
+    public static final class VanillaBoss {
+        public long xp;
+        public long soles;
+        public double radius = 64;
+        public final List<Prize> prizes = new ArrayList<>();
+    }
+
+    private static final Set<EntityType> NEVER_CORRUPT = Set.of(
+            EntityType.WITHER, EntityType.ENDER_DRAGON, EntityType.WARDEN, EntityType.ELDER_GUARDIAN);
+
+    private final EclipseRPG plugin;
+    private final Map<String, MobDef> defs = new LinkedHashMap<>();
+    private final Map<EntityType, VanillaBoss> vanillaBosses = new HashMap<>();
+    private final List<Tier> tiers = new ArrayList<>();
+    private final Map<String, String> names = new HashMap<>();
+    private final Map<UUID, BossBar> bars = new HashMap<>();
+    private final Map<UUID, Set<UUID>> barViewers = new HashMap<>();
+
+    public MobManager(EclipseRPG plugin) {
+        this.plugin = plugin;
+    }
+
+    // ---------- Carga ----------
+
+    public void load() {
+        defs.clear();
+        vanillaBosses.clear();
+        tiers.clear();
+        names.clear();
+
+        ConfigurationSection cor = plugin.getConfig().getConfigurationSection("corrupcion");
+        if (cor != null) {
+            for (Map<?, ?> m : cor.getMapList("tiers")) {
+                tiers.add(new Tier(num(m.get("vida"), 30), num(m.get("danio"), 2),
+                        (long) num(m.get("xp"), 10), (long) num(m.get("soles"), 2)));
+            }
+            ConfigurationSection n = cor.getConfigurationSection("nombres");
+            if (n != null) for (String k : n.getKeys(false)) names.put(k.toUpperCase(Locale.ROOT), n.getString(k));
+        }
+        if (tiers.isEmpty()) tiers.add(new Tier(30, 2, 10, 2));
+
+        YamlConfiguration y = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "mobs.yml"));
+        ConfigurationSection root = y.getConfigurationSection("mobs");
+        if (root != null) {
+            for (String id : root.getKeys(false)) {
+                ConfigurationSection s = root.getConfigurationSection(id);
+                if (s == null) continue;
+                EntityType type = Reg.entity(s.getString("tipo", "zombie"));
+                if (type == null || !type.isAlive()) {
+                    plugin.getLogger().warning("mobs.yml: tipo inválido en " + id);
+                    continue;
+                }
+                MobDef d = new MobDef();
+                d.id = id;
+                d.type = type;
+                d.name = s.getString("nombre", id);
+                d.health = s.getDouble("vida", 20);
+                d.damageExtra = s.getDouble("danio-extra", 0);
+                d.damage = s.getDouble("danio", 0);
+                d.speed = s.getDouble("velocidad", 0);
+                d.scale = s.getDouble("escala", 1.0);
+                d.boss = s.getBoolean("jefe", false);
+                d.barColor = s.getString("color-barra", d.boss ? "RED" : "PURPLE");
+                d.xp = s.getLong("xp", 10);
+                d.soles = s.getLong("soles", 2);
+                ConfigurationSection eq = s.getConfigurationSection("equipo");
+                if (eq != null) for (String k : eq.getKeys(false)) d.equipment.put(k, eq.getString(k));
+                d.effects.addAll(s.getStringList("efectos"));
+                d.prizes.addAll(readPrizes(s.getMapList("premios")));
+                for (Map<?, ?> m : s.getMapList("botin")) {
+                    Object it = m.get("item");
+                    if (it == null) continue;
+                    d.drops.add(new Drop(it.toString(), (int) num(m.get("cantidad"), 1), num(m.get("probabilidad"), 1)));
+                }
+                d.minions.addAll(s.getStringList("esbirros"));
+                d.minionCount = s.getInt("cantidad-esbirros", 3);
+                defs.put(id, d);
+            }
+        }
+
+        ConfigurationSection vb = y.getConfigurationSection("jefes-vanilla");
+        if (vb != null) {
+            for (String k : vb.getKeys(false)) {
+                EntityType t = Reg.entity(k);
+                ConfigurationSection s = vb.getConfigurationSection(k);
+                if (t == null || s == null) continue;
+                VanillaBoss b = new VanillaBoss();
+                b.xp = s.getLong("xp", 0);
+                b.soles = s.getLong("soles", 0);
+                b.radius = s.getDouble("radio", 64);
+                b.prizes.addAll(readPrizes(s.getMapList("premios")));
+                vanillaBosses.put(t, b);
+            }
+        }
+        plugin.getLogger().info("Mobs cargados: " + defs.size() + " · tiers: " + tiers.size());
+    }
+
+    private List<Prize> readPrizes(List<Map<?, ?>> list) {
+        List<Prize> out = new ArrayList<>();
+        for (Map<?, ?> m : list) {
+            Object it = m.get("item");
+            if (it == null) continue;
+            Object once = m.get("una-vez");
+            out.add(new Prize(it.toString(), (int) num(m.get("cantidad"), 1), once == null || Boolean.parseBoolean(once.toString())));
+        }
+        return out;
+    }
+
+    private static double num(Object o, double def) {
+        if (o == null) return def;
+        try {
+            return Double.parseDouble(o.toString());
+        } catch (NumberFormatException e) {
+            return def;
+        }
+    }
+
+    public Set<String> ids() {
+        return defs.keySet();
+    }
+
+    public MobDef def(String id) {
+        return defs.get(id);
+    }
+
+    public Tier tier(int t) {
+        int i = Math.max(1, Math.min(tiers.size(), t)) - 1;
+        return tiers.get(i);
+    }
+
+    // ---------- Aparición ----------
+
+    public LivingEntity spawn(String id, Location loc) {
+        return spawn(id, loc, 1.0, null, false);
+    }
+
+    /** Hace aparecer un mob de mobs.yml. hpMult y nameOverride sirven para variantes (Guardián de Grieta). */
+    public LivingEntity spawn(String id, Location loc, double hpMult, String nameOverride, boolean forceBar) {
+        MobDef d = defs.get(id);
+        if (d == null || loc.getWorld() == null) return null;
+        Entity ent = loc.getWorld().spawnEntity(loc, d.type);
+        if (!(ent instanceof LivingEntity le)) {
+            ent.remove();
+            return null;
+        }
+        String name = nameOverride != null ? nameOverride : d.name;
+        le.customName(Txt.mm(name));
+        le.setCustomNameVisible(true);
+
+        setBase(le, Attribute.MAX_HEALTH, d.health * hpMult);
+        le.setHealth(Math.min(d.health * hpMult, maxHealth(le)));
+        AttributeInstance dmg = le.getAttribute(Attribute.ATTACK_DAMAGE);
+        if (dmg != null) {
+            if (d.damage > 0) dmg.setBaseValue(d.damage);
+            else dmg.setBaseValue(dmg.getBaseValue() + d.damageExtra);
+        }
+        AttributeInstance spd = le.getAttribute(Attribute.MOVEMENT_SPEED);
+        if (spd != null && d.speed != 0) spd.setBaseValue(spd.getBaseValue() * (1.0 + d.speed));
+        if (d.scale != 1.0) setBase(le, Attribute.SCALE, d.scale);
+        AttributeInstance follow = le.getAttribute(Attribute.FOLLOW_RANGE);
+        if (follow != null) follow.setBaseValue(Math.max(follow.getBaseValue(), 40));
+
+        EntityEquipment eq = le.getEquipment();
+        if (eq != null) {
+            for (Map.Entry<String, String> e : d.equipment.entrySet()) {
+                ItemStack it = resolveItem(e.getValue());
+                if (it == null) continue;
+                switch (e.getKey().toLowerCase(Locale.ROOT)) {
+                    case "mano" -> { eq.setItemInMainHand(it); eq.setItemInMainHandDropChance(0f); }
+                    case "mano2" -> { eq.setItemInOffHand(it); eq.setItemInOffHandDropChance(0f); }
+                    case "casco" -> { eq.setHelmet(it); eq.setHelmetDropChance(0f); }
+                    case "pecho" -> { eq.setChestplate(it); eq.setChestplateDropChance(0f); }
+                    case "piernas" -> { eq.setLeggings(it); eq.setLeggingsDropChance(0f); }
+                    case "pies" -> { eq.setBoots(it); eq.setBootsDropChance(0f); }
+                    default -> { }
+                }
+            }
+        }
+        for (String eff : d.effects) {
+            String[] parts = eff.split(":");
+            PotionEffectType type = Reg.effect(parts[0]);
+            if (type == null) continue;
+            int amp = parts.length > 1 ? Integer.parseInt(parts[1].trim()) : 0;
+            le.addPotionEffect(new PotionEffect(type, PotionEffect.INFINITE_DURATION, amp, false, false));
+        }
+        preventConversion(le);
+        le.setRemoveWhenFarAway(false);
+        if (le instanceof Mob mob) mob.setCanPickupItems(false);
+
+        PersistentDataContainer pdc = le.getPersistentDataContainer();
+        pdc.set(Keys.MOB, PersistentDataType.STRING, d.id);
+        if (hpMult != 1.0) pdc.set(Keys.BOSS_HP, PersistentDataType.DOUBLE, hpMult);
+        if (d.boss || forceBar) createBar(le, name, d.barColor);
+        return le;
+    }
+
+    /** Convierte un mob normal en Corrompido del tier indicado. */
+    public void corrupt(LivingEntity le, int tierNum) {
+        Tier t = tier(tierNum);
+        String typeKey = le.getType().getKey().getKey().toUpperCase(Locale.ROOT);
+        String base = names.getOrDefault(typeKey, Txt.pretty(typeKey));
+        le.customName(Txt.mm("<dark_purple>☠ " + base + " Corrompido <gray>[T" + tierNum + "]"));
+        le.setCustomNameVisible(false);
+        setBase(le, Attribute.MAX_HEALTH, t.health());
+        le.setHealth(Math.min(t.health(), maxHealth(le)));
+        AttributeInstance dmg = le.getAttribute(Attribute.ATTACK_DAMAGE);
+        if (dmg != null) dmg.setBaseValue(dmg.getBaseValue() + t.damage());
+        preventConversion(le);
+        le.getPersistentDataContainer().set(Keys.MOB, PersistentDataType.STRING, "natural");
+        le.getPersistentDataContainer().set(Keys.TIER, PersistentDataType.INTEGER, tierNum);
+    }
+
+    private void preventConversion(LivingEntity le) {
+        if (le instanceof PiglinAbstract pa) pa.setImmuneToZombification(true);
+        if (le instanceof Hoglin h) h.setImmuneToZombification(true);
+    }
+
+    private static void setBase(LivingEntity le, Attribute a, double v) {
+        AttributeInstance inst = le.getAttribute(a);
+        if (inst != null) inst.setBaseValue(v);
+    }
+
+    private static double maxHealth(LivingEntity le) {
+        AttributeInstance inst = le.getAttribute(Attribute.MAX_HEALTH);
+        return inst == null ? 20 : inst.getValue();
+    }
+
+    private ItemStack resolveItem(String spec) {
+        if (spec == null) return null;
+        if (spec.startsWith("custom:")) return plugin.items().create(spec.substring(7), 1);
+        Material m = Material.matchMaterial(spec);
+        return m == null ? null : new ItemStack(m);
+    }
+
+    /** Busca un lugar libre cerca del jugador para que aparezca un mob. */
+    public Location spawnSpot(Location center, int radius) {
+        World w = center.getWorld();
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        for (int tries = 0; tries < 12; tries++) {
+            int dx = r.nextInt(-radius, radius + 1);
+            int dz = r.nextInt(-radius, radius + 1);
+            if (Math.abs(dx) < 2 && Math.abs(dz) < 2) continue;
+            int bx = center.getBlockX() + dx;
+            int bz = center.getBlockZ() + dz;
+            for (int dy = 3; dy >= -4; dy--) {
+                int by = center.getBlockY() + dy;
+                Block feet = w.getBlockAt(bx, by, bz);
+                Block head = feet.getRelative(0, 1, 0);
+                Block ground = feet.getRelative(0, -1, 0);
+                if (feet.isPassable() && head.isPassable() && ground.getType().isSolid() && !feet.isLiquid()) {
+                    return new Location(w, bx + 0.5, by, bz + 0.5);
+                }
+            }
+        }
+        return center.clone();
+    }
+
+    // ---------- Barras de jefe ----------
+
+    private void createBar(LivingEntity le, String name, String color) {
+        BossBar.Color c;
+        try {
+            c = BossBar.Color.valueOf(color.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException e) {
+            c = BossBar.Color.RED;
+        }
+        bars.put(le.getUniqueId(), BossBar.bossBar(Txt.mm(name), 1f, c, BossBar.Overlay.NOTCHED_10));
+        barViewers.put(le.getUniqueId(), new HashSet<>());
+    }
+
+    public void startBarTask() {
+        Bukkit.getScheduler().runTaskTimer(plugin, this::tickBars, 20L, 10L);
+    }
+
+    private void tickBars() {
+        for (UUID id : new ArrayList<>(bars.keySet())) {
+            BossBar bar = bars.get(id);
+            Entity ent = Bukkit.getEntity(id);
+            Set<UUID> viewers = barViewers.get(id);
+            if (!(ent instanceof LivingEntity le) || le.isDead() || !le.isValid()) {
+                removeBar(id);
+                continue;
+            }
+            bar.progress((float) Math.max(0, Math.min(1, le.getHealth() / maxHealth(le))));
+            for (Player p : le.getWorld().getPlayers()) {
+                boolean near = p.getLocation().distanceSquared(le.getLocation()) < 48 * 48;
+                if (near && viewers.add(p.getUniqueId())) p.showBossBar(bar);
+                else if (!near && viewers.remove(p.getUniqueId())) p.hideBossBar(bar);
+            }
+            viewers.removeIf(u -> {
+                Player p = Bukkit.getPlayer(u);
+                if (p == null) return true;
+                if (p.getWorld() != le.getWorld()) {
+                    p.hideBossBar(bar);
+                    return true;
+                }
+                return false;
+            });
+        }
+    }
+
+    private void removeBar(UUID id) {
+        BossBar bar = bars.remove(id);
+        Set<UUID> viewers = barViewers.remove(id);
+        if (bar == null || viewers == null) return;
+        for (UUID u : viewers) {
+            Player p = Bukkit.getPlayer(u);
+            if (p != null) p.hideBossBar(bar);
+        }
+    }
+
+    public void cleanup() {
+        for (UUID id : new ArrayList<>(bars.keySet())) removeBar(id);
+    }
+
+    // ---------- Eventos ----------
+
+    @EventHandler(ignoreCancelled = true)
+    public void onNaturalSpawn(CreatureSpawnEvent e) {
+        if (e.getSpawnReason() != CreatureSpawnEvent.SpawnReason.NATURAL) return;
+        LivingEntity le = e.getEntity();
+        if (!(le instanceof Enemy) || NEVER_CORRUPT.contains(le.getType())) return;
+        double chance = plugin.getConfig().getDouble("corrupcion.probabilidad", 0.12);
+        if (ThreadLocalRandom.current().nextDouble() >= chance) return;
+        double radius = plugin.getConfig().getDouble("corrupcion.radio-jugador", 64);
+        Player nearest = null;
+        double best = radius * radius;
+        for (Player p : le.getWorld().getPlayers()) {
+            double d = p.getLocation().distanceSquared(le.getLocation());
+            if (d < best) {
+                best = d;
+                nearest = p;
+            }
+        }
+        if (nearest == null) return;
+        corrupt(le, plugin.levels().tier(nearest));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onDamage(EntityDamageEvent e) {
+        if (!(e.getEntity() instanceof LivingEntity le)) return;
+        String id = le.getPersistentDataContainer().get(Keys.MOB, PersistentDataType.STRING);
+        if (id == null) return;
+        MobDef d = defs.get(id);
+        if (d == null || d.minions.isEmpty()) return;
+        if (le.getPersistentDataContainer().has(Keys.PHASE, PersistentDataType.BYTE)) return;
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (le.isDead() || le.getHealth() > maxHealth(le) / 2) return;
+            if (le.getPersistentDataContainer().has(Keys.PHASE, PersistentDataType.BYTE)) return;
+            le.getPersistentDataContainer().set(Keys.PHASE, PersistentDataType.BYTE, (byte) 1);
+            for (Player p : le.getWorld().getPlayers()) {
+                if (p.getLocation().distanceSquared(le.getLocation()) < 48 * 48) {
+                    Txt.send(p, "<red>¡" + d.name + "<red> invoca refuerzos!");
+                    Txt.sound(p, "entity.evoker.prepare_summon", 1f, 0.8f);
+                }
+            }
+            for (int i = 0; i < d.minionCount; i++) {
+                String m = d.minions.get(ThreadLocalRandom.current().nextInt(d.minions.size()));
+                spawn(m, spawnSpot(le.getLocation(), 4));
+            }
+        });
+    }
+
+    @EventHandler
+    public void onDeath(EntityDeathEvent e) {
+        LivingEntity le = e.getEntity();
+        removeBar(le.getUniqueId());
+        String id = le.getPersistentDataContainer().get(Keys.MOB, PersistentDataType.STRING);
+        Player killer = le.getKiller();
+
+        VanillaBoss vb = vanillaBosses.get(le.getType());
+        if (id == null && vb != null) {
+            for (Player p : participants(le, vb.radius, killer)) {
+                plugin.levels().reward(p, vb.xp, vb.soles);
+                givePrizes(p, vb.prizes, le.getType().getKey().getKey());
+            }
+            return;
+        }
+        if (id == null) return;
+
+        if (id.equals("natural")) {
+            if (killer == null) return;
+            Integer t = le.getPersistentDataContainer().get(Keys.TIER, PersistentDataType.INTEGER);
+            Tier tier = tier(t == null ? 1 : t);
+            plugin.levels().reward(killer, tier.xp(), tier.soles());
+            maybeDropFragment(e, killer, plugin.getConfig().getDouble("corrupcion.prob-fragmento", 0.01));
+            return;
+        }
+
+        MobDef d = defs.get(id);
+        if (d == null) return;
+        Double mult = le.getPersistentDataContainer().get(Keys.BOSS_HP, PersistentDataType.DOUBLE);
+        double m = mult == null ? 1.0 : mult;
+        if (d.boss) {
+            for (Player p : participants(le, 32, killer)) {
+                plugin.levels().reward(p, d.xp, d.soles);
+                givePrizes(p, d.prizes, d.id);
+                Txt.send(p, "<gold>¡Derrotaste a " + d.name + "<gold>!");
+                Txt.sound(p, "ui.toast.challenge_complete", 1f, 1f);
+            }
+        } else if (killer != null) {
+            plugin.levels().reward(killer, Math.round(d.xp * m), Math.round(d.soles * m));
+        }
+        if (killer != null) {
+            double luck = plugin.levels().lootMultiplier(killer);
+            for (Drop dr : d.drops) {
+                if (ThreadLocalRandom.current().nextDouble() < dr.chance() * luck) {
+                    ItemStack it = resolveItem(dr.item().contains(":") ? dr.item() : "custom:" + dr.item());
+                    if (it != null) {
+                        it.setAmount(dr.amount());
+                        e.getDrops().add(it);
+                    }
+                }
+            }
+        }
+    }
+
+    private void maybeDropFragment(EntityDeathEvent e, Player killer, double chance) {
+        if (ThreadLocalRandom.current().nextDouble() < chance * plugin.levels().lootMultiplier(killer)) {
+            ItemStack frag = plugin.items().create("fragmento_mejora", 1);
+            if (frag != null) e.getDrops().add(frag);
+        }
+    }
+
+    private List<Player> participants(LivingEntity le, double radius, Player killer) {
+        List<Player> out = new ArrayList<>();
+        for (Player p : le.getWorld().getPlayers()) {
+            if (p.getGameMode() == GameMode.SPECTATOR) continue;
+            if (p.getLocation().distanceSquared(le.getLocation()) <= radius * radius) out.add(p);
+        }
+        if (killer != null && !out.contains(killer)) out.add(killer);
+        return out;
+    }
+
+    /** Entrega premios; los marcados "una-vez" solo se dan la primera vez a cada jugador. */
+    private void givePrizes(Player p, List<Prize> prizes, String source) {
+        PlayerData data = plugin.data().get(p);
+        long compensation = plugin.getConfig().getLong("jefes.soles-si-repite", 200);
+        boolean compensated = false;
+        for (Prize pr : prizes) {
+            String key = source + ":" + pr.item();
+            if (pr.once() && data.rewards.contains(key)) {
+                if (!compensated && compensation > 0) {
+                    plugin.levels().addSoles(p, compensation);
+                    Txt.send(p, "<gray>Ya tenías el premio de este jefe: recibes <yellow>" + compensation + " ☀</yellow>.");
+                    compensated = true;
+                }
+                continue;
+            }
+            ItemStack it = plugin.items().create(pr.item(), pr.amount());
+            if (it == null) {
+                Material mat = Material.matchMaterial(pr.item());
+                if (mat != null) it = new ItemStack(mat, pr.amount());
+            }
+            if (it == null) continue;
+            plugin.items().give(p, it);
+            if (pr.once()) data.rewards.add(key);
+            data.dirty = true;
+        }
+    }
+}

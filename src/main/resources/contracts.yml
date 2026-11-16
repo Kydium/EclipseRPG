@@ -1,0 +1,105 @@
+# =========================================================
+#  Contratos diarios (Capitana Inés). Cada jugador recibe 3 al día.
+#  tipo: CORROMPIDOS | MATAR | MINAR | PESCAR
+#  objetivo: lista separada por comas (ids de Minecraft). Vacío = cualquiera.
+#  cantidad pedida = cantidad + por-tier x (tier - 1)
+#  recompensa = xp-por-tier x tier y soles-por-tier x tier
+# =========================================================
+contratos:
+  cazador_corrompidos:
+    nombre: "Cazador de Corrompidos"
+    tipo: CORROMPIDOS
+    cantidad: 10
+    por-tier: 2
+    xp-por-tier: 80
+    soles-por-tier: 30
+    icono: IRON_SWORD
+  zombis:
+    nombre: "Limpieza de zombis"
+    tipo: MATAR
+    objetivo: "zombie,husk,drowned,zombie_villager"
+    cantidad: 15
+    por-tier: 3
+    xp-por-tier: 60
+    soles-por-tier: 25
+    icono: ROTTEN_FLESH
+  esqueletos:
+    nombre: "Huesos rotos"
+    tipo: MATAR
+    objetivo: "skeleton,stray,bogged,wither_skeleton"
+    cantidad: 12
+    por-tier: 2
+    xp-por-tier: 60
+    soles-por-tier: 25
+    icono: BONE
+  aranas:
+    nombre: "Telarañas fuera"
+    tipo: MATAR
+    objetivo: "spider,cave_spider"
+    cantidad: 12
+    por-tier: 2
+    xp-por-tier: 55
+    soles-por-tier: 22
+    icono: STRING
+  creepers:
+    nombre: "Sin explosiones"
+    tipo: MATAR
+    objetivo: "creeper"
+    cantidad: 8
+    por-tier: 1
+    xp-por-tier: 70
+    soles-por-tier: 28
+    icono: GUNPOWDER
+  endermans:
+    nombre: "Miradas del Fin"
+    tipo: MATAR
+    objetivo: "enderman"
+    cantidad: 4
+    por-tier: 1
+    xp-por-tier: 90
+    soles-por-tier: 35
+    icono: ENDER_PEARL
+  hierro:
+    nombre: "Hierro para la forja"
+    tipo: MINAR
+    objetivo: "iron_ore,deepslate_iron_ore"
+    cantidad: 16
+    por-tier: 2
+    xp-por-tier: 50
+    soles-por-tier: 25
+    icono: RAW_IRON
+  carbon:
+    nombre: "Carbón para el invierno"
+    tipo: MINAR
+    objetivo: "coal_ore,deepslate_coal_ore"
+    cantidad: 32
+    por-tier: 4
+    xp-por-tier: 40
+    soles-por-tier: 20
+    icono: COAL
+  diamantes:
+    nombre: "Brillo en la oscuridad"
+    tipo: MINAR
+    objetivo: "diamond_ore,deepslate_diamond_ore"
+    cantidad: 3
+    por-tier: 0
+    xp-por-tier: 100
+    soles-por-tier: 40
+    icono: DIAMOND
+  lenador:
+    nombre: "Leña para el campamento"
+    tipo: MINAR
+    objetivo: "oak_log,spruce_log,birch_log,jungle_log,acacia_log,dark_oak_log,mangrove_log,cherry_log,pale_oak_log"
+    cantidad: 48
+    por-tier: 4
+    xp-por-tier: 40
+    soles-por-tier: 20
+    icono: OAK_LOG
+  pesca:
+    nombre: "Pesca del día"
+    tipo: PESCAR
+    cantidad: 8
+    por-tier: 1
+    xp-por-tier: 50
+    soles-por-tier: 25
+    icono: FISHING_ROD

@@ -1,0 +1,284 @@
+# =========================================================
+#  Objetos únicos de Crónicas del Eclipse
+#  OJO: si un objeto tiene "atributos", Minecraft quita los atributos
+#  normales del material. Por eso aquí se escriben los valores completos
+#  (ej. espada de hierro = +5 de daño y -2.4 de velocidad de ataque + el extra).
+#  slot: mainhand | offhand | head | chest | legs | feet | armor | any
+#  operacion: add_number (suma) | add_scalar (porcentaje del valor base)
+# =========================================================
+items:
+
+  # ---------------- Fragmentos y utilidades ----------------
+  fragmento_mejora:
+    material: AMETHYST_SHARD
+    nombre: "<light_purple>Fragmento de Mejora"
+    lore: ["<gray>Llévalo a Bruno el Herrero para", "<gray>subir +1 de daño a un arma única."]
+    brillo: true
+
+  pergamino_campamento:
+    material: PAPER
+    nombre: "<yellow>Pergamino del Campamento"
+    lore: ["<gray>Clic derecho: vuelves al", "<gray>Campamento del Alba."]
+    brillo: true
+    accion: campamento
+
+  fragmento_solar_1:
+    material: GOLD_NUGGET
+    nombre: "<gold>Fragmento Solar I"
+    lore: ["<gray>Un pedazo de la Corona Solar.", "<dark_gray>Entrégaselo a la Abuela Tula."]
+    brillo: true
+  fragmento_solar_2:
+    material: GOLD_NUGGET
+    nombre: "<gold>Fragmento Solar II"
+    lore: ["<gray>Un pedazo de la Corona Solar.", "<dark_gray>Entrégaselo a la Abuela Tula."]
+    brillo: true
+  fragmento_solar_3:
+    material: GOLD_NUGGET
+    nombre: "<gold>Fragmento Solar III"
+    lore: ["<gray>Un pedazo de la Corona Solar.", "<dark_gray>Entrégaselo a la Abuela Tula."]
+    brillo: true
+  fragmento_solar_4:
+    material: GOLD_NUGGET
+    nombre: "<gold>Fragmento Solar IV"
+    lore: ["<gray>Un pedazo de la Corona Solar.", "<dark_gray>Entrégaselo a la Abuela Tula."]
+    brillo: true
+  fragmento_solar_5:
+    material: GOLD_NUGGET
+    nombre: "<gold>Fragmento Solar V"
+    lore: ["<gray>Un pedazo de la Corona Solar.", "<dark_gray>Entrégaselo a la Abuela Tula."]
+    brillo: true
+  fragmento_solar_6:
+    material: GOLD_NUGGET
+    nombre: "<gold>Fragmento Solar VI"
+    lore: ["<gray>Un pedazo de la Corona Solar.", "<dark_gray>Entrégaselo a la Abuela Tula."]
+    brillo: true
+  fragmento_solar_7:
+    material: GOLD_NUGGET
+    nombre: "<gold>Fragmento Solar VII"
+    lore: ["<gray>Un pedazo de la Corona Solar.", "<dark_gray>Entrégaselo a la Abuela Tula."]
+    brillo: true
+  fragmento_solar_8:
+    material: GOLD_NUGGET
+    nombre: "<gold>Fragmento Solar VIII"
+    lore: ["<gray>Un pedazo de la Corona Solar.", "<dark_gray>Entrégaselo a la Abuela Tula."]
+    brillo: true
+  fragmento_solar_9:
+    material: GOLD_NUGGET
+    nombre: "<gold>Fragmento Solar IX"
+    lore: ["<gray>Un pedazo de la Corona Solar.", "<dark_gray>Entrégaselo a la Abuela Tula."]
+    brillo: true
+  fragmento_solar_10:
+    material: GOLD_NUGGET
+    nombre: "<gold>Fragmento Solar X"
+    lore: ["<gray>Un pedazo de la Corona Solar.", "<dark_gray>Entrégaselo a la Abuela Tula."]
+    brillo: true
+
+  # ---------------- Armas de los jefes ----------------
+  hoja_del_alba:                      # Acto 1 — Rondador Podrido
+    material: IRON_SWORD
+    nombre: "<gold><bold>Hoja del Alba"
+    lore: ["<gray>Forjada con la última luz", "<gray>antes del eclipse.", "", "<yellow>En la mano: Visión nocturna"]
+    irrompible: true
+    mejorable: true
+    efecto-en-mano: night_vision
+    encantamientos: {sharpness: 2}
+    atributos:
+      - {atributo: attack_damage, valor: 8, slot: mainhand}     # 5 normal + 3
+      - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+
+  pico_minero_perdido:                # Acto 2 — Capataz Hueso
+    material: IRON_PICKAXE
+    nombre: "<aqua><bold>Pico del Minero Perdido"
+    lore: ["<gray>Su dueño nunca salió de la mina."]
+    irrompible: true
+    mejorable: true
+    encantamientos: {efficiency: 4, fortune: 2}
+    atributos:
+      - {atributo: attack_damage, valor: 3, slot: mainhand}
+      - {atributo: attack_speed, valor: -2.8, slot: mainhand}
+      - {atributo: block_break_speed, valor: 0.4, operacion: add_scalar, slot: mainhand}
+
+  ballesta_vigia:                     # Acto 3 — Heraldo de la Mancha
+    material: CROSSBOW
+    nombre: "<green><bold>Ballesta del Vigía"
+    lore: ["<gray>Nunca falla un disparo", "<gray>contra la oscuridad."]
+    irrompible: true
+    encantamientos: {quick_charge: 3, piercing: 3}
+
+  tridente_marea_negra:               # Acto 4 — Ahogado Coronado
+    material: TRIDENT
+    nombre: "<dark_aqua><bold>Tridente de la Marea Negra"
+    lore: ["<gray>Arrancado de la corona", "<gray>de un rey ahogado."]
+    irrompible: true
+    mejorable: true
+    encantamientos: {loyalty: 3, channeling: 1, impaling: 3}
+    atributos:
+      - {atributo: attack_damage, valor: 12, slot: mainhand}    # 8 normal + 4
+      - {atributo: attack_speed, valor: -2.9, slot: mainhand}
+      - {atributo: oxygen_bonus, valor: 2, slot: mainhand}
+
+  botas_viento_seco:                  # Acto 5 — Bruja de las Dunas
+    material: DIAMOND_BOOTS
+    nombre: "<yellow><bold>Botas del Viento Seco"
+    lore: ["<gray>Corren como la arena", "<gray>en una tormenta."]
+    irrompible: true
+    encantamientos: {protection: 3, feather_falling: 4}
+    atributos:
+      - {atributo: armor, valor: 3, slot: feet}
+      - {atributo: armor_toughness, valor: 2, slot: feet}
+      - {atributo: movement_speed, valor: 0.15, operacion: add_scalar, slot: feet}
+      - {atributo: step_height, valor: 1, slot: feet}
+
+  hacha_ignea:                        # Acto 6 — Señor de Brasas
+    material: DIAMOND_AXE
+    nombre: "<red><bold>Hacha Ígnea"
+    lore: ["<gray>Aún arde con el fuego", "<gray>del Nether."]
+    irrompible: true
+    mejorable: true
+    encantamientos: {fire_aspect: 2, sharpness: 4}
+    atributos:
+      - {atributo: attack_damage, valor: 13, slot: mainhand}    # 8 normal + 5
+      - {atributo: attack_speed, valor: -3.0, slot: mainhand}
+      - {atributo: armor, valor: 2, slot: mainhand}
+
+  mazo_trueno:                        # Acto 7 — Viento Encadenado
+    material: MACE
+    nombre: "<white><bold>Mazo del Trueno"
+    lore: ["<gray>Golpea como una tormenta."]
+    irrompible: true
+    mejorable: true
+    encantamientos: {breach: 3, wind_burst: 2}
+    atributos:
+      - {atributo: attack_damage, valor: 8, slot: mainhand}     # 5 normal + 3
+      - {atributo: attack_speed, valor: -3.34, slot: mainhand}  # +10% de velocidad
+
+  capa_silencio:                      # Acto 8 — Sombra de Velkar
+    material: LEATHER_CHESTPLATE
+    color: "1A1A1A"
+    nombre: "<dark_gray><bold>Capa del Silencio"
+    lore: ["<gray>Tejida con ecos de", "<gray>la Ciudad Antigua."]
+    irrompible: true
+    encantamientos: {protection: 4}
+    atributos:
+      - {atributo: armor, valor: 8, slot: chest}
+      - {atributo: armor_toughness, valor: 3, slot: chest}
+      - {atributo: max_health, valor: 2, slot: chest}
+      - {atributo: sneaking_speed, valor: 0.45, slot: chest}
+
+  armadura_ceniza_casco:       # Acto 9 — El Wither (4 piezas)
+    material: NETHERITE_HELMET
+    nombre: "<dark_red><bold>Yelmo de la Ceniza"
+    lore: ["<gray>Parte de la Armadura de la Ceniza."]
+    irrompible: true
+    encantamientos: {protection: 4, thorns: 2}
+    atributos:
+      - {atributo: armor, valor: 3, slot: head}
+      - {atributo: armor_toughness, valor: 3, slot: head}
+      - {atributo: knockback_resistance, valor: 0.15, slot: head}
+      - {atributo: max_health, valor: 2, slot: head}
+
+  armadura_ceniza_pechera:
+    material: NETHERITE_CHESTPLATE
+    nombre: "<dark_red><bold>Coraza de la Ceniza"
+    lore: ["<gray>Parte de la Armadura de la Ceniza."]
+    irrompible: true
+    encantamientos: {protection: 4, thorns: 2}
+    atributos:
+      - {atributo: armor, valor: 8, slot: chest}
+      - {atributo: armor_toughness, valor: 3, slot: chest}
+      - {atributo: knockback_resistance, valor: 0.15, slot: chest}
+      - {atributo: max_health, valor: 2, slot: chest}
+
+  armadura_ceniza_grebas:
+    material: NETHERITE_LEGGINGS
+    nombre: "<dark_red><bold>Grebas de la Ceniza"
+    lore: ["<gray>Parte de la Armadura de la Ceniza."]
+    irrompible: true
+    encantamientos: {protection: 4, thorns: 2}
+    atributos:
+      - {atributo: armor, valor: 6, slot: legs}
+      - {atributo: armor_toughness, valor: 3, slot: legs}
+      - {atributo: knockback_resistance, valor: 0.15, slot: legs}
+      - {atributo: max_health, valor: 2, slot: legs}
+
+  armadura_ceniza_botas:
+    material: NETHERITE_BOOTS
+    nombre: "<dark_red><bold>Botas de la Ceniza"
+    lore: ["<gray>Parte de la Armadura de la Ceniza."]
+    irrompible: true
+    encantamientos: {protection: 4, thorns: 2}
+    atributos:
+      - {atributo: armor, valor: 3, slot: feet}
+      - {atributo: armor_toughness, valor: 3, slot: feet}
+      - {atributo: knockback_resistance, valor: 0.15, slot: feet}
+      - {atributo: max_health, valor: 2, slot: feet}
+
+  espada_amanecer_eterno:             # Acto 10 — final "Restaurar el sol"
+    material: NETHERITE_SWORD
+    nombre: "<gold><bold>Espada del Amanecer Eterno"
+    lore: ["<gray>La Corona Solar renacida", "<gray>en forma de espada."]
+    irrompible: true
+    mejorable: true
+    brillo: true
+    encantamientos: {sharpness: 5, looting: 3, fire_aspect: 2}
+    atributos:
+      - {atributo: attack_damage, valor: 17, slot: mainhand}    # 7 normal + 10
+      - {atributo: attack_speed, valor: -2.08, slot: mainhand}  # +20% de velocidad
+      - {atributo: max_health, valor: 4, slot: mainhand}
+
+  baculo_velkar:                      # Acto 10 — final "Perdonar a Velkar"
+    material: BLAZE_ROD
+    nombre: "<dark_purple><bold>Báculo de Velkar"
+    lore: ["<gray>El arrepentimiento de un mago", "<gray>convertido en poder."]
+    mejorable: true
+    brillo: true
+    encantamientos: {knockback: 2, fire_aspect: 2}
+    atributos:
+      - {atributo: attack_damage, valor: 12, slot: mainhand}
+      - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+      - {atributo: entity_interaction_range, valor: 4, slot: mainhand}
+
+  # ---------------- Mercado oscuro (El Errante) ----------------
+  amuleto_vida:
+    material: HEART_OF_THE_SEA
+    nombre: "<red><bold>Amuleto del Corazón Eterno"
+    lore: ["<gray>Llévalo en la mano izquierda."]
+    brillo: true
+    atributos:
+      - {atributo: max_health, valor: 6, slot: offhand}
+
+  pata_suerte:
+    material: RABBIT_FOOT
+    nombre: "<green><bold>Pata de la Buena Suerte"
+    lore: ["<gray>Llévala en la mano izquierda."]
+    brillo: true
+    atributos:
+      - {atributo: luck, valor: 2, slot: offhand}
+      - {atributo: attack_damage, valor: 2, slot: offhand}
+
+  arco_cazador:
+    material: BOW
+    nombre: "<gold><bold>Arco del Cazador de Sombras"
+    irrompible: true
+    encantamientos: {power: 5, punch: 2, infinity: 1, flame: 1}
+
+  pico_terremoto:
+    material: NETHERITE_PICKAXE
+    nombre: "<gray><bold>Pico Terremoto"
+    irrompible: true
+    encantamientos: {efficiency: 5, fortune: 3}
+    atributos:
+      - {atributo: attack_damage, valor: 5, slot: mainhand}
+      - {atributo: attack_speed, valor: -2.8, slot: mainhand}
+      - {atributo: block_break_speed, valor: 0.6, operacion: add_scalar, slot: mainhand}
+
+  botas_saltarinas:
+    material: NETHERITE_BOOTS
+    nombre: "<aqua><bold>Botas Saltarinas"
+    irrompible: true
+    encantamientos: {feather_falling: 4, protection: 3}
+    atributos:
+      - {atributo: armor, valor: 3, slot: feet}
+      - {atributo: armor_toughness, valor: 3, slot: feet}
+      - {atributo: jump_strength, valor: 0.2, operacion: add_scalar, slot: feet}
+      - {atributo: safe_fall_distance, valor: 6, slot: feet}
