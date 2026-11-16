@@ -26,7 +26,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /** Ruinas corruptas pequeñas que aparecen al explorar terreno nuevo. */
 public final class RuinManager implements Listener {
 
-    private record Ruin(String world, int x, int y, int z) {}
+    private record Ruin(String world, int x, int y, int z, int chx, int chy, int chz) {}
 
     private final EclipseRPG plugin;
     private final List<Ruin> pending = new ArrayList<>();
@@ -47,7 +47,10 @@ public final class RuinManager implements Listener {
         YamlConfiguration y = YamlConfiguration.loadConfiguration(file);
         for (String s : y.getStringList("pendientes")) {
             String[] p = s.split(";");
-            if (p.length == 4) pending.add(new Ruin(p[0], Integer.parseInt(p[1]), Integer.parseInt(p[2]), Integer.parseInt(p[3])));
+            if (p.length == 4) pending.add(new Ruin(p[0], Integer.parseInt(p[1]), Integer.parseInt(p[2]), Integer.parseInt(p[3]),
+                    Integer.parseInt(p[1]) + 1, Integer.parseInt(p[2]), Integer.parseInt(p[3])));
+            else if (p.length == 7) pending.add(new Ruin(p[0], Integer.parseInt(p[1]), Integer.parseInt(p[2]), Integer.parseInt(p[3]),
+                    Integer.parseInt(p[4]), Integer.parseInt(p[5]), Integer.parseInt(p[6])));
         }
         created = y.getInt("creadas", 0);
     }
@@ -55,7 +58,7 @@ public final class RuinManager implements Listener {
     public void save() {
         YamlConfiguration y = new YamlConfiguration();
         List<String> out = new ArrayList<>();
-        for (Ruin r : pending) out.add(r.world() + ";" + r.x() + ";" + r.y() + ";" + r.z());
+        for (Ruin r : pending) out.add(r.world() + ";" + r.x() + ";" + r.y() + ";" + r.z() + ";" + r.chx() + ";" + r.chy() + ";" + r.chz());
         y.set("pendientes", out);
         y.set("creadas", created);
         try {
@@ -91,45 +94,47 @@ public final class RuinManager implements Listener {
         Bukkit.getScheduler().runTaskLater(plugin, () -> build(w, x, z), 2L);
     }
 
+    private final java.util.Map<String, org.bukkit.block.data.BlockData> cache = new java.util.HashMap<>();
+
+    private org.bukkit.block.data.BlockData data(String state) {
+        return cache.computeIfAbsent(state, k -> {
+            try {
+                return Bukkit.createBlockData("minecraft:" + k);
+            } catch (IllegalArgumentException e) {
+                try {
+                    return Bukkit.createBlockData("minecraft:" + (k.contains("[") ? k.substring(0, k.indexOf('[')) : k));
+                } catch (IllegalArgumentException e2) {
+                    return Material.STONE_BRICKS.createBlockData();
+                }
+            }
+        });
+    }
+
     private void build(World w, int cx, int cz) {
         if (!w.isChunkLoaded(cx >> 4, cz >> 4)) return;
         Block top = w.getHighestBlockAt(cx, cz, HeightMap.MOTION_BLOCKING_NO_LEAVES);
         Material ground = top.getType();
         if (top.isLiquid() || ground == Material.ICE || !ground.isSolid()) return;
         boolean desert = ground == Material.SAND || ground == Material.RED_SAND || ground == Material.SANDSTONE;
-        Material[] floor = desert
-                ? new Material[]{Material.SANDSTONE, Material.CUT_SANDSTONE, Material.SMOOTH_SANDSTONE}
-                : new Material[]{Material.MOSSY_STONE_BRICKS, Material.CRACKED_STONE_BRICKS, Material.STONE_BRICKS, Material.MOSSY_COBBLESTONE};
-        Material pillar = desert ? Material.CHISELED_SANDSTONE : Material.CHISELED_STONE_BRICKS;
         ThreadLocalRandom r = ThreadLocalRandom.current();
+        RuinBuilder.Variant v = RuinBuilder.Variant.values()[r.nextInt(RuinBuilder.Variant.values().length)];
+        RuinBuilder.Result res = new RuinBuilder(r.nextLong(), desert).build(v);
         int y = top.getY();
-        for (int dx = -3; dx <= 3; dx++) {
-            for (int dz = -3; dz <= 3; dz++) {
-                int x = cx + dx, z = cz + dz;
-                // base sólida hasta el suelo
-                for (int yy = y; yy >= y - 3; yy--) {
-                    Block b = w.getBlockAt(x, yy, z);
-                    if (b.getType().isSolid() && yy < y) break;
-                    b.setType(floor[r.nextInt(floor.length)], false);
-                }
-                for (int yy = y + 1; yy <= y + 5; yy++) w.getBlockAt(x, yy, z).setType(Material.AIR, false);
-                boolean edge = Math.abs(dx) == 3 || Math.abs(dz) == 3;
-                boolean corner = Math.abs(dx) == 3 && Math.abs(dz) == 3;
-                if (corner) {
-                    int h = 3 + r.nextInt(3);
-                    for (int yy = y + 1; yy <= y + h; yy++) w.getBlockAt(x, yy, z).setType(pillar, false);
-                } else if (edge && r.nextDouble() < 0.6) {
-                    int h = 1 + r.nextInt(3);
-                    for (int yy = y + 1; yy <= y + h; yy++) w.getBlockAt(x, yy, z).setType(floor[r.nextInt(floor.length)], false);
-                } else if (!edge && r.nextDouble() < 0.06) {
-                    w.getBlockAt(x, y + 1, z).setType(Material.COBWEB, false);
+        for (java.util.Map.Entry<String, String> e : res.blocks.entrySet()) {
+            String[] p = e.getKey().split(",");
+            int x = cx + Integer.parseInt(p[0]), yy = y + Integer.parseInt(p[1]), z = cz + Integer.parseInt(p[2]);
+            w.getBlockAt(x, yy, z).setBlockData(data(e.getValue()), false);
+            // rellenar debajo del suelo de la ruina para que no quede flotando
+            if (Integer.parseInt(p[1]) == 0) {
+                for (int dy = 1; dy <= 4; dy++) {
+                    Block below = w.getBlockAt(x, yy - dy, z);
+                    if (below.getType().isSolid()) break;
+                    below.setType(desert ? Material.SANDSTONE : Material.COBBLESTONE, false);
                 }
             }
         }
-        w.getBlockAt(cx, y + 1, cz).setType(Material.CRYING_OBSIDIAN, false);
-        w.getBlockAt(cx, y + 2, cz).setType(Material.SOUL_LANTERN, false);
-        w.getBlockAt(cx + 1, y + 1, cz).setType(Material.CHEST, false);
-        pending.add(new Ruin(w.getName(), cx, y + 1, cz));
+        pending.add(new Ruin(w.getName(), cx + res.altarX, y + res.altarY, cz + res.altarZ,
+                cx + res.chestX, y + res.chestY, cz + res.chestZ));
         created++;
         if (created % 5 == 0) save();
     }
@@ -180,7 +185,7 @@ public final class RuinManager implements Listener {
             LivingEntity le = plugin.mobs().spawn(id, plugin.mobs().spawnSpot(at, 4));
             if (le != null) le.setRemoveWhenFarAway(true);
         }
-        Block chest = w.getBlockAt(ru.x() + 1, ru.y(), ru.z());
+        Block chest = w.getBlockAt(ru.chx(), ru.chy(), ru.chz());
         if (chest.getState() instanceof Chest c) plugin.dungeons().fillLoot(c.getBlockInventory(), tier, 1);
     }
 }

@@ -8,12 +8,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.block.Dispenser;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.Directional;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
@@ -70,7 +68,13 @@ public final class DungeonManager implements Listener {
         long emptySince;
         boolean doorsClosed;
         boolean spawning;
+        final Set<UUID> inside = new HashSet<>();
     }
+
+    private static final String[] AMBIENT = {"ambient.cave", "entity.warden.heartbeat", "ambient.soul_sand_valley.mood",
+            "ambient.basalt_deltas.mood", "entity.zombie.ambient", "block.chain.step", "entity.skeleton.ambient", "ambient.crimson_forest.mood"};
+    private static final String[] WHISPERS = {"…no deberías estar aquí…", "…el eclipse te ve…", "…nadie sale igual que entró…",
+            "…los huesos recuerdan…", "…más abajo… más oscuro…", "…tu luz se apaga…"};
 
     private final EclipseRPG plugin;
     private final Map<Integer, Dungeon> dungeons = new HashMap<>();
@@ -163,13 +167,31 @@ public final class DungeonManager implements Listener {
         return t == null ? null : t.getString("jefe");
     }
 
-    private List<Material> mats(ConfigurationSection t, String key) {
-        List<Material> out = new ArrayList<>();
+    private List<String> mats(ConfigurationSection t, String key) {
+        List<String> out = new ArrayList<>();
         for (String s : t.getStringList(key)) {
-            Material m = Material.matchMaterial(s);
-            if (m != null && m.isBlock()) out.add(m);
+            Material m = Material.matchMaterial(s.contains("[") ? s.substring(0, s.indexOf('[')) : s);
+            if (m != null && m.isBlock()) out.add(s.toLowerCase());
         }
         return out;
+    }
+
+    private final Map<String, BlockData> dataCache = new HashMap<>();
+
+    private BlockData data(String state) {
+        return dataCache.computeIfAbsent(state, k -> {
+            String full = k.contains(":") ? k : "minecraft:" + k;
+            try {
+                return Bukkit.createBlockData(full);
+            } catch (IllegalArgumentException e) {
+                try {
+                    return Bukkit.createBlockData(full.contains("[") ? full.substring(0, full.indexOf('[')) : full);
+                } catch (IllegalArgumentException e2) {
+                    plugin.getLogger().warning("Bloque desconocido en mazmorra: " + k);
+                    return Material.STONE_BRICKS.createBlockData();
+                }
+            }
+        });
     }
 
     // ---------- Construcción ----------
@@ -220,7 +242,7 @@ public final class DungeonManager implements Listener {
             // terreno más o menos plano alrededor de la entrada
             int hMin = top.getY(), hMax = top.getY();
             boolean wet = false;
-            for (int[] o2 : new int[][]{{6, 0}, {-6, 0}, {0, 6}, {0, -6}}) {
+            for (int[] o2 : new int[][]{{6, 0}, {-6, 0}, {0, 6}, {0, -6}, {12, 0}, {18, 0}}) {
                 Block b2 = w.getHighestBlockAt(x + o2[0], z + o2[1], HeightMap.MOTION_BLOCKING_NO_LEAVES);
                 if (b2.isLiquid()) wet = true;
                 hMin = Math.min(hMin, b2.getY());
@@ -242,8 +264,14 @@ public final class DungeonManager implements Listener {
         th.ceiling = mats(t, "techo");
         th.accent = mats(t, "acento");
         th.decor = mats(t, "decoracion");
-        Material light = Material.matchMaterial(t.getString("luz", "glowstone"));
-        if (light != null) th.light = light;
+        th.light = t.getString("luz", "glowstone");
+        th.stairs = t.getString("escalera", "stone_brick_stairs");
+        th.slab = t.getString("losa", "stone_brick_slab");
+        th.wallBlock = t.getString("muro", "cobblestone_wall");
+        th.hazard = t.getString("peligro", "lava");
+        th.dimLight = t.getString("luz-tenue", "soul_lantern");
+        th.blood = t.getString("sangre", "nether_wart_block");
+        th.treasure = t.getString("tesoro", "gold_block");
         int floorY = surface - depth;
         DungeonBuilder builder = new DungeonBuilder(w.getSeed() + act, th, spot.getBlockX(), floorY, spot.getBlockZ(), surface);
         DungeonBuilder.Result res = builder.build(g == null ? 7 : g.getInt("salas-min", 7), g == null ? 10 : g.getInt("salas-max", 10));
@@ -278,7 +306,8 @@ public final class DungeonManager implements Listener {
             for (int i = idx[0]; i < end; i++) {
                 DungeonBuilder.Op op = ops.get(i);
                 Block b = w.getBlockAt(op.x(), op.y(), op.z());
-                b.setType(op.mat(), false);
+                boolean fluid = op.block().equals("lava") || op.block().equals("water");
+                b.setBlockData(data(op.block()), fluid);
                 if (op.special() != DungeonBuilder.Special.NONE) specials.add(op);
             }
             idx[0] = end;
@@ -306,11 +335,6 @@ public final class DungeonManager implements Listener {
                     }
                 }
                 case TRAP_DISPENSER -> {
-                    BlockData data = b.getBlockData();
-                    if (data instanceof Directional dir) {
-                        dir.setFacing(BlockFace.UP);
-                        b.setBlockData(dir, false);
-                    }
                     if (b.getState() instanceof Dispenser disp) disp.getInventory().addItem(new ItemStack(Material.ARROW, 64));
                 }
                 default -> { }
@@ -413,6 +437,23 @@ public final class DungeonManager implements Listener {
                 if (d.bounds.contains(p.getLocation())) inside.add(p);
             }
             for (Player p : inside) plugin.quests().addProgress(p, Quest.Type.MAZMORRA, String.valueOf(d.act), 1, false);
+            // ambiente: título al entrar, sonidos y susurros
+            Set<UUID> now2 = new HashSet<>();
+            for (Player p : inside) {
+                now2.add(p.getUniqueId());
+                if (!d.inside.contains(p.getUniqueId())) {
+                    p.showTitle(Title.title(Txt.mm(name(d.act)), Txt.mm("<dark_gray><italic>" + WHISPERS[ThreadLocalRandom.current().nextInt(WHISPERS.length)]),
+                            Title.Times.times(Duration.ofMillis(800), Duration.ofSeconds(3), Duration.ofMillis(1200))));
+                    Txt.sound(p, "ambient.cave", 1f, 0.6f);
+                } else if (ThreadLocalRandom.current().nextDouble() < 0.02) {
+                    Txt.sound(p, AMBIENT[ThreadLocalRandom.current().nextInt(AMBIENT.length)], 0.8f, 0.5f + ThreadLocalRandom.current().nextFloat() * 0.4f);
+                    if (ThreadLocalRandom.current().nextDouble() < 0.3) {
+                        p.sendActionBar(Txt.mm("<dark_gray><italic>" + WHISPERS[ThreadLocalRandom.current().nextInt(WHISPERS.length)]));
+                    }
+                }
+            }
+            d.inside.clear();
+            d.inside.addAll(now2);
 
             for (Room r : d.rooms) {
                 r.mobs.removeIf(u -> {

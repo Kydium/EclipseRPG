@@ -3,6 +3,9 @@
 #  La mazmorra de un acto se construye la primera vez que alguien acepta
 #  la misión del jefe de ese acto, a cierta distancia del campamento.
 #  Bloques: ids de Minecraft. botin: "spec cantidad probabilidad(0-1)"
+#  escalera/losa/muro: bloques de la escalera de entrada, arcos y barandas
+#  peligro: lo que hay al fondo de los abismos · luz-tenue: faroles colgantes
+#  sangre: manchas del suelo · tesoro: bloques de la sala del tesoro y el trono
 # =========================================================
 general:
   distancia-min: 250            # bloques desde el campamento
@@ -31,6 +34,13 @@ mazmorras:
     acento: [cracked_stone_bricks, chiseled_stone_bricks]
     luz: jack_o_lantern
     decoracion: [cobweb, skeleton_skull, moss_carpet]
+    escalera: stone_brick_stairs
+    losa: stone_brick_slab
+    muro: mossy_stone_brick_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: nether_wart_block
+    tesoro: gold_block
     botin:
       - "BREAD 6 0.8"
       - "IRON_INGOT 4 0.7"
@@ -48,6 +58,13 @@ mazmorras:
     acento: [deepslate_iron_ore, deepslate_coal_ore, deepslate_gold_ore]
     luz: glowstone
     decoracion: [cobweb, rail, skeleton_skull]
+    escalera: deepslate_brick_stairs
+    losa: deepslate_brick_slab
+    muro: cobbled_deepslate_wall
+    peligro: lava
+    luz-tenue: lantern
+    sangre: nether_wart_block
+    tesoro: raw_gold_block
     botin:
       - "IRON_INGOT 8 0.8"
       - "GOLD_INGOT 6 0.6"
@@ -64,6 +81,13 @@ mazmorras:
     acento: [mossy_cobblestone, white_wool]
     luz: shroomlight
     decoracion: [cobweb, crafting_table, barrel]
+    escalera: dark_oak_stairs
+    losa: dark_oak_slab
+    muro: cobblestone_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: red_wool
+    tesoro: emerald_block
     botin:
       - "EMERALD 6 0.8"
       - "DIAMOND 2 0.5"
@@ -80,6 +104,13 @@ mazmorras:
     acento: [sea_lantern, dark_prismarine]
     luz: sea_lantern
     decoracion: [dried_kelp_block, sea_pickle, wet_sponge]
+    escalera: prismarine_brick_stairs
+    losa: prismarine_brick_slab
+    muro: prismarine_wall
+    peligro: water
+    luz-tenue: soul_lantern
+    sangre: nether_wart_block
+    tesoro: gold_block
     botin:
       - "PRISMARINE_SHARD 12 0.7"
       - "DIAMOND 3 0.5"
@@ -96,6 +127,13 @@ mazmorras:
     acento: [chiseled_sandstone, orange_terracotta]
     luz: ochre_froglight
     decoracion: [dead_bush, decorated_pot, cobweb]
+    escalera: sandstone_stairs
+    losa: sandstone_slab
+    muro: sandstone_wall
+    peligro: lava
+    luz-tenue: lantern
+    sangre: red_terracotta
+    tesoro: gold_block
     botin:
       - "GOLD_INGOT 10 0.7"
       - "DIAMOND 4 0.5"
@@ -112,6 +150,13 @@ mazmorras:
     acento: [magma_block, red_nether_bricks]
     luz: shroomlight
     decoracion: [nether_wart_block, soul_campfire, magma_block]
+    escalera: nether_brick_stairs
+    losa: nether_brick_slab
+    muro: nether_brick_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: nether_wart_block
+    tesoro: gold_block
     botin:
       - "BLAZE_ROD 4 0.7"
       - "NETHER_WART 8 0.6"
@@ -128,6 +173,13 @@ mazmorras:
     acento: [waxed_cut_copper, waxed_chiseled_copper]
     luz: pearlescent_froglight
     decoracion: [cobweb, decorated_pot, waxed_copper_grate]
+    escalera: tuff_brick_stairs
+    losa: tuff_brick_slab
+    muro: tuff_brick_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: nether_wart_block
+    tesoro: waxed_copper_block
     botin:
       - "BREEZE_ROD 2 0.6"
       - "WIND_CHARGE 8 0.6"
@@ -144,6 +196,13 @@ mazmorras:
     acento: [sculk, polished_basalt]
     luz: soul_lantern
     decoracion: [sculk_catalyst, candle, skeleton_skull]
+    escalera: deepslate_tile_stairs
+    losa: deepslate_tile_slab
+    muro: deepslate_tile_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: sculk
+    tesoro: diamond_block
     botin:
       - "ECHO_SHARD 2 0.6"
       - "DIAMOND 6 0.6"
@@ -160,6 +219,13 @@ mazmorras:
     acento: [gilded_blackstone, gold_block]
     luz: glowstone
     decoracion: [chain, soul_lantern, cobweb]
+    escalera: polished_blackstone_brick_stairs
+    losa: polished_blackstone_brick_slab
+    muro: polished_blackstone_brick_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: nether_wart_block
+    tesoro: gold_block
     botin:
       - "GOLD_BLOCK 2 0.6"
       - "ANCIENT_DEBRIS 2 0.4"
@@ -176,6 +242,13 @@ mazmorras:
     acento: [purpur_pillar, obsidian]
     luz: pearlescent_froglight
     decoracion: [end_rod, purple_carpet, obsidian]
+    escalera: purpur_stairs
+    losa: purpur_slab
+    muro: end_stone_brick_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: crying_obsidian
+    tesoro: amethyst_block
     botin:
       - "DIAMOND 8 0.7"
       - "NETHERITE_INGOT 1 0.3"
