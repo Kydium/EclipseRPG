@@ -139,6 +139,10 @@ public final class ResourcePack implements Listener {
         server = null;
     }
 
+    public HttpServer server() {
+        return server;
+    }
+
     public int port() {
         return port;
     }

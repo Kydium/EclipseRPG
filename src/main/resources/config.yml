@@ -158,3 +158,8 @@ npc-paseo:
 # Al borrar la carpeta "world" el plugin lo detecta: rehace la aldea, NPCs, mazmorras y ruinas.
 # Si esto es true, también reinicia el nivel y misiones de todos los jugadores.
 reiniciar-progreso-con-mundo-nuevo: true
+
+# Editor visual de historias (se abre en el navegador con /historia editor)
+editor:
+  activo: true
+  token: ""                     # se genera solo; es la "contraseña" del link del editor

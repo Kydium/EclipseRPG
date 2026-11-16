@@ -20,7 +20,7 @@ import java.util.Locale;
 /** /historia — crear, revisar, recargar y cambiar historias sin tocar el código. */
 public final class StoryCommand implements org.bukkit.command.CommandExecutor, TabCompleter, Listener {
 
-    private static final List<String> SUBS = List.of("info", "recargar", "revisar", "errores", "colocar", "skins", "lugares",
+    private static final List<String> SUBS = List.of("info", "editor", "recargar", "revisar", "errores", "colocar", "skins", "lugares",
             "lista", "nueva", "usar");
     private final EclipseRPG plugin;
 
@@ -36,6 +36,16 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
         StoryManager st = plugin.story();
         switch (sub) {
             case "info" -> info(s);
+            case "editor" -> {
+                if (plugin.editor() == null || plugin.resourcePack().server() == null) {
+                    Txt.send(s, "<red>El editor no está disponible (el puerto del servidor web no se pudo abrir). Mira la consola.");
+                    return true;
+                }
+                String url = plugin.editor().url(s instanceof Player p ? p : null);
+                s.sendMessage(Txt.mm("<gold>✎ Editor visual: </gold><aqua><u><click:open_url:'" + url + "'>clic aquí para abrirlo</click></u>"));
+                Txt.send(s, "<gray>Ábrelo en el navegador de la PC donde está el servidor (o de un amigo con Tailscale).");
+                Txt.send(s, "<dark_gray>No compartas este link: permite editar la historia.");
+            }
             case "recargar" -> {
                 boolean force = a.length > 1 && a[1].equalsIgnoreCase("forzar");
                 StoryParser.Result r = plugin.reloadStory(force);
@@ -148,7 +158,7 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
                     showProblems(s, r.problems(), 8, true);
                     return true;
                 }
-                resetQuests();
+                resetQuests(plugin);
                 Txt.send(s, "<green>✔ Ahora se juega <white>" + r.doc().title + "<green>. Las misiones empiezan de cero.");
             }
             default -> Txt.send(s, "<yellow>Subcomandos: <white>" + String.join(", ", SUBS));
@@ -166,7 +176,7 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
         long err = st.errorCount(), warn = st.problems().size() - err;
         Txt.send(s, err > 0 ? "<red>✖ " + err + " error(es) <gray>— /historia errores" : "<green>✔ Sin errores" + (warn > 0 ? " <yellow>(" + warn + " avisos)" : ""));
         Txt.send(s, "<gray>Archivo: <white>plugins/EclipseRPG/historias/" + st.id() + "/historia.txt");
-        Txt.send(s, "<gray>Comandos: <white>revisar · recargar · errores · colocar · skins · lugares · lista · nueva · usar");
+        Txt.send(s, "<gray>Comandos: <white>editor · revisar · recargar · errores · colocar · skins · lugares · lista · nueva · usar");
         Txt.send(s, LINE);
     }
 
@@ -187,7 +197,7 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
         return m.replace("<", "\\<");
     }
 
-    private void resetQuests() {
+    public static void resetQuests(EclipseRPG plugin) {
         for (Player p : Bukkit.getOnlinePlayers()) {
             PlayerData d = plugin.data().get(p);
             d.questIndex = 0;

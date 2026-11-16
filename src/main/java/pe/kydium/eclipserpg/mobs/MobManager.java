@@ -78,6 +78,7 @@ public final class MobManager implements Listener {
         public final List<Drop> drops = new ArrayList<>();
         public final List<String> minions = new ArrayList<>();
         public int minionCount = 3;
+        public double regen;          // vida que recupera por segundo
         public double armor;
         public double toughness;
         public double knockbackResist;
@@ -166,6 +167,7 @@ public final class MobManager implements Listener {
                 }
                 d.minions.addAll(s.getStringList("esbirros"));
                 d.minionCount = s.getInt("cantidad-esbirros", 3);
+                d.regen = s.getDouble("regeneracion", 0);
                 d.armor = s.getDouble("armadura", 0);
                 d.toughness = s.getDouble("dureza", 0);
                 d.knockbackResist = s.getDouble("resistencia-empuje", d.boss ? 0.8 : 0);
@@ -433,6 +435,26 @@ public final class MobManager implements Listener {
             Player p = Bukkit.getPlayer(u);
             if (p != null) p.hideBossBar(bar);
         }
+    }
+
+    /** Regeneración de vida de los mobs que la tienen (regeneracion: vida por segundo). */
+    public void startRegenTask() {
+        org.bukkit.Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            boolean any = false;
+            for (MobDef d : defs.values()) if (d.regen > 0) any = true;
+            if (!any) return;
+            for (org.bukkit.World w : org.bukkit.Bukkit.getWorlds()) {
+                for (LivingEntity le : w.getLivingEntities()) {
+                    String id = le.getPersistentDataContainer().get(Keys.MOB, PersistentDataType.STRING);
+                    if (id == null) continue;
+                    MobDef d = defs.get(id);
+                    if (d == null || d.regen <= 0 || le.isDead()) continue;
+                    Double div = le.getPersistentDataContainer().get(Keys.DMG_DIV, PersistentDataType.DOUBLE);
+                    double heal = d.regen / (div == null ? 1 : div);
+                    le.setHealth(Math.min(maxHealth(le), le.getHealth() + heal));
+                }
+            }
+        }, 40L, 20L);
     }
 
     public void cleanup() {

@@ -169,7 +169,7 @@ public final class SmokeTest {
     private void tick() {
         ticks++;
         try {
-            if (ticks > 900) {
+            if (ticks > 1100) {
                 fail("tiempo agotado en la etapa " + stage);
                 finish();
                 return;
@@ -202,8 +202,12 @@ public final class SmokeTest {
                 case 3 -> {
                     if (plugin.dungeons().isBuilt(1)) {
                         checkDungeon();
-                        finish();
+                        stage = 4;
+                        Bukkit.getScheduler().runTaskAsynchronously(plugin, this::checkEditor);
                     }
+                }
+                case 4 -> {
+                    if (editorDone) finish();
                 }
                 default -> { }
             }
@@ -360,6 +364,64 @@ public final class SmokeTest {
         int n = 0;
         for (ItemStack it : items) if (it != null && !it.getType().isAir()) n++;
         return n;
+    }
+
+    private volatile boolean editorDone;
+
+    /** Prueba la API del editor visual (desde otro hilo, como lo haría el navegador). */
+    private void checkEditor() {
+        try {
+            var http = java.net.http.HttpClient.newBuilder().proxy(java.net.ProxySelector.of(null)).build();
+            String base = "http://127.0.0.1:" + plugin.resourcePack().port();
+            String tok = plugin.editor().token();
+            java.util.function.BiFunction<String, String, java.net.http.HttpResponse<String>> get = (path, t) -> {
+                try {
+                    var b = java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + path)).timeout(java.time.Duration.ofSeconds(40));
+                    if (t != null) b.header("X-Token", t);
+                    return http.send(b.build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            };
+            var page = get.apply("/editor", null);
+            check(page.statusCode() == 200 && page.body().contains("Editor de historias"), "el servidor entrega el editor visual");
+            check(get.apply("/api/catalogo", "malo").statusCode() == 401, "el editor rechaza a quien no tiene el código");
+            var cat = com.google.gson.JsonParser.parseString(get.apply("/api/catalogo", tok).body()).getAsJsonObject();
+            check(cat.getAsJsonArray("skins").size() >= 67 && cat.getAsJsonArray("materiales").size() > 500
+                    && cat.getAsJsonArray("entidades").size() > 30, "el editor recibe el catálogo (skins, materiales, criaturas)");
+            String text = com.google.gson.JsonParser.parseString(get.apply("/api/texto", tok).body()).getAsJsonObject().get("texto").getAsString();
+            var rev = http.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + "/api/revisar")).header("X-Token", tok)
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(text)).build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            var rj = com.google.gson.JsonParser.parseString(rev.body()).getAsJsonObject();
+            check(rj.get("errores").getAsInt() == 0 && rj.get("misiones").getAsInt() == 110, "el editor revisa la historia (0 errores, 110 misiones)");
+            var bad = http.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + "/api/revisar")).header("X-Token", tok)
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString("HISTORIA: x\nMISIÓN y\n  objetivo: bailar\n")).build(),
+                    java.net.http.HttpResponse.BodyHandlers.ofString());
+            check(com.google.gson.JsonParser.parseString(bad.body()).getAsJsonObject().get("errores").getAsInt() > 0, "el editor detecta errores");
+            // jefes: leer y volver a guardar sin cambios
+            int before = plugin.mobs().ids().size();
+            var mobs = com.google.gson.JsonParser.parseString(get.apply("/api/yaml?archivo=mobs", tok).body()).getAsJsonObject().get("datos");
+            var put = http.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + "/api/yaml?archivo=mobs")).header("X-Token", tok)
+                    .PUT(java.net.http.HttpRequest.BodyPublishers.ofString(mobs.toString())).build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            var apply = http.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + "/api/aplicar")).header("X-Token", tok)
+                    .POST(java.net.http.HttpRequest.BodyPublishers.noBody()).build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            var aj = com.google.gson.JsonParser.parseString(apply.body()).getAsJsonObject();
+            int after = Bukkit.getScheduler().callSyncMethod(plugin, () -> plugin.mobs().ids().size()).get();
+            check(put.statusCode() == 200 && aj.get("aplicado").getAsBoolean() && after == before,
+                    "guardar jefes desde el editor y aplicar funciona (" + before + " → " + after + ")");
+            // skin desde un link
+            var sk = http.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + "/api/skin?nombre=prueba_link&url="
+                    + java.net.URLEncoder.encode("https://raw.githubusercontent.com/Kydium/EclipseRPG/main/src/main/resources/skins/pirata.png",
+                    java.nio.charset.StandardCharsets.UTF_8))).header("X-Token", tok).POST(java.net.http.HttpRequest.BodyPublishers.noBody()).build(),
+                    java.net.http.HttpResponse.BodyHandlers.ofString());
+            boolean has = Bukkit.getScheduler().callSyncMethod(plugin, () -> plugin.story().skins().containsKey("prueba_link")).get();
+            check(sk.statusCode() == 200 && has, "subir una skin desde un link funciona (" + sk.statusCode() + ")");
+        } catch (Exception e) {
+            fail("la API del editor falló: " + e);
+            e.printStackTrace();
+        } finally {
+            editorDone = true;
+        }
     }
 
     private void checkReload() {

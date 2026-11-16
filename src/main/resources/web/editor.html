@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor de historias · EclipseRPG</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%227%22 fill=%22%23e0b354%22/%3E%3C/svg%3E">
+<style>
+:root{--bg:#14110f;--panel:#1d1915;--panel2:#25201b;--line:#3a3128;--line2:#4d4135;--text:#efe6d6;--muted:#a89a85;--dim:#7a6e5e;--gold:#e0b354;--gold2:#c8973a;--red:#e2645a;--green:#7cc36a;--blue:#6fb0e8;--purple:#b48ae6;--r:8px}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--gold)}
+.app{display:grid;grid-template-rows:56px 1fr;height:100vh}
+.top{display:flex;align-items:center;gap:12px;padding:0 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.2px}
+.logo .sun{width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#ffe39a,#e0b354 55%,#a8722a);box-shadow:0 0 0 3px #3a2c16}
+.top .sp{flex:1}
+.pill{font-size:12px;padding:3px 10px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+.pill.warn{color:#f3c96b;border-color:#6b5520}.pill.bad{color:#ff9a90;border-color:#6b2a24}.pill.good{color:#a6e39a;border-color:#2f5a26}
+.btn{border:1px solid var(--line2);background:var(--panel2);padding:7px 14px;border-radius:var(--r);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.btn:hover{border-color:var(--gold2)}
+.btn.pri{background:linear-gradient(#e7bd5f,#c8973a);border-color:#e7bd5f;color:#231a0c;font-weight:600}
+.btn.pri:hover{filter:brightness(1.07)}
+.btn.sm{padding:4px 9px;font-size:12px}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--text);border-color:var(--line)}
+.btn.danger:hover{border-color:var(--red);color:var(--red)}
+.main{display:grid;grid-template-columns:210px 1fr;min-height:0}
+.nav{background:var(--panel);border-right:1px solid var(--line);padding:12px 8px;display:flex;flex-direction:column;gap:2px;overflow:auto}
+.nav button{all:unset;cursor:pointer;padding:9px 12px;border-radius:var(--r);display:flex;align-items:center;gap:10px;color:var(--muted)}
+.nav button:hover{background:var(--panel2);color:var(--text)}
+.nav button.on{background:#2f2619;color:var(--gold)}
+.nav .cnt{margin-left:auto;font-size:11px;color:var(--dim)}
+.nav hr{border:0;border-top:1px solid var(--line);margin:10px 4px}
+.nav .ic{width:18px;text-align:center}
+.view{display:grid;grid-template-columns:300px 1fr;min-height:0}
+.view.single{grid-template-columns:1fr}
+.list{border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:#181410}
+.list .head{padding:12px;display:flex;gap:8px;border-bottom:1px solid var(--line)}
+.list .head input{flex:1}
+.list .items{overflow:auto;flex:1;padding:6px}
+.li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);cursor:pointer;border:1px solid transparent}
+.li:hover{background:var(--panel2)}
+.li.on{background:#2f2619;border-color:#5a4520}
+.li .t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .s{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .num{font-size:11px;color:var(--dim);min-width:26px}
+.li .err{margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--red);flex:none}
+.grp{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:var(--gold2);padding:12px 10px 4px}
+.form{overflow:auto;padding:22px 28px 60px;min-width:0}
+.form h2{margin:0 0 4px;font-size:20px;font-weight:600}
+.form .sub{color:var(--muted);margin:0 0 18px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.card h3{margin:0 0 12px;font-size:14px;color:var(--gold);font-weight:600;display:flex;align-items:center;gap:8px}
+.card h3 .hint{color:var(--dim);font-weight:400;font-size:12px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:12px}
+.row:last-child{margin-bottom:0}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted)}
+input[type=text],input[type=number],input[type=url],input:not([type]),select,textarea{background:#120f0c;border:1px solid var(--line2);border-radius:var(--r);padding:7px 10px;outline:none;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--gold2);box-shadow:0 0 0 3px #e0b35422}
+textarea{resize:vertical;min-height:38px}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;user-select:none}
+.chk input{width:16px;height:16px;accent-color:var(--gold)}
+.lines{display:flex;flex-direction:column;gap:6px}
+.ln{display:flex;gap:6px;align-items:flex-start}
+.ln>*:first-child{flex:1}
+.ln .btn{padding:6px 8px}
+.rows{display:flex;flex-direction:column;gap:8px}
+.rw{display:grid;gap:8px;align-items:end;background:#181410;border:1px solid var(--line);border-radius:var(--r);padding:10px}
+.empty{color:var(--dim);font-style:italic;padding:6px 0}
+.skinbox{display:flex;gap:16px;align-items:center}
+.skinbox canvas{background:#120f0c;border:1px solid var(--line2);border-radius:var(--r);image-rendering:pixelated}
+.toast{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;z-index:50}
+.toast div{background:var(--panel2);border:1px solid var(--line2);border-left:4px solid var(--gold);padding:10px 14px;border-radius:var(--r);max-width:420px;box-shadow:0 8px 24px #0008}
+.toast .bad{border-left-color:var(--red)}.toast .good{border-left-color:var(--green)}
+.modal{position:fixed;inset:0;background:#000a;display:flex;align-items:center;justify-content:center;z-index:40;padding:20px}
+.modal .box{background:var(--panel);border:1px solid var(--line2);border-radius:14px;width:min(920px,100%);max-height:90vh;display:flex;flex-direction:column}
+.modal .mh{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.modal .mh h3{margin:0;flex:1;font-size:16px}
+.modal .mb{padding:16px 18px;overflow:auto}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px}
+.gal .sk{background:#181410;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center;cursor:pointer}
+.gal .sk:hover{border-color:var(--gold2)}.gal .sk.on{border-color:var(--gold);background:#2f2619}
+.gal .sk canvas{width:64px;height:128px;image-rendering:pixelated}
+.gal .sk div{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.probs{display:flex;flex-direction:column;gap:6px}
+.prob{display:flex;gap:10px;padding:9px 12px;border-radius:var(--r);background:#181410;border:1px solid var(--line);cursor:pointer}
+.prob:hover{border-color:var(--line2)}
+.prob .k{font-weight:600;min-width:52px}
+.prob.e .k{color:var(--red)}.prob.w .k{color:#f3c96b}
+.prob .where{color:var(--dim);font-size:12px}
+.swatch{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px;border:1px solid #0006}
+.kbd{font-family:ui-monospace,monospace;font-size:12px;background:#120f0c;border:1px solid var(--line2);border-radius:5px;padding:1px 6px;color:var(--gold)}
+.preview{font-family:ui-monospace,monospace;font-size:12px;color:var(--muted);background:#120f0c;border:1px dashed var(--line2);border-radius:var(--r);padding:6px 10px;margin-top:6px;white-space:pre-wrap;word-break:break-word}
+.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.stat div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:22px;color:var(--gold)}
+.stat span{font-size:12px;color:var(--muted)}
+.mm{display:inline-block;padding:2px 8px;border-radius:5px;background:#120f0c;border:1px solid var(--line)}
+.lock{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:14px;text-align:center;padding:20px}
+@media (max-width:900px){.main{grid-template-columns:1fr}.nav{flex-direction:row;overflow:auto}.nav hr,.nav .cnt{display:none}.view{grid-template-columns:1fr}.list{max-height:240px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+// =====================================================================
+//  Editor visual de historias — EclipseRPG
+//  Lee y escribe historia.txt y los archivos avanzados a través del servidor.
+// =====================================================================
+const TOKEN = new URLSearchParams(location.search).get("t") || localStorage.getItem("erpg_token") || "";
+if (TOKEN) localStorage.setItem("erpg_token", TOKEN);
+
+const COLORS = {verde:"#55ff55","verde oscuro":"#00aa00",rojo:"#ff5555","rojo oscuro":"#aa0000",azul:"#5555ff","azul oscuro":"#0000aa",celeste:"#55ffff",turquesa:"#00aaaa",amarillo:"#ffff55",dorado:"#ffaa00",morado:"#aa00aa",rosa:"#ff55ff",blanco:"#ffffff",gris:"#aaaaaa","gris oscuro":"#555555",negro:"#222222"};
+const MM_COLORS = {green:"verde",dark_green:"verde oscuro",red:"rojo",dark_red:"rojo oscuro",blue:"azul",dark_blue:"azul oscuro",aqua:"celeste",dark_aqua:"turquesa",yellow:"amarillo",gold:"dorado",dark_purple:"morado",light_purple:"rosa",white:"blanco",gray:"gris",dark_gray:"gris oscuro",black:"negro"};
+const ES_TO_MM = Object.fromEntries(Object.entries(MM_COLORS).map(([a,b])=>[b,a]));
+const OBJ_TYPES = [
+  ["matar","Matar enemigos","mata"],["derrotar","Derrotar a un jefe","derrota a"],["minar","Minar o talar","mina"],
+  ["tener","Tener en el inventario","ten"],["entregar","Entregar al NPC","entrega"],["fundir","Fundir en horno","funde"],
+  ["pescar","Pescar","pesca"],["domesticar","Domesticar","domestica"],["encantar","Encantar","encanta"],
+  ["ir","Ir a una dimensión","ve al"],["hablar","Hablar con un NPC","habla con"],["mazmorra","Explorar una mazmorra","explora la mazmorra"]];
+const VERB = {};
+[["matar","matar mata mate elimina eliminar caza cazar acaba acabar asesina"],["derrotar","derrota derrotar derrote vence vencer venza"],
+ ["minar","minar mina mine picar pica romper rompe talar tala tale cavar cava cosechar cosecha recolectar recolecta extraer extrae"],
+ ["tener","tener ten tenga conseguir consigue consiga reunir reune junta juntar obtener obten obtenga craftear craftea fabricar fabrica crear crea forjar forja construir construye"],
+ ["entregar","entregar entrega entregue traer trae traiga llevar lleva lleve dar da"],["fundir","fundir funde funda cocinar cocina cocine hornear hornea asar asa"],
+ ["pescar","pescar pesca pesque"],["domesticar","domesticar domestica domar doma adoptar adopta"],["encantar","encantar encanta encante"],
+ ["ir","entrar entra entre ir ve vaya viajar viaja visitar visita llegar llega cruzar cruza"],["hablar","hablar habla hable conversar conversa"],
+ ["mazmorra","encontrar encuentra encuentre explorar explora descubrir descubre completa completar mazmorra"]].forEach(([t,w])=>w.split(" ").forEach(v=>VERB[v]=t));
+const NUMS = {un:1,una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12,quince:15,veinte:20,treinta:30,cuarenta:40,cincuenta:50,cien:100};
+const ABILITIES = {ONDA:"Onda de choque",SALTO:"Salto aplastante",TELEPORTE:"Teletransporte",INVOCAR:"Invocar esbirros",FLECHAS:"Lluvia de flechas",FUEGO:"Bolas de fuego",RAYO:"Rayo",ATRAER:"Atraer jugadores",EFECTO:"Aplicar efecto"};
+const BARS = ["RED","PURPLE","BLUE","GREEN","YELLOW","PINK","WHITE"];
+const SLOTS = {mano:"Mano",mano2:"Otra mano",casco:"Casco",pecho:"Pecho",piernas:"Piernas",pies:"Pies"};
+
+// ------------------------------------------------------------------ estado
+const st = {cat:null, story:null, yaml:{}, yamlDirty:{}, txtDirty:false, view:"inicio", sel:{}, filter:{}, probs:[], ranges:null, busy:false};
+
+// ------------------------------------------------------------------ utilidades
+const $ = s => document.querySelector(s);
+function h(tag, attrs, ...kids){
+  const e = document.createElement(tag);
+  if (attrs) for (const [k,v] of Object.entries(attrs)){
+    if (v==null || v===false) continue;
+    if (k==="class") e.className=v; else if (k==="style") e.style.cssText=v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (k==="value") e.value=v; else if (k==="checked") e.checked=!!v;
+    else e.setAttribute(k, v===true?"":v);
+  }
+  for (const k of kids.flat(9)) if (k!=null && k!==false) e.append(k.nodeType?k:document.createTextNode(String(k)));
+  return e;
+}
+function norm(s){return (s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/ñ/g,"n").replace(/[^a-z0-9_*: -]/g," ").replace(/\s+/g," ").trim()}
+function slug(s){return norm(s).replace(/ /g,"_").replace(/[^a-z0-9_]/g,"")}
+function toast(msg, kind){const d=h("div",{class:kind||""},msg);$("#toast").append(d);setTimeout(()=>d.remove(), kind==="bad"?7000:3500)}
+function num(w){if(/^\d{1,6}$/.test(w))return +w;return NUMS[w]}
+function cap(s){s=(s||"").trim();return s?s[0].toUpperCase()+s.slice(1):s}
+async function api(path, opt={}){
+  const r = await fetch("/api/"+path, {...opt, headers:{"X-Token":TOKEN, ...(opt.headers||{})}});
+  let j=null; try{ j = await r.json(); }catch(e){}
+  if (!r.ok) throw new Error((j&&j.mensaje)||("Error "+r.status));
+  return j;
+}
+function markTxt(){ st.txtDirty=true; scheduleCheck(); updateTop(); }
+function markYaml(n){ st.yamlDirty[n]=true; updateTop(); }
+let checkTimer=null;
+function scheduleCheck(){ clearTimeout(checkTimer); checkTimer=setTimeout(check, 1200); }
+
+// ------------------------------------------------------------------ historia.txt  <->  modelo
+function parseStory(text){
+  const S={title:"",desc:"",village:"",currency:"",acts:[],npcs:[],missions:[],head:[]};
+  let npc=null, m=null, act=1;
+  const lines=text.replace(/\r/g,"").split("\n");
+  for (let raw of lines){
+    const t=raw.trim(); if(!t||t.startsWith("#")||t.startsWith("//")) continue;
+    const head=norm(t).replace(/:/g," ").replace(/\s+/g," ");
+    const after=()=>{const i=t.indexOf(":");return i<0?"":t.slice(i+1).trim()};
+    if (/^historia /.test(head)&&t.includes(":")){S.title=after();npc=m=null;continue}
+    if (head.startsWith("descripcion")&&t.includes(":")){S.desc=after();continue}
+    if (head.startsWith("aldea")&&t.includes(":")){S.village=after();continue}
+    if (head.startsWith("moneda")&&t.includes(":")){S.currency=after();continue}
+    if (/^acto /.test(head)){const r=t.slice(4).trim();const i=r.indexOf(":");act=parseInt(i<0?r:r.slice(0,i))||act;S.acts.push({n:act,name:i<0?"":r.slice(i+1).trim()});npc=m=null;continue}
+    if (/^npc /.test(head)&&!/^\s/.test(raw)){const r=t.slice(4).trim();const i=r.indexOf(":");npc={id:slug(i<0?r:r.slice(0,i)),nombre:i<0?cap(r):r.slice(i+1).trim(),color:"blanco",skin:"",oficio:"",lugar:"",objeto:"",otra:"",servicios:[],charla:[],otros:[]};S.npcs.push(npc);m=null;continue}
+    if (/^mision( |:)/.test(head)&&!/^\s/.test(raw)){const name=t.slice(6).replace(/^[:\s]+/,"").trim();m={titulo:name,acto:act,npc:"",nivel:"",jefe:false,sinMorir:false,mazmorra:"",dice:[],final:[],recuerda:[],objetivos:[],premio:"",recibe:"",aparecen:[],elecciones:[],otros:[]};S.missions.push(m);npc=null;continue}
+    const c=t.indexOf(":"); if(c<0) continue;
+    const key=norm(t.slice(0,c)), val=t.slice(c+1).trim();
+    if (npc){
+      if(key==="nombre")npc.nombre=val;else if(key==="color")npc.color=norm(val)||val;else if(["skin","aspecto","apariencia"].includes(key))npc.skin=val;
+      else if(["oficio","rol","titulo","profesion"].includes(key))npc.oficio=val;else if(["lugar","puesto","sitio"].includes(key))npc.lugar=slug(val);
+      else if(["objeto","en la mano","mano","lleva"].includes(key))npc.objeto=val;else if(["otra mano","mano izquierda","escudo"].includes(key))npc.otra=val;
+      else if(["servicio","servicios","ofrece"].includes(key))val.split(",").forEach(x=>{x=x.trim();if(x)npc.servicios.push(x)});
+      else if(["charla","dice","frase"].includes(key))npc.charla.push(val);else npc.otros.push([t.slice(0,c).trim(),val]);
+    } else if (m){
+      if(key==="acto")m.acto=parseInt(val)||m.acto;else if(["npc","da","la da","lo da","quien","quien la da","personaje"].includes(key))m.npc=val;
+      else if(["nivel","nivel minimo"].includes(key))m.nivel=val;else if(["dice","dialogo","inicio","texto"].includes(key))m.dice.push(val);
+      else if(["final","al terminar","termina","al entregar","fin"].includes(key))m.final.push(val);else if(["recuerda","recordatorio","pista"].includes(key))m.recuerda.push(val);
+      else if(["objetivo","objetivos","tarea"].includes(key))m.objetivos.push(parseObjective(val));
+      else if(["premio","premios","recompensa","recompensas"].includes(key))m.premio=m.premio?m.premio+", "+val:val;
+      else if(["recibe","al aceptar","le dan"].includes(key))m.recibe=m.recibe?m.recibe+", "+val:val;
+      else if(["aparecen","aparece","enemigos"].includes(key))val.split(",").forEach(x=>{const w=norm(x).split(" ");let n=1;if(num(w[0])!=null){n=num(w.shift())}if(w.join(""))m.aparecen.push({mob:w.join("_"),cant:n})});
+      else if(key==="jefe")m.jefe=["si","yes","true","1"].includes(norm(val));else if(["sin morir","no morir"].includes(key))m.sinMorir=["si","yes","true","1"].includes(norm(val));
+      else if(key==="mazmorra")m.mazmorra=val;
+      else if(["eleccion","opcion","decision"].includes(key)){const p=val.split("->");const e={texto:p[0].trim(),premio:"",mensaje:"",marca:""};(p[1]||"").split(";").forEach(kv=>{const i=kv.indexOf(":");if(i<0)return;const k=norm(kv.slice(0,i)),v=kv.slice(i+1).trim();if(k.startsWith("premio"))e.premio=v;else if(k==="mensaje"||k==="dice")e.mensaje=v;else if(k==="marca")e.marca=v});m.elecciones.push(e)}
+      else m.otros.push([t.slice(0,c).trim(),val]);
+    }
+  }
+  return S;
+}
+function parseObjective(val){
+  let shown="", p=val; const bar=val.indexOf("|"); if(bar>=0){shown=val.slice(bar+1).trim();p=val.slice(0,bar).trim()}
+  const o={tipo:"matar",cant:1,cosa:"",corr:false,texto:shown,raw:val,dirty:false};
+  let w=norm(p).split(" "); const v=w.shift(); let t=VERB[v]||"matar";
+  while(w.length&&["a","al","el","la","los","las","con"].includes(w[0]))w.shift();
+  if(w.length&&num(w[0])!=null)o.cant=num(w.shift());
+  const before=w.length; w=w.filter(x=>!(x.startsWith("corromp")||x.startsWith("corrupt"))); o.corr=w.length<before;
+  let rest=w.join(" ");
+  if(t==="derrotar"){ if(!isCustomMob(rest)) t="matar"; }
+  if(t==="mazmorra"){rest=rest.replace(/^(la )?mazmorra /,"").trim()}
+  if(t==="ir"&&rest.includes("mazmorra")){t="mazmorra";rest=rest.replace(/^.*mazmorra /,"")}
+  o.tipo=t;o.cosa=rest;return o;
+}
+function isCustomMob(r){ if(!st.cat) return false; const id=r.replace(/ /g,"_"); if(st.cat.mobsPropios[id]) return true; return Object.values(st.cat.mobsPropios).some(n=>norm(n)===norm(r)) }
+function objPhrase(o){
+  if(!o.dirty&&o.raw) return o.raw;
+  const v=(OBJ_TYPES.find(x=>x[0]===o.tipo)||OBJ_TYPES[0])[2];
+  let s;
+  if(["derrotar","ir","hablar","mazmorra"].includes(o.tipo)) s=v+" "+(o.cosa||"").trim();
+  else s=v+" "+(o.cant||1)+" "+(o.cosa||"").trim()+(o.corr?" corrompidos":"");
+  s=s.replace(/\s+/g," ").trim();
+  if(o.texto&&o.texto.trim()) s+=" | "+o.texto.trim();
+  return s;
+}
+function serialize(S){
+  const out=[]; const R={npcs:{},missions:[],head:[1,0]};
+  const w=x=>out.push(x);
+  w("# Creado con el editor visual de EclipseRPG — también puedes editarlo con el Bloc de notas");
+  w("");
+  w("HISTORIA: "+(S.title||"Mi historia"));
+  if(S.desc)w("DESCRIPCION: "+S.desc); if(S.village)w("ALDEA: "+S.village); if(S.currency)w("MONEDA: "+S.currency);
+  R.head[1]=out.length;
+  w(""); w("# ---------------------------------------------------------------- PERSONAJES");
+  for(const n of S.npcs){
+    w(""); const a=out.length+1; w("NPC "+n.id);
+    if(n.nombre)w("  nombre: "+n.nombre); if(n.color)w("  color: "+n.color); if(n.skin)w("  skin: "+n.skin); if(n.oficio)w("  oficio: "+n.oficio);
+    if(n.lugar)w("  lugar: "+n.lugar); if(n.objeto)w("  objeto: "+n.objeto); if(n.otra)w("  otra mano: "+n.otra);
+    for(const s of n.servicios)w("  servicio: "+s); for(const c of n.charla)if(c.trim())w("  charla: "+c); for(const [k,v] of n.otros)w("  "+k+": "+v);
+    R.npcs[n.id]=[a,out.length];
+  }
+  w(""); w("# ---------------------------------------------------------------- MISIONES");
+  const acts=[...S.acts].sort((a,b)=>a.n-b.n); let cur=null;
+  const actName=n=>{const a=acts.find(x=>x.n===n);return a?a.name:""};
+  S.missions.forEach((m,i)=>{
+    if(m.acto!==cur){cur=m.acto;w("");w("ACTO "+cur+(actName(cur)?": "+actName(cur):""));}
+    w(""); const a=out.length+1; w("MISIÓN "+(m.titulo||"Sin título"));
+    if(m.npc)w("  npc: "+m.npc); if(m.nivel&&+m.nivel>1)w("  nivel: "+m.nivel); if(m.jefe)w("  jefe: sí"); if(m.mazmorra)w("  mazmorra: "+m.mazmorra); if(m.sinMorir)w("  sin morir: sí");
+    for(const d of m.dice)if(d.trim())w("  dice: "+d); for(const o of m.objetivos)w("  objetivo: "+objPhrase(o));
+    for(const s of m.aparecen)if(s.mob)w("  aparecen: "+(s.cant||1)+" "+s.mob);
+    if(m.recibe&&m.recibe.trim())w("  recibe: "+m.recibe); if(m.premio&&m.premio.trim())w("  premio: "+m.premio);
+    for(const d of m.final)if(d.trim())w("  final: "+d); for(const d of m.recuerda)if(d.trim())w("  recuerda: "+d);
+    for(const e of m.elecciones){const p=[];if(e.premio)p.push("premio: "+e.premio);if(e.mensaje)p.push("mensaje: "+e.mensaje);if(e.marca)p.push("marca: "+e.marca);w("  elección: "+e.texto+(p.length?" -> "+p.join("; "):""))}
+    for(const [k,v] of m.otros)w("  "+k+": "+v);
+    R.missions[i]=[a,out.length];
+  });
+  // actos sin misiones
+  for(const a of acts) if(!S.missions.some(m=>m.acto===a.n)){w("");w("ACTO "+a.n+(a.name?": "+a.name:""))}
+  st.ranges=R;
+  return out.join("\n")+"\n";
+}
+function whereIs(line){
+  const R=st.ranges; if(!R||!line) return null;
+  for(const [id,[a,b]] of Object.entries(R.npcs)) if(line>=a&&line<=b) return {view:"npcs",key:id};
+  for(let i=0;i<R.missions.length;i++){const r=R.missions[i];if(r&&line>=r[0]&&line<=r[1])return {view:"misiones",key:i}}
+  if(line<=R.head[1]) return {view:"inicio"};
+  return null;
+}
+
+// ------------------------------------------------------------------ premios  (texto <-> filas)
+function parseRewards(text){
+  const out={xp:"",money:"",items:[]};
+  for(const part of (text||"").split(",")){
+    const p=part.trim(); if(!p) continue;
+    const w=norm(p).split(" "); let n=null; if(num(w[0])!=null)n=num(w.shift());
+    else if(w.length>1&&num(w[w.length-1])!=null&&w[0]!=="libro")n=num(w.pop());
+    const rest=w.join(" "); const cur=norm(st.story&&st.story.currency||"monedas");
+    if(["xp","experiencia","exp"].includes(rest)){out.xp=n||0;continue}
+    if([cur,"monedas","moneda","soles","sol"].includes(rest)||(cur.endsWith("s")&&rest===cur.slice(0,-1))){out.money=n||0;continue}
+    if(rest.startsWith("objeto ")||rest.startsWith("especial ")){out.items.push({tipo:"especial",cant:n||1,cosa:rest.slice(rest.indexOf(" ")+1).replace(/ /g,"_")});continue}
+    if(rest.startsWith("pocion")){out.items.push({tipo:"pocion",cant:n||1,cosa:rest.replace(/^pocion(es)?( de)?/,"").trim()});continue}
+    if(rest.startsWith("libro ")){const ws=rest.slice(6).split(" ");let lvl=1;if(ws.length>1&&num(ws[ws.length-1])!=null)lvl=num(ws.pop());out.items.push({tipo:"libro",cant:1,cosa:ws.join(" "),nivel:lvl});continue}
+    out.items.push({tipo:"objeto",cant:n||1,cosa:rest});
+  }
+  return out;
+}
+function rewardsText(r, allowMoney){
+  const p=[]; if(allowMoney){ if(+r.xp)p.push(r.xp+" xp"); if(+r.money)p.push(r.money+" "+(st.story.currency||"monedas")); }
+  for(const it of r.items){ if(!it.cosa)continue;
+    if(it.tipo==="especial")p.push((+it.cant>1?it.cant+" ":"")+"objeto "+it.cosa);
+    else if(it.tipo==="pocion")p.push(+it.cant>1?it.cant+" pociones de "+it.cosa:"poción de "+it.cosa);
+    else if(it.tipo==="libro")p.push("libro "+it.cosa+" "+(it.nivel||1));
+    else p.push((it.cant||1)+" "+it.cosa);
+  }
+  return p.join(", ");
+}
+
+// ------------------------------------------------------------------ skins (dibujo)
+const skinCache={};
+function loadSkin(name){
+  if(!name) return Promise.resolve(null);
+  if(skinCache[name]) return skinCache[name];
+  skinCache[name]=new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src="/skins/"+encodeURIComponent(name)+".png?v="+(st.skinVer||0)});
+  return skinCache[name];
+}
+function drawSkin(cv, name, mode){
+  const x=cv.getContext("2d"); x.imageSmoothingEnabled=false; x.clearRect(0,0,cv.width,cv.height);
+  loadSkin(name).then(img=>{
+    if(!img){x.fillStyle="#2a221b";x.fillRect(0,0,cv.width,cv.height);x.fillStyle="#7a6e5e";x.font="11px sans-serif";x.textAlign="center";x.fillText("sin skin",cv.width/2,cv.height/2);return}
+    const slim=(st.cat&&st.cat.skins.find(s=>s.nombre===name)||{}).slim; const aw=slim?3:4;
+    if(mode==="head"){const s=cv.width/8;x.drawImage(img,8,8,8,8,0,0,cv.width,cv.height);x.drawImage(img,40,8,8,8,0,0,cv.width,cv.height);return}
+    const s=cv.height/32, ox=(cv.width-16*s)/2;
+    const d=(sx,sy,w,hh,dx,dy)=>x.drawImage(img,sx,sy,w,hh,ox+dx*s,dy*s,w*s,hh*s);
+    d(8,8,8,8,4,0);d(40,8,8,8,4,0);d(20,20,8,12,4,8);d(20,36,8,12,4,8);
+    d(44,20,aw,12,4-aw,8);d(44,36,aw,12,4-aw,8);d(36,52,aw,12,12,8);d(52,52,aw,12,12,8);
+    d(4,20,4,12,4,20);d(4,36,4,12,4,20);d(20,52,4,12,8,20);d(4,52,4,12,8,20);
+  });
+}
+
+// ------------------------------------------------------------------ componentes de formulario
+function field(label, input, hint){return h("label",{class:"f"},label,input,hint?h("span",{style:"color:var(--dim)"},hint):null)}
+function inp(obj,key,onch,attrs={}){return h("input",{type:attrs.type||"text",value:obj[key]??"",placeholder:attrs.ph||"",list:attrs.list||null,min:attrs.min,step:attrs.step,oninput:e=>{obj[key]=attrs.type==="number"?(e.target.value===""?"":+e.target.value):e.target.value;onch&&onch()}})}
+function sel(obj,key,opts,onch,empty){const s=h("select",{onchange:e=>{obj[key]=e.target.value;onch&&onch()}});if(empty!=null)s.append(h("option",{value:""},empty));for(const o of opts){const [v,l]=Array.isArray(o)?o:[o,o];s.append(h("option",{value:v},l))}s.value=obj[key]??"";if(obj[key]&&s.value!==String(obj[key]))s.prepend(h("option",{value:obj[key]},obj[key]+" (?)")),s.value=obj[key];return s}
+function chk(obj,key,label,onch){return h("label",{class:"chk"},h("input",{type:"checkbox",checked:!!obj[key],onchange:e=>{obj[key]=e.target.checked;onch&&onch()}}),label)}
+function lineList(arr,ph,onch,area){
+  const box=h("div",{class:"lines"});
+  const draw=()=>{box.replaceChildren(...arr.map((v,i)=>h("div",{class:"ln"},
+    area?h("textarea",{rows:1,value:v,placeholder:ph,oninput:e=>{arr[i]=e.target.value;onch()}}):h("input",{value:v,placeholder:ph,oninput:e=>{arr[i]=e.target.value;onch()}}),
+    h("button",{class:"btn ghost",title:"Subir",onclick:()=>{if(i>0){[arr[i-1],arr[i]]=[arr[i],arr[i-1]];draw();onch()}}},"↑"),
+    h("button",{class:"btn ghost danger",title:"Quitar",onclick:()=>{arr.splice(i,1);draw();onch()}},"✕"))),
+    h("div",null,h("button",{class:"btn sm",onclick:()=>{arr.push("");draw();onch();box.querySelectorAll(area?"textarea":"input").forEach((x,k,all)=>k===all.length-1&&x.focus())}},"+ Añadir línea")))};
+  draw(); return box;
+}
+function datalists(){
+  const c=st.cat; if(!c) return h("div");
+  const dl=(id,arr)=>h("datalist",{id},arr.map(v=>h("option",{value:v})));
+  return h("div",null,
+    dl("dl-objetos",[...(c.diccionario.objetos||[]),...c.materiales]),
+    dl("dl-mobs",[...(c.diccionario.mobs||[]),...c.entidades]),
+    dl("dl-mobsprop",Object.keys(c.mobsPropios)),
+    dl("dl-especiales",Object.keys(c.objetosPropios)),
+    dl("dl-pociones",c.diccionario.pociones||[]),
+    dl("dl-encant",c.diccionario.encantamientos||[]),
+    dl("dl-materiales",c.materiales),
+    dl("dl-entidades",c.entidades),
+    dl("dl-itemspec",[...c.materiales.map(m=>"material:"+m),...Object.keys(c.objetosPropios).map(m=>"custom:"+m)]),
+    dl("dl-equipo",[...c.materiales.map(m=>m.toUpperCase()),...Object.keys(c.objetosPropios).map(m=>"custom:"+m)]),
+    dl("dl-efectos",c.efectos),dl("dl-particulas",c.particulas),dl("dl-atributos",c.atributos));
+}
+
+// ------------------------------------------------------------------ vistas
+const VIEWS=[["inicio","☀","Historia"],["npcs","☺","Personajes"],["misiones","✎","Misiones"],["mobs","☠","Enemigos y jefes"],["objetos","⚔","Objetos especiales"],["tiendas","⛁","Tiendas"],null,["revisar","✓","Revisar y aplicar"],["ayuda","?","Ayuda"]];
+function render(){
+  const app=$("#app");
+  if(!TOKEN){app.replaceChildren(lockScreen("Falta el código de acceso. Abre el editor con el comando /historia editor dentro del juego."));return}
+  if(!st.cat||!st.story){app.replaceChildren(h("div",{class:"lock"},h("div",{class:"logo"},h("div",{class:"sun"}),"Cargando el editor…")));return}
+  app.replaceChildren(h("div",{class:"app"},topbar(),h("div",{class:"main"},nav(),h("div",{id:"view",style:"min-height:0;display:contents"})),datalists()));
+  renderView();
+}
+function lockScreen(msg){return h("div",{class:"lock"},h("div",{class:"logo"},h("div",{class:"sun"}),"Editor de historias"),h("p",{style:"color:var(--muted);max-width:460px"},msg))}
+function topbar(){
+  const S=st.story; const errs=st.probs.filter(p=>p.error).length, warns=st.probs.length-errs;
+  return h("div",{class:"top",id:"top"},
+    h("div",{class:"logo"},h("div",{class:"sun"}),h("span",null,S.title||"Mi historia")),
+    h("span",{class:"pill"},"carpeta: "+st.cat.historia),
+    h("span",{class:"pill "+(errs?"bad":warns?"warn":"good"),id:"stpill"},errs?errs+" error(es)":warns?warns+" aviso(s)":"sin errores"),
+    h("span",{class:"pill warn",id:"dirtypill",style:dirty()?"":"display:none"},"cambios sin guardar"),
+    h("div",{class:"sp"}),
+    h("button",{class:"btn",onclick:()=>check(true)},"Revisar"),
+    h("button",{class:"btn",onclick:()=>save(false)},"Guardar"),
+    h("button",{class:"btn pri",onclick:()=>save(true)},"Guardar y aplicar en el juego"));
+}
+function dirty(){return st.txtDirty||Object.values(st.yamlDirty).some(Boolean)}
+function updateTop(){const t=$("#top");if(t)t.replaceWith(topbar());const n=$(".nav");if(n)n.replaceWith(nav())}
+function nav(){
+  const c={npcs:st.story.npcs.length,misiones:st.story.missions.length,mobs:Object.keys(mobsRoot()).length,objetos:Object.keys(itemsRoot()).length,tiendas:Object.keys(shopsRoot()).length};
+  return h("div",{class:"nav"},VIEWS.map(v=>v?h("button",{class:st.view===v[0]?"on":"",onclick:()=>{st.view=v[0];renderView();$(".nav").replaceWith(nav())}},h("span",{class:"ic"},v[1]),v[2],c[v[0]]!=null?h("span",{class:"cnt"},c[v[0]]):null):h("hr")));
+}
+function renderView(){
+  const map={inicio:viewStory,npcs:viewNpcs,misiones:viewMissions,mobs:viewMobs,objetos:viewItems,tiendas:viewShops,revisar:viewCheck,ayuda:viewHelp};
+  const v=$("#view"); if(!v) return; v.replaceChildren(map[st.view]());
+}
+function errorsFor(view,key){return st.probs.filter(p=>p.error&&p.where&&p.where.view===view&&p.where.key===key)}
+function probBox(view,key){const ps=st.probs.filter(p=>p.where&&p.where.view===view&&p.where.key===key);if(!ps.length)return null;return h("div",{class:"card",style:"border-color:#6b2a24"},h("h3",null,"Revisa esto"),h("div",{class:"probs"},ps.map(p=>h("div",{class:"prob "+(p.error?"e":"w")},h("span",{class:"k"},p.error?"Error":"Aviso"),h("span",null,p.mensaje)))))}
+
+// ---------------- Historia
+function viewStory(){
+  const S=st.story;
+  const acts=S.acts;
+  const actsBox=h("div",{class:"rows"});
+  const drawActs=()=>actsBox.replaceChildren(...acts.sort((a,b)=>a.n-b.n).map((a,i)=>h("div",{class:"rw",style:"grid-template-columns:90px 1fr auto"},
+    field("Acto",inp(a,"n",()=>{markTxt()},{type:"number",min:1})),field("Nombre del acto",inp(a,"name",markTxt,{ph:"El despertar"})),
+    h("button",{class:"btn ghost danger",onclick:()=>{acts.splice(i,1);drawActs();markTxt()}},"✕"))),
+    h("div",null,h("button",{class:"btn sm",onclick:()=>{acts.push({n:(acts.reduce((m,a)=>Math.max(m,a.n),0)+1),name:""});drawActs();markTxt()}},"+ Añadir acto")));
+  drawActs();
+  const nm=S.missions.length, bosses=S.missions.filter(m=>m.jefe).length;
+  return h("div",{class:"form"},
+    h("h2",null,"Tu historia"),h("p",{class:"sub"},"Lo básico: cómo se llama, dónde ocurre y cómo se llama el dinero."),
+    h("div",{class:"stat"},h("div",null,h("b",null,S.npcs.length),h("span",null,"personajes")),h("div",null,h("b",null,nm),h("span",null,"misiones")),h("div",null,h("b",null,S.acts.length),h("span",null,"actos")),h("div",null,h("b",null,bosses),h("span",null,"misiones de jefe"))),
+    probBox("inicio",undefined),
+    h("div",{class:"card"},h("h3",null,"Datos generales"),
+      h("div",{class:"row"},field("Título",inp(S,"title",()=>{markTxt()},{ph:"La Isla del Kraken"})),field("Nombre de la aldea",inp(S,"village",markTxt,{ph:"Puerto Sal"})),field("Nombre del dinero",inp(S,"currency",markTxt,{ph:"doblones"}))),
+      h("div",{class:"row"},field("Descripción",h("textarea",{rows:2,value:S.desc,placeholder:"Una frase que resume la aventura",oninput:e=>{S.desc=e.target.value;markTxt()}})))),
+    h("div",{class:"card"},h("h3",null,"Actos ",h("span",{class:"hint"},"agrupan las misiones (capítulos)")),actsBox),
+    historiesCard());
+}
+function historiesCard(){
+  const box=h("div",{class:"card"},h("h3",null,"Tus historias ",h("span",{class:"hint"},"cada una es una carpeta en plugins/EclipseRPG/historias")));
+  api("historias").then(r=>{
+    box.append(h("div",{class:"rows"},r.lista.map(id=>h("div",{class:"rw",style:"grid-template-columns:1fr auto"},h("div",null,h("b",null,id),id===r.actual?h("span",{class:"pill good",style:"margin-left:8px"},"en uso"):null),
+      id===r.actual?h("span"):h("button",{class:"btn sm",onclick:()=>useStory(id)},"Jugar esta historia")))),
+      h("div",{style:"margin-top:10px"},h("button",{class:"btn sm",onclick:newStory},"+ Nueva historia")));
+  }).catch(e=>box.append(h("div",{class:"empty"},e.message)));
+  return box;
+}
+async function newStory(){const id=prompt("Nombre corto de la carpeta (sin espacios), por ejemplo: piratas");if(!id)return;try{await api("historias?accion=nueva&id="+encodeURIComponent(id),{method:"POST"});toast("Historia '"+slug(id)+"' creada. Pulsa «Jugar esta historia» para editarla.","good");renderView()}catch(e){toast(e.message,"bad")}}
+async function useStory(id){
+  if(dirty()&&!confirm("Tienes cambios sin guardar en la historia actual. ¿Cambiar de todos modos?"))return;
+  if(!confirm("Cambiar a '"+id+"' reinicia las misiones de todos los jugadores (no su nivel). ¿Continuar?"))return;
+  try{const r=await api("historias?accion=usar&id="+encodeURIComponent(id),{method:"POST"});if(r.aplicado){toast("Ahora se juega '"+id+"'","good");st.txtDirty=false;st.yamlDirty={};await loadAll()}else{toast("'"+id+"' tiene "+r.errores+" error(es); se sigue con la actual","bad")}}catch(e){toast(e.message,"bad")}
+}
+
+// ---------------- Personajes
+function viewNpcs(){
+  const S=st.story; const list=S.npcs; let selId=st.sel.npcs; if(!list.find(n=>n.id===selId)) selId=st.sel.npcs=list[0]&&list[0].id;
+  const f=(st.filter.npcs||"").toLowerCase();
+  const items=h("div",{class:"items"},list.filter(n=>!f||(n.nombre+n.id+n.oficio).toLowerCase().includes(f)).map(n=>{
+    const cv=h("canvas",{width:32,height:32,style:"width:32px;height:32px;border-radius:6px;image-rendering:pixelated;flex:none"});drawSkin(cv,n.skin,"head");
+    return h("div",{class:"li"+(n.id===selId?" on":""),onclick:()=>{st.sel.npcs=n.id;renderView()}},cv,h("div",{style:"min-width:0"},h("div",{class:"t",style:"color:"+(COLORS[n.color]||"var(--text)")},n.nombre||n.id),h("div",{class:"s"},n.oficio||n.id)),errorsFor("npcs",n.id).length?h("span",{class:"err"}):null)}));
+  const n=list.find(x=>x.id===selId);
+  return h("div",{class:"view"},
+    h("div",{class:"list"},h("div",{class:"head"},h("input",{placeholder:"Buscar…",value:st.filter.npcs||"",oninput:e=>{st.filter.npcs=e.target.value;renderView();const i=$(".list input");i.focus();i.setSelectionRange(99,99)}}),
+      h("button",{class:"btn pri sm",onclick:()=>{let id="nuevo",k=1;while(list.find(x=>x.id===id))id="nuevo"+(++k);list.push({id,nombre:"Nuevo personaje",color:"blanco",skin:"aldeano_1",oficio:"",lugar:"",objeto:"",otra:"",servicios:[],charla:[""],otros:[]});st.sel.npcs=id;markTxt();renderView()}},"+ Nuevo")),items),
+    n?npcForm(n):h("div",{class:"form"},h("p",{class:"empty"},"Crea tu primer personaje con «+ Nuevo».")));
+}
+function npcForm(n){
+  const S=st.story; const ch=()=>{markTxt()};
+  const big=h("canvas",{width:96,height:192,style:"width:96px;height:192px"});drawSkin(big,n.skin);
+  const rename=e=>{const nid=slug(e.target.value);if(!nid)return;if(S.npcs.find(x=>x!==n&&x.id===nid)){toast("Ya existe un personaje con el id '"+nid+"'","bad");return}
+    const old=n.id; n.id=nid; S.missions.forEach(m=>{if(slug(m.npc)===old)m.npc=nid;m.objetivos.forEach(o=>{if(o.tipo==="hablar"&&slug(o.cosa)===old){o.cosa=nid;o.dirty=true}})}); st.sel.npcs=nid; ch(); renderView()};
+  const services=h("div",{class:"rows"});
+  const drawSvc=()=>services.replaceChildren(...n.servicios.map((s,i)=>{const o={v:s.startsWith("tienda")?"tienda":norm(s).startsWith("contrato")?"contratos":"grieta",shop:s.startsWith("tienda")?s.slice(6).trim():""};
+    const upd=()=>{n.servicios[i]=o.v==="tienda"?"tienda "+(o.shop||st.cat.tiendas[0]||""):o.v;ch()};
+    return h("div",{class:"rw",style:"grid-template-columns:1fr 1fr auto"},field("Servicio",sel(o,"v",[["tienda","Tienda"],["contratos","Contratos diarios"],["grieta","Abrir Grietas"]],()=>{upd();drawSvc()})),
+      o.v==="tienda"?field("Qué tienda",sel(o,"shop",st.cat.tiendas,upd)):h("span"),h("button",{class:"btn ghost danger",onclick:()=>{n.servicios.splice(i,1);drawSvc();ch()}},"✕"))}),
+    h("div",null,h("button",{class:"btn sm",onclick:()=>{n.servicios.push("tienda "+(st.cat.tiendas[0]||""));drawSvc();ch()}},"+ Añadir servicio")));
+  drawSvc();
+  const usedIn=S.missions.filter(m=>slug(m.npc)===n.id||norm(m.npc)===norm(n.nombre)).length;
+  return h("div",{class:"form"},
+    h("h2",{style:"color:"+(COLORS[n.color]||"var(--text)")},n.nombre||n.id),h("p",{class:"sub"},(n.oficio||"Personaje")+" · da "+usedIn+" misión(es)"),
+    probBox("npcs",n.id),
+    h("div",{class:"card"},h("h3",null,"Aspecto"),
+      h("div",{class:"skinbox"},big,h("div",{style:"display:flex;flex-direction:column;gap:10px;flex:1"},
+        h("div",null,h("span",{class:"pill"},"skin: "+(n.skin||"ninguna"))),
+        h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},h("button",{class:"btn",onclick:()=>skinPicker(n.skin,s=>{n.skin=s;ch();renderView()},n.id)},"Elegir o subir skin…")),
+        h("div",{class:"row"},field("Lleva en la mano",inp(n,"objeto",ch,{list:"dl-objetos",ph:"espada de hierro"})),field("En la otra mano",inp(n,"otra",ch,{list:"dl-objetos",ph:"escudo"})))))),
+    h("div",{class:"card"},h("h3",null,"Identidad"),
+      h("div",{class:"row"},field("Nombre visible",inp(n,"nombre",()=>{ch();const t=$(".form h2");if(t)t.textContent=n.nombre},{ph:"Capitán Rojo"})),
+        field("Id corto",h("input",{value:n.id,onchange:rename}),"se usa en las misiones"),
+        field("Color del nombre",colorSel(n,"color",()=>{ch();renderView()}))),
+      h("div",{class:"row"},field("Oficio",inp(n,"oficio",ch,{ph:"Capitán del puerto"}),"aparece debajo del nombre"),
+        field("Lugar en la aldea",sel(n,"lugar",st.cat.lugares.map(l=>[l,l.replace(/_/g," ")]),ch,"— el primero libre —"),"o /historia colocar en el juego"))),
+    h("div",{class:"card"},h("h3",null,"Lo que dice al saludar ",h("span",{class:"hint"},"elige una al azar")),lineList(n.charla,"¡Arrr! El mar no perdona…",ch)),
+    h("div",{class:"card"},h("h3",null,"Servicios ",h("span",{class:"hint"},"botones extra al hablarle")),services),
+    h("div",{style:"display:flex;gap:8px"},
+      h("button",{class:"btn",onclick:()=>{const c=JSON.parse(JSON.stringify(n));let id=n.id+"_2",k=2;while(S.npcs.find(x=>x.id===id))id=n.id+"_"+(++k);c.id=id;c.nombre+=" (copia)";S.npcs.push(c);st.sel.npcs=id;ch();renderView()}},"Duplicar"),
+      h("button",{class:"btn danger",onclick:()=>{if(!confirm("¿Eliminar a "+n.nombre+"?"))return;S.npcs.splice(S.npcs.indexOf(n),1);ch();renderView()}},"Eliminar personaje")));
+}
+function colorSel(obj,key,onch){
+  const s=h("select",{onchange:e=>{obj[key]=e.target.value;onch&&onch()}});
+  for(const [k,v] of Object.entries(COLORS)) s.append(h("option",{value:k,style:"color:"+v},"● "+k));
+  s.value=obj[key]||"blanco"; return s;
+}
+function skinPicker(current, onPick, suggest){
+  let chosen=current, tab="todas", q="";
+  const grid=h("div",{class:"gal"});
+  const draw=()=>{const sk=st.cat.skins.filter(s=>(tab==="todas"||(tab==="mias"?s.propia:!s.propia))&&(!q||s.nombre.includes(q)));
+    grid.replaceChildren(...sk.map(s=>{const cv=h("canvas",{width:64,height:128});drawSkin(cv,s.nombre);return h("div",{class:"sk"+(s.nombre===chosen?" on":""),onclick:()=>{chosen=s.nombre;draw()},ondblclick:()=>{onPick(s.nombre);m.remove()}},cv,h("div",null,s.nombre))}))};
+  const up={name:slug(suggest||"mi_skin"),url:""};
+  const upload=async(body,url)=>{if(!up.name){toast("Ponle un nombre a la skin","bad");return}
+    try{await api("skin?nombre="+encodeURIComponent(up.name)+(url?"&url="+encodeURIComponent(url):""),{method:"POST",body});st.skinVer=Date.now();Object.keys(skinCache).forEach(k=>delete skinCache[k]);st.cat=await api("catalogo");chosen=slug(up.name);tab="mias";draw();toast("Skin '"+chosen+"' lista","good")}catch(e){toast(e.message,"bad")}};
+  const fileIn=h("input",{type:"file",accept:"image/png",style:"display:none",onchange:e=>{const f=e.target.files[0];if(f)upload(f)}});
+  const m=h("div",{class:"modal",onclick:e=>{if(e.target===m)m.remove()}},h("div",{class:"box"},
+    h("div",{class:"mh"},h("h3",null,"Elegir skin"),h("input",{placeholder:"Buscar…",style:"width:180px",oninput:e=>{q=e.target.value.toLowerCase();draw()}}),
+      ...["todas","plugin","mias"].map(t=>h("button",{class:"btn sm"+(t===tab?" pri":""),onclick:e=>{tab=t;e.target.parentNode.querySelectorAll(".btn.sm").forEach(b=>b.classList.remove("pri"));e.target.classList.add("pri");draw()}},{todas:"Todas",plugin:"Del plugin",mias:"Mías"}[t]))),
+    h("div",{class:"mb"},
+      h("div",{class:"card"},h("h3",null,"Añadir una skin propia ",h("span",{class:"hint"},"PNG de 64×64 (también acepta las antiguas de 64×32)")),
+        h("div",{class:"row"},field("Nombre para la skin",inp(up,"name",null,{ph:"capitan_rojo"})),field("Pegar link de la imagen",inp(up,"url",null,{type:"url",ph:"https://…/skin.png"}))),
+        h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},h("button",{class:"btn",onclick:()=>up.url?upload(null,up.url):toast("Pega primero el link","bad")},"Descargar desde el link"),h("button",{class:"btn",onclick:()=>fileIn.click()},"Subir archivo PNG…"),fileIn),
+        h("p",{style:"color:var(--dim);font-size:12px;margin:10px 0 0"},"Consejo: en páginas de skins, usa el botón de descarga y copia la dirección de ese link (debe terminar en .png).")),
+      grid),
+    h("div",{class:"mh",style:"border-top:1px solid var(--line);border-bottom:0"},h("span",{style:"flex:1;color:var(--muted)"},"Doble clic para elegir rápido"),h("button",{class:"btn",onclick:()=>m.remove()},"Cancelar"),h("button",{class:"btn pri",onclick:()=>{onPick(chosen);m.remove()}},"Usar esta skin"))));
+  document.body.append(m); draw();
+}
+
+// ---------------- Misiones
+function viewMissions(){
+  const S=st.story; const list=S.missions; let i=st.sel.misiones; if(i==null||i>=list.length) i=st.sel.misiones=list.length?0:null;
+  const f=norm(st.filter.misiones||""); const items=h("div",{class:"items"}); let lastAct=null;
+  list.forEach((m,k)=>{
+    if(f&&!norm(m.titulo+" "+m.npc).includes(f)) return;
+    if(m.acto!==lastAct){lastAct=m.acto;const a=S.acts.find(x=>x.n===m.acto);items.append(h("div",{class:"grp"},"Acto "+m.acto+(a&&a.name?" · "+a.name:"")))}
+    const npc=S.npcs.find(n=>n.id===slug(m.npc)||norm(n.nombre)===norm(m.npc));
+    items.append(h("div",{class:"li"+(k===i?" on":""),draggable:"true",ondragstart:e=>e.dataTransfer.setData("text",k),ondragover:e=>e.preventDefault(),
+      ondrop:e=>{e.preventDefault();const from=+e.dataTransfer.getData("text");if(isNaN(from)||from===k)return;const [x]=list.splice(from,1);list.splice(k,0,x);x.acto=m.acto;st.sel.misiones=k;markTxt();renderView()},
+      onclick:()=>{st.sel.misiones=k;renderView()}},h("span",{class:"num"},k+1),h("div",{style:"min-width:0"},h("div",{class:"t"},(m.jefe?"☠ ":"")+m.titulo),h("div",{class:"s",style:"color:"+(npc?COLORS[npc.color]||"var(--muted)":"var(--red)")},npc?npc.nombre:(m.npc||"sin NPC"))),errorsFor("misiones",k).length?h("span",{class:"err"}):null));
+  });
+  const m=i!=null?list[i]:null;
+  return h("div",{class:"view"},
+    h("div",{class:"list"},h("div",{class:"head"},h("input",{placeholder:"Buscar…",value:st.filter.misiones||"",oninput:e=>{st.filter.misiones=e.target.value;renderView();const x=$(".list input");x.focus();x.setSelectionRange(99,99)}}),
+      h("button",{class:"btn pri sm",onclick:()=>{const prev=list[i]||{};const nm={titulo:"Nueva misión",acto:prev.acto||1,npc:prev.npc||(S.npcs[0]&&S.npcs[0].id)||"",nivel:"",jefe:false,sinMorir:false,mazmorra:"",dice:[""],final:[""],recuerda:[],objetivos:[{tipo:"matar",cant:5,cosa:"zombis",corr:false,texto:"",raw:"",dirty:true}],premio:"100 xp",recibe:"",aparecen:[],elecciones:[],otros:[]};const at=i==null?list.length:i+1;list.splice(at,0,nm);st.sel.misiones=at;markTxt();renderView()}},"+ Nueva")),items),
+    m?missionForm(m,i):h("div",{class:"form"},h("p",{class:"empty"},"Crea tu primera misión con «+ Nueva».")));
+}
+function missionForm(m,idx){
+  const S=st.story; const ch=()=>markTxt();
+  const npcOpts=S.npcs.map(n=>[n.id,n.nombre+" ("+n.id+")"]);
+  if(m.npc&&!S.npcs.find(n=>n.id===m.npc)){const f=S.npcs.find(n=>norm(n.nombre)===norm(m.npc)||n.id===slug(m.npc));if(f)m.npc=f.id}
+  const actOpts=[...new Set([...S.acts.map(a=>a.n),m.acto])].sort((a,b)=>a-b).map(n=>{const a=S.acts.find(x=>x.n===n);return [n,"Acto "+n+(a&&a.name?" · "+a.name:"")]});
+  const mazOpts=Object.entries(st.cat.mazmorras).map(([k,v])=>[k,k+" · "+v]);
+  // objetivos
+  const objBox=h("div",{class:"rows"});
+  const drawObj=()=>objBox.replaceChildren(...m.objetivos.map((o,k)=>objRow(m,o,k,drawObj)),h("div",null,h("button",{class:"btn sm",onclick:()=>{m.objetivos.push({tipo:"matar",cant:5,cosa:"",corr:false,texto:"",raw:"",dirty:true});drawObj();ch()}},"+ Añadir objetivo")));
+  drawObj();
+  // premios
+  const rew=rewardsEditor(m,"premio",true);
+  const rec=rewardsEditor(m,"recibe",false);
+  // aparecen
+  const spBox=h("div",{class:"rows"});
+  const drawSp=()=>spBox.replaceChildren(...m.aparecen.map((s,k)=>h("div",{class:"rw",style:"grid-template-columns:90px 1fr auto"},field("Cantidad",inp(s,"cant",ch,{type:"number",min:1})),field("Enemigo especial",inp(s,"mob",ch,{list:"dl-mobsprop",ph:"zombi_corrompido"})),h("button",{class:"btn ghost danger",onclick:()=>{m.aparecen.splice(k,1);drawSp();ch()}},"✕"))),h("div",null,h("button",{class:"btn sm",onclick:()=>{m.aparecen.push({mob:"",cant:3});drawSp();ch()}},"+ Añadir enemigos")));
+  drawSp();
+  // elecciones
+  const elBox=h("div",{class:"rows"});
+  const drawEl=()=>elBox.replaceChildren(...m.elecciones.map((e,k)=>h("div",{class:"rw",style:"grid-template-columns:1fr 1fr auto"},field("Texto del botón",inp(e,"texto",ch,{ph:"Perdonarlo"})),field("Premio",inp(e,"premio",ch,{ph:"5 diamantes"})),h("button",{class:"btn ghost danger",onclick:()=>{m.elecciones.splice(k,1);drawEl();ch()}},"✕"),
+    field("Mensaje",inp(e,"mensaje",ch,{ph:"Gracias…"})),field("Marca (para recordar la decisión)",inp(e,"marca",ch,{ph:"perdono"})))),h("div",null,h("button",{class:"btn sm",onclick:()=>{m.elecciones.push({texto:"",premio:"",mensaje:"",marca:""});drawEl();ch()}},"+ Añadir elección")));
+  drawEl();
+  return h("div",{class:"form"},
+    h("h2",null,(m.jefe?"☠ ":"")+m.titulo),h("p",{class:"sub"},"Misión "+(idx+1)+" de "+S.missions.length+" · se juegan en este orden (arrastra en la lista para reordenar)"),
+    probBox("misiones",idx),
+    h("div",{class:"card"},h("h3",null,"Datos"),
+      h("div",{class:"row"},field("Título",inp(m,"titulo",()=>{ch();const t=$(".form h2");if(t)t.textContent=(m.jefe?"☠ ":"")+m.titulo},{ph:"El mapa robado"})),field("La da",sel(m,"npc",npcOpts,()=>{ch();renderView()},"— elige un personaje —")),field("Acto",sel(m,"acto",actOpts,()=>{m.acto=+m.acto;ch();renderView()}))),
+      h("div",{class:"row"},field("Nivel mínimo",inp(m,"nivel",ch,{type:"number",min:1,ph:"1"})),field("Mazmorra al aceptar",sel(m,"mazmorra",mazOpts,ch,"— ninguna —")),
+        h("div",{style:"display:flex;flex-direction:column;gap:8px;justify-content:center"},chk(m,"jefe","Misión de jefe",()=>{ch();renderView()}),chk(m,"sinMorir","Si muere, se reinicia",ch)))),
+    h("div",{class:"card"},h("h3",null,"Diálogo al ofrecerla"),lineList(m.dice,"Alguien robó mi mapa…",ch,true)),
+    h("div",{class:"card"},h("h3",null,"Objetivos"),objBox),
+    h("div",{class:"card"},h("h3",null,"Premio al entregarla"),rew),
+    h("div",{class:"card"},h("h3",null,"Diálogo al entregarla"),lineList(m.final,"¡Lo lograste!…",ch,true)),
+    h("details",{class:"card"},h("summary",{style:"cursor:pointer;color:var(--gold);font-weight:600"},"Más opciones (recibe, enemigos, recordatorio, elecciones)"),
+      h("div",{style:"margin-top:14px"},h("h3",null,"Lo que recibe al aceptarla"),rec),
+      h("div",{style:"margin-top:16px"},h("h3",null,"Enemigos que aparecen al aceptarla"),spBox),
+      h("div",{style:"margin-top:16px"},h("h3",null,"Recordatorio ",h("span",{class:"hint"},"si vuelve sin terminar")),lineList(m.recuerda,"Todavía falta…",ch)),
+      h("div",{style:"margin-top:16px"},h("h3",null,"Elecciones ",h("span",{class:"hint"},"el jugador elige al entregar")),elBox)),
+    h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},
+      h("button",{class:"btn",onclick:()=>{if(idx>0){const L=S.missions;[L[idx-1],L[idx]]=[L[idx],L[idx-1]];st.sel.misiones=idx-1;ch();renderView()}}},"↑ Antes"),
+      h("button",{class:"btn",onclick:()=>{const L=S.missions;if(idx<L.length-1){[L[idx+1],L[idx]]=[L[idx],L[idx+1]];st.sel.misiones=idx+1;ch();renderView()}}},"↓ Después"),
+      h("button",{class:"btn",onclick:()=>{const c=JSON.parse(JSON.stringify(m));c.titulo+=" (copia)";S.missions.splice(idx+1,0,c);st.sel.misiones=idx+1;ch();renderView()}},"Duplicar"),
+      h("button",{class:"btn danger",onclick:()=>{if(!confirm("¿Eliminar la misión «"+m.titulo+"»?"))return;S.missions.splice(idx,1);ch();renderView()}},"Eliminar misión")));
+}
+function objRow(m,o,k,redraw){
+  const ch=()=>{o.dirty=true;markTxt();prev.textContent="objetivo: "+objPhrase(o)};
+  const prev=h("div",{class:"preview"},"objetivo: "+objPhrase(o));
+  let what;
+  switch(o.tipo){
+    case "derrotar": what=field("Jefe o enemigo especial",inp(o,"cosa",ch,{list:"dl-mobsprop",ph:"rey_ceniza"}));break;
+    case "ir": what=field("Dimensión",sel(o,"cosa",[["nether","El Nether"],["end","El End"]],ch,"— elige —"));break;
+    case "hablar": what=field("Personaje",sel(o,"cosa",st.story.npcs.map(n=>[n.id,n.nombre]),ch,"— elige —"));break;
+    case "mazmorra": what=field("Mazmorra",sel(o,"cosa",Object.entries(st.cat.mazmorras).map(([a,b])=>[a,a+" · "+b]),ch,"— elige —"));break;
+    case "matar": case "domesticar": what=field(o.tipo==="matar"?"Qué enemigos (puedes usar «o»)":"Qué animal",inp(o,"cosa",ch,{list:"dl-mobs",ph:o.tipo==="matar"?"zombis o esqueletos":"lobos"}));break;
+    case "pescar": case "encantar": what=field("Qué (opcional)",inp(o,"cosa",ch,{list:"dl-objetos",ph:o.tipo==="pescar"?"peces":"objetos"}));break;
+    default: what=field("Qué cosa",inp(o,"cosa",ch,{list:"dl-objetos",ph:"lingotes de hierro"}));
+  }
+  const needsQty=!["derrotar","ir","hablar","mazmorra"].includes(o.tipo);
+  return h("div",{class:"rw",style:"grid-template-columns:190px "+(needsQty?"90px ":"")+"1fr auto"},
+    field("Tipo",sel(o,"tipo",OBJ_TYPES.map(t=>[t[0],t[1]]),()=>{o.dirty=true;if(["ir","hablar","mazmorra","derrotar"].includes(o.tipo))o.cosa="";markTxt();redraw()})),
+    needsQty?field("Cantidad",inp(o,"cant",ch,{type:"number",min:1})):null, what,
+    h("button",{class:"btn ghost danger",onclick:()=>{m.objetivos.splice(k,1);markTxt();redraw()}},"✕"),
+    h("div",{style:"grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:end"},field("Texto que ve el jugador (opcional)",inp(o,"texto",ch,{ph:"Se arma solo si lo dejas vacío"})),
+      o.tipo==="matar"?chk(o,"corr","Solo corrompidos",ch):h("span")),
+    h("div",{style:"grid-column:1/-1"},prev));
+}
+function rewardsEditor(m,key,money){
+  const r=parseRewards(m[key]); const box=h("div");
+  const prev=h("div",{class:"preview"});
+  const sync=()=>{m[key]=rewardsText(r,money);prev.textContent=(key==="premio"?"premio: ":"recibe: ")+(m[key]||"(nada)");markTxt()};
+  const rows=h("div",{class:"rows"});
+  const draw=()=>rows.replaceChildren(...r.items.map((it,k)=>{
+    let what;
+    if(it.tipo==="especial")what=field("Objeto especial",inp(it,"cosa",sync,{list:"dl-especiales",ph:"espada_solar"}));
+    else if(it.tipo==="pocion")what=field("Poción",inp(it,"cosa",sync,{list:"dl-pociones",ph:"curacion"}));
+    else if(it.tipo==="libro")what=h("div",{style:"display:grid;grid-template-columns:1fr 80px;gap:8px"},field("Encantamiento",inp(it,"cosa",sync,{list:"dl-encant",ph:"filo"})),field("Nivel",inp(it,"nivel",sync,{type:"number",min:1})));
+    else what=field("Objeto de Minecraft",inp(it,"cosa",sync,{list:"dl-objetos",ph:"pan"}));
+    return h("div",{class:"rw",style:"grid-template-columns:170px 90px 1fr auto"},field("Tipo",sel(it,"tipo",[["objeto","Objeto normal"],["especial","Objeto especial"],["pocion","Poción"],["libro","Libro encantado"]],()=>{sync();draw()})),
+      field("Cantidad",inp(it,"cant",sync,{type:"number",min:1})),what,h("button",{class:"btn ghost danger",onclick:()=>{r.items.splice(k,1);sync();draw()}},"✕"))}),
+    h("div",null,h("button",{class:"btn sm",onclick:()=>{r.items.push({tipo:"objeto",cant:1,cosa:""});draw()}},"+ Añadir objeto")));
+  draw();
+  prev.textContent=(key==="premio"?"premio: ":"recibe: ")+(m[key]||"(nada)");
+  if(money) box.append(h("div",{class:"row"},field("Experiencia (xp)",inp(r,"xp",sync,{type:"number",min:0,ph:"0"})),field("Dinero ("+(st.story.currency||"monedas")+")",inp(r,"money",sync,{type:"number",min:0,ph:"0"}))));
+  box.append(rows,prev); return box;
+}
+
+// ---------------- YAML: enemigos, objetos, tiendas
+function mobsRoot(){const d=st.yaml.mobs||{};d.mobs=d.mobs||{};return d.mobs}
+function itemsRoot(){const d=st.yaml.objetos||{};d.items=d.items||{};return d.items}
+function shopsRoot(){const d=st.yaml.tiendas||{};d.tiendas=d.tiendas||{};return d.tiendas}
+function mmSplit(s){s=s||"";let color="blanco",bold=false;s=s.replace(/<(\/)?([a-z_#0-9]+)>/g,(a,c,t)=>{if(t==="bold"||t==="b")bold=true;else if(MM_COLORS[t])color=MM_COLORS[t];return ""});return {color,bold,text:s}}
+function mmJoin(p){return "<"+(ES_TO_MM[p.color]||"white")+">"+(p.bold?"<bold>":"")+p.text}
+function yamlList(kind,root,title,sub,newObj,formFn,labelFn){
+  const ids=Object.keys(root); let sel_=st.sel[kind]; if(!ids.includes(sel_)) sel_=st.sel[kind]=ids[0];
+  const f=norm(st.filter[kind]||"");
+  const items=h("div",{class:"items"},ids.filter(id=>!f||norm(id+" "+JSON.stringify(root[id].nombre||root[id].titulo||"")).includes(f)).map(id=>{const lb=labelFn(id,root[id]);return h("div",{class:"li"+(id===sel_?" on":""),onclick:()=>{st.sel[kind]=id;renderView()}},h("div",{style:"min-width:0"},h("div",{class:"t",style:lb.color?"color:"+lb.color:""},lb.t),h("div",{class:"s"},lb.s)))}));
+  const add=()=>{const id=prompt("Id corto (sin espacios), por ejemplo: "+newObj.ejemplo);if(!id)return;const k=slug(id);if(!k||root[k]){toast("Ese id no es válido o ya existe","bad");return}root[k]=newObj.make();st.sel[kind]=k;markYaml(newObj.file);renderView()};
+  const cur=root[sel_];
+  return h("div",{class:"view"},
+    h("div",{class:"list"},h("div",{class:"head"},h("input",{placeholder:"Buscar…",value:st.filter[kind]||"",oninput:e=>{st.filter[kind]=e.target.value;renderView();const x=$(".list input");x.focus();x.setSelectionRange(99,99)}}),h("button",{class:"btn pri sm",onclick:add},"+ Nuevo")),items),
+    cur?formFn(sel_,cur):h("div",{class:"form"},h("h2",null,title),h("p",{class:"sub"},sub),h("p",{class:"empty"},"Crea uno con «+ Nuevo».")));
+}
+function viewMobs(){
+  return yamlList("mobs",mobsRoot(),"Enemigos y jefes","Criaturas con vida, daño y habilidades propias.",{ejemplo:"kraken",file:"mobs",make:()=>({tipo:"zombie",nombre:"<red>Nuevo enemigo",vida:40,danio:6})},mobForm,
+    (id,d)=>{const p=mmSplit(d.nombre);return {t:(d.jefe?"☠ ":"")+(p.text||id),s:id+" · "+(d.tipo||"zombie")+" · "+(d.vida||20)+" de vida",color:COLORS[p.color]}});
+}
+function mobForm(id,d){
+  const ch=()=>markYaml("mobs"); const name=mmSplit(d.nombre);
+  const setName=()=>{d.nombre=mmJoin(name);ch()};
+  const n=(k,lbl,hint,step)=>field(lbl,h("input",{type:"number",step:step||"any",value:d[k]??"",placeholder:"—",oninput:e=>{if(e.target.value==="")delete d[k];else d[k]=+e.target.value;ch()}}),hint);
+  d.equipo=d.equipo||{};
+  const eq=h("div",{class:"row"},Object.entries(SLOTS).map(([k,l])=>field(l,h("input",{list:"dl-equipo",value:d.equipo[k]||"",placeholder:"—",oninput:e=>{if(e.target.value)d.equipo[k]=e.target.value;else delete d.equipo[k];ch()}}))));
+  // efectos
+  d.efectos=d.efectos||[];
+  const efBox=h("div",{class:"rows"});
+  const drawEf=()=>efBox.replaceChildren(...d.efectos.map((s,k)=>{const p=String(s).split(":");const o={e:p[0],l:+(p[1]||0)};const u=()=>{d.efectos[k]=o.e+":"+o.l;ch()};
+    return h("div",{class:"rw",style:"grid-template-columns:1fr 110px auto"},field("Efecto permanente",inp(o,"e",u,{list:"dl-efectos",ph:"speed"})),field("Nivel (0 = I)",inp(o,"l",u,{type:"number",min:0})),h("button",{class:"btn ghost danger",onclick:()=>{d.efectos.splice(k,1);drawEf();ch()}},"✕"))}),
+    h("div",null,h("button",{class:"btn sm",onclick:()=>{d.efectos.push("speed:0");drawEf();ch()}},"+ Añadir efecto")));
+  drawEf();
+  // habilidades
+  d.habilidades=d.habilidades||[];
+  const habBox=h("div",{class:"rows"});
+  const drawHab=()=>habBox.replaceChildren(...d.habilidades.map((a,k)=>{const num_=(key,l)=>field(l,h("input",{type:"number",step:"any",value:a[key]??"",placeholder:"—",oninput:e=>{if(e.target.value==="")delete a[key];else a[key]=+e.target.value;ch()}}));
+    return h("div",{class:"rw",style:"grid-template-columns:1fr 80px 90px 80px auto"},field("Habilidad",sel(a,"tipo",Object.entries(ABILITIES),()=>{ch();drawHab()})),num_("cada","Cada (s)"),num_("potencia",a.tipo==="EFECTO"?"Nivel":"Daño"),num_("radio","Radio"),
+      h("button",{class:"btn ghost danger",onclick:()=>{d.habilidades.splice(k,1);drawHab();ch()}},"✕"),
+      a.tipo==="INVOCAR"||a.tipo==="EFECTO"?h("div",{style:"grid-column:1/-1;display:grid;grid-template-columns:1fr 120px;gap:8px"},field(a.tipo==="INVOCAR"?"Qué invoca (id de enemigo)":"Qué efecto",inp(a,"extra",ch,{list:a.tipo==="INVOCAR"?"dl-mobsprop":"dl-efectos"})),num_("cantidad",a.tipo==="INVOCAR"?"Cuántos":"Segundos")):null)}),
+    h("div",null,h("button",{class:"btn sm",onclick:()=>{d.habilidades.push({tipo:"ONDA",cada:10,potencia:6,radio:5});drawHab();ch()}},"+ Añadir habilidad")));
+  drawHab();
+  // premios y botín
+  const prizes=listOfMaps(d,"premios",[["item","Objeto (id especial o material)","dl-especiales"],["cantidad","Cantidad","num"],["una-vez","Solo la primera vez","bool"]],{item:""},ch,"+ Añadir premio");
+  const loot=listOfMaps(d,"botin",[["item","Objeto","dl-itemspec"],["cantidad","Cantidad","num"],["probabilidad","Probabilidad (0 a 1)","num"]],{item:"",cantidad:1,probabilidad:0.5},ch,"+ Añadir botín");
+  d.esbirros=d.esbirros||[];
+  return h("div",{class:"form"},
+    h("h2",{style:"color:"+(COLORS[name.color]||"var(--text)")},(d.jefe?"☠ ":"")+(name.text||id)),h("p",{class:"sub"},"id: "+id+" · úsalo en «derrota a "+id+"» o «aparecen: 3 "+id+"»"),
+    h("div",{class:"card"},h("h3",null,"Identidad"),
+      h("div",{class:"row"},field("Nombre",inp(name,"text",setName,{ph:"Kraken de las Profundidades"})),field("Color",colorSel(name,"color",setName)),h("div",{style:"display:flex;align-items:end;padding-bottom:6px"},chk(name,"bold","Negrita",setName))),
+      h("div",{class:"row"},field("Cuerpo (mob de Minecraft)",inp(d,"tipo",ch,{list:"dl-entidades",ph:"zombie"}),"cualquier criatura: zombie, skeleton, spider, wither_skeleton…"),
+        h("div",{style:"display:flex;flex-direction:column;gap:8px;justify-content:end;padding-bottom:6px"},chk(d,"jefe","Es jefe (barra de vida arriba)",()=>{ch();renderView()}),chk(d,"furia","Furia al 30% de vida",ch)),
+        d.jefe?field("Color de la barra",sel(d,"color-barra",BARS.map(b=>[b,b.toLowerCase()]),ch)):null)),
+    h("div",{class:"card"},h("h3",null,"Estadísticas"),
+      h("div",{class:"row"},n("vida","Vida","20 = zombi normal"),n("regeneracion","Regeneración","vida por segundo"),n("danio","Daño","reemplaza el normal"),n("danio-extra","Daño extra","se suma al normal")),
+      h("div",{class:"row"},n("velocidad","Velocidad extra","0.2 = +20%"),n("escala","Tamaño","1 = normal"),n("armadura","Armadura","0 a 30"),n("dureza","Dureza de armadura"),n("resistencia-empuje","Resistencia al empuje","0 a 1"))),
+    h("div",{class:"card"},h("h3",null,"Habilidades"),habBox),
+    h("div",{class:"card"},h("h3",null,"Equipo ",h("span",{class:"hint"},"material (IRON_SWORD) o custom:id")),eq),
+    h("div",{class:"card"},h("h3",null,"Efectos permanentes"),efBox),
+    h("div",{class:"card"},h("h3",null,"Recompensas"),
+      h("div",{class:"row"},field("Experiencia",inp(d,"xp",ch,{type:"number",min:0})),field("Dinero",inp(d,"soles",ch,{type:"number",min:0})),field("Partícula (aura)",inp(d,"aura",ch,{list:"dl-particulas",ph:"SMOKE"}))),
+      h("h3",{style:"margin-top:8px"},"Premios ",h("span",{class:"hint"},"a cada jugador cerca")),prizes,
+      h("h3",{style:"margin-top:14px"},"Botín ",h("span",{class:"hint"},"cae al suelo")),loot),
+    h("div",{class:"card"},h("h3",null,"Esbirros ",h("span",{class:"hint"},"los invoca a la mitad de vida")),
+      h("div",{class:"row"},field("Cantidad",inp(d,"cantidad-esbirros",ch,{type:"number",min:0}))),lineList(d.esbirros,"zombi_corrompido",ch)),
+    h("div",{style:"display:flex;gap:8px"},h("button",{class:"btn",onclick:()=>{const k=prompt("Id para la copia",id+"_2");if(!k)return;const s=slug(k);if(mobsRoot()[s]){toast("Ya existe","bad");return}mobsRoot()[s]=JSON.parse(JSON.stringify(d));st.sel.mobs=s;ch();renderView()}},"Duplicar"),
+      h("button",{class:"btn danger",onclick:()=>{if(!confirm("¿Eliminar "+id+"?"))return;delete mobsRoot()[id];ch();renderView()}},"Eliminar")));
+}
+function listOfMaps(obj,key,cols,blank,ch,addLabel){
+  obj[key]=obj[key]||[]; const arr=obj[key]; const box=h("div",{class:"rows"});
+  const draw=()=>box.replaceChildren(...arr.map((it,k)=>h("div",{class:"rw",style:"grid-template-columns:"+cols.map(c=>c[2]==="num"?"110px":c[2]==="bool"?"auto":"1fr").join(" ")+" auto"},
+    cols.map(([f,l,t])=>t==="bool"?h("div",{style:"padding-bottom:6px"},chk(it,f,l,ch)):t==="num"?field(l,h("input",{type:"number",step:"any",value:it[f]??"",oninput:e=>{if(e.target.value==="")delete it[f];else it[f]=+e.target.value;ch()}})):field(l,inp(it,f,ch,{list:t}))),
+    h("button",{class:"btn ghost danger",onclick:()=>{arr.splice(k,1);draw();ch()}},"✕"))),h("div",null,h("button",{class:"btn sm",onclick:()=>{arr.push({...blank});draw();ch()}},addLabel)));
+  draw(); return box;
+}
+function viewItems(){
+  return yamlList("objetos",itemsRoot(),"Objetos especiales","Armas y objetos únicos con nombre, efectos y estadísticas.",{ejemplo:"espada_kraken",file:"objetos",make:()=>({material:"IRON_SWORD",nombre:"<gold>Nuevo objeto",lore:[]})},itemForm,
+    (id,d)=>{const p=mmSplit(d.nombre);return {t:p.text||id,s:id+" · "+String(d.material||"").toLowerCase(),color:COLORS[p.color]}});
+}
+function itemForm(id,d){
+  const ch=()=>markYaml("objetos"); const name=mmSplit(d.nombre); const setName=()=>{d.nombre=mmJoin(name);ch()};
+  d.lore=d.lore||[]; d.encantamientos=d.encantamientos||{};
+  const ench=h("div",{class:"rows"});
+  const drawEn=()=>ench.replaceChildren(...Object.entries(d.encantamientos).map(([k,v])=>{const o={k,v};return h("div",{class:"rw",style:"grid-template-columns:1fr 100px auto"},
+    field("Encantamiento (id en inglés)",h("input",{value:k,onchange:e=>{delete d.encantamientos[k];d.encantamientos[e.target.value.trim().toLowerCase()]=o.v;ch();drawEn()}})),field("Nivel",h("input",{type:"number",min:1,value:v,oninput:e=>{d.encantamientos[k]=+e.target.value;ch()}})),
+    h("button",{class:"btn ghost danger",onclick:()=>{delete d.encantamientos[k];drawEn();ch()}},"✕"))}),h("div",null,h("button",{class:"btn sm",onclick:()=>{let k="sharpness";while(d.encantamientos[k]!=null)k+="_";d.encantamientos[k]=1;drawEn();ch()}},"+ Añadir encantamiento")));
+  drawEn();
+  const attrs=listOfMaps(d,"atributos",[["atributo","Atributo","dl-atributos"],["valor","Valor","num"],["slot","Dónde (mainhand, head…)",null]],{atributo:"attack_damage",valor:1,slot:"mainhand"},ch,"+ Añadir atributo");
+  const act={v:(d.accion||"").startsWith("invocar:")?"invocar":(d.accion||""),mob:(d.accion||"").startsWith("invocar:")?d.accion.slice(8):""};
+  const setAct=()=>{if(!act.v)delete d.accion;else d.accion=act.v==="invocar"?"invocar:"+act.mob:act.v;ch()};
+  return h("div",{class:"form"},
+    h("h2",{style:"color:"+(COLORS[name.color]||"var(--text)")},name.text||id),h("p",{class:"sub"},"id: "+id+" · en premios: «objeto "+id+"»"),
+    h("div",{class:"card"},h("h3",null,"Identidad"),
+      h("div",{class:"row"},field("Nombre",inp(name,"text",setName)),field("Color",colorSel(name,"color",setName)),h("div",{style:"display:flex;align-items:end;padding-bottom:6px"},chk(name,"bold","Negrita",setName))),
+      h("div",{class:"row"},field("Material base",inp(d,"material",ch,{list:"dl-materiales",ph:"iron_sword"})),field("Color (cuero/pociones)",inp(d,"color",ch,{ph:"#ff8800"}))),
+      h("div",{class:"row"},chk(d,"brillo","Brillo encantado",ch),chk(d,"irrompible","Irrompible",ch),chk(d,"mejorable","Se puede mejorar (+1)",ch))),
+    h("div",{class:"card"},h("h3",null,"Descripción ",h("span",{class:"hint"},"líneas bajo el nombre")),lineList(d.lore,"<gray>Forjada en…",ch)),
+    h("div",{class:"card"},h("h3",null,"Poderes"),
+      h("div",{class:"row"},field("Efecto mientras se sostiene",inp(d,"efecto-en-mano",ch,{list:"dl-efectos",ph:"strength"})),field("Nivel del efecto (0 = I)",inp(d,"efecto-nivel",ch,{type:"number",min:0}))),
+      h("div",{class:"row"},field("Al usarlo (clic derecho)",sel(act,"v",[["","Nada"],["campamento","Volver a la aldea"],["invocar","Invocar un enemigo/jefe"]],()=>{setAct();renderView()})),act.v==="invocar"?field("Qué invoca",inp(act,"mob",setAct,{list:"dl-mobsprop"})):null)),
+    h("div",{class:"card"},h("h3",null,"Encantamientos"),ench),
+    h("div",{class:"card"},h("h3",null,"Atributos ",h("span",{class:"hint"},"daño, velocidad, vida… (reemplazan los del material)")),attrs),
+    h("div",{style:"display:flex;gap:8px"},h("button",{class:"btn danger",onclick:()=>{if(!confirm("¿Eliminar "+id+"?"))return;delete itemsRoot()[id];ch();renderView()}},"Eliminar")));
+}
+function viewShops(){
+  return yamlList("tiendas",shopsRoot(),"Tiendas","Lo que compran y venden los NPCs con servicio de tienda.",{ejemplo:"taberna",file:"tiendas",make:()=>({titulo:"<dark_gray>Nueva tienda",filas:6,objetos:[]})},shopForm,
+    (id,d)=>({t:mmSplit(d.titulo).text||id,s:id+" · "+((d.objetos||[]).length)+" productos"}));
+}
+function shopForm(id,d){
+  const ch=()=>markYaml("tiendas"); d.objetos=d.objetos||[];
+  const rows=listOfMaps(d,"objetos",[["tipo","comprar / vender / mejora",null],["slot","Hueco","num"],["item","Objeto (material:X o custom:id)","dl-itemspec"],["cantidad","Cant.","num"],["precio","Precio","num"],["nivel","Nivel","num"]],{tipo:"comprar",slot:10,item:"material:bread",cantidad:8,precio:20},ch,"+ Añadir producto");
+  return h("div",{class:"form"},h("h2",null,mmSplit(d.titulo).text||id),h("p",{class:"sub"},"id: "+id+" · en un NPC: «servicio: tienda "+id+"»"),
+    h("div",{class:"card"},h("h3",null,"Ventana"),h("div",{class:"row"},field("Título",inp(d,"titulo",ch)),field("Filas (1 a 6)",inp(d,"filas",ch,{type:"number",min:1})))),
+    h("div",{class:"card"},h("h3",null,"Productos ",h("span",{class:"hint"},"hueco: 0 a 53 (9 por fila)")),rows),
+    h("div",null,h("button",{class:"btn danger",onclick:()=>{if(!confirm("¿Eliminar la tienda "+id+"?"))return;delete shopsRoot()[id];ch();renderView()}},"Eliminar tienda")));
+}
+
+// ---------------- Revisar y ayuda
+function viewCheck(){
+  const errs=st.probs.filter(p=>p.error), warns=st.probs.filter(p=>!p.error);
+  return h("div",{class:"form"},
+    h("h2",null,"Revisar y aplicar"),h("p",{class:"sub"},"El servidor revisa tu historia con el mismo verificador del juego. Si hay errores, no se aplica y sigue funcionando la versión anterior."),
+    h("div",{class:"stat"},h("div",null,h("b",{style:"color:"+(errs.length?"var(--red)":"var(--green)")},errs.length),h("span",null,"errores")),h("div",null,h("b",{style:"color:#f3c96b"},warns.length),h("span",null,"avisos")),h("div",null,h("b",null,st.story.missions.length),h("span",null,"misiones")),h("div",null,h("b",null,st.story.npcs.length),h("span",null,"personajes"))),
+    h("div",{style:"display:flex;gap:8px;margin-bottom:14px"},h("button",{class:"btn",onclick:()=>check(true)},"Revisar ahora"),h("button",{class:"btn pri",onclick:()=>save(true)},"Guardar y aplicar en el juego")),
+    st.probs.length?h("div",{class:"probs"},st.probs.map(p=>h("div",{class:"prob "+(p.error?"e":"w"),onclick:()=>{if(p.where){st.view=p.where.view;if(p.where.key!=null)st.sel[p.where.view]=p.where.key;render()}}},
+      h("span",{class:"k"},p.error?"Error":"Aviso"),h("div",null,h("div",null,p.mensaje),h("div",{class:"where"},describeWhere(p)))))):h("div",{class:"card"},h("h3",null,"Todo en orden"),h("p",{style:"margin:0;color:var(--muted)"},"No hay errores ni avisos. Pulsa «Guardar y aplicar» para verlo en el juego.")),
+    h("details",{class:"card",style:"margin-top:14px"},h("summary",{style:"cursor:pointer;color:var(--gold);font-weight:600"},"Ver historia.txt tal como se guardará"),h("pre",{class:"preview",style:"max-height:420px;overflow:auto"},serialize(st.story))));
+}
+function describeWhere(p){if(!p.where)return p.linea?"línea "+p.linea:"";if(p.where.view==="npcs")return "Personaje: "+p.where.key;if(p.where.view==="misiones"){const m=st.story.missions[p.where.key];return "Misión "+(p.where.key+1)+": "+(m?m.titulo:"")}return "Datos de la historia"}
+function viewHelp(){
+  return h("div",{class:"form",style:"max-width:900px"},h("h2",null,"Cómo usar el editor"),h("p",{class:"sub"},"Todo lo que haces aquí se guarda en la carpeta de tu historia, dentro del servidor."),
+    h("div",{class:"card"},h("h3",null,"Flujo"),h("ol",{style:"margin:0;padding-left:20px;color:var(--muted)"},
+      h("li",null,"Crea personajes en ",h("b",null,"Personajes"),": nombre, skin (del catálogo, de un archivo o de un link), oficio y lugar."),
+      h("li",null,"Escribe las misiones en orden en ",h("b",null,"Misiones"),": quién la da, diálogo, objetivos y premio."),
+      h("li",null,"Si quieres jefes o armas únicas, créalos en ",h("b",null,"Enemigos y jefes")," y ",h("b",null,"Objetos especiales"),"."),
+      h("li",null,"Pulsa ",h("b",null,"Guardar y aplicar en el juego"),". Si hay errores te dice dónde y el juego sigue con la versión anterior."))),
+    h("div",{class:"card"},h("h3",null,"En el juego"),h("p",{style:"margin:0;color:var(--muted)"},h("span",{class:"kbd"},"/historia editor")," abre este editor · ",h("span",{class:"kbd"},"/historia colocar <npc>")," pone a un personaje donde estás parado · ",h("span",{class:"kbd"},"/historia errores")," muestra los problemas.")),
+    h("div",{class:"card"},h("h3",null,"Copias de seguridad"),h("p",{style:"margin:0;color:var(--muted)"},"Cada vez que guardas, la versión anterior queda como ",h("span",{class:"kbd"},"historia.txt.bak")," (y ",h("span",{class:"kbd"},"mobs.yml.bak"),", etc.) en la misma carpeta.")));
+}
+
+// ------------------------------------------------------------------ revisar / guardar
+async function check(show){
+  try{const txt=serialize(st.story);const r=await api("revisar",{method:"POST",body:txt});
+    st.probs=r.problemas.map(p=>({...p,where:whereIs(p.linea)}));
+    updateTop(); if(st.view==="revisar"||show){ if(show&&st.view!=="revisar"&&r.errores) toast(r.errores+" error(es). Mira «Revisar y aplicar».","bad"); else if(show&&!r.errores) toast("Sin errores"+(r.problemas.length?" ("+r.problemas.length+" avisos)":""),"good"); }
+    if(st.view==="revisar") renderView();
+  }catch(e){if(show)toast(e.message,"bad")}
+}
+async function save(apply){
+  if(st.busy) return; st.busy=true;
+  try{
+    for(const n of ["mobs","objetos","tiendas"]) if(st.yamlDirty[n]){await api("yaml?archivo="+n,{method:"PUT",body:JSON.stringify(st.yaml[n])});st.yamlDirty[n]=false}
+    const txt=serialize(st.story);
+    if(st.txtDirty||apply){await api("texto",{method:"PUT",body:txt});st.txtDirty=false}
+    if(apply){const r=await api("aplicar",{method:"POST"});st.probs=r.problemas.map(p=>({...p,where:whereIs(p.linea)}));
+      if(r.aplicado) toast("✔ Aplicado en el juego: "+r.misiones+" misiones, "+r.npcs+" personajes","good");
+      else {toast("Guardado, pero tiene "+r.errores+" error(es): el juego sigue con la versión anterior","bad");st.view="revisar"}
+      st.cat=await api("catalogo");
+    } else toast("Guardado","good");
+    render();
+  }catch(e){toast(e.message,"bad")}finally{st.busy=false}
+}
+async function loadAll(){
+  st.cat=await api("catalogo");
+  const t=await api("texto"); st.story=parseStory(t.texto);
+  if(!st.story.currency) st.story.currency=st.cat.moneda||"";
+  for(const n of ["mobs","objetos","tiendas"]){const y=await api("yaml?archivo="+n);st.yaml[n]=y.datos||{}}
+  st.txtDirty=false; st.yamlDirty={}; serialize(st.story); render(); check(false);
+}
+window.addEventListener("beforeunload",e=>{if(dirty()){e.preventDefault();e.returnValue=""}});
+window.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="s"){e.preventDefault();save(false)}});
+render();
+if(TOKEN) loadAll().catch(e=>{$("#app").replaceChildren(lockScreen("No se pudo conectar con el servidor: "+e.message))});
+</script>
+</body>
+</html>

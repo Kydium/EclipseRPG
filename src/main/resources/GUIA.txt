@@ -2,6 +2,15 @@
   CÓMO CREAR TU PROPIA HISTORIA  —  Motor EclipseRPG
 =====================================================================
 
+LA FORMA MÁS FÁCIL: EL EDITOR VISUAL
+    Dentro del juego escribe  /historia editor  y haz clic en el link.
+    Se abre en el navegador un editor con formularios para personajes
+    (con galería de skins, subir PNG o pegar un link), misiones,
+    enemigos y jefes (vida, regeneración, habilidades, equipo), objetos
+    y tiendas. El botón "Guardar y aplicar" lo pone en el juego al
+    instante. Lo que sigue explica el archivo que el editor escribe por
+    ti, por si prefieres editarlo a mano.
+
 Todo se escribe en UN archivo de texto, en español:
 
     plugins/EclipseRPG/historias/<nombre>/historia.txt

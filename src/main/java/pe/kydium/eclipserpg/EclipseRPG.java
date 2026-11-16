@@ -43,6 +43,7 @@ public final class EclipseRPG extends JavaPlugin {
     private HotkeyMenu hotkeys;
     private pe.kydium.eclipserpg.story.StoryManager story;
     private pe.kydium.eclipserpg.npc.ResourcePack resourcePack;
+    private pe.kydium.eclipserpg.web.EditorApi editor;
 
     @Override
     public void onEnable() {
@@ -84,6 +85,11 @@ public final class EclipseRPG extends JavaPlugin {
         resourcePack = new pe.kydium.eclipserpg.npc.ResourcePack(this);
         resourcePack.start();
         pm.registerEvents(resourcePack, this);
+        editor = new pe.kydium.eclipserpg.web.EditorApi(this);
+        if (resourcePack.server() != null) {
+            editor.register(resourcePack.server());
+            getLogger().info("Editor visual: " + editor.url(null) + "  (o usa /historia editor dentro del juego)");
+        }
         pm.registerEvents(hotkeys, this);
         hotkeys.installDatapack();
 
@@ -105,6 +111,7 @@ public final class EclipseRPG extends JavaPlugin {
 
         items.startHeldEffectTask();
         mobs.startBarTask();
+        mobs.startRegenTask();
         new pe.kydium.eclipserpg.mobs.BossAbilities(this, mobs).start();
         rifts.startTask();
         dungeons.startTask();
@@ -259,4 +266,5 @@ public final class EclipseRPG extends JavaPlugin {
 
     public String villageName() { return story == null ? "la Aldea" : story.doc().village; }
     public pe.kydium.eclipserpg.npc.ResourcePack resourcePack() { return resourcePack; }
+    public pe.kydium.eclipserpg.web.EditorApi editor() { return editor; }
 }
