@@ -101,6 +101,7 @@ public final class EclipseRPG extends JavaPlugin {
         ruins.startTask();
         npcEntities.startTask();
         Bukkit.getScheduler().runTaskLater(this, village::autoGenerate, 100L);
+        if (pe.kydium.eclipserpg.test.SmokeTest.enabled()) new pe.kydium.eclipserpg.test.SmokeTest(this).start();
         long autosave = getConfig().getLong("autoguardado-minutos", 5) * 60L * 20L;
         Bukkit.getScheduler().runTaskTimer(this, data::saveAll, autosave, autosave);
 
@@ -186,6 +187,7 @@ public final class EclipseRPG extends JavaPlugin {
     public QuestManager quests() { return quests; }
     public NpcManager npcs() { return npcs; }
     public DungeonManager dungeons() { return dungeons; }
+    public RuinManager ruins() { return ruins; }
     public VillageBuilder village() { return village; }
     public NpcEntities npcEntities() { return npcEntities; }
     public HotkeyMenu hotkeys() { return hotkeys; }

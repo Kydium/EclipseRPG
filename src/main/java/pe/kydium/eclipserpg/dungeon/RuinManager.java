@@ -110,11 +110,16 @@ public final class RuinManager implements Listener {
         });
     }
 
-    private void build(World w, int cx, int cz) {
-        if (!w.isChunkLoaded(cx >> 4, cz >> 4)) return;
+    /** Construye una ruina aquí (también lo usa la prueba automática). Devuelve el cofre o null. */
+    public Block buildAt(World w, int cx, int cz) {
+        return build(w, cx, cz);
+    }
+
+    private Block build(World w, int cx, int cz) {
+        if (!w.isChunkLoaded(cx >> 4, cz >> 4)) return null;
         Block top = w.getHighestBlockAt(cx, cz, HeightMap.MOTION_BLOCKING_NO_LEAVES);
         Material ground = top.getType();
-        if (top.isLiquid() || ground == Material.ICE || !ground.isSolid()) return;
+        if (top.isLiquid() || ground == Material.ICE || !ground.isSolid()) return null;
         boolean desert = ground == Material.SAND || ground == Material.RED_SAND || ground == Material.SANDSTONE;
         ThreadLocalRandom r = ThreadLocalRandom.current();
         RuinBuilder.Variant v = RuinBuilder.Variant.values()[r.nextInt(RuinBuilder.Variant.values().length)];
@@ -137,10 +142,15 @@ public final class RuinManager implements Listener {
             }
         }
         Connect.fix(w, joins);
+        // el cofre ya trae botín (según la distancia al spawn); al despertar la ruina salen sus guardianes
+        Block chestBlock = w.getBlockAt(cx + res.chestX, y + res.chestY, cz + res.chestZ);
+        int tier = (int) Math.max(1, Math.min(10, 1 + Math.hypot(cx - w.getSpawnLocation().getX(), cz - w.getSpawnLocation().getZ()) / 400));
+        if (chestBlock.getState() instanceof Chest c) plugin.dungeons().fillLoot(c.getBlockInventory(), tier, 2);
         pending.add(new Ruin(w.getName(), cx + res.altarX, y + res.altarY, cz + res.altarZ,
                 cx + res.chestX, y + res.chestY, cz + res.chestZ));
         created++;
         if (created % 5 == 0) save();
+        return chestBlock;
     }
 
     public void startTask() {
@@ -190,6 +200,6 @@ public final class RuinManager implements Listener {
             if (le != null) le.setRemoveWhenFarAway(true);
         }
         Block chest = w.getBlockAt(ru.chx(), ru.chy(), ru.chz());
-        if (chest.getState() instanceof Chest c) plugin.dungeons().fillLoot(c.getBlockInventory(), tier, 1);
+        if (chest.getState() instanceof Chest c) plugin.dungeons().fillLoot(c.getBlockInventory(), tier, 1); // premio extra
     }
 }

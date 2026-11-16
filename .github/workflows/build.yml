@@ -42,6 +42,28 @@ jobs:
           name: EclipseRPG
           path: build/libs/*.jar
 
+      - name: Prueba en un servidor real (aldea, NPCs, ruina, mazmorra)
+        run: |
+          mkdir -p srv/plugins
+          URL=$(curl -s -A "EclipseRPG-CI" https://fill.papermc.io/v3/projects/paper/versions/26.2/builds/latest | jq -r '.downloads["server:default"].url')
+          echo "Paper: $URL"
+          curl -sL -A "EclipseRPG-CI" -o srv/paper.jar "$URL"
+          cp build/libs/*.jar srv/plugins/
+          cd srv
+          echo "eula=true" > eula.txt
+          printf "online-mode=false\nspawn-protection=0\nview-distance=6\nsimulation-distance=6\nlevel-seed=20261116\n" > server.properties
+          timeout 1200 java -Xmx6G -Declipse.prueba=true -jar paper.jar --nogui < /dev/null > ../prueba.log 2>&1 || true
+          cd ..
+          grep -E "\[PRUEBA\]|EclipseRPG.*(WARN|ERROR|Exception)|Bloque desconocido|no reconocidos" prueba.log || true
+          grep -q "RESULTADO: TODO BIEN" prueba.log
+
+      - name: Guardar registro de la prueba
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prueba-log
+          path: prueba.log
+
       - name: Publicar descarga
         uses: softprops/action-gh-release@v2
         with:

@@ -109,6 +109,7 @@ public final class NpcEntities implements Listener {
                     "Bruno hace las mejores espadas de la región.", "Pip vende de todo… a precio de oro.", "Que el eclipse no te encuentre de noche.",
                     "Hace tiempo que no llegaba nadie nuevo a la aldea.", "Dicen que bajo la tierra duermen cosas antiguas."));
 
+    private static final boolean TEST = Boolean.getBoolean("eclipse.prueba");
     private final EclipseRPG plugin;
     private final Map<String, UUID> npcs = new HashMap<>();
     private final Set<UUID> fillers = new HashSet<>();
@@ -456,7 +457,7 @@ public final class NpcEntities implements Listener {
     private void step(LivingEntity le, Walk w) {
         Location loc = le.getLocation();
         // nadie cerca: no gastar
-        if (nearest(le, 72) == null) return;
+        if (!TEST && nearest(le, 72) == null) return;
         ThreadLocalRandom r = ThreadLocalRandom.current();
         Player close = nearest(le, w.story ? 5 : 3);
         if (close != null) {
@@ -588,6 +589,14 @@ public final class NpcEntities implements Listener {
 
     public void cleanup() {
         for (String id : marks.keySet().toArray(new String[0])) removeMarks(id);
+    }
+
+    public Map<String, UUID> storyIds() {
+        return npcs;
+    }
+
+    public Set<UUID> fillerIds() {
+        return fillers;
     }
 
     public boolean has(String id) {

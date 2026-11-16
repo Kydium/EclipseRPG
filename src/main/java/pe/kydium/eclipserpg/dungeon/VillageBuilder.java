@@ -156,6 +156,10 @@ public final class VillageBuilder implements Listener {
 
     // ---------- Construcción ----------
 
+    public boolean isBusy() {
+        return busy;
+    }
+
     public boolean isGenerated() {
         return plugin.getConfig().getBoolean("aldea.generada", false);
     }
@@ -187,6 +191,11 @@ public final class VillageBuilder implements Listener {
         World w = center.getWorld();
         int cx = center.getBlockX(), cz = center.getBlockZ(), gy = center.getBlockY();
         int R = radius + 2;
+        if (Boolean.getBoolean("eclipse.prueba")) {
+            // en la prueba no hay jugadores: mantener la aldea cargada
+            for (int x = (cx - R) >> 4; x <= (cx + R) >> 4; x++)
+                for (int z = (cz - R) >> 4; z <= (cz + R) >> 4; z++) w.addPluginChunkTicket(x, z, plugin);
+        }
         List<int[]> prep = new ArrayList<>();
         plugin.getLogger().info("Construyendo la Aldea del Alba en " + cx + " " + gy + " " + cz);
         if (who != null) Txt.send(who, "<yellow>Construyendo la Aldea del Alba… dame unos segundos.");

@@ -211,10 +211,34 @@ public final class DungeonManager implements Listener {
         build(act, p);
     }
 
+    /** Construye la mazmorra sin jugador (prueba automática). */
+    public void buildForTest(int act) {
+        build(act, null);
+    }
+
+    public boolean isBuilt(int act) {
+        Dungeon d = dungeons.get(act);
+        return d != null && d.built;
+    }
+
+    public int[] entrance(int act) {
+        Dungeon d = dungeons.get(act);
+        return d == null ? null : new int[]{d.ex, d.ey, d.ez};
+    }
+
+    public Box bounds(int act) {
+        Dungeon d = dungeons.get(act);
+        return d == null ? null : d.bounds;
+    }
+
+    private static void msg(Player p, String m) {
+        if (p != null) Txt.send(p, m);
+    }
+
     private void build(int act, Player p) {
         ConfigurationSection t = theme(act);
         if (t == null) {
-            Txt.send(p, "<red>No hay mazmorra configurada para el acto " + act);
+            msg(p, "<red>No hay mazmorra configurada para el acto " + act);
             return;
         }
         Location camp = plugin.items().campLocation();
@@ -254,7 +278,7 @@ public final class DungeonManager implements Listener {
             surface = top.getY();
         }
         if (spot == null) {
-            Txt.send(p, "<red>No encontré un buen lugar para la mazmorra. Intenta de nuevo más tarde.");
+            msg(p, "<red>No encontré un buen lugar para la mazmorra. Intenta de nuevo más tarde.");
             waiting.remove(act);
             return;
         }
@@ -294,7 +318,7 @@ public final class DungeonManager implements Listener {
         d.doors.addAll(res.bossDoors);
         dungeons.put(act, d);
         building.add(act);
-        Txt.send(p, "<light_purple>La tierra tiembla… " + name(act) + "<light_purple> está emergiendo.");
+        msg(p, "<light_purple>La tierra tiembla… " + name(act) + "<light_purple> está emergiendo.");
 
         int perTick = g == null ? 6000 : g.getInt("bloques-por-tick", 6000);
         List<DungeonBuilder.Op> ops = res.ops;
