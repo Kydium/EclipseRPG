@@ -10,6 +10,8 @@ import pe.kydium.eclipserpg.contracts.ContractManager;
 import pe.kydium.eclipserpg.data.DataManager;
 import pe.kydium.eclipserpg.dungeon.DungeonManager;
 import pe.kydium.eclipserpg.dungeon.RuinManager;
+import pe.kydium.eclipserpg.dungeon.VillageBuilder;
+import pe.kydium.eclipserpg.npc.NpcEntities;
 import pe.kydium.eclipserpg.items.ItemManager;
 import pe.kydium.eclipserpg.menu.MenuListener;
 import pe.kydium.eclipserpg.mobs.MobManager;
@@ -35,6 +37,8 @@ public final class EclipseRPG extends JavaPlugin {
     private NpcManager npcs;
     private DungeonManager dungeons;
     private RuinManager ruins;
+    private VillageBuilder village;
+    private NpcEntities npcEntities;
 
     @Override
     public void onEnable() {
@@ -56,6 +60,8 @@ public final class EclipseRPG extends JavaPlugin {
         dungeons = new DungeonManager(this);
         ruins = new RuinManager(this);
         ruins.load();
+        village = new VillageBuilder(this);
+        npcEntities = new NpcEntities(this);
         loadContent();
 
         var pm = Bukkit.getPluginManager();
@@ -68,6 +74,8 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(quests, this);
         pm.registerEvents(dungeons, this);
         pm.registerEvents(ruins, this);
+        pm.registerEvents(village, this);
+        pm.registerEvents(npcEntities, this);
 
         PlayerCommands pc = new PlayerCommands(this);
         for (String c : new String[]{"nivel", "soles", "pagar", "misiones", "mision"}) bind(c, pc);
@@ -84,6 +92,8 @@ public final class EclipseRPG extends JavaPlugin {
         rifts.startTask();
         dungeons.startTask();
         ruins.startTask();
+        npcEntities.startTask();
+        Bukkit.getScheduler().runTaskLater(this, village::autoGenerate, 100L);
         long autosave = getConfig().getLong("autoguardado-minutos", 5) * 60L * 20L;
         Bukkit.getScheduler().runTaskTimer(this, data::saveAll, autosave, autosave);
 
@@ -100,6 +110,7 @@ public final class EclipseRPG extends JavaPlugin {
         if (mobs != null) mobs.cleanup();
         if (data != null) data.saveAll();
         if (ruins != null) ruins.save();
+        if (npcEntities != null) npcEntities.cleanup();
     }
 
     private void bind(String name, PlayerCommands pc) {
@@ -119,6 +130,7 @@ public final class EclipseRPG extends JavaPlugin {
         npcs.load();
         dungeons.load();
         ruins.reloadSettings();
+        npcEntities.load();
     }
 
     public void reloadAll() {
@@ -137,4 +149,6 @@ public final class EclipseRPG extends JavaPlugin {
     public QuestManager quests() { return quests; }
     public NpcManager npcs() { return npcs; }
     public DungeonManager dungeons() { return dungeons; }
+    public VillageBuilder village() { return village; }
+    public NpcEntities npcEntities() { return npcEntities; }
 }

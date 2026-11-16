@@ -124,9 +124,13 @@ grieta:
     10: [enderman_corrompido, piglin_bruto_corrompido, sombra_corrompida]
 
 aldea:
-  aldeanos-relleno: 12          # aldeanos que aparecen al construir la aldea
+  auto: true                    # construir la Aldea del Alba sola al iniciar un mundo nuevo
+  biomas: [plains, sunflower_plains, meadow, forest, flower_forest, birch_forest, old_growth_birch_forest, cherry_grove, savanna]
+  busqueda-max: 1500            # distancia máxima desde el spawn para buscar lugar
+  desnivel-max: 7               # diferencia de altura aceptada en el terreno
+  bloques-por-tick: 8000
   aldeanos-invencibles: true    # que no los maten los Corrompidos
-  # "puestos" se llena solo con /eclipse construiraldea
+  # generada, centro y puestos se llenan solos
 
 # Se guarda con /eclipse setcampamento (destino del Pergamino del Campamento)
 campamento: {}

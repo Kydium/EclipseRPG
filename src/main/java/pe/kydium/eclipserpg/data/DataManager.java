@@ -96,6 +96,12 @@ public final class DataManager {
         }
     }
 
+    /** Borra todo el progreso de un jugador. */
+    public void reset(UUID uuid) {
+        cache.put(uuid, new PlayerData(uuid));
+        save(uuid);
+    }
+
     public void unload(UUID uuid) {
         save(uuid);
         cache.remove(uuid);

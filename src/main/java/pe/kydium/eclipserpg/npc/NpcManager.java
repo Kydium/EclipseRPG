@@ -88,6 +88,30 @@ public final class NpcManager {
      * de Citizens como el jugador (que debe ser OP).
      */
     public void createAll(Player p) {
+        Map<String, Location> spots = new LinkedHashMap<>();
+        Location c = plugin.items().campLocation();
+        List<NpcDef> all = new ArrayList<>(npcs.values());
+        for (int i = 0; i < all.size(); i++) {
+            NpcDef n = all.get(i);
+            String k = "aldea.puestos." + n.id;
+            Location at;
+            if (plugin.getConfig().contains(k + ".x")) {
+                at = new Location(c.getWorld(), plugin.getConfig().getDouble(k + ".x"), plugin.getConfig().getDouble(k + ".y"),
+                        plugin.getConfig().getDouble(k + ".z"), (float) plugin.getConfig().getDouble(k + ".yaw"), 0f);
+            } else {
+                double a = 2 * Math.PI * i / all.size();
+                at = c.clone().add(Math.cos(a) * 6, 0, Math.sin(a) * 6);
+                at = at.getWorld().getHighestBlockAt(at).getLocation().add(0.5, 1, 0.5);
+                at.setDirection(c.toVector().subtract(at.toVector()));
+            }
+            spots.put(n.id, at);
+        }
+        plugin.npcEntities().spawnAll(spots);
+        Txt.send(p, "<green>Listo: " + spots.size() + " NPCs en sus puestos.");
+    }
+
+    /** Versión anterior con Citizens (por si alguien la prefiere). */
+    public void createAllCitizens(Player p) {
         if (Bukkit.getPluginManager().getPlugin("Citizens") == null) {
             Txt.send(p, "<red>Citizens no está instalado.");
             return;

@@ -26,7 +26,7 @@ import java.util.Locale;
 public final class AdminCommand implements CommandExecutor, TabCompleter {
     private static final List<String> SUBS = List.of(
             "tienda", "contratos", "grieta", "xp", "soles", "nivel", "item", "spawn",
-            "info", "setcampamento", "recargar", "npc", "crearnpcs", "mision", "construiraldea", "aldeanos", "mazmorra", "mazmorras");
+            "info", "setcampamento", "recargar", "npc", "crearnpcs", "mision", "construiraldea", "brujula", "reiniciar", "mazmorra", "mazmorras");
 
     private final EclipseRPG plugin;
 
@@ -73,15 +73,28 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                     Txt.send(s, "<red>Úsalo dentro del juego.");
                     return true;
                 }
-                new pe.kydium.eclipserpg.dungeon.VillageBuilder(plugin).build(p);
+                Location here = p.getLocation().getBlock().getLocation().add(0, -1, 0);
+                plugin.village().build(here, p);
             }
-            case "aldeanos" -> {
-                if (!(s instanceof Player p)) return true;
-                Long n = a.length > 1 ? number(s, a[1]) : Long.valueOf(6);
-                if (n == null) return true;
-                Location c = plugin.items().campLocation();
-                new pe.kydium.eclipserpg.dungeon.VillageBuilder(plugin).spawnVillagers(c.getWorld(), c, c.getBlockY() - 1, (int) Math.min(40, n));
-                Txt.send(p, "<green>Aparecieron " + n + " aldeanos en la aldea.");
+            case "brujula" -> {
+                Player p = a.length > 1 ? player(s, a[1]) : (s instanceof Player pl ? pl : null);
+                if (p != null) plugin.village().giveCompass(p);
+            }
+            case "reiniciar" -> {
+                // /eclipse reiniciar <jugador|todos>
+                if (a.length < 2) return usage(s, "/eclipse reiniciar <jugador|todos>");
+                List<Player> targets = new ArrayList<>();
+                if (a[1].equalsIgnoreCase("todos")) targets.addAll(Bukkit.getOnlinePlayers());
+                else {
+                    Player p = player(s, a[1]);
+                    if (p != null) targets.add(p);
+                }
+                for (Player p : targets) {
+                    plugin.data().reset(p.getUniqueId());
+                    plugin.levels().applyAll(p);
+                    Txt.send(p, "<yellow>Tu progreso fue reiniciado. ¡Empieza de nuevo, Guardián!");
+                }
+                Txt.send(s, "<green>Reiniciados: " + targets.size());
             }
             case "mazmorra" -> {
                 // /eclipse mazmorra <acto> [jugador]
@@ -205,7 +218,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 "/eclipse nivel <jugador> <n>", "/eclipse item <jugador> <id> [n]",
                 "/eclipse spawn <mob> <jugador> [n]", "/eclipse info <jugador>",
                 "/eclipse npc <id> <jugador>", "/eclipse crearnpcs", "/eclipse mision <jugador> <n>",
-                "/eclipse construiraldea", "/eclipse aldeanos [n]", "/eclipse mazmorra <acto> [jugador]", "/eclipse mazmorras",
+                "/eclipse construiraldea", "/eclipse brujula [jugador]", "/eclipse reiniciar <jugador|todos>", "/eclipse mazmorra <acto> [jugador]", "/eclipse mazmorras",
                 "/eclipse setcampamento", "/eclipse recargar"};
         for (String l : lines) s.sendMessage(Txt.mm("<gray>" + l));
     }
@@ -242,7 +255,8 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                     case "npc" -> opts.addAll(plugin.npcs().ids());
                     case "mision" -> opts.addAll(names());
                     case "spawn" -> opts.addAll(plugin.mobs().ids());
-                    case "contratos", "grieta", "xp", "soles", "nivel", "item", "info" -> opts.addAll(names());
+                    case "contratos", "grieta", "xp", "soles", "nivel", "item", "info", "brujula" -> opts.addAll(names());
+                    case "reiniciar" -> { opts.add("todos"); opts.addAll(names()); }
                     default -> { }
                 }
             } else if (a.length == 3) {

@@ -204,14 +204,29 @@ public final class DungeonManager implements Listener {
         Random r = new Random(w.getSeed() ^ (act * 7919L));
         Location spot = null;
         int surface = 0;
-        for (int tries = 0; tries < 16 && spot == null; tries++) {
+        for (int tries = 0; tries < 60 && spot == null; tries++) {
             double ang = r.nextDouble() * Math.PI * 2;
             double dist = min + r.nextDouble() * (max - min);
             int x = camp.getBlockX() + (int) (Math.cos(ang) * dist);
             int z = camp.getBlockZ() + (int) (Math.sin(ang) * dist);
             Block top = w.getHighestBlockAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
             Material m = top.getType();
-            if (top.isLiquid() || m == Material.ICE || m == Material.PACKED_ICE || m == Material.BLUE_ICE) continue;
+            if (top.isLiquid() || m == Material.ICE || m == Material.PACKED_ICE || m == Material.BLUE_ICE
+                    || m == Material.SNOW_BLOCK || m == Material.POWDER_SNOW || top.getRelative(0, 1, 0).getType() == Material.SNOW) continue;
+            String biome = w.getBiome(x, top.getY(), z).getKey().getKey();
+            boolean badBiome = false;
+            for (String bad : cfg.getStringList("general.biomas-prohibidos")) if (biome.contains(bad)) badBiome = true;
+            if (badBiome) continue;
+            // terreno más o menos plano alrededor de la entrada
+            int hMin = top.getY(), hMax = top.getY();
+            boolean wet = false;
+            for (int[] o2 : new int[][]{{6, 0}, {-6, 0}, {0, 6}, {0, -6}}) {
+                Block b2 = w.getHighestBlockAt(x + o2[0], z + o2[1], HeightMap.MOTION_BLOCKING_NO_LEAVES);
+                if (b2.isLiquid()) wet = true;
+                hMin = Math.min(hMin, b2.getY());
+                hMax = Math.max(hMax, b2.getY());
+            }
+            if (wet || hMax - hMin > 4) continue;
             if (top.getY() - depth < w.getMinHeight() + 6) continue;
             spot = top.getLocation();
             surface = top.getY();

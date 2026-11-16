@@ -13,6 +13,7 @@ general:
   bloques-por-tick: 6000        # velocidad de construcción
   reaparicion-minutos: 15       # las salas vuelven a llenarse de enemigos
   enemigos-por-sala: 3          # + 1 por cada 3 tiers + 1 por jugador extra
+  biomas-prohibidos: [ocean, river, frozen, ice, snowy, beach, swamp, mangrove, peaks, jagged, stony, grove, desert, badlands]
 
 ruinas:
   activas: true

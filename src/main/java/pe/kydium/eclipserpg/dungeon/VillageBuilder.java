@@ -1,251 +1,368 @@
 package pe.kydium.eclipserpg.dungeon;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
+import org.bukkit.HeightMap;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Cat;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.CompassMeta;
 import pe.kydium.eclipserpg.EclipseRPG;
+import pe.kydium.eclipserpg.data.PlayerData;
 import pe.kydium.eclipserpg.util.Txt;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.zip.GZIPInputStream;
 
 /**
- * Construye la Aldea del Alba alrededor del campamento: plaza con pozo, 8 casas
- * (una por NPC), caminos, granjas, muralla con puertas y aldeanos de relleno.
+ * La Aldea del Alba: se genera sola al iniciar el mundo en un lugar plano de un bioma
+ * agradable, a partir del plano aldea.txt.gz. Coloca NPCs, aldeanos y animales,
+ * y da a cada jugador una brújula que apunta a ella.
  */
-public final class VillageBuilder {
+public final class VillageBuilder implements Listener {
 
-    private record Op(int x, int y, int z, Material m) {}
+    private record Op(int x, int y, int z, BlockData data) {}
 
-    private static final String[] NPC_ORDER = {"tula", "bruno", "ines", "pip", "lia", "odon", "velkar", "errante"};
     private static final String[] NAMES = {"Rosa", "Tomás", "Lucía", "Mateo", "Carmen", "Andrés", "Elena", "Julián",
-            "Marta", "Diego", "Sofía", "Ramón", "Valeria", "Hugo", "Inés la Joven", "Benito", "Paula", "Óscar", "Nina", "Gael"};
+            "Marta", "Diego", "Sofía", "Ramón", "Valeria", "Hugo", "Benito", "Paula", "Óscar", "Nina", "Gael", "Abril",
+            "Ernesto", "Lola", "Simón", "Clara"};
+    private static final Set<String> FLUIDS = Set.of("water", "lava");
 
     private final EclipseRPG plugin;
     private final List<Op> ops = new ArrayList<>();
-    private final Random rnd = new Random();
-    private final Map<String, Location> npcSpots = new LinkedHashMap<>();
+    private final List<JsonObject> markers = new ArrayList<>();
+    private int radius = 44;
+    private boolean busy;
 
     public VillageBuilder(EclipseRPG plugin) {
         this.plugin = plugin;
     }
 
-    private void set(int x, int y, int z, Material m) {
-        ops.add(new Op(x, y, z, m));
+    // ---------- Plano ----------
+
+    private boolean loadBlueprint() {
+        if (!ops.isEmpty()) return true;
+        int bad = 0;
+        try (InputStream in = plugin.getResource("aldea.txt.gz")) {
+            if (in == null) return false;
+            BufferedReader r = new BufferedReader(new InputStreamReader(new GZIPInputStream(in), StandardCharsets.UTF_8));
+            Map<String, BlockData> cache = new HashMap<>();
+            String line;
+            while ((line = r.readLine()) != null) {
+                if (line.isBlank()) continue;
+                if (line.startsWith("#")) {
+                    JsonObject o = JsonParser.parseString(line.substring(1)).getAsJsonObject();
+                    if ("radius".equals(o.get("t").getAsString())) radius = o.get("r").getAsInt();
+                    else markers.add(o);
+                    continue;
+                }
+                String[] p = line.split(" ", 4);
+                String state = p[3].equals("air") ? "minecraft:air" : p[3];
+                BlockData bd = cache.get(state);
+                if (bd == null) {
+                    try {
+                        bd = Bukkit.createBlockData(state);
+                    } catch (IllegalArgumentException e) {
+                        try {
+                            bd = Bukkit.createBlockData(state.contains("[") ? state.substring(0, state.indexOf('[')) : state);
+                        } catch (IllegalArgumentException e2) {
+                            bad++;
+                            continue;
+                        }
+                    }
+                    cache.put(state, bd);
+                }
+                ops.add(new Op(Integer.parseInt(p[0]), Integer.parseInt(p[1]), Integer.parseInt(p[2]), bd));
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("No se pudo leer el plano de la aldea: " + e.getMessage());
+            return false;
+        }
+        if (bad > 0) plugin.getLogger().warning("Plano de la aldea: " + bad + " bloques no reconocidos (se omiten)");
+        return true;
     }
 
-    public void build(Player p) {
-        Location c = plugin.items().campLocation();
-        World w = c.getWorld();
-        int cx = c.getBlockX(), cz = c.getBlockZ();
-        int gy = c.getBlockY() - 1; // nivel del suelo
-        int R = 30;
+    // ---------- Buscar sitio ----------
 
-        // 1) Aplanar y limpiar
-        for (int x = cx - R; x <= cx + R; x++) {
-            for (int z = cz - R; z <= cz + R; z++) {
-                for (int y = gy - 3; y < gy; y++) set(x, y, z, Material.DIRT);
-                set(x, gy, z, Material.GRASS_BLOCK);
-                for (int y = gy + 1; y <= gy + 14; y++) set(x, y, z, Material.AIR);
-            }
-        }
-        // 2) Caminos en cruz
-        for (int d = -R; d <= R; d++) {
-            for (int o = -1; o <= 1; o++) {
-                set(cx + d, gy, cz + o, Material.DIRT_PATH);
-                set(cx + o, gy, cz + d, Material.DIRT_PATH);
-            }
-        }
-        // 3) Plaza y pozo
-        for (int x = cx - 6; x <= cx + 6; x++)
-            for (int z = cz - 6; z <= cz + 6; z++)
-                set(x, gy, z, rnd.nextDouble() < 0.25 ? Material.MOSSY_STONE_BRICKS : Material.STONE_BRICKS);
-        for (int x = cx - 2; x <= cx + 2; x++) {
-            for (int z = cz - 2; z <= cz + 2; z++) {
-                boolean rim = Math.abs(x - cx) == 2 || Math.abs(z - cz) == 2;
-                if (rim) set(x, gy + 1, z, Material.COBBLESTONE_WALL);
-                else {
-                    set(x, gy, z, Material.WATER);
-                    set(x, gy - 1, z, Material.WATER);
+    private boolean goodBiome(World w, int x, int y, int z) {
+        String key = w.getBiome(x, y, z).getKey().getKey();
+        return plugin.getConfig().getStringList("aldea.biomas").contains(key);
+    }
+
+    /** Busca un lugar plano en un bioma bueno, en espiral desde el spawn. */
+    public Location findSite(World w) {
+        Location spawn = w.getSpawnLocation();
+        int maxR = plugin.getConfig().getInt("aldea.busqueda-max", 1500);
+        Location best = null;
+        int bestDiff = Integer.MAX_VALUE;
+        for (int r = 0; r <= maxR; r += 96) {
+            int steps = r == 0 ? 1 : Math.max(8, r / 48);
+            for (int i = 0; i < steps; i++) {
+                double a = 2 * Math.PI * i / steps;
+                int x = spawn.getBlockX() + (int) (Math.cos(a) * r);
+                int z = spawn.getBlockZ() + (int) (Math.sin(a) * r);
+                Block top = w.getHighestBlockAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
+                if (top.isLiquid() || !goodBiome(w, x, top.getY(), z)) continue;
+                int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+                boolean water = false;
+                List<Integer> hs = new ArrayList<>();
+                for (int dx = -40; dx <= 40; dx += 20) {
+                    for (int dz = -40; dz <= 40; dz += 20) {
+                        Block b = w.getHighestBlockAt(x + dx, z + dz, HeightMap.MOTION_BLOCKING_NO_LEAVES);
+                        if (b.isLiquid() || b.getType() == Material.ICE) water = true;
+                        min = Math.min(min, b.getY());
+                        max = Math.max(max, b.getY());
+                        hs.add(b.getY());
+                    }
+                }
+                if (water) continue;
+                int diff = max - min;
+                hs.sort(Integer::compare);
+                int gy = hs.get(hs.size() / 2);
+                if (diff <= plugin.getConfig().getInt("aldea.desnivel-max", 7)) {
+                    return new Location(w, x, gy, z);
+                }
+                if (diff < bestDiff) {
+                    bestDiff = diff;
+                    best = new Location(w, x, gy, z);
                 }
             }
         }
-        for (int[] pc : new int[][]{{-2, -2}, {2, -2}, {-2, 2}, {2, 2}}) {
-            for (int y = gy + 2; y <= gy + 4; y++) set(cx + pc[0], y, cz + pc[1], Material.OAK_FENCE);
-        }
-        for (int x = cx - 2; x <= cx + 2; x++)
-            for (int z = cz - 2; z <= cz + 2; z++) set(x, gy + 5, z, Material.OAK_SLAB);
-        set(cx, gy + 4, cz, Material.LANTERN);
+        return best;
+    }
 
-        // 4) Ocho casas alrededor de la plaza, con la puerta mirando al centro
-        int[][] houses = {{-14, -8}, {14, -8}, {-14, 8}, {14, 8}, {-8, -15}, {8, -15}, {-8, 15}, {8, 15}};
-        for (int i = 0; i < houses.length; i++) {
-            int hx = cx + houses[i][0], hz = cz + houses[i][1];
-            // la puerta da hacia el lado más cercano al centro
-            boolean alongX = Math.abs(houses[i][0]) > Math.abs(houses[i][1]);
-            int doorDx = alongX ? -Integer.signum(houses[i][0]) : 0;
-            int doorDz = alongX ? 0 : -Integer.signum(houses[i][1]);
-            house(hx, gy, hz, doorDx, doorDz, NPC_ORDER[i]);
-            Location spot = new Location(w, hx + doorDx * 5 + 0.5, gy + 1, hz + doorDz * 5 + 0.5);
-            spot.setDirection(new org.bukkit.util.Vector(-doorDx, 0, -doorDz).multiply(-1));
-            npcSpots.put(NPC_ORDER[i], spot);
-            // camino de la puerta al camino principal
-            for (int s = 4; s <= 8; s++) set(hx + doorDx * s, gy, hz + doorDz * s, Material.DIRT_PATH);
-        }
+    // ---------- Construcción ----------
 
-        // 5) Granjas
-        farm(cx + 19, gy, cz - 22);
-        farm(cx - 25, gy, cz + 18);
+    public boolean isGenerated() {
+        return plugin.getConfig().getBoolean("aldea.generada", false);
+    }
 
-        // 6) Muralla con puertas en los caminos
-        for (int d = -R; d <= R; d++) {
-            for (int[] side : new int[][]{{d, -R}, {d, R}, {-R, d}, {R, d}}) {
-                int x = cx + side[0], z = cz + side[1];
-                boolean gate = Math.abs(side[0]) <= 1 || Math.abs(side[1]) <= 1;
-                if (gate) continue;
-                set(x, gy + 1, z, Material.COBBLESTONE_WALL);
-                set(x, gy + 2, z, Material.COBBLESTONE_WALL);
-                if (Math.floorMod(d, 6) == 0) set(x, gy + 3, z, Material.LANTERN);
-            }
+    /** Se llama al iniciar el servidor: genera la aldea si todavía no existe. */
+    public void autoGenerate() {
+        if (isGenerated() || !plugin.getConfig().getBoolean("aldea.auto", true)) return;
+        World w = Bukkit.getWorlds().get(0);
+        plugin.getLogger().info("Buscando un buen lugar para la Aldea del Alba…");
+        Location site = findSite(w);
+        if (site == null) {
+            plugin.getLogger().warning("No se encontró lugar para la aldea. Usa /eclipse construiraldea donde quieras.");
+            return;
         }
-        // faroles en los caminos
-        for (int d = 10; d <= R - 2; d += 8) {
-            for (int[] lp : new int[][]{{d, 2}, {-d, -2}, {2, -d}, {-2, d}}) {
-                set(cx + lp[0], gy + 1, cz + lp[1], Material.OAK_FENCE);
-                set(cx + lp[0], gy + 2, cz + lp[1], Material.OAK_FENCE);
-                set(cx + lp[0], gy + 3, cz + lp[1], Material.LANTERN);
-            }
-        }
+        build(site, null);
+    }
 
-        Txt.send(p, "<yellow>Construyendo la Aldea del Alba… (" + ops.size() + " bloques)");
-        final int[] idx = {0};
+    /** Construye la aldea con el centro de la plaza en "center" (y = nivel del suelo). */
+    public void build(Location center, Player who) {
+        if (busy) {
+            if (who != null) Txt.send(who, "<red>Ya se está construyendo la aldea.");
+            return;
+        }
+        if (!loadBlueprint()) {
+            if (who != null) Txt.send(who, "<red>No se encontró el plano de la aldea.");
+            return;
+        }
+        busy = true;
+        World w = center.getWorld();
+        int cx = center.getBlockX(), cz = center.getBlockZ(), gy = center.getBlockY();
+        int R = radius + 2;
+        List<int[]> prep = new ArrayList<>();
+        plugin.getLogger().info("Construyendo la Aldea del Alba en " + cx + " " + gy + " " + cz);
+        if (who != null) Txt.send(who, "<yellow>Construyendo la Aldea del Alba… dame unos segundos.");
+
+        // fase 1: preparar terreno (rellenar debajo y despejar encima)
+        for (int x = cx - R; x <= cx + R; x++)
+            for (int z = cz - R; z <= cz + R; z++) prep.add(new int[]{x, z});
+
+        BlockData dirt = Material.DIRT.createBlockData();
+        BlockData air = Material.AIR.createBlockData();
+        final int[] i = {0};
+        final int[] j = {0};
+        int perTick = plugin.getConfig().getInt("aldea.bloques-por-tick", 8000);
         Bukkit.getScheduler().runTaskTimer(plugin, task -> {
-            int end = Math.min(ops.size(), idx[0] + 8000);
-            for (int i = idx[0]; i < end; i++) {
-                Op o = ops.get(i);
-                Block b = w.getBlockAt(o.x(), o.y(), o.z());
-                b.setType(o.m(), o.m() == Material.WATER);
+            int budget = perTick;
+            while (i[0] < prep.size() && budget > 0) {
+                int[] c = prep.get(i[0]++);
+                for (int y = gy - 6; y < gy; y++) {
+                    Block b = w.getBlockAt(c[0], y, c[1]);
+                    if (b.isPassable() || b.isLiquid() || b.getType().name().endsWith("LEAVES")) b.setBlockData(dirt, false);
+                }
+                for (int y = gy + 1; y <= gy + 30; y++) {
+                    Block b = w.getBlockAt(c[0], y, c[1]);
+                    if (!b.getType().isAir()) b.setBlockData(air, false);
+                }
+                budget -= 40;
             }
-            idx[0] = end;
-            if (idx[0] >= ops.size()) {
-                task.cancel();
-                done(p, w, c, gy);
+            if (i[0] < prep.size()) return;
+            // fase 2: el plano
+            while (j[0] < ops.size() && budget > 0) {
+                Op o = ops.get(j[0]++);
+                Block b = w.getBlockAt(cx + o.x(), gy + o.y(), cz + o.z());
+                boolean fluid = FLUIDS.contains(o.data().getMaterial().getKey().getKey());
+                b.setBlockData(o.data(), fluid);
+                budget--;
             }
+            if (j[0] < ops.size()) return;
+            task.cancel();
+            finish(w, cx, gy, cz, who);
         }, 1L, 1L);
     }
 
-    private void done(Player p, World w, Location c, int gy) {
-        // guardar los puestos de cada NPC para /eclipse crearnpcs
+    private void finish(World w, int cx, int gy, int cz, Player who) {
+        Random rnd = new Random();
+        Map<String, Location> npcSpots = new HashMap<>();
+        Location campSpot = new Location(w, cx + 0.5, gy + 1, cz + 0.5);
+        boolean invul = plugin.getConfig().getBoolean("aldea.aldeanos-invencibles", true);
+        for (JsonObject m : markers) {
+            String t = m.get("t").getAsString();
+            Location at = new Location(w, cx + m.get("x").getAsInt() + 0.5, gy + m.get("y").getAsInt(), cz + m.get("z").getAsInt() + 0.5);
+            switch (t) {
+                case "center" -> campSpot = at;
+                case "npc" -> {
+                    at.setYaw(m.get("yaw").getAsFloat());
+                    npcSpots.put(m.get("id").getAsString(), at);
+                }
+                case "villager" -> {
+                    if (!(w.spawnEntity(at, EntityType.VILLAGER) instanceof Villager v)) continue;
+                    v.customName(Txt.mm("<gray>" + NAMES[rnd.nextInt(NAMES.length)]));
+                    v.setCustomNameVisible(false);
+                    Villager.Profession prof = profession(m.has("prof") && !m.get("prof").isJsonNull() ? m.get("prof").getAsString() : null);
+                    if (prof != null) v.setProfession(prof);
+                    v.setVillagerLevel(1 + rnd.nextInt(3));
+                    v.setPersistent(true);
+                    v.setRemoveWhenFarAway(false);
+                    v.setInvulnerable(invul);
+                    if (rnd.nextDouble() < 0.2) v.setBaby();
+                }
+                case "animal" -> {
+                    EntityType type = switch (m.get("type").getAsString()) {
+                        case "cow" -> EntityType.COW;
+                        case "sheep" -> EntityType.SHEEP;
+                        case "pig" -> EntityType.PIG;
+                        case "chicken" -> EntityType.CHICKEN;
+                        case "cat" -> EntityType.CAT;
+                        default -> null;
+                    };
+                    if (type == null) continue;
+                    Entity e = w.spawnEntity(at, type);
+                    if (e instanceof LivingEntity le) {
+                        le.setRemoveWhenFarAway(false);
+                        le.setPersistent(true);
+                    }
+                    if (e instanceof Cat cat) cat.setInvulnerable(invul);
+                }
+                default -> { }
+            }
+        }
+        var cfg = plugin.getConfig();
+        cfg.set("campamento.mundo", w.getName());
+        cfg.set("campamento.x", campSpot.getX());
+        cfg.set("campamento.y", campSpot.getY());
+        cfg.set("campamento.z", campSpot.getZ());
+        cfg.set("campamento.yaw", 180.0);
+        cfg.set("campamento.pitch", 0.0);
         for (Map.Entry<String, Location> e : npcSpots.entrySet()) {
-            Location l = e.getValue();
             String k = "aldea.puestos." + e.getKey();
-            plugin.getConfig().set(k + ".x", l.getX());
-            plugin.getConfig().set(k + ".y", l.getY());
-            plugin.getConfig().set(k + ".z", l.getZ());
-            plugin.getConfig().set(k + ".yaw", l.getYaw());
+            cfg.set(k + ".x", e.getValue().getX());
+            cfg.set(k + ".y", e.getValue().getY());
+            cfg.set(k + ".z", e.getValue().getZ());
+            cfg.set(k + ".yaw", (double) e.getValue().getYaw());
         }
-        plugin.getConfig().set("aldea.mundo", w.getName());
+        cfg.set("aldea.mundo", w.getName());
+        cfg.set("aldea.centro.x", cx);
+        cfg.set("aldea.centro.y", gy);
+        cfg.set("aldea.centro.z", cz);
+        cfg.set("aldea.generada", true);
         plugin.saveConfig();
-        int count = plugin.getConfig().getInt("aldea.aldeanos-relleno", 12);
-        spawnVillagers(w, c, gy, count);
-        Txt.send(p, "<green>¡La Aldea del Alba está lista! <gray>Ahora usa <white>/eclipse crearnpcs</white> para poner a los NPCs en sus casas.");
+        busy = false;
+        plugin.npcEntities().spawnAll(npcSpots);
+        plugin.getLogger().info("¡Aldea del Alba lista en " + cx + " " + gy + " " + cz + "!");
+        if (who != null) Txt.send(who, "<green>¡La Aldea del Alba está lista con sus NPCs y aldeanos!");
+        for (Player p : Bukkit.getOnlinePlayers()) giveCompassIfNew(p);
     }
 
-    public void spawnVillagers(World w, Location c, int gy, int count) {
-        Villager.Profession[] profs = {Villager.Profession.FARMER, Villager.Profession.FISHERMAN, Villager.Profession.SHEPHERD,
-                Villager.Profession.FLETCHER, Villager.Profession.LIBRARIAN, Villager.Profession.MASON,
-                Villager.Profession.BUTCHER, Villager.Profession.NONE, Villager.Profession.NONE};
-        boolean invulnerable = plugin.getConfig().getBoolean("aldea.aldeanos-invencibles", true);
-        for (int i = 0; i < count; i++) {
-            Location at = new Location(w, c.getBlockX() + rnd.nextInt(-20, 21) + 0.5, gy + 1, c.getBlockZ() + rnd.nextInt(-20, 21) + 0.5);
-            if (!at.getBlock().isPassable()) at = c.clone().add(rnd.nextInt(-5, 6), 0, rnd.nextInt(-5, 6));
-            if (!(w.spawnEntity(at, EntityType.VILLAGER) instanceof Villager v)) continue;
-            v.customName(Txt.mm("<gray>" + NAMES[rnd.nextInt(NAMES.length)]));
-            v.setCustomNameVisible(false);
-            v.setProfession(profs[rnd.nextInt(profs.length)]);
-            v.setPersistent(true);
-            v.setRemoveWhenFarAway(false);
-            v.setInvulnerable(invulnerable);
-        }
+    private Villager.Profession profession(String id) {
+        if (id == null) return null;
+        return switch (id) {
+            case "farmer" -> Villager.Profession.FARMER;
+            case "librarian" -> Villager.Profession.LIBRARIAN;
+            case "fisherman" -> Villager.Profession.FISHERMAN;
+            case "shepherd" -> Villager.Profession.SHEPHERD;
+            case "mason" -> Villager.Profession.MASON;
+            case "cleric" -> Villager.Profession.CLERIC;
+            case "butcher" -> Villager.Profession.BUTCHER;
+            case "fletcher" -> Villager.Profession.FLETCHER;
+            case "toolsmith" -> Villager.Profession.TOOLSMITH;
+            case "leatherworker" -> Villager.Profession.LEATHERWORKER;
+            case "armorer" -> Villager.Profession.ARMORER;
+            case "weaponsmith" -> Villager.Profession.WEAPONSMITH;
+            case "cartographer" -> Villager.Profession.CARTOGRAPHER;
+            case "nitwit" -> Villager.Profession.NITWIT;
+            default -> null;
+        };
     }
 
-    private static final Map<String, Material[]> INTERIOR = Map.of(
-            "tula", new Material[]{Material.COMPOSTER, Material.FLOWER_POT, Material.CAMPFIRE},
-            "bruno", new Material[]{Material.ANVIL, Material.BLAST_FURNACE, Material.SMITHING_TABLE},
-            "ines", new Material[]{Material.GRINDSTONE, Material.TARGET, Material.CHEST},
-            "pip", new Material[]{Material.BARREL, Material.BARREL, Material.CHEST},
-            "lia", new Material[]{Material.CARTOGRAPHY_TABLE, Material.LECTERN, Material.BARREL},
-            "odon", new Material[]{Material.BREWING_STAND, Material.CAULDRON, Material.BOOKSHELF},
-            "velkar", new Material[]{Material.ENCHANTING_TABLE, Material.BOOKSHELF, Material.BOOKSHELF},
-            "errante", new Material[]{Material.SOUL_CAMPFIRE, Material.CRYING_OBSIDIAN, Material.LODESTONE});
+    // ---------- Brújula ----------
 
-    private void house(int hx, int gy, int hz, int ddx, int ddz, String npc) {
-        boolean dark = npc.equals("velkar") || npc.equals("errante");
-        Material wall = dark ? Material.DEEPSLATE_BRICKS : Material.OAK_PLANKS;
-        Material corner = dark ? Material.POLISHED_BLACKSTONE : Material.OAK_LOG;
-        Material base = Material.COBBLESTONE;
-        Material roof = dark ? Material.PURPLE_TERRACOTTA : Material.DARK_OAK_PLANKS;
-        for (int dx = -3; dx <= 3; dx++) {
-            for (int dz = -3; dz <= 3; dz++) {
-                int x = hx + dx, z = hz + dz;
-                boolean edge = Math.abs(dx) == 3 || Math.abs(dz) == 3;
-                boolean cornerP = Math.abs(dx) == 3 && Math.abs(dz) == 3;
-                set(x, gy, z, edge ? base : Material.SPRUCE_PLANKS);
-                for (int y = gy + 1; y <= gy + 4; y++) {
-                    if (!edge) continue;
-                    Material m = cornerP ? corner : (y == gy + 1 ? base : wall);
-                    boolean window = y == gy + 2 && !cornerP && (dx == 0 || dz == 0);
-                    set(x, y, z, window ? Material.GLASS_PANE : m);
-                }
-            }
-        }
-        // puerta (hueco de 2 de alto)
-        int doorX = hx + ddx * 3, doorZ = hz + ddz * 3;
-        set(doorX, gy + 1, doorZ, Material.AIR);
-        set(doorX, gy + 2, doorZ, Material.AIR);
-        set(doorX + ddx, gy + 3, doorZ + ddz, Material.LANTERN);
-        // techo escalonado
-        for (int k = 0; k <= 3; k++) {
-            int s = 4 - k;
-            for (int dx = -s; dx <= s; dx++)
-                for (int dz = -s; dz <= s; dz++)
-                    if (Math.abs(dx) == s || Math.abs(dz) == s || k == 3) set(hx + dx, gy + 5 + k, hz + dz, roof);
-        }
-        // interior
-        Material[] inside = INTERIOR.getOrDefault(npc, new Material[]{Material.CRAFTING_TABLE});
-        int[][] spots = {{-2, -2}, {2, -2}, {-2, 2}, {2, 2}};
-        int placed = 0;
-        for (int[] s : spots) {
-            if (placed >= inside.length) break;
-            int x = hx + s[0], z = hz + s[1];
-            // no tapar la entrada
-            if (Math.abs((x - doorX)) + Math.abs((z - doorZ)) <= 2) continue;
-            set(x, gy + 1, z, inside[placed++]);
-        }
-        set(hx, gy + 4, hz, Material.LANTERN);
+    public Location center() {
+        var cfg = plugin.getConfig();
+        World w = Bukkit.getWorld(cfg.getString("aldea.mundo", "world"));
+        if (w == null || !cfg.contains("aldea.centro.x")) return null;
+        return new Location(w, cfg.getInt("aldea.centro.x") + 0.5, cfg.getInt("aldea.centro.y") + 1, cfg.getInt("aldea.centro.z") + 0.5);
     }
 
-    private void farm(int fx, int gy, int fz) {
-        for (int dx = -3; dx <= 3; dx++) {
-            for (int dz = -2; dz <= 2; dz++) {
-                boolean edge = Math.abs(dx) == 3 || Math.abs(dz) == 2;
-                if (edge) {
-                    set(fx + dx, gy, fz + dz, Material.OAK_LOG);
-                } else if (dz == 0) {
-                    set(fx + dx, gy, fz + dz, Material.WATER);
-                } else {
-                    set(fx + dx, gy, fz + dz, Material.FARMLAND);
-                    set(fx + dx, gy + 1, fz + dz, Material.WHEAT);
-                }
-            }
+    public void giveCompass(Player p) {
+        Location c = center();
+        if (c == null) return;
+        ItemStack it = new ItemStack(Material.COMPASS);
+        if (it.getItemMeta() instanceof CompassMeta meta) {
+            meta.setLodestone(c);
+            meta.setLodestoneTracked(false);
+            meta.displayName(Txt.item("<gold>Brújula de la Aldea del Alba"));
+            meta.lore(Txt.lore(List.of("<gray>Apunta a la aldea donde empieza", "<gray>tu historia.",
+                    "<gray>X " + c.getBlockX() + " · Z " + c.getBlockZ())));
+            meta.setEnchantmentGlintOverride(true);
+            it.setItemMeta(meta);
         }
+        plugin.items().give(p, it);
+    }
+
+    private void giveCompassIfNew(Player p) {
+        PlayerData d = plugin.data().get(p);
+        if (d.flags.contains("brujula_aldea") || center() == null) return;
+        d.flags.add("brujula_aldea");
+        d.dirty = true;
+        giveCompass(p);
+        Location c = center();
+        Txt.send(p, "<gold>Recibiste la Brújula de la Aldea del Alba. <gray>Síguela hasta <white>X " + c.getBlockX() + ", Z " + c.getBlockZ()
+                + "<gray> y habla con la Abuela Tula.");
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (p.isOnline()) giveCompassIfNew(p);
+        }, 40L);
     }
 }
