@@ -13,6 +13,7 @@ import pe.kydium.eclipserpg.dungeon.RuinManager;
 import pe.kydium.eclipserpg.dungeon.VillageBuilder;
 import pe.kydium.eclipserpg.npc.NpcEntities;
 import pe.kydium.eclipserpg.items.ItemManager;
+import pe.kydium.eclipserpg.menu.HotkeyMenu;
 import pe.kydium.eclipserpg.menu.MenuListener;
 import pe.kydium.eclipserpg.mobs.MobManager;
 import pe.kydium.eclipserpg.npc.NpcManager;
@@ -39,6 +40,7 @@ public final class EclipseRPG extends JavaPlugin {
     private RuinManager ruins;
     private VillageBuilder village;
     private NpcEntities npcEntities;
+    private HotkeyMenu hotkeys;
 
     @Override
     public void onEnable() {
@@ -62,6 +64,7 @@ public final class EclipseRPG extends JavaPlugin {
         ruins.load();
         village = new VillageBuilder(this);
         npcEntities = new NpcEntities(this);
+        hotkeys = new HotkeyMenu(this);
         loadContent();
 
         var pm = Bukkit.getPluginManager();
@@ -76,9 +79,11 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(ruins, this);
         pm.registerEvents(village, this);
         pm.registerEvents(npcEntities, this);
+        pm.registerEvents(hotkeys, this);
+        hotkeys.installDatapack();
 
         PlayerCommands pc = new PlayerCommands(this);
-        for (String c : new String[]{"nivel", "soles", "pagar", "misiones", "mision"}) bind(c, pc);
+        for (String c : new String[]{"nivel", "soles", "pagar", "misiones", "mision", "guardian"}) bind(c, pc);
         AdminCommand ac = new AdminCommand(this);
         PluginCommand eclipse = getCommand("eclipse");
         if (eclipse != null) {
@@ -151,4 +156,5 @@ public final class EclipseRPG extends JavaPlugin {
     public DungeonManager dungeons() { return dungeons; }
     public VillageBuilder village() { return village; }
     public NpcEntities npcEntities() { return npcEntities; }
+    public HotkeyMenu hotkeys() { return hotkeys; }
 }

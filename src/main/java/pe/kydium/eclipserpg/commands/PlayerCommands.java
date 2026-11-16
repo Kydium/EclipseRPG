@@ -31,6 +31,7 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         }
         switch (cmd.getName().toLowerCase()) {
             case "nivel" -> new StatsMenu(plugin, p).open();
+            case "guardian" -> plugin.hotkeys().open(p);
             case "misiones" -> new pe.kydium.eclipserpg.quests.QuestMenu(plugin, p).open();
             case "mision" -> {
                 if (args.length >= 2 && args[0].equalsIgnoreCase("elegir")) {
