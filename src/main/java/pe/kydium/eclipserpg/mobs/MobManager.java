@@ -322,7 +322,8 @@ public final class MobManager implements Listener {
         Tier t = tier(tierNum);
         String typeKey = le.getType().getKey().getKey().toUpperCase(Locale.ROOT);
         String base = names.getOrDefault(typeKey, Txt.pretty(typeKey));
-        le.customName(Txt.mm("<dark_purple>☠ " + base + " Corrompido <gray>[T" + tierNum + "]"));
+        String adj = base.endsWith("a") ? "Corrompida" : "Corrompido";
+        le.customName(Txt.mm("<dark_purple>☠ " + base + " " + adj + " <gray>[T" + tierNum + "]"));
         le.setCustomNameVisible(false);
         double hp = Math.min(MAX_HP, t.health() * plugin.getConfig().getDouble("dificultad.vida-corrompidos", 1.0));
         setBase(le, Attribute.MAX_HEALTH, hp);
