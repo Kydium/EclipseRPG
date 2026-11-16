@@ -254,6 +254,21 @@ public final class ItemManager implements Listener {
         if (ci == null || ci.action == null) return;
         e.setCancelled(true);
         Player p = e.getPlayer();
+        if (ci.action.toLowerCase().startsWith("invocar:")) {
+            String mob = ci.action.substring(8);
+            if (plugin.mobs().def(mob) == null) return;
+            it.setAmount(it.getAmount() - 1);
+            Location at = plugin.mobs().spawnSpot(p.getLocation(), 7);
+            p.getWorld().strikeLightningEffect(at);
+            for (Player near : p.getWorld().getPlayers()) {
+                if (near.getLocation().distanceSquared(at) < 48 * 48) {
+                    Txt.send(near, "<dark_red><bold>¡" + p.getName() + " rompió un sello! Algo despierta...");
+                    Txt.sound(near, "entity.wither.spawn", 0.7f, 0.8f);
+                }
+            }
+            Bukkit.getScheduler().runTaskLater(plugin, () -> plugin.mobs().spawn(mob, at), 40L);
+            return;
+        }
         if (ci.action.equalsIgnoreCase("campamento")) {
             it.setAmount(it.getAmount() - 1);
             p.teleportAsync(campLocation()).thenRun(() -> {

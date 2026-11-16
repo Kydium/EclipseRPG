@@ -16,6 +16,12 @@ commands:
   pagar:
     description: Pagar Soles a otro jugador
     usage: /pagar <jugador> <cantidad>
+  misiones:
+    description: Diario de misiones de Crónicas del Eclipse
+    aliases: [diario, quests]
+  mision:
+    description: Ver tu misión actual o elegir en una decisión
+    usage: /mision [elegir <n>]
   eclipse:
     description: Administración de EclipseRPG
     permission: eclipserpg.admin

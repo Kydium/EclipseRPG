@@ -1,0 +1,1727 @@
+# =========================================================
+#  Historia de Crónicas del Eclipse: 110 misiones en orden.
+#  Las misiones se hacen una tras otra. Cada jugador lleva su propio progreso.
+#  objetivos (tipo): MATAR · MOB · TENER · ENTREGAR · FUNDIR · MINAR · PESCAR
+#                    DOMESTICAR · ENCANTAR · DIMENSION · HABLAR
+#  objetivo: ids de Minecraft separados por coma. '*_log' = cualquier tronco, '*' = cualquiera.
+#  corrompido: true = solo cuentan los Corrompidos.
+#  TENER se revisa en el inventario; ENTREGAR además quita los objetos al entregar.
+#  aparecen: mobs de mobs.yml que salen al aceptar · al-aceptar: objetos que recibes
+#  premios: 'material:X n', 'custom:id', 'pocion:tipo n', 'libro:encantamiento:nivel'
+#  nivel: nivel RPG mínimo para aceptar · xp/soles: recompensa al entregar
+# =========================================================
+actos:
+  1: "Acto 1 — El Despertar"
+  2: "Acto 2 — Las Minas Silenciosas"
+  3: "Acto 3 — Sangre en las Aldeas"
+  4: "Acto 4 — Lo que Duerme en el Agua"
+  5: "Acto 5 — Arena y Selva"
+  6: "Acto 6 — Portal de Fuego"
+  7: "Acto 7 — Las Cámaras de Prueba"
+  8: "Acto 8 — La Ciudad Antigua"
+  9: "Acto 9 — La Corona del Wither"
+  10: "Acto 10 — El Fin del Eclipse"
+
+misiones:
+  m001:
+    acto: 1
+    npc: tula
+    nombre: "La primera noche"
+    xp: 250
+    soles: 40
+    dialogo:
+      - "¡Por fin despiertas! Te encontramos tirado junto al camino."
+      - "Mira el cielo… el sol no salió del todo. Lo llaman el Eclipse."
+      - "Antes de que caiga la noche necesitamos madera. Tala 16 troncos y hazte una mesa de trabajo."
+    final:
+      - "Bien hecho. Con eso levantaremos el Campamento del Alba."
+    objetivos:
+      - {tipo: MINAR, objetivo: "*_log,*_stem", cantidad: 16, texto: "Tala 16 troncos"}
+      - {tipo: TENER, objetivo: "crafting_table", cantidad: 1, texto: "Ten una mesa de trabajo"}
+    premios: ["BREAD 10"]
+
+  m002:
+    acto: 1
+    npc: tula
+    nombre: "Un techo"
+    xp: 250
+    soles: 40
+    dialogo:
+      - "De noche salen cosas que no deberían existir."
+      - "Hazte una cama y unas antorchas. La luz los mantiene lejos… casi siempre."
+    final:
+      - "Así me gusta. Duerme con un ojo abierto."
+    objetivos:
+      - {tipo: TENER, objetivo: "*_bed", cantidad: 1, texto: "Ten una cama"}
+      - {tipo: TENER, objetivo: "torch", cantidad: 8, texto: "Ten 8 antorchas"}
+
+  m003:
+    acto: 1
+    npc: bruno
+    nombre: "Herramientas de piedra"
+    xp: 250
+    soles: 40
+    dialogo:
+      - "Soy Bruno. Herrero. No hablo mucho."
+      - "Con las manos no vas a durar. Pico, hacha y espada de piedra. Ya."
+    final:
+      - "Hmpf. No están mal. Toma carbón para la forja."
+    objetivos:
+      - {tipo: TENER, objetivo: "stone_pickaxe", cantidad: 1, texto: "Ten un pico de piedra"}
+      - {tipo: TENER, objetivo: "stone_axe", cantidad: 1, texto: "Ten un hacha de piedra"}
+      - {tipo: TENER, objetivo: "stone_sword", cantidad: 1, texto: "Ten una espada de piedra"}
+    premios: ["COAL 16"]
+
+  m004:
+    acto: 1
+    npc: tula
+    nombre: "Comida para todos"
+    xp: 250
+    soles: 40
+    dialogo:
+      - "Somos pocos, pero comemos como muchos."
+      - "Caza unos animales para el campamento, ¿sí?"
+    final:
+      - "¡Esta noche hay guiso! Toma, unas manzanas para el camino."
+    objetivos:
+      - {tipo: MATAR, objetivo: "cow,pig,sheep,chicken,rabbit", cantidad: 6, texto: "Caza 6 animales"}
+    premios: ["APPLE 3"]
+
+  m005:
+    acto: 1
+    npc: ines
+    nombre: "Los primeros Corrompidos"
+    xp: 250
+    soles: 40
+    dialogo:
+      - "Capitana Inés, guardia del campamento."
+      - "¿Ves esos zombis con ojos morados? Son Corrompidos: el Eclipse los hace más fuertes."
+      - "Ahí vienen unos. Demuéstrame que sabes pelear."
+    final:
+      - "Nada mal, recluta. Toma este escudo, lo vas a necesitar."
+    objetivos:
+      - {tipo: MATAR, objetivo: "zombie,husk,drowned,zombie_villager", cantidad: 5, texto: "Mata 5 Zombis Corrompidos", corrompido: true}
+    aparecen: ["zombi_corrompido:3"]
+    premios: ["SHIELD 1"]
+
+  m006:
+    acto: 1
+    npc: bruno
+    nombre: "Hierro para la forja"
+    xp: 250
+    soles: 40
+    dialogo:
+      - "La piedra no aguanta a un Corrompido."
+      - "Baja a las cuevas, saca hierro y fúndelo. Doce lingotes."
+    final:
+      - "Buen hierro. Ahora sí podemos trabajar."
+    objetivos:
+      - {tipo: FUNDIR, objetivo: "iron_ingot", cantidad: 12, texto: "Funde 12 lingotes de hierro"}
+
+  m007:
+    acto: 1
+    npc: bruno
+    nombre: "Armadura de hierro"
+    xp: 250
+    soles: 40
+    dialogo:
+      - "Un guerrero sin armadura es un guerrero muerto."
+      - "Hazte el set completo de hierro."
+    final:
+      - "Ahora pareces alguien. Toma, oro para lo que venga."
+    objetivos:
+      - {tipo: TENER, objetivo: "iron_helmet", cantidad: 1, texto: "Casco de hierro"}
+      - {tipo: TENER, objetivo: "iron_chestplate", cantidad: 1, texto: "Pechera de hierro"}
+      - {tipo: TENER, objetivo: "iron_leggings", cantidad: 1, texto: "Pantalones de hierro"}
+      - {tipo: TENER, objetivo: "iron_boots", cantidad: 1, texto: "Botas de hierro"}
+    premios: ["GOLD_INGOT 5"]
+
+  m008:
+    acto: 1
+    npc: ines
+    nombre: "Telarañas"
+    xp: 250
+    soles: 40
+    dialogo:
+      - "Las arañas del bosque también se corrompieron."
+      - "Limpia la zona y tráeme hilo para hacer cuerdas de arco."
+    final:
+      - "Con esto armamos arcos para todos. Uno es tuyo."
+    objetivos:
+      - {tipo: MATAR, objetivo: "spider,cave_spider", cantidad: 6, texto: "Mata 6 Arañas Corrompidas", corrompido: true}
+      - {tipo: ENTREGAR, objetivo: "string", cantidad: 8, texto: "Entrega 8 hilos"}
+    aparecen: ["arana_corrompida:4"]
+    premios: ["BOW 1"]
+
+  m009:
+    acto: 1
+    npc: tula
+    nombre: "El estanque"
+    xp: 250
+    soles: 40
+    dialogo:
+      - "Cuando era joven pescaba en el estanque al amanecer…"
+      - "Tráeme algo de pescado, me trae buenos recuerdos."
+    final:
+      - "Gracias, niño. Toma estas pociones, las preparé yo misma."
+    objetivos:
+      - {tipo: PESCAR, cantidad: 5, texto: "Pesca 5 veces"}
+    premios: ["pocion:healing 3"]
+
+  m010:
+    acto: 1
+    npc: ines
+    nombre: "La noche más larga"
+    xp: 250
+    soles: 40
+    dialogo:
+      - "Algo grande se mueve cerca del campamento. Los monstruos están nerviosos."
+      - "Mata todo lo que se acerque esta noche."
+    final:
+      - "Lo sentí… es el Rondador Podrido. Toma este Fragmento de Mejora y llévaselo a Bruno."
+    objetivos:
+      - {tipo: MATAR, objetivo: "*", cantidad: 15, texto: "Mata 15 monstruos"}
+    premios: ["custom:fragmento_mejora"]
+
+  m011:
+    acto: 1
+    npc: ines
+    nombre: "JEFE: Rondador Podrido"
+    jefe: true
+    nivel: 5
+    xp: 0
+    soles: 0
+    dialogo:
+      - "El Rondador Podrido guarda el primer Fragmento Solar."
+      - "Toma este sello. Rómpelo donde quieras pelear y él aparecerá."
+      - "Lleva amigos si puedes. No es un zombi cualquiera."
+    final:
+      - "¡Lo lograste! El primer Fragmento Solar… la Abuela Tula tiene que ver esto."
+    objetivos:
+      - {tipo: MOB, objetivo: "rondador_podrido", cantidad: 1, texto: "Derrota al Rondador Podrido"}
+    al-aceptar: ["custom:sello_rondador"]
+
+  m012:
+    acto: 2
+    npc: pip
+    nombre: "El mercader perdido"
+    xp: 500
+    soles: 80
+    dialogo:
+      - "¡Uf! ¡Gente! Soy Pip, mercader… o lo era, hasta que algo me sacó de las minas."
+      - "¿Me prestas algo de carbón? Perdí todo mi cargamento."
+    final:
+      - "¡Eres un sol! Aquí tienes, esmeraldas. Desde hoy tengo tienda aquí."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "coal", cantidad: 10, texto: "Entrega 10 carbones"}
+    premios: ["EMERALD 3"]
+
+  m013:
+    acto: 2
+    npc: bruno
+    nombre: "Hacia lo profundo"
+    xp: 500
+    soles: 80
+    dialogo:
+      - "Pip dice que los mineros desaparecen en lo profundo."
+      - "Baja hasta la pizarra profunda. Quiero saber qué hay allá abajo."
+    final:
+      - "Pizarra profunda… y huellas de hueso. Esto no me gusta."
+    objetivos:
+      - {tipo: MINAR, objetivo: "deepslate,cobbled_deepslate", cantidad: 32, texto: "Mina 32 de pizarra profunda"}
+
+  m014:
+    acto: 2
+    npc: pip
+    nombre: "Oro para Pip"
+    xp: 500
+    soles: 80
+    dialogo:
+      - "Un mercader sin oro es un mercader triste."
+      - "¿Me consigues unos lingotes? Te pago bien, palabra de Pip."
+    final:
+      - "¡Brillante! Literalmente."
+    objetivos:
+      - {tipo: FUNDIR, objetivo: "gold_ingot", cantidad: 8, texto: "Funde 8 lingotes de oro"}
+    premios: ["EMERALD 5"]
+
+  m015:
+    acto: 2
+    npc: ines
+    nombre: "Huesos que caminan"
+    xp: 500
+    soles: 80
+    dialogo:
+      - "Los esqueletos de las minas suben a la superficie."
+      - "Ahí vienen. ¡Cúbrete de las flechas!"
+    final:
+      - "Buen trabajo. Toma flechas, te gastaste las tuyas."
+    objetivos:
+      - {tipo: MATAR, objetivo: "skeleton,stray,bogged", cantidad: 8, texto: "Mata 8 Esqueletos Corrompidos", corrompido: true}
+    aparecen: ["esqueleto_corrompido:5"]
+    premios: ["ARROW 32"]
+
+  m016:
+    acto: 2
+    npc: ines
+    nombre: "Creepers silenciosos"
+    xp: 500
+    soles: 80
+    dialogo:
+      - "Estos creepers no hacen ruido… y corren."
+      - "Mátalos antes de que exploten y tráeme su pólvora."
+    final:
+      - "La pólvora servirá para las defensas. Toma, un Fragmento."
+    objetivos:
+      - {tipo: MATAR, objetivo: "creeper", cantidad: 5, texto: "Mata 5 Creepers Corrompidos", corrompido: true}
+      - {tipo: ENTREGAR, objetivo: "gunpowder", cantidad: 10, texto: "Entrega 10 de pólvora"}
+    aparecen: ["creeper_corrompido:3"]
+    premios: ["custom:fragmento_mejora"]
+
+  m017:
+    acto: 2
+    npc: bruno
+    nombre: "Brillo azul"
+    xp: 500
+    soles: 80
+    dialogo:
+      - "Para encantar armas necesitamos lapislázuli."
+      - "Búscalo en las cuevas."
+    final:
+      - "Toma, una mesa de encantamientos. Fray Odón te enseñará luego."
+    objetivos:
+      - {tipo: MINAR, objetivo: "lapis_ore,deepslate_lapis_ore", cantidad: 8, texto: "Mina 8 menas de lapislázuli"}
+    premios: ["ENCHANTING_TABLE 1"]
+
+  m018:
+    acto: 2
+    npc: bruno
+    nombre: "Venas rojas"
+    xp: 500
+    soles: 80
+    dialogo:
+      - "La redstone brilla como sangre en la roca."
+      - "Tráeme lo que encuentres."
+    final:
+      - "Bien. Esto alimentará mis máquinas."
+    objetivos:
+      - {tipo: MINAR, objetivo: "redstone_ore,deepslate_redstone_ore", cantidad: 12, texto: "Mina 12 menas de redstone"}
+
+  m019:
+    acto: 2
+    npc: bruno
+    nombre: "El tesoro de las minas"
+    xp: 500
+    soles: 80
+    dialogo:
+      - "Los mineros buscaban diamantes cuando desaparecieron."
+      - "Encuentra cinco. Quédatelos, solo quiero verlos."
+    final:
+      - "Diamantes de verdad… Ahora entiendo por qué bajaron tanto."
+    objetivos:
+      - {tipo: TENER, objetivo: "diamond", cantidad: 5, texto: "Ten 5 diamantes"}
+    premios: ["EMERALD 10"]
+
+  m020:
+    acto: 2
+    npc: pip
+    nombre: "Túneles abandonados"
+    xp: 500
+    soles: 80
+    dialogo:
+      - "Mi carreta quedó en una mina abandonada."
+      - "Tráeme los rieles de allí, valen oro."
+    final:
+      - "¡Mis rieles! Toma este pico de diamante, era de un minero perdido."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "rail", cantidad: 16, texto: "Entrega 16 rieles"}
+    premios: ["DIAMOND_PICKAXE 1"]
+
+  m021:
+    acto: 2
+    npc: pip
+    nombre: "Cristales"
+    xp: 500
+    soles: 80
+    dialogo:
+      - "Dicen que en las geodas hay cristales morados que cantan."
+      - "Tráeme unos, por favor."
+    final:
+      - "Preciosos. Toma este catalejo."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "amethyst_shard", cantidad: 8, texto: "Entrega 8 fragmentos de amatista"}
+    premios: ["SPYGLASS 1"]
+
+  m022:
+    acto: 2
+    npc: ines
+    nombre: "JEFE: Capataz Hueso"
+    jefe: true
+    nivel: 10
+    xp: 0
+    soles: 0
+    dialogo:
+      - "El Capataz Hueso manda a los esqueletos de las minas. Él se llevó a los mineros."
+      - "Rompe este sello en lo profundo y termina con él."
+    final:
+      - "El segundo Fragmento Solar. Los mineros pueden descansar en paz."
+    objetivos:
+      - {tipo: MOB, objetivo: "capataz_hueso", cantidad: 1, texto: "Derrota al Capataz Hueso"}
+    al-aceptar: ["custom:sello_capataz"]
+
+  m023:
+    acto: 3
+    npc: lia
+    nombre: "La exploradora"
+    xp: 750
+    soles: 120
+    dialogo:
+      - "¡Hola! Soy Lía, exploradora. Vengo de las aldeas del este."
+      - "Los saqueadores las están atacando… y llevan la marca del Eclipse."
+      - "Hazme un mapa para marcar las aldeas."
+    final:
+      - "Perfecto. Toma esta brújula."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "map,filled_map", cantidad: 1, texto: "Entrega un mapa"}
+    premios: ["COMPASS 1"]
+
+  m024:
+    acto: 3
+    npc: lia
+    nombre: "Comercio con la aldea"
+    xp: 750
+    soles: 120
+    dialogo:
+      - "Los aldeanos confían en quien comercia con ellos."
+      - "Consigue esmeraldas: comercia, vende o explora."
+    final:
+      - "Ya te conocen en la aldea. Eso nos ayudará."
+    objetivos:
+      - {tipo: TENER, objetivo: "emerald", cantidad: 10, texto: "Ten 10 esmeraldas"}
+
+  m025:
+    acto: 3
+    npc: tula
+    nombre: "Cosecha"
+    xp: 750
+    soles: 120
+    dialogo:
+      - "Llegan refugiados de las aldeas. Hay que alimentarlos."
+      - "Siembra y cosecha, niño."
+    final:
+      - "Gracias. Toma, pociones de regeneración."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "wheat", cantidad: 32, texto: "Entrega 32 de trigo"}
+      - {tipo: ENTREGAR, objetivo: "carrot", cantidad: 16, texto: "Entrega 16 zanahorias"}
+    premios: ["pocion:regeneration 3"]
+
+  m026:
+    acto: 3
+    npc: tula
+    nombre: "Pan para los refugiados"
+    xp: 750
+    soles: 120
+    dialogo:
+      - "Con el trigo ya podemos hacer pan."
+      - "Veinte panes alcanzarán para todos."
+    final:
+      - "Mira sus caras… les devolviste la esperanza."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "bread", cantidad: 20, texto: "Entrega 20 panes"}
+    premios: ["custom:fragmento_mejora"]
+
+  m027:
+    acto: 3
+    npc: ines
+    nombre: "Patrulla saqueadora"
+    xp: 750
+    soles: 120
+    dialogo:
+      - "Una patrulla de saqueadores viene hacia acá."
+      - "Que no lleguen al campamento."
+    final:
+      - "Bien hecho. Quédate con una de sus ballestas."
+    objetivos:
+      - {tipo: MATAR, objetivo: "pillager", cantidad: 6, texto: "Mata 6 Saqueadores Corrompidos", corrompido: true}
+    aparecen: ["saqueador_corrompido:3"]
+    premios: ["CROSSBOW 1"]
+
+  m028:
+    acto: 3
+    npc: ines
+    nombre: "Hachas en la noche"
+    xp: 750
+    soles: 120
+    dialogo:
+      - "Los vindicadores son peores. Usan hachas y no tienen miedo."
+      - "Cuídate la cabeza."
+    final:
+      - "Toma este casco de diamante. Te lo ganaste."
+    objetivos:
+      - {tipo: MATAR, objetivo: "vindicator", cantidad: 4, texto: "Mata 4 Vindicadores Corrompidos", corrompido: true}
+    aparecen: ["vindicador_corrompido:3"]
+    premios: ["DIAMOND_HELMET 1"]
+
+  m029:
+    acto: 3
+    npc: ines
+    nombre: "Cazar a la patrulla"
+    xp: 750
+    soles: 120
+    dialogo:
+      - "Los illagers se están organizando. Alguien los dirige."
+      - "Busca sus patrullas y su mansión. Mata a todos los que puedas."
+    final:
+      - "Hablan de un 'Heraldo'… Toma estas manzanas doradas."
+    objetivos:
+      - {tipo: MATAR, objetivo: "pillager,vindicator,evoker,ravager,vex", cantidad: 10, texto: "Mata 10 illagers"}
+    premios: ["GOLDEN_APPLE 3"]
+
+  m030:
+    acto: 3
+    npc: bruno
+    nombre: "Preparar la defensa"
+    xp: 750
+    soles: 120
+    dialogo:
+      - "Si vienen, que nos encuentren listos."
+      - "Escudo y muchas flechas."
+    final:
+      - "Hmpf. Ahora sí."
+    objetivos:
+      - {tipo: TENER, objetivo: "shield", cantidad: 1, texto: "Ten un escudo"}
+      - {tipo: TENER, objetivo: "arrow", cantidad: 64, texto: "Ten 64 flechas"}
+
+  m031:
+    acto: 3
+    npc: lia
+    nombre: "Un guardián de hierro"
+    xp: 750
+    soles: 120
+    dialogo:
+      - "Las aldeas tienen golems de hierro que las protegen."
+      - "Tráeme los materiales y armaremos uno para el campamento."
+    final:
+      - "¡Ya tenemos guardián! Y para ti, una pechera de diamante."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "iron_block", cantidad: 4, texto: "Entrega 4 bloques de hierro"}
+      - {tipo: ENTREGAR, objetivo: "carved_pumpkin", cantidad: 1, texto: "Entrega una calabaza tallada"}
+    premios: ["DIAMOND_CHESTPLATE 1"]
+
+  m032:
+    acto: 3
+    npc: lia
+    nombre: "La mansión del bosque"
+    xp: 750
+    soles: 120
+    dialogo:
+      - "Los evocadores guardan tótems que engañan a la muerte."
+      - "Encuentra uno. Ya sea en una mansión o en una invasión."
+    final:
+      - "Con esto el Heraldo no podrá esconderse."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "totem_of_undying", cantidad: 1, texto: "Entrega un tótem de inmortalidad"}
+    premios: ["custom:fragmento_mejora"]
+
+  m033:
+    acto: 3
+    npc: ines
+    nombre: "JEFE: Heraldo de la Mancha"
+    jefe: true
+    nivel: 15
+    xp: 0
+    soles: 0
+    dialogo:
+      - "El Heraldo de la Mancha es quien manda a los illagers."
+      - "Rompe el sello y acaba con él. Desaparece y aparece donde menos lo esperas."
+    final:
+      - "¡El tercer Fragmento! Las aldeas vuelven a estar a salvo."
+    objetivos:
+      - {tipo: MOB, objetivo: "heraldo_mancha", cantidad: 1, texto: "Derrota al Heraldo de la Mancha"}
+    al-aceptar: ["custom:sello_heraldo"]
+
+  m034:
+    acto: 4
+    npc: odon
+    nombre: "El monje náufrago"
+    xp: 1000
+    soles: 160
+    dialogo:
+      - "Soy Fray Odón… estudioso. Mi barco se hundió y llegué a esta orilla."
+      - "Bajo el agua vi una corona que brillaba. Necesito libros para escribirlo todo."
+    final:
+      - "Gracias. Toma este libro encantado, lo encontré en el naufragio."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "book", cantidad: 3, texto: "Entrega 3 libros"}
+    premios: ["libro:protection:3"]
+
+  m035:
+    acto: 4
+    npc: odon
+    nombre: "Tinta para el diario"
+    xp: 1000
+    soles: 160
+    dialogo:
+      - "Sin tinta no hay historia."
+      - "Los calamares tienen la que necesito."
+    final:
+      - "Ahora puedo escribir lo que vi bajo el mar."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "ink_sac", cantidad: 10, texto: "Entrega 10 sacos de tinta"}
+      - {tipo: ENTREGAR, objetivo: "writable_book", cantidad: 1, texto: "Entrega un libro y pluma"}
+
+  m036:
+    acto: 4
+    npc: lia
+    nombre: "Navegante"
+    xp: 1000
+    soles: 160
+    dialogo:
+      - "Para llegar a esa corona hay que cruzar el océano."
+      - "Hazte un bote."
+    final:
+      - "Toma comida para el viaje. El mar es largo."
+    objetivos:
+      - {tipo: TENER, objetivo: "*_boat,*_raft", cantidad: 1, texto: "Ten un bote"}
+    premios: ["COOKED_COD 16"]
+
+  m037:
+    acto: 4
+    npc: lia
+    nombre: "Tesoro enterrado"
+    xp: 1000
+    soles: 160
+    dialogo:
+      - "Los naufragios esconden mapas del tesoro."
+      - "Encuentra un corazón del mar. Dicen que late cerca de la corona."
+    final:
+      - "Late… de verdad late. Toma, esmeraldas."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "heart_of_the_sea", cantidad: 1, texto: "Entrega un corazón del mar"}
+    premios: ["EMERALD 10"]
+
+  m038:
+    acto: 4
+    npc: ines
+    nombre: "La marea muerta"
+    xp: 1000
+    soles: 160
+    dialogo:
+      - "Los ahogados salen del agua por las noches."
+      - "Acaba con ellos antes de que lleguen a la playa."
+    final:
+      - "Buen trabajo. El mar está más tranquilo."
+    objetivos:
+      - {tipo: MATAR, objetivo: "drowned,zombie", cantidad: 8, texto: "Mata 8 Ahogados Corrompidos", corrompido: true}
+    aparecen: ["ahogado_corrompido:5"]
+    premios: ["custom:fragmento_mejora"]
+
+  m039:
+    acto: 4
+    npc: lia
+    nombre: "Piedras del templo"
+    xp: 1000
+    soles: 160
+    dialogo:
+      - "Hay un templo bajo el agua. Sus piedras son verdes y brillan."
+      - "Tráeme prismarina, quiero estudiarla."
+    final:
+      - "Toma estas pociones para respirar y ver bajo el agua."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "prismarine", cantidad: 16, texto: "Entrega 16 bloques de prismarina"}
+    premios: ["pocion:water_breathing 3", "pocion:night_vision 3"]
+
+  m040:
+    acto: 4
+    npc: ines
+    nombre: "Ojos en el agua"
+    xp: 1000
+    soles: 160
+    dialogo:
+      - "El templo está lleno de guardianes, esos peces con un ojo."
+      - "Abre el camino."
+    final:
+      - "Toma este caparazón de tortuga. Respirarás más."
+    objetivos:
+      - {tipo: MATAR, objetivo: "guardian", cantidad: 6, texto: "Mata 6 guardianes"}
+    premios: ["TURTLE_HELMET 1"]
+
+  m041:
+    acto: 4
+    npc: odon
+    nombre: "Magia antigua"
+    xp: 1000
+    soles: 160
+    dialogo:
+      - "La magia de los encantamientos viene de antes del Eclipse."
+      - "Encanta tres objetos en la mesa. Te hará falta."
+    final:
+      - "Excelente. Toma botellas de experiencia."
+    objetivos:
+      - {tipo: ENCANTAR, cantidad: 3, texto: "Encanta 3 objetos"}
+    premios: ["EXPERIENCE_BOTTLE 30"]
+
+  m042:
+    acto: 4
+    npc: lia
+    nombre: "Esponjas"
+    xp: 1000
+    soles: 160
+    dialogo:
+      - "Para entrar a la sala del tesoro hay que secar el agua."
+      - "Consigue esponjas del templo."
+    final:
+      - "Con esto vaciamos la sala. ¡Vamos!"
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "sponge,wet_sponge", cantidad: 5, texto: "Entrega 5 esponjas"}
+
+  m043:
+    acto: 4
+    npc: pip
+    nombre: "Pesca profunda"
+    xp: 1000
+    soles: 160
+    dialogo:
+      - "El mar da tesoros a quien tiene paciencia."
+      - "Pesca un buen rato, a ver qué sale."
+    final:
+      - "Toma este libro. Pescarás puro tesoro."
+    objetivos:
+      - {tipo: PESCAR, cantidad: 15, texto: "Pesca 15 veces"}
+    premios: ["libro:luck_of_the_sea:3"]
+
+  m044:
+    acto: 4
+    npc: ines
+    nombre: "JEFE: Ahogado Coronado"
+    jefe: true
+    nivel: 20
+    xp: 0
+    soles: 0
+    dialogo:
+      - "Era un rey antes de ahogarse. Ahora lleva el cuarto Fragmento en su corona."
+      - "Rompe el sello cerca del agua. Te va a arrastrar, prepárate."
+    final:
+      - "¡El cuarto Fragmento! Fray Odón no lo va a creer."
+    objetivos:
+      - {tipo: MOB, objetivo: "ahogado_coronado", cantidad: 1, texto: "Derrota al Ahogado Coronado"}
+    al-aceptar: ["custom:sello_ahogado"]
+
+  m045:
+    acto: 5
+    npc: lia
+    nombre: "Hacia el desierto"
+    xp: 1250
+    soles: 200
+    dialogo:
+      - "El quinto Fragmento está en el desierto. Dicen que una bruja lo guarda."
+      - "Tráeme cactus para probar que llegaste."
+    final:
+      - "Arena hasta en los dientes, ¿eh?"
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "cactus", cantidad: 8, texto: "Entrega 8 cactus"}
+
+  m046:
+    acto: 5
+    npc: ines
+    nombre: "Los momificados"
+    xp: 1250
+    soles: 200
+    dialogo:
+      - "Los muertos del desierto se levantaron."
+      - "Ten cuidado: dan hambre al golpear."
+    final:
+      - "Toma estos pantalones de diamante."
+    objetivos:
+      - {tipo: MATAR, objetivo: "husk,zombie", cantidad: 10, texto: "Mata 10 Husks Corrompidos", corrompido: true}
+    aparecen: ["husk_corrompido:5"]
+    premios: ["DIAMOND_LEGGINGS 1"]
+
+  m047:
+    acto: 5
+    npc: lia
+    nombre: "El templo de arena"
+    xp: 1250
+    soles: 200
+    dialogo:
+      - "Hay un templo con trampas de TNT."
+      - "Saquea el cofre sin volar en pedazos."
+    final:
+      - "¡Sigues entero! Toma tu parte."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "saddle", cantidad: 1, texto: "Entrega una silla de montar"}
+      - {tipo: ENTREGAR, objetivo: "diamond", cantidad: 2, texto: "Entrega 2 diamantes"}
+    premios: ["EMERALD 15"]
+
+  m048:
+    acto: 5
+    npc: odon
+    nombre: "Arqueología"
+    xp: 1250
+    soles: 200
+    dialogo:
+      - "La arena esconde historias de antes del Eclipse."
+      - "Usa un pincel en la arena sospechosa y trae fragmentos de cerámica."
+    final:
+      - "Estos dibujos… muestran una corona rota en diez pedazos."
+    objetivos:
+      - {tipo: TENER, objetivo: "brush", cantidad: 1, texto: "Ten un pincel"}
+      - {tipo: ENTREGAR, objetivo: "*_pottery_sherd", cantidad: 3, texto: "Entrega 3 fragmentos de cerámica"}
+    premios: ["custom:fragmento_mejora"]
+
+  m049:
+    acto: 5
+    npc: lia
+    nombre: "La selva"
+    xp: 1250
+    soles: 200
+    dialogo:
+      - "La bruja huyó hacia la selva."
+      - "Tráeme pruebas de que llegaste."
+    final:
+      - "¡Galletas para todos!"
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "bamboo", cantidad: 16, texto: "Entrega 16 bambúes"}
+      - {tipo: ENTREGAR, objetivo: "cocoa_beans", cantidad: 8, texto: "Entrega 8 granos de cacao"}
+    premios: ["COOKIE 20"]
+
+  m050:
+    acto: 5
+    npc: lia
+    nombre: "Ruinas cubiertas"
+    xp: 1250
+    soles: 200
+    dialogo:
+      - "En la selva hay un templo cubierto de musgo."
+      - "Tráeme piedra de allí."
+    final:
+      - "Toma este libro encantado."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "mossy_cobblestone", cantidad: 16, texto: "Entrega 16 de piedra musgosa"}
+    premios: ["libro:unbreaking:3"]
+
+  m051:
+    acto: 5
+    npc: ines
+    nombre: "El aquelarre"
+    xp: 1250
+    soles: 200
+    dialogo:
+      - "Las brujas se juntan para ayudar a su señora."
+      - "Termina con ellas. Cuidado con sus pociones."
+    final:
+      - "Toma manzanas doradas, contra el veneno."
+    objetivos:
+      - {tipo: MATAR, objetivo: "witch", cantidad: 5, texto: "Mata 5 Brujas Corrompidas", corrompido: true}
+    aparecen: ["bruja_corrompida:3"]
+    premios: ["GOLDEN_APPLE 5"]
+
+  m052:
+    acto: 5
+    npc: odon
+    nombre: "Ingredientes"
+    xp: 1250
+    soles: 200
+    dialogo:
+      - "Para vencer a una bruja, piensa como una bruja."
+      - "Tráeme ingredientes para pociones."
+    final:
+      - "Toma este soporte para pociones."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "spider_eye", cantidad: 5, texto: "Entrega 5 ojos de araña"}
+      - {tipo: ENTREGAR, objetivo: "sugar", cantidad: 10, texto: "Entrega 10 de azúcar"}
+    premios: ["BREWING_STAND 1"]
+
+  m053:
+    acto: 5
+    npc: pip
+    nombre: "Compañeros fieles"
+    xp: 1250
+    soles: 200
+    dialogo:
+      - "¡Viajar solo es aburrido! Y peligroso."
+      - "Domestica unos lobos, ellos te cuidarán."
+    final:
+      - "¡Qué lindos! Toma huesos para ellos."
+    objetivos:
+      - {tipo: DOMESTICAR, objetivo: "wolf", cantidad: 2, texto: "Domestica 2 lobos"}
+    premios: ["BONE 12"]
+
+  m054:
+    acto: 5
+    npc: ines
+    nombre: "Tormenta de arena"
+    xp: 1250
+    soles: 200
+    dialogo:
+      - "Se acerca una tormenta. La bruja la está llamando."
+      - "Aguanta y mata todo lo que salga."
+    final:
+      - "Ya está cerca. Toma este Fragmento."
+    objetivos:
+      - {tipo: MATAR, objetivo: "*", cantidad: 20, texto: "Mata 20 monstruos"}
+    premios: ["custom:fragmento_mejora"]
+
+  m055:
+    acto: 5
+    npc: ines
+    nombre: "JEFE: Bruja de las Dunas"
+    jefe: true
+    nivel: 25
+    xp: 0
+    soles: 0
+    dialogo:
+      - "La Bruja de las Dunas te va a envenenar y hacer flotar."
+      - "Lleva leche y pociones. Rompe el sello."
+    final:
+      - "¡El quinto Fragmento! Vamos por la mitad."
+    objetivos:
+      - {tipo: MOB, objetivo: "bruja_dunas", cantidad: 1, texto: "Derrota a la Bruja de las Dunas"}
+    al-aceptar: ["custom:sello_bruja"]
+
+  m056:
+    acto: 6
+    npc: velkar
+    nombre: "El mago de fuego"
+    xp: 1500
+    soles: 240
+    dialogo:
+      - "Saludos, Guardián. Me llamo Velkar, mago del fuego."
+      - "Sé dónde está el sexto Fragmento: en una fortaleza del Nether."
+      - "Tráeme obsidiana y te enseñaré a abrir el portal."
+    final:
+      - "Perfecto. Toma este mechero."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "obsidian", cantidad: 10, texto: "Entrega 10 obsidianas"}
+    premios: ["FLINT_AND_STEEL 1"]
+
+  m057:
+    acto: 6
+    npc: velkar
+    nombre: "Al otro lado"
+    xp: 1500
+    soles: 240
+    dialogo:
+      - "Construye el portal y cruza."
+      - "Tráeme roca del otro lado como prueba."
+    final:
+      - "Bienvenido al infierno, Guardián. Literalmente."
+    objetivos:
+      - {tipo: DIMENSION, objetivo: "nether", cantidad: 1, texto: "Entra al Nether"}
+      - {tipo: ENTREGAR, objetivo: "netherrack", cantidad: 16, texto: "Entrega 16 de netherrack"}
+
+  m058:
+    acto: 6
+    npc: odon
+    nombre: "Verrugas"
+    xp: 1500
+    soles: 240
+    dialogo:
+      - "Las verrugas del Nether son la base de toda poción."
+      - "Las encontrarás en las fortalezas."
+    final:
+      - "Toma pociones contra el fuego. Las vas a necesitar."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "nether_wart", cantidad: 8, texto: "Entrega 8 verrugas del Nether"}
+    premios: ["pocion:fire_resistance 5"]
+
+  m059:
+    acto: 6
+    npc: ines
+    nombre: "Varas de fuego"
+    xp: 1500
+    soles: 240
+    dialogo:
+      - "Los blazes custodian la fortaleza."
+      - "Mátalos y trae sus varas."
+    final:
+      - "Bien. Toma este Fragmento."
+    objetivos:
+      - {tipo: MATAR, objetivo: "blaze", cantidad: 6, texto: "Mata 6 Blazes Corrompidos", corrompido: true}
+      - {tipo: ENTREGAR, objetivo: "blaze_rod", cantidad: 6, texto: "Entrega 6 varas de blaze"}
+    aparecen: ["blaze_corrompido:3"]
+    premios: ["custom:fragmento_mejora"]
+
+  m060:
+    acto: 6
+    npc: odon
+    nombre: "El alquimista"
+    xp: 1500
+    soles: 240
+    dialogo:
+      - "Ya tienes soporte, verrugas y fuego."
+      - "Prepara tus propias pociones."
+    final:
+      - "¡Ya eres todo un alquimista!"
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "blaze_powder", cantidad: 4, texto: "Entrega 4 de polvo de blaze"}
+      - {tipo: TENER, objetivo: "potion,splash_potion", cantidad: 3, texto: "Ten 3 pociones"}
+
+  m061:
+    acto: 6
+    npc: ines
+    nombre: "Huesos negros"
+    xp: 1500
+    soles: 240
+    dialogo:
+      - "Los esqueletos wither te pudren la vida con cada golpe."
+      - "Ten leche a mano."
+    final:
+      - "Toma esta espada de diamante."
+    objetivos:
+      - {tipo: MATAR, objetivo: "wither_skeleton", cantidad: 8, texto: "Mata 8 Esqueletos Wither Corrompidos", corrompido: true}
+    aparecen: ["esqueleto_wither_corrompido:4"]
+    premios: ["DIAMOND_SWORD 1"]
+
+  m062:
+    acto: 6
+    npc: bruno
+    nombre: "Cuarzo"
+    xp: 1500
+    soles: 240
+    dialogo:
+      - "El cuarzo del Nether es perfecto para la forja."
+      - "Tráeme lo que puedas."
+    final:
+      - "Hmpf. Buen cuarzo."
+    objetivos:
+      - {tipo: MINAR, objetivo: "nether_quartz_ore", cantidad: 20, texto: "Mina 20 menas de cuarzo"}
+    premios: ["EMERALD 20"]
+
+  m063:
+    acto: 6
+    npc: ines
+    nombre: "Lágrimas"
+    xp: 1500
+    soles: 240
+    dialogo:
+      - "Los ghasts lloran… y sus lágrimas curan."
+      - "Devuélveles sus bolas de fuego."
+    final:
+      - "Toma pociones fuertes de regeneración."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "ghast_tear", cantidad: 3, texto: "Entrega 3 lágrimas de ghast"}
+    premios: ["pocion:strong_regeneration 2"]
+
+  m064:
+    acto: 6
+    npc: pip
+    nombre: "Trueque dorado"
+    xp: 1500
+    soles: 240
+    dialogo:
+      - "¡Los piglins cambian cosas por oro! Negocio puro."
+      - "Consígueme perlas de ender, ya sea con ellos o con endermans."
+    final:
+      - "¡Trato hecho, socio!"
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "ender_pearl", cantidad: 8, texto: "Entrega 8 perlas de ender"}
+
+  m065:
+    acto: 6
+    npc: velkar
+    nombre: "Los planes de Velkar"
+    xp: 1500
+    soles: 240
+    dialogo:
+      - "Necesito dos cráneos de esqueleto wither."
+      - "¿Para qué? Para… estudiarlos. Nada más."
+    final:
+      - "Excelente. Muy… excelente."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "wither_skeleton_skull", cantidad: 2, texto: "Entrega 2 cráneos de esqueleto wither"}
+    premios: ["custom:fragmento_mejora"]
+
+  m066:
+    acto: 6
+    npc: ines
+    nombre: "JEFE: Señor de Brasas"
+    jefe: true
+    nivel: 30
+    xp: 0
+    soles: 0
+    dialogo:
+      - "El Señor de Brasas manda en la fortaleza. Te va a prender fuego."
+      - "Bebe resistencia al fuego y rompe el sello."
+    final:
+      - "¡El sexto Fragmento! Aunque… Velkar se veía raro cuando volviste."
+    objetivos:
+      - {tipo: MOB, objetivo: "senor_brasas", cantidad: 1, texto: "Derrota al Señor de Brasas"}
+    al-aceptar: ["custom:sello_brasas"]
+
+  m067:
+    acto: 7
+    npc: lia
+    nombre: "Vientos extraños"
+    xp: 1750
+    soles: 280
+    dialogo:
+      - "Sentí un viento que sopla al revés, desde debajo de la tierra."
+      - "Viene de unas cámaras de cobre enterradas. Tráeme toba."
+    final:
+      - "Es de las Cámaras de Prueba. Lo sabía."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "tuff", cantidad: 16, texto: "Entrega 16 de toba"}
+
+  m068:
+    acto: 7
+    npc: lia
+    nombre: "Las llaves"
+    xp: 1750
+    soles: 280
+    dialogo:
+      - "Las cámaras tienen bóvedas que se abren con llaves."
+      - "Gánalas venciendo a sus generadores."
+    final:
+      - "¡Tres llaves! Toma tu parte."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "trial_key", cantidad: 3, texto: "Entrega 3 llaves de prueba"}
+    premios: ["EMERALD 20"]
+
+  m069:
+    acto: 7
+    npc: ines
+    nombre: "Pantanos vivos"
+    xp: 1750
+    soles: 280
+    dialogo:
+      - "Los bogged disparan flechas venenosas."
+      - "Mantén distancia."
+    final:
+      - "Bien hecho."
+    objetivos:
+      - {tipo: MATAR, objetivo: "bogged,skeleton", cantidad: 8, texto: "Mata 8 Bogged Corrompidos", corrompido: true}
+    aparecen: ["bogged_corrompido:4"]
+    premios: ["custom:fragmento_mejora"]
+
+  m070:
+    acto: 7
+    npc: ines
+    nombre: "Remolinos"
+    xp: 1750
+    soles: 280
+    dialogo:
+      - "Los breezes son viento con malas intenciones."
+      - "Te van a mandar a volar. No te caigas."
+    final:
+      - "Toma manzanas doradas."
+    objetivos:
+      - {tipo: MATAR, objetivo: "breeze", cantidad: 6, texto: "Mata 6 Breezes Corrompidos", corrompido: true}
+    aparecen: ["breeze_corrompido:4"]
+    premios: ["GOLDEN_APPLE 5"]
+
+  m071:
+    acto: 7
+    npc: bruno
+    nombre: "Varas de viento"
+    xp: 1750
+    soles: 280
+    dialogo:
+      - "Con varas de breeze puedo forjar algo nuevo."
+      - "Tráeme cuatro."
+    final:
+      - "Hmpf. Interesante."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "breeze_rod", cantidad: 4, texto: "Entrega 4 varas de breeze"}
+
+  m072:
+    acto: 7
+    npc: bruno
+    nombre: "El núcleo pesado"
+    xp: 1750
+    soles: 280
+    dialogo:
+      - "Las bóvedas ominosas guardan un núcleo muy pesado."
+      - "Con eso se forja un mazo."
+    final:
+      - "Toma este libro de Densidad."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "heavy_core", cantidad: 1, texto: "Entrega un núcleo pesado"}
+    premios: ["libro:density:4"]
+
+  m073:
+    acto: 7
+    npc: lia
+    nombre: "Llave ominosa"
+    xp: 1750
+    soles: 280
+    dialogo:
+      - "Las pruebas ominosas son mucho más difíciles."
+      - "Consigue una llave ominosa."
+    final:
+      - "Eres valiente… o loco."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "ominous_trial_key", cantidad: 1, texto: "Entrega una llave de prueba ominosa"}
+
+  m074:
+    acto: 7
+    npc: bruno
+    nombre: "Cobre antiguo"
+    xp: 1750
+    soles: 280
+    dialogo:
+      - "El cobre de las cámaras es antiguo y fuerte."
+      - "Treinta y dos lingotes."
+    final:
+      - "Toma un Fragmento de Mejora."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "copper_ingot", cantidad: 32, texto: "Entrega 32 lingotes de cobre"}
+    premios: ["custom:fragmento_mejora"]
+
+  m075:
+    acto: 7
+    npc: ines
+    nombre: "Cargas de viento"
+    xp: 1750
+    soles: 280
+    dialogo:
+      - "Las cargas de viento te ayudan a saltar y empujar."
+      - "Hazte unas cuantas."
+    final:
+      - "Toma experiencia."
+    objetivos:
+      - {tipo: TENER, objetivo: "wind_charge", cantidad: 16, texto: "Ten 16 cargas de viento"}
+    premios: ["EXPERIENCE_BOTTLE 30"]
+
+  m076:
+    acto: 7
+    npc: ines
+    nombre: "La prueba ominosa"
+    xp: 1750
+    soles: 280
+    dialogo:
+      - "El Viento Encadenado despierta. Las cámaras tiemblan."
+      - "Despeja el camino."
+    final:
+      - "Está listo. Y tú también."
+    objetivos:
+      - {tipo: MATAR, objetivo: "*", cantidad: 25, texto: "Mata 25 monstruos"}
+
+  m077:
+    acto: 7
+    npc: ines
+    nombre: "JEFE: Viento Encadenado"
+    jefe: true
+    nivel: 35
+    xp: 0
+    soles: 0
+    dialogo:
+      - "El Viento Encadenado protege el séptimo Fragmento."
+      - "Lucha en un lugar cerrado o te mandará a volar."
+    final:
+      - "¡El séptimo! Pero… ¿dónde está Velkar?"
+    objetivos:
+      - {tipo: MOB, objetivo: "viento_encadenado", cantidad: 1, texto: "Derrota al Viento Encadenado"}
+    al-aceptar: ["custom:sello_viento"]
+
+  m078:
+    acto: 8
+    npc: tula
+    nombre: "La tienda vacía"
+    xp: 2000
+    soles: 320
+    dialogo:
+      - "Velkar desapareció anoche. Su tienda está vacía."
+      - "Fray Odón estaba revisando sus cosas. Ve con él."
+    final:
+      - "Algo me dice que no nos va a gustar lo que encuentre."
+    objetivos:
+      - {tipo: HABLAR, objetivo: "odon", cantidad: 1, texto: "Habla con Fray Odón"}
+
+  m079:
+    acto: 8
+    npc: odon
+    nombre: "El diario de Velkar"
+    xp: 2000
+    soles: 320
+    dialogo:
+      - "En el diario hay un mapa a la Ciudad Antigua, en lo más profundo."
+      - "Tráeme sculk de allá para confirmar que existe."
+    final:
+      - "Es real… y el diario dice algo terrible."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "sculk", cantidad: 16, texto: "Entrega 16 bloques de sculk"}
+
+  m080:
+    acto: 8
+    npc: ines
+    nombre: "Sombras en la oscuridad"
+    xp: 2000
+    soles: 320
+    dialogo:
+      - "En la oscuridad hay sombras que no se ven."
+      - "Escucha. Atácalas cuando las oigas."
+    final:
+      - "Eran invisibles… pero no para ti."
+    objetivos:
+      - {tipo: MATAR, objetivo: "skeleton", cantidad: 10, texto: "Mata 10 Sombras Corrompidas", corrompido: true}
+    aparecen: ["sombra_corrompida:4"]
+    premios: ["custom:fragmento_mejora"]
+
+  m081:
+    acto: 8
+    npc: lia
+    nombre: "Ecos"
+    xp: 2000
+    soles: 320
+    dialogo:
+      - "En la Ciudad Antigua hay cofres con fragmentos de eco."
+      - "No hagas ruido o despertarás al Warden."
+    final:
+      - "Silencioso como un gato."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "echo_shard", cantidad: 3, texto: "Entrega 3 fragmentos de eco"}
+
+  m082:
+    acto: 8
+    npc: bruno
+    nombre: "Lo que escucha"
+    xp: 2000
+    soles: 320
+    dialogo:
+      - "Esos sensores oyen todo."
+      - "Tráeme algunos. Quiero alarmas para el campamento."
+    final:
+      - "Ahora nadie entra sin que lo sepamos."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "sculk_sensor", cantidad: 4, texto: "Entrega 4 sensores de sculk"}
+    premios: ["EMERALD 25"]
+
+  m083:
+    acto: 8
+    npc: odon
+    nombre: "Pasos silenciosos"
+    xp: 2000
+    soles: 320
+    dialogo:
+      - "Para entrar al centro de la ciudad necesitas magia."
+      - "Tráeme un libro encantado de sus cofres."
+    final:
+      - "Toma pociones de invisibilidad."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "enchanted_book", cantidad: 1, texto: "Entrega un libro encantado"}
+    premios: ["pocion:invisibility 5"]
+
+  m084:
+    acto: 8
+    npc: tula
+    nombre: "La confesión"
+    xp: 2000
+    soles: 320
+    dialogo:
+      - "Fray Odón me leyó el diario de Velkar."
+      - "Fue él, niño. Él rompió la Corona Solar."
+      - "Su hermana murió el día del Eclipse… y quiere usar ese poder para traerla de vuelta."
+      - "No lo odies. Pero tampoco lo dejes terminar."
+    final:
+      - "Ve. Su sombra te espera en la Ciudad Antigua."
+
+  m085:
+    acto: 8
+    npc: lia
+    nombre: "Lo que se perdió"
+    xp: 2000
+    soles: 320
+    dialogo:
+      - "Una brújula de recuperación te lleva a donde caíste."
+      - "Allá abajo la vas a necesitar."
+    final:
+      - "Toma un tótem. Por si acaso."
+    objetivos:
+      - {tipo: TENER, objetivo: "recovery_compass", cantidad: 1, texto: "Ten una brújula de recuperación"}
+    premios: ["TOTEM_OF_UNDYING 1"]
+
+  m086:
+    acto: 8
+    npc: pip
+    nombre: "Velas para los caídos"
+    xp: 2000
+    soles: 320
+    dialogo:
+      - "Quiero encender velas por los que se perdió el Eclipse."
+      - "¿Me ayudas?"
+    final:
+      - "Gracias, socio. De verdad."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "*candle", cantidad: 16, texto: "Entrega 16 velas"}
+    premios: ["custom:fragmento_mejora"]
+
+  m087:
+    acto: 8
+    npc: ines
+    nombre: "No despiertes al Warden"
+    sin-morir: true
+    xp: 2000
+    soles: 320
+    dialogo:
+      - "La Sombra de Velkar llama a sus sombras."
+      - "Mata quince sin morir. Si caes, empiezas de nuevo."
+    final:
+      - "Impecable. Estás listo."
+    objetivos:
+      - {tipo: MATAR, objetivo: "skeleton", cantidad: 15, texto: "Mata 15 Sombras Corrompidas", corrompido: true}
+    aparecen: ["sombra_corrompida:5"]
+
+  m088:
+    acto: 8
+    npc: ines
+    nombre: "JEFE: Sombra de Velkar"
+    jefe: true
+    nivel: 40
+    xp: 0
+    soles: 0
+    dialogo:
+      - "Es la sombra de Velkar. Usa la oscuridad y el wither."
+      - "Rompe el sello en la Ciudad Antigua."
+    final:
+      - "El octavo Fragmento… La sombra dijo algo antes de desaparecer: 'el Rey ya tiene los cráneos'."
+    objetivos:
+      - {tipo: MOB, objetivo: "sombra_velkar", cantidad: 1, texto: "Derrota a la Sombra de Velkar"}
+    al-aceptar: ["custom:sello_sombra"]
+
+  m089:
+    acto: 9
+    npc: errante
+    nombre: "El Errante"
+    xp: 2250
+    soles: 360
+    dialogo:
+      - "…Te estaba esperando, Guardián."
+      - "Velkar le dio los cráneos al Rey de Ceniza. Quieren despertar al Wither."
+      - "Muéstrame que puedes ver lo invisible: tráeme un ojo de ender."
+    final:
+      - "Bien. Tus ojos ya están abiertos."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "ender_eye", cantidad: 1, texto: "Entrega un ojo de ender"}
+
+  m090:
+    acto: 9
+    npc: lia
+    nombre: "Bastiones"
+    xp: 2250
+    soles: 360
+    dialogo:
+      - "El Rey vive en un bastión del Nether."
+      - "Tráeme piedra negra dorada de allí."
+    final:
+      - "Ya sé dónde está su trono."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "gilded_blackstone", cantidad: 4, texto: "Entrega 4 de piedra negra dorada"}
+    premios: ["EMERALD 30"]
+
+  m091:
+    acto: 9
+    npc: ines
+    nombre: "Los brutos"
+    xp: 2250
+    soles: 360
+    dialogo:
+      - "Los brutos protegen el bastión. No se dejan sobornar con oro."
+      - "Acaba con ellos."
+    final:
+      - "Ya no queda guardia."
+    objetivos:
+      - {tipo: MATAR, objetivo: "piglin_brute,piglin", cantidad: 6, texto: "Mata 6 Piglins Brutos Corrompidos", corrompido: true}
+    aparecen: ["piglin_bruto_corrompido:3"]
+    premios: ["custom:fragmento_mejora"]
+
+  m092:
+    acto: 9
+    npc: ines
+    nombre: "Bestias del Nether"
+    xp: 2250
+    soles: 360
+    dialogo:
+      - "Los hoglins embisten como trenes."
+      - "Esquiva y golpea."
+    final:
+      - "Toma manzanas doradas."
+    objetivos:
+      - {tipo: MATAR, objetivo: "hoglin,zoglin", cantidad: 8, texto: "Mata 8 Hoglins Corrompidos", corrompido: true}
+    aparecen: ["hoglin_corrompido:4"]
+    premios: ["GOLDEN_APPLE 5"]
+
+  m093:
+    acto: 9
+    npc: bruno
+    nombre: "Escombros ancestrales"
+    xp: 2250
+    soles: 360
+    dialogo:
+      - "Para la armadura final necesito netherita."
+      - "Busca escombros ancestrales en lo profundo del Nether."
+    final:
+      - "Hmpf. Esto es oro… mejor que oro."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "ancient_debris", cantidad: 8, texto: "Entrega 8 escombros ancestrales"}
+
+  m094:
+    acto: 9
+    npc: bruno
+    nombre: "El metal más fuerte"
+    xp: 2250
+    soles: 360
+    dialogo:
+      - "Funde los escombros y combínalos con oro."
+      - "Cuatro lingotes de netherita."
+    final:
+      - "Ahora estás a la altura del Rey."
+    objetivos:
+      - {tipo: TENER, objetivo: "netherite_ingot", cantidad: 4, texto: "Ten 4 lingotes de netherita"}
+    premios: ["custom:fragmento_mejora"]
+
+  m095:
+    acto: 9
+    npc: bruno
+    nombre: "La plantilla"
+    xp: 2250
+    soles: 360
+    dialogo:
+      - "Sin plantilla no puedo mejorar nada a netherita."
+      - "Los bastiones las guardan."
+    final:
+      - "Perfecto. Mi forja está lista."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "netherite_upgrade_smithing_template", cantidad: 1, texto: "Entrega una plantilla de mejora de netherita"}
+
+  m096:
+    acto: 9
+    npc: errante
+    nombre: "Cráneos negros"
+    xp: 2250
+    soles: 360
+    dialogo:
+      - "Si el Rey despierta al Wither, que sea bajo nuestras reglas."
+      - "Consigue tres cráneos. Tú lo invocarás."
+    final:
+      - "Guárdalos bien."
+    objetivos:
+      - {tipo: TENER, objetivo: "wither_skeleton_skull", cantidad: 3, texto: "Ten 3 cráneos de esqueleto wither"}
+    premios: ["custom:fragmento_mejora"]
+
+  m097:
+    acto: 9
+    npc: errante
+    nombre: "Arena de almas"
+    xp: 2250
+    soles: 360
+    dialogo:
+      - "El Wither necesita un cuerpo de almas."
+      - "Cuatro bloques de arena de almas."
+    final:
+      - "Ya tienes todo… menos el valor."
+    objetivos:
+      - {tipo: TENER, objetivo: "soul_sand,soul_soil", cantidad: 4, texto: "Ten 4 de arena de almas"}
+
+  m098:
+    acto: 9
+    npc: ines
+    nombre: "El Rey de Ceniza"
+    jefe: true
+    nivel: 43
+    xp: 0
+    soles: 0
+    dialogo:
+      - "El Rey de Ceniza no debe llegar al Wither."
+      - "Rompe el sello en su bastión."
+    final:
+      - "El Rey cayó. Ahora solo queda el Wither."
+    objetivos:
+      - {tipo: MOB, objetivo: "rey_ceniza", cantidad: 1, texto: "Derrota al Rey de Ceniza"}
+    al-aceptar: ["custom:sello_rey"]
+
+  m099:
+    acto: 9
+    npc: errante
+    nombre: "JEFE: El Wither"
+    jefe: true
+    nivel: 45
+    xp: 0
+    soles: 0
+    dialogo:
+      - "Construye al Wither con los cráneos y la arena de almas."
+      - "Hazlo lejos del campamento. Muy lejos."
+    final:
+      - "El noveno Fragmento… y la armadura de la Ceniza. Solo falta uno."
+    objetivos:
+      - {tipo: MATAR, objetivo: "wither", cantidad: 1, texto: "Invoca y derrota al Wither"}
+
+  m100:
+    acto: 10
+    npc: errante
+    nombre: "Ojos del Fin"
+    xp: 2500
+    soles: 400
+    dialogo:
+      - "El último Fragmento está al otro lado del portal del Fin."
+      - "Los endermans saben el camino. Quítales sus perlas."
+    final:
+      - "Bien. Ahora haz los ojos."
+    objetivos:
+      - {tipo: MATAR, objetivo: "enderman", cantidad: 12, texto: "Mata 12 Endermans Corrompidos", corrompido: true}
+    aparecen: ["enderman_corrompido:4"]
+
+  m101:
+    acto: 10
+    npc: errante
+    nombre: "El camino"
+    xp: 2500
+    soles: 400
+    dialogo:
+      - "Doce ojos para abrir el portal."
+      - "Lánzalos y te guiarán a la fortaleza."
+    final:
+      - "El camino está claro."
+    objetivos:
+      - {tipo: TENER, objetivo: "ender_eye", cantidad: 12, texto: "Ten 12 ojos de ender"}
+    premios: ["custom:fragmento_mejora"]
+
+  m102:
+    acto: 10
+    npc: lia
+    nombre: "La fortaleza"
+    xp: 2500
+    soles: 400
+    dialogo:
+      - "¡La fortaleza existe! Quiero un recuerdo."
+      - "Tráeme ladrillos agrietados de sus pasillos."
+    final:
+      - "Mi último mapa. El mejor de todos."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "cracked_stone_bricks", cantidad: 6, texto: "Entrega 6 ladrillos de piedra agrietados"}
+
+  m103:
+    acto: 10
+    npc: errante
+    nombre: "Al otro lado"
+    xp: 2500
+    soles: 400
+    dialogo:
+      - "Activa el portal y cruza."
+      - "Tráeme piedra del Fin. Y vuelve vivo."
+    final:
+      - "Volviste. Pocos lo logran."
+    objetivos:
+      - {tipo: DIMENSION, objetivo: "the_end", cantidad: 1, texto: "Entra al Fin"}
+      - {tipo: ENTREGAR, objetivo: "end_stone", cantidad: 16, texto: "Entrega 16 de piedra del Fin"}
+    premios: ["GOLDEN_APPLE 10"]
+
+  m104:
+    acto: 10
+    npc: ines
+    nombre: "JEFE: Dragón del Fin"
+    jefe: true
+    nivel: 48
+    xp: 0
+    soles: 0
+    dialogo:
+      - "El Dragón se alimenta del Eclipse."
+      - "Destruye los cristales y luego a él. Vamos todos."
+    final:
+      - "¡El Dragón cayó! El cielo ya se ve más claro."
+    objetivos:
+      - {tipo: MATAR, objetivo: "ender_dragon", cantidad: 1, texto: "Derrota al Dragón del Fin"}
+
+  m105:
+    acto: 10
+    npc: lia
+    nombre: "Ciudades flotantes"
+    xp: 2500
+    soles: 400
+    dialogo:
+      - "Más allá hay ciudades flotantes."
+      - "Tráeme frutas coral de sus islas."
+    final:
+      - "Saben horrible. Me encantan."
+    objetivos:
+      - {tipo: ENTREGAR, objetivo: "chorus_fruit", cantidad: 16, texto: "Entrega 16 frutas coral"}
+
+  m106:
+    acto: 10
+    npc: ines
+    nombre: "Cajas vivientes"
+    xp: 2500
+    soles: 400
+    dialogo:
+      - "Las ciudades están llenas de shulkers."
+      - "Te van a hacer flotar. Mátalos y trae sus caparazones."
+    final:
+      - "Toma una caja de shulker."
+    objetivos:
+      - {tipo: MATAR, objetivo: "shulker", cantidad: 8, texto: "Mata 8 shulkers"}
+      - {tipo: ENTREGAR, objetivo: "shulker_shell", cantidad: 4, texto: "Entrega 4 caparazones de shulker"}
+    premios: ["SHULKER_BOX 1"]
+
+  m107:
+    acto: 10
+    npc: lia
+    nombre: "Alas"
+    xp: 2500
+    soles: 400
+    dialogo:
+      - "En los barcos del Fin hay alas de verdad."
+      - "Consigue unos élitros."
+    final:
+      - "¡Ahora puedes volar! Toma cohetes."
+    objetivos:
+      - {tipo: TENER, objetivo: "elytra", cantidad: 1, texto: "Ten unos élitros"}
+    premios: ["FIREWORK_ROCKET 64"]
+
+  m108:
+    acto: 10
+    npc: tula
+    nombre: "Antes del final"
+    xp: 2500
+    soles: 400
+    dialogo:
+      - "Mañana es la última batalla, niño."
+      - "Antes, despídete de todos. Ellos también pelean contigo."
+    final:
+      - "Ya estamos todos. Ve y trae el sol de vuelta."
+    objetivos:
+      - {tipo: HABLAR, objetivo: "bruno", cantidad: 1, texto: "Habla con Bruno"}
+      - {tipo: HABLAR, objetivo: "ines", cantidad: 1, texto: "Habla con la Capitana Inés"}
+      - {tipo: HABLAR, objetivo: "pip", cantidad: 1, texto: "Habla con Pip"}
+      - {tipo: HABLAR, objetivo: "lia", cantidad: 1, texto: "Habla con Lía"}
+      - {tipo: HABLAR, objetivo: "odon", cantidad: 1, texto: "Habla con Fray Odón"}
+      - {tipo: HABLAR, objetivo: "errante", cantidad: 1, texto: "Habla con El Errante"}
+
+  m109:
+    acto: 10
+    npc: ines
+    nombre: "JEFE FINAL: Guardián del Eclipse"
+    jefe: true
+    nivel: 50
+    xp: 0
+    soles: 0
+    dialogo:
+      - "El Guardián del Eclipse es el corazón de todo esto."
+      - "Rompe el último sello. Por el campamento. Por el sol."
+    final:
+      - "¡El décimo Fragmento! La Corona Solar está completa."
+    objetivos:
+      - {tipo: MOB, objetivo: "guardian_eclipse", cantidad: 1, texto: "Derrota al Guardián del Eclipse"}
+    al-aceptar: ["custom:sello_guardian"]
+
+  m110:
+    acto: 10
+    npc: tula
+    nombre: "La decisión"
+    xp: 5000
+    soles: 3000
+    dialogo:
+      - "Con los diez fragmentos puedes reconstruir la Corona Solar."
+      - "Pero Velkar dejó algo más en su diario: con una parte del poder, su hermana podría volver."
+      - "El sol brillaría un poco menos… pero dos personas volverían a casa."
+      - "La decisión es tuya, Guardián del Alba."
+    final:
+      - "Elige con el corazón."
+    elecciones:
+      - texto: "Restaurar el sol"
+        premios: ["custom:espada_amanecer_eterno"]
+        marca: final_sol
+        mensaje: "La Corona brilla y el Eclipse se rompe. El sol vuelve, entero. Toma la Espada del Amanecer Eterno."
+      - texto: "Perdonar a Velkar"
+        premios: ["custom:baculo_velkar"]
+        marca: final_velkar
+        mensaje: "El sol vuelve, un poco más tenue. Velkar y su hermana Aria regresan al campamento. Él te entrega su báculo."

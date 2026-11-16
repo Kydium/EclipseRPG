@@ -27,6 +27,12 @@ public final class PlayerData {
     // Premios únicos ya entregados (armas de jefes, etc.)
     public final Set<String> rewards = new HashSet<>();
 
+    // Historia: índice de la misión actual (0 = misión 1)
+    public int questIndex = 0;
+    public boolean questAccepted = false;
+    public int[] questProgress = new int[0];
+    public final Set<String> flags = new HashSet<>();
+
     public boolean dirty = false;
 
     public PlayerData(UUID uuid) {

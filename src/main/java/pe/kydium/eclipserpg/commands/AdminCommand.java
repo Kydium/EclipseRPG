@@ -26,7 +26,7 @@ import java.util.Locale;
 public final class AdminCommand implements CommandExecutor, TabCompleter {
     private static final List<String> SUBS = List.of(
             "tienda", "contratos", "grieta", "xp", "soles", "nivel", "item", "spawn",
-            "info", "setcampamento", "recargar");
+            "info", "setcampamento", "recargar", "npc", "crearnpcs", "mision");
 
     private final EclipseRPG plugin;
 
@@ -60,6 +60,30 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 plugin.getConfig().set("campamento.pitch", l.getPitch());
                 plugin.saveConfig();
                 Txt.send(s, "<green>Campamento del Alba guardado aquí.");
+            }
+            case "npc" -> {
+                // /eclipse npc <id> <jugador>  (lo usa Citizens al hacer clic)
+                if (a.length < 3) return usage(s, "/eclipse npc <id> <jugador>");
+                Player p = player(s, a[2]);
+                if (p == null) return true;
+                if (!plugin.npcs().open(p, a[1])) Txt.send(s, "<red>No existe el NPC " + a[1]);
+            }
+            case "crearnpcs" -> {
+                if (!(s instanceof Player p)) {
+                    Txt.send(s, "<red>Úsalo dentro del juego.");
+                    return true;
+                }
+                plugin.npcs().createAll(p);
+            }
+            case "mision" -> {
+                // /eclipse mision <jugador> <numero>
+                if (a.length < 3) return usage(s, "/eclipse mision <jugador> <número 1-" + plugin.quests().total() + ">");
+                Player p = player(s, a[1]);
+                Long n = number(s, a[2]);
+                if (p == null || n == null) return true;
+                plugin.quests().setQuest(p, n.intValue());
+                var q = plugin.quests().current(p);
+                Txt.send(s, p.getName() + " ahora está en la misión " + n + (q == null ? "" : ": " + q.name));
             }
             case "tienda" -> {
                 // /eclipse tienda <id> <jugador>
@@ -154,6 +178,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 "/eclipse xp <jugador> <n>", "/eclipse soles <jugador> <dar|quitar|poner> <n>",
                 "/eclipse nivel <jugador> <n>", "/eclipse item <jugador> <id> [n]",
                 "/eclipse spawn <mob> <jugador> [n]", "/eclipse info <jugador>",
+                "/eclipse npc <id> <jugador>", "/eclipse crearnpcs", "/eclipse mision <jugador> <n>",
                 "/eclipse setcampamento", "/eclipse recargar"};
         for (String l : lines) s.sendMessage(Txt.mm("<gray>" + l));
     }
@@ -187,13 +212,15 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             if (a.length == 2) {
                 switch (sub) {
                     case "tienda" -> opts.addAll(plugin.shops().ids());
+                    case "npc" -> opts.addAll(plugin.npcs().ids());
+                    case "mision" -> opts.addAll(names());
                     case "spawn" -> opts.addAll(plugin.mobs().ids());
                     case "contratos", "grieta", "xp", "soles", "nivel", "item", "info" -> opts.addAll(names());
                     default -> { }
                 }
             } else if (a.length == 3) {
                 switch (sub) {
-                    case "tienda", "spawn" -> opts.addAll(names());
+                    case "tienda", "spawn", "npc" -> opts.addAll(names());
                     case "item" -> opts.addAll(plugin.items().ids());
                     case "soles" -> opts.addAll(List.of("dar", "quitar", "poner"));
                     default -> { }

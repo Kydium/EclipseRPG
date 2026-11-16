@@ -11,6 +11,8 @@ import pe.kydium.eclipserpg.data.DataManager;
 import pe.kydium.eclipserpg.items.ItemManager;
 import pe.kydium.eclipserpg.menu.MenuListener;
 import pe.kydium.eclipserpg.mobs.MobManager;
+import pe.kydium.eclipserpg.npc.NpcManager;
+import pe.kydium.eclipserpg.quests.QuestManager;
 import pe.kydium.eclipserpg.rift.RiftManager;
 import pe.kydium.eclipserpg.rpg.LevelManager;
 import pe.kydium.eclipserpg.shop.ShopManager;
@@ -27,11 +29,13 @@ public final class EclipseRPG extends JavaPlugin {
     private ShopManager shops;
     private ContractManager contracts;
     private RiftManager rifts;
+    private QuestManager quests;
+    private NpcManager npcs;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        for (String f : new String[]{"items.yml", "mobs.yml", "shops.yml", "contracts.yml"}) {
+        for (String f : new String[]{"items.yml", "mobs.yml", "shops.yml", "contracts.yml", "quests.yml", "npcs.yml"}) {
             if (!new File(getDataFolder(), f).exists()) saveResource(f, false);
         }
         Keys.init(this);
@@ -43,6 +47,8 @@ public final class EclipseRPG extends JavaPlugin {
         shops = new ShopManager(this);
         contracts = new ContractManager(this);
         rifts = new RiftManager(this);
+        quests = new QuestManager(this);
+        npcs = new NpcManager(this);
         loadContent();
 
         var pm = Bukkit.getPluginManager();
@@ -52,9 +58,10 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(mobs, this);
         pm.registerEvents(contracts, this);
         pm.registerEvents(rifts, this);
+        pm.registerEvents(quests, this);
 
         PlayerCommands pc = new PlayerCommands(this);
-        for (String c : new String[]{"nivel", "soles", "pagar"}) bind(c, pc);
+        for (String c : new String[]{"nivel", "soles", "pagar", "misiones", "mision"}) bind(c, pc);
         AdminCommand ac = new AdminCommand(this);
         PluginCommand eclipse = getCommand("eclipse");
         if (eclipse != null) {
@@ -96,6 +103,8 @@ public final class EclipseRPG extends JavaPlugin {
         mobs.load();
         shops.load();
         contracts.load();
+        quests.load();
+        npcs.load();
     }
 
     public void reloadAll() {
@@ -111,4 +120,6 @@ public final class EclipseRPG extends JavaPlugin {
     public ShopManager shops() { return shops; }
     public ContractManager contracts() { return contracts; }
     public RiftManager rifts() { return rifts; }
+    public QuestManager quests() { return quests; }
+    public NpcManager npcs() { return npcs; }
 }

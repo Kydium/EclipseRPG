@@ -54,6 +54,12 @@ public final class DataManager {
         List<Boolean> cl = y.getBooleanList("contratos.reclamado");
         for (int i = 0; i < 3 && i < cl.size(); i++) d.contractClaimed[i] = cl.get(i);
         d.rewards.addAll(y.getStringList("premios"));
+        d.questIndex = y.getInt("historia.mision", 0);
+        d.questAccepted = y.getBoolean("historia.aceptada", false);
+        List<Integer> qp = y.getIntegerList("historia.progreso");
+        d.questProgress = new int[qp.size()];
+        for (int i = 0; i < qp.size(); i++) d.questProgress[i] = qp.get(i);
+        d.flags.addAll(y.getStringList("historia.marcas"));
         return d;
     }
 
@@ -76,6 +82,12 @@ public final class DataManager {
         for (boolean v : d.contractClaimed) cl.add(v);
         y.set("contratos.reclamado", cl);
         y.set("premios", new ArrayList<>(d.rewards));
+        y.set("historia.mision", d.questIndex);
+        y.set("historia.aceptada", d.questAccepted);
+        List<Integer> qp = new ArrayList<>();
+        for (int v : d.questProgress) qp.add(v);
+        y.set("historia.progreso", qp);
+        y.set("historia.marcas", new ArrayList<>(d.flags));
         try {
             y.save(new File(folder, uuid + ".yml"));
             d.dirty = false;

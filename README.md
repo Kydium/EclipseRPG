@@ -37,30 +37,35 @@ Plugin de Paper para la campaña **Crónicas del Eclipse**: niveles RPG, puntos 
 | `/eclipse setcampamento` | Guarda el campamento (destino del Pergamino) |
 | `/eclipse recargar` | Recarga todos los archivos `.yml` |
 
+## Historia (110 misiones)
+
+Las misiones van en orden y cada jugador lleva su propio progreso. Se habla con los NPCs haciendo clic: se abre un menú con la misión y los servicios del NPC (tienda, contratos o Grieta).
+
+- `/misiones` abre el diario con la misión actual y sus objetivos.
+- `/mision` muestra los objetivos en el chat.
+- Las misiones de jefe dan un **sello**. Con clic derecho donde quieras pelear, el jefe aparece a los 2 segundos.
+- Los objetivos de matar cuentan para todos los jugadores que estén a 24 bloques. Los jefes cuentan para todos los que estén a 64.
+- La misión 110 tiene dos finales: el jugador elige haciendo clic en el chat.
+- Para pruebas: `/eclipse mision <jugador> <número>` salta a una misión.
+
+Todo está en `quests.yml` (misiones) y `npcs.yml` (NPCs).
+
 ## NPCs con Citizens
+
+**Forma rápida:** párate en el campamento (después de `/eclipse setcampamento`) y escribe `/eclipse crearnpcs`. Crea los 8 NPCs en círculo alrededor del campamento, ya conectados.
+
+**Forma manual:**
 
 Crea cada NPC, selecciónalo y ponle el comando. `<p>` se reemplaza por el nombre del jugador que hace clic.
 
 ```
-/npc create Pip
-/npc command add eclipse tienda general <p>
-
-/npc create Bruno
-/npc command add eclipse tienda herreria <p>
-
-/npc create Fray_Odon
-/npc command add eclipse tienda alquimia <p>
-
-/npc create Capitana_Ines
-/npc command add eclipse contratos <p>
-
-/npc create El_Errante
-/npc command add eclipse tienda mercado <p>
+/npc create Abuela Tula
+/npc command add eclipse npc tula <p>
 ```
 
-Para las Grietas puedes poner un segundo NPC junto a Inés (por ejemplo, "Portal de la Grieta") con `/npc command add eclipse grieta <p>`.
+Ids de los NPCs: `tula`, `bruno`, `ines`, `pip`, `lia`, `odon`, `velkar`, `errante`.
 
-## Uso desde BetonQuest
+## Uso desde BetonQuest (opcional)
 
 - **Dar recompensas:** evento `command` que ejecute `eclipse xp %player% 250`, `eclipse soles %player% dar 100` o `eclipse item %player% hoja_del_alba`.
 - **Hacer aparecer enemigos de misión:** `eclipse spawn zombi_corrompido %player% 5` o `eclipse spawn rondador_podrido %player%`.

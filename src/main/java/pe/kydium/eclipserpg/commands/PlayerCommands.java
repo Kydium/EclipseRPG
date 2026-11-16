@@ -31,6 +31,20 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         }
         switch (cmd.getName().toLowerCase()) {
             case "nivel" -> new StatsMenu(plugin, p).open();
+            case "misiones" -> new pe.kydium.eclipserpg.quests.QuestMenu(plugin, p).open();
+            case "mision" -> {
+                if (args.length >= 2 && args[0].equalsIgnoreCase("elegir")) {
+                    try {
+                        plugin.quests().choose(p, Integer.parseInt(args[1]));
+                    } catch (NumberFormatException e) {
+                        Txt.send(p, "<red>Opción inválida.");
+                    }
+                } else {
+                    var q = plugin.quests().current(p);
+                    if (q == null) Txt.send(p, "<gold>Ya completaste toda la historia.");
+                    else plugin.quests().showObjectives(p, q);
+                }
+            }
             case "soles" -> {
                 PlayerData d = plugin.data().get(p);
                 Txt.send(p, "Tienes <yellow>" + Txt.num(d.soles) + " ☀ Soles</yellow>.");

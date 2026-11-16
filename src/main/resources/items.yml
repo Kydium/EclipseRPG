@@ -282,3 +282,65 @@ items:
       - {atributo: armor_toughness, valor: 3, slot: feet}
       - {atributo: jump_strength, valor: 0.2, operacion: add_scalar, slot: feet}
       - {atributo: safe_fall_distance, valor: 6, slot: feet}
+
+  # ---------------- Sellos de jefe (clic derecho para invocarlo) ----------------
+  sello_rondador:
+    material: ROTTEN_FLESH
+    nombre: "<red><bold>Sello del Rondador Podrido"
+    lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al jefe del Acto 1."]
+    brillo: true
+    accion: "invocar:rondador_podrido"
+  sello_capataz:
+    material: BONE
+    nombre: "<red><bold>Sello del Capataz Hueso"
+    lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al jefe del Acto 2."]
+    brillo: true
+    accion: "invocar:capataz_hueso"
+  sello_heraldo:
+    material: EMERALD
+    nombre: "<red><bold>Sello del Heraldo de la Mancha"
+    lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al jefe del Acto 3."]
+    brillo: true
+    accion: "invocar:heraldo_mancha"
+  sello_ahogado:
+    material: PRISMARINE_SHARD
+    nombre: "<red><bold>Sello del Ahogado Coronado"
+    lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al jefe del Acto 4."]
+    brillo: true
+    accion: "invocar:ahogado_coronado"
+  sello_bruja:
+    material: FERMENTED_SPIDER_EYE
+    nombre: "<red><bold>Sello de la Bruja de las Dunas"
+    lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al jefe del Acto 5."]
+    brillo: true
+    accion: "invocar:bruja_dunas"
+  sello_brasas:
+    material: MAGMA_CREAM
+    nombre: "<red><bold>Sello del Señor de Brasas"
+    lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al jefe del Acto 6."]
+    brillo: true
+    accion: "invocar:senor_brasas"
+  sello_viento:
+    material: BREEZE_ROD
+    nombre: "<red><bold>Sello del Viento Encadenado"
+    lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al jefe del Acto 7."]
+    brillo: true
+    accion: "invocar:viento_encadenado"
+  sello_sombra:
+    material: ECHO_SHARD
+    nombre: "<red><bold>Sello de la Sombra de Velkar"
+    lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al jefe del Acto 8."]
+    brillo: true
+    accion: "invocar:sombra_velkar"
+  sello_rey:
+    material: GOLD_BLOCK
+    nombre: "<red><bold>Sello del Rey de Ceniza"
+    lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al Rey de Ceniza."]
+    brillo: true
+    accion: "invocar:rey_ceniza"
+  sello_guardian:
+    material: NETHER_STAR
+    nombre: "<red><bold>Sello del Guardián del Eclipse"
+    lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al jefe final."]
+    brillo: true
+    accion: "invocar:guardian_eclipse"

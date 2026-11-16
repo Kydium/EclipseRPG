@@ -201,6 +201,16 @@ public final class ShopManager {
         return it;
     }
 
+    /** Construye un objeto desde texto: "material:X", "custom:id", "pocion:tipo", "libro:ench:nivel" + cantidad. */
+    public ItemStack buildSpec(String spec, int amount) {
+        Entry e = new Entry();
+        e.item = spec;
+        e.amount = Math.max(1, amount);
+        ItemStack it = build(e);
+        if (it != null && !spec.startsWith("custom:")) it.setAmount(Math.min(it.getMaxStackSize(), e.amount));
+        return it;
+    }
+
     /** Material simple para ventas (el jugador entrega ese material). */
     public Material sellMaterial(Entry e) {
         if (e.item == null) return null;
