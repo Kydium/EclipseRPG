@@ -242,7 +242,7 @@ public final class NpcEntities implements Listener {
         }
         removeMarks(id);
         String skin = plugin.getConfig().getString("npc-skins." + id, id);
-        LivingEntity le = summon(at, skin);
+        LivingEntity le = summon(safeSpot(at), skin);
         if (le == null) return;
         le.customName(Txt.mm(def.name));
         le.setCustomNameVisible(true);
@@ -300,7 +300,7 @@ public final class NpcEntities implements Listener {
         List<String> opts = skins.getOrDefault(role, skins.getOrDefault("aldeano", List.of("aldeano_1")));
         String skin = opts.get(ThreadLocalRandom.current().nextInt(opts.size()));
         at.setYaw(ThreadLocalRandom.current().nextFloat() * 360f - 180f);
-        LivingEntity le = summon(at, skin);
+        LivingEntity le = summon(safeSpot(at), skin);
         if (le == null) return;
         boolean kid = role.equals("nino") || role.equals("nina");
         String name = NAMES[ThreadLocalRandom.current().nextInt(NAMES.length)];
@@ -456,6 +456,14 @@ public final class NpcEntities implements Listener {
 
     private void step(LivingEntity le, Walk w) {
         Location loc = le.getLocation();
+        if (!loc.getBlock().getRelative(0, 1, 0).isPassable()) {
+            // atrapado: salir al lugar libre más cercano
+            Location free = safeSpot(loc);
+            free.setYaw(w.yaw);
+            le.teleport(free, TeleportFlag.EntityState.RETAIN_PASSENGERS);
+            w.hasTarget = false;
+            return;
+        }
         // nadie cerca: no gastar
         if (!TEST && nearest(le, 72) == null) return;
         ThreadLocalRandom r = ThreadLocalRandom.current();
@@ -507,6 +515,27 @@ public final class NpcEntities implements Listener {
         w.yaw = lerpYaw(w.yaw, yaw, 0.25f);
         Location next = new Location(loc.getWorld(), nx, ny, nz, w.yaw, 0);
         le.teleport(next, TeleportFlag.EntityState.RETAIN_PASSENGERS);
+    }
+
+    /** Lugar libre más cercano para pararse (no dentro de paredes, vallas ni espantapájaros). */
+    public static Location safeSpot(Location at) {
+        World w = at.getWorld();
+        if (w == null) return at;
+        int bx = at.getBlockX(), bz = at.getBlockZ();
+        for (int r = 0; r <= 6; r++) {
+            for (int dx = -r; dx <= r; dx++) {
+                for (int dz = -r; dz <= r; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != r) continue;
+                    for (double dy : new double[]{0, 1, -1, 2}) {
+                        double y = surface(w, bx + dx + 0.5, bz + dz + 0.5, at.getY() + dy);
+                        if (Double.isNaN(y)) continue;
+                        // también libre alrededor (medio bloque) para no rozar paredes
+                        return new Location(w, bx + dx + 0.5, y, bz + dz + 0.5, at.getYaw(), 0);
+                    }
+                }
+            }
+        }
+        return at;
     }
 
     /** Altura del suelo caminable en (x,z) cerca de y; NaN si no se puede pisar. */

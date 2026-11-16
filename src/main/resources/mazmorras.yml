@@ -218,7 +218,7 @@ mazmorras:
     techo: [blackstone]
     acento: [gilded_blackstone, gold_block]
     luz: glowstone
-    decoracion: [chain, soul_lantern, cobweb]
+    decoracion: [iron_chain, soul_lantern, cobweb]
     escalera: polished_blackstone_brick_stairs
     losa: polished_blackstone_brick_slab
     muro: polished_blackstone_brick_wall

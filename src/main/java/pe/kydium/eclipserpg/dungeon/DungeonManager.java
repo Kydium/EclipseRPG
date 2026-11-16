@@ -174,6 +174,7 @@ public final class DungeonManager implements Listener {
     private List<String> mats(ConfigurationSection t, String key) {
         List<String> out = new ArrayList<>();
         for (String s : t.getStringList(key)) {
+            if (s.equals("chain")) s = "iron_chain"; // nombre antiguo
             Material m = Material.matchMaterial(s.contains("[") ? s.substring(0, s.indexOf('[')) : s);
             if (m != null && m.isBlock()) out.add(s.toLowerCase());
         }
@@ -184,6 +185,7 @@ public final class DungeonManager implements Listener {
 
     private BlockData data(String state) {
         return dataCache.computeIfAbsent(state, k -> {
+            if (k.equals("chain") || k.startsWith("chain[")) k = "iron_" + k; // nombre antiguo
             String full = k.contains(":") ? k : "minecraft:" + k;
             try {
                 return Bukkit.createBlockData(full);
