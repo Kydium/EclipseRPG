@@ -1,1 +1,1 @@
-rootProject.name = "EclipseRPG"
+rootProject.name = "AventuraMaker"

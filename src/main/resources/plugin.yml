@@ -1,9 +1,9 @@
-name: EclipseRPG
+name: AventuraMaker
 version: '${version}'
 main: pe.kydium.eclipserpg.EclipseRPG
 api-version: '1.21'
 author: Kydium
-description: Motor de historias RPG — escribe tu historia en un .txt y juégala con tus amigos
+description: Aventura Maker — crea historias RPG para Minecraft (editor visual, misiones, NPCs, jefes) y juégalas con tus amigos
 
 commands:
   nivel:
@@ -30,9 +30,9 @@ commands:
     permission: eclipserpg.admin
     aliases: [story, h]
   eclipse:
-    description: Administración de EclipseRPG
+    description: Administración de Aventura Maker
     permission: eclipserpg.admin
-    aliases: [erpg]
+    aliases: [aventura, erpg]
 
 permissions:
   eclipserpg.admin:

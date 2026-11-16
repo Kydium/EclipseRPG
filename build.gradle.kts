@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "pe.kydium"
-version = "3.1.0"
+version = "4.0.0"
 
 repositories {
     mavenCentral()
@@ -35,5 +35,5 @@ tasks.processResources {
 }
 
 tasks.jar {
-    archiveFileName.set("EclipseRPG-${project.version}.jar")
+    archiveFileName.set("AventuraMaker-${project.version}.jar")
 }

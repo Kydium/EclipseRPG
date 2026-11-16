@@ -21,19 +21,24 @@ public final class Keys {
 
     private Keys() {}
 
+    /** Las claves siguen en el espacio "eclipserpg" aunque el plugin se llame Aventura Maker: así no se pierden datos guardados. */
+    public static NamespacedKey k(String key) {
+        return NamespacedKey.fromString("eclipserpg:" + key);
+    }
+
     public static void init(Plugin p) {
-        ITEM = new NamespacedKey(p, "item");
-        UPGRADE = new NamespacedKey(p, "mejora");
-        MOB = new NamespacedKey(p, "mob");
-        TIER = new NamespacedKey(p, "tier");
-        RIFT = new NamespacedKey(p, "grieta");
-        PHASE = new NamespacedKey(p, "fase");
-        BOSS_HP = new NamespacedKey(p, "vida_mult");
-        DMG_DIV = new NamespacedKey(p, "div_danio");
-        ENRAGED = new NamespacedKey(p, "furia");
-        DUNGEON = new NamespacedKey(p, "mazmorra");
-        NPC = new NamespacedKey(p, "npc");
-        FILLER = new NamespacedKey(p, "relleno");
-        HOME = new NamespacedKey(p, "casa");
+        ITEM = k("item");
+        UPGRADE = k("mejora");
+        MOB = k("mob");
+        TIER = k("tier");
+        RIFT = k("grieta");
+        PHASE = k("fase");
+        BOSS_HP = k("vida_mult");
+        DMG_DIV = k("div_danio");
+        ENRAGED = k("furia");
+        DUNGEON = k("mazmorra");
+        NPC = k("npc");
+        FILLER = k("relleno");
+        HOME = k("casa");
     }
 }

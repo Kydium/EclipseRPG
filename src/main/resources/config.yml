@@ -1,7 +1,7 @@
 # =========================================================
-#  EclipseRPG — motor de historias RPG
-#  Las historias están en plugins/EclipseRPG/historias/<nombre>/historia.txt
-#  Guía: plugins/EclipseRPG/GUIA.txt   ·   Comando: /historia
+#  Aventura Maker — crea tus propias historias RPG
+#  Las historias están en plugins/AventuraMaker/historias/<nombre>/historia.txt
+#  Guía: plugins/AventuraMaker/GUIA.txt   ·   Comando: /historia
 # =========================================================
 
 historia: eclipse               # carpeta de la historia que se juega (cámbiala con /historia usar)

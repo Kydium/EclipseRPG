@@ -45,6 +45,27 @@ public final class EclipseRPG extends JavaPlugin {
     private pe.kydium.eclipserpg.npc.ResourcePack resourcePack;
     private pe.kydium.eclipserpg.web.EditorApi editor;
 
+    /** Antes se llamaba EclipseRPG: mueve su carpeta (config, historias, jugadores) a la nueva. */
+    @Override
+    public void onLoad() {
+        File now = getDataFolder();
+        File old = new File(now.getParentFile(), "EclipseRPG");
+        if (!old.isDirectory() || new File(now, "config.yml").exists()) return;
+        try {
+            if (now.isDirectory()) {
+                String[] left = now.list();
+                if (left != null && left.length == 0) java.nio.file.Files.delete(now.toPath());
+            }
+            if (!now.exists()) {
+                java.nio.file.Files.move(old.toPath(), now.toPath());
+                getLogger().info("Se movió la carpeta plugins/EclipseRPG a plugins/AventuraMaker (el plugin ahora se llama Aventura Maker).");
+            }
+        } catch (java.io.IOException e) {
+            getLogger().warning("No se pudo mover plugins/EclipseRPG a plugins/AventuraMaker: " + e.getMessage()
+                    + ". Muévela a mano con el servidor apagado.");
+        }
+    }
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -127,7 +148,15 @@ public final class EclipseRPG extends JavaPlugin {
             data.get(p);
             levels.applyAll(p);
         }
-        getLogger().info("EclipseRPG listo. ¡Que vuelva el sol!");
+        getLogger().info("Aventura Maker listo — historia: " + title());
+        // si quedó el jar viejo (EclipseRPG) en la carpeta plugins, apagarlo para que no choquen
+        Bukkit.getScheduler().runTask(this, () -> {
+            var old = Bukkit.getPluginManager().getPlugin("EclipseRPG");
+            if (old != null && old != this && old.isEnabled()) {
+                Bukkit.getPluginManager().disablePlugin(old);
+                getLogger().severe("Había una copia vieja del plugin (EclipseRPG). La apagué: borra EclipseRPG-1.0.0.jar de la carpeta plugins.");
+            }
+        });
     }
 
     @Override

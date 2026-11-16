@@ -175,7 +175,7 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
         Txt.send(s, "<white>" + d.missions.size() + "<gray> misiones · <white>" + d.npcs.size() + "<gray> NPCs · <white>" + d.acts.size() + "<gray> actos");
         long err = st.errorCount(), warn = st.problems().size() - err;
         Txt.send(s, err > 0 ? "<red>✖ " + err + " error(es) <gray>— /historia errores" : "<green>✔ Sin errores" + (warn > 0 ? " <yellow>(" + warn + " avisos)" : ""));
-        Txt.send(s, "<gray>Archivo: <white>plugins/EclipseRPG/historias/" + st.id() + "/historia.txt");
+        Txt.send(s, "<gray>Archivo: <white>plugins/AventuraMaker/historias/" + st.id() + "/historia.txt");
         Txt.send(s, "<gray>Comandos: <white>editor · revisar · recargar · errores · colocar · skins · lugares · lista · nueva · usar");
         Txt.send(s, LINE);
     }

@@ -182,7 +182,7 @@ public final class LevelManager implements Listener {
             if (attr == null) continue;
             AttributeInstance inst = p.getAttribute(attr);
             if (inst == null) continue;
-            NamespacedKey key = new NamespacedKey(plugin, "stat_" + s.id);
+            NamespacedKey key = pe.kydium.eclipserpg.util.Keys.k("stat_" + s.id);
             for (AttributeModifier m : new ArrayList<>(inst.getModifiers())) {
                 if (key.equals(m.getKey())) inst.removeModifier(m);
             }

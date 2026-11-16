@@ -147,7 +147,7 @@ public final class EditorApi {
                     File f = new File(st.folder(), "avanzado/" + name + ".yml");
                     Files.createDirectories(f.getParentFile().toPath());
                     if (f.exists()) Files.copy(f.toPath(), new File(f.getParentFile(), name + ".yml.bak").toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    String header = "# Editado con el editor visual de EclipseRPG\n";
+                    String header = "# Editado con el editor visual de Aventura Maker\n";
                     Files.writeString(f.toPath(), header + y.saveToString(), StandardCharsets.UTF_8);
                     json(ex, 200, ok("Guardado"));
                 }
@@ -335,7 +335,7 @@ public final class EditorApi {
         if (!url.startsWith("http://") && !url.startsWith("https://")) throw new IllegalArgumentException("El link debe empezar con http:// o https://");
         HttpClient c = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).connectTimeout(Duration.ofSeconds(10)).build();
         HttpResponse<byte[]> r = c.send(HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(20))
-                .header("User-Agent", "EclipseRPG-editor").build(), HttpResponse.BodyHandlers.ofByteArray());
+                .header("User-Agent", "AventuraMaker-editor").build(), HttpResponse.BodyHandlers.ofByteArray());
         if (r.statusCode() != 200) throw new IllegalArgumentException("El link respondió " + r.statusCode());
         if (r.body().length > 2_000_000) throw new IllegalArgumentException("La imagen es demasiado grande");
         return r.body();

@@ -1,4 +1,4 @@
-name: Compilar EclipseRPG
+name: Compilar Aventura Maker
 
 on:
   push:
@@ -42,7 +42,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: EclipseRPG
+          name: AventuraMaker
           path: build/libs/*.jar
 
       - name: Prueba en un servidor real (aldea, NPCs, ruina, mazmorra)
@@ -57,7 +57,7 @@ jobs:
           printf "online-mode=false\nspawn-protection=0\nview-distance=6\nsimulation-distance=6\nlevel-seed=20261116\n" > server.properties
           timeout 1200 java -Xmx6G -Declipse.prueba=true -jar paper.jar --nogui < /dev/null > ../prueba.log 2>&1 || true
           cd ..
-          grep -E "\[PRUEBA\]|EclipseRPG.*(WARN|ERROR|Exception)|Bloque desconocido|no reconocidos" prueba.log || true
+          grep -E "\[PRUEBA\]|AventuraMaker.*(WARN|ERROR|Exception)|Bloque desconocido|no reconocidos" prueba.log || true
           grep -q "RESULTADO: TODO BIEN" prueba.log
 
       - name: Guardar registro de la prueba
@@ -71,7 +71,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: EclipseRPG build ${{ github.run_number }}
+          name: Aventura Maker build ${{ github.run_number }}
           files: |
             build/libs/*.jar
             EclipseRPG-pack.zip

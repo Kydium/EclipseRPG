@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Editor de historias · EclipseRPG</title>
+<title>Aventura Maker · Editor de historias</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 16 16%22%3E%3Ccircle cx=%228%22 cy=%228%22 r=%227%22 fill=%22%23e0b354%22/%3E%3C/svg%3E">
 <style>
 :root{--bg:#14110f;--panel:#1d1915;--panel2:#25201b;--line:#3a3128;--line2:#4d4135;--text:#efe6d6;--muted:#a89a85;--dim:#7a6e5e;--gold:#e0b354;--gold2:#c8973a;--red:#e2645a;--green:#7cc36a;--blue:#6fb0e8;--purple:#b48ae6;--r:8px}
@@ -123,7 +123,7 @@ textarea{resize:vertical;min-height:38px}
 <script>
 "use strict";
 // =====================================================================
-//  Editor visual de historias — EclipseRPG
+//  Editor visual de historias — Aventura Maker
 //  Lee y escribe historia.txt y los archivos avanzados a través del servidor.
 // =====================================================================
 const TOKEN = new URLSearchParams(location.search).get("t") || localStorage.getItem("erpg_token") || "";
@@ -250,7 +250,7 @@ function objPhrase(o){
 function serialize(S){
   const out=[]; const R={npcs:{},missions:[],head:[1,0]};
   const w=x=>out.push(x);
-  w("# Creado con el editor visual de EclipseRPG — también puedes editarlo con el Bloc de notas");
+  w("# Creado con el editor visual de Aventura Maker — también puedes editarlo con el Bloc de notas");
   w("");
   w("HISTORIA: "+(S.title||"Mi historia"));
   if(S.desc)w("DESCRIPCION: "+S.desc); if(S.village)w("ALDEA: "+S.village); if(S.currency)w("MONEDA: "+S.currency);
@@ -377,15 +377,16 @@ const VIEWS=[["inicio","☀","Historia"],["npcs","☺","Personajes"],["misiones"
 function render(){
   const app=$("#app");
   if(!TOKEN){app.replaceChildren(lockScreen("Falta el código de acceso. Abre el editor con el comando /historia editor dentro del juego."));return}
-  if(!st.cat||!st.story){app.replaceChildren(h("div",{class:"lock"},h("div",{class:"logo"},h("div",{class:"sun"}),"Cargando el editor…")));return}
+  if(!st.cat||!st.story){app.replaceChildren(h("div",{class:"lock"},h("div",{class:"logo"},h("div",{class:"sun"}),"Aventura Maker · cargando…")));return}
   app.replaceChildren(h("div",{class:"app"},topbar(),h("div",{class:"main"},nav(),h("div",{id:"view",style:"min-height:0;display:contents"})),datalists()));
   renderView();
 }
-function lockScreen(msg){return h("div",{class:"lock"},h("div",{class:"logo"},h("div",{class:"sun"}),"Editor de historias"),h("p",{style:"color:var(--muted);max-width:460px"},msg))}
+function lockScreen(msg){return h("div",{class:"lock"},h("div",{class:"logo"},h("div",{class:"sun"}),"Aventura Maker"),h("p",{style:"color:var(--muted);max-width:460px"},msg))}
 function topbar(){
   const S=st.story; const errs=st.probs.filter(p=>p.error).length, warns=st.probs.length-errs;
   return h("div",{class:"top",id:"top"},
-    h("div",{class:"logo"},h("div",{class:"sun"}),h("span",null,S.title||"Mi historia")),
+    h("div",{class:"logo"},h("div",{class:"sun"}),h("span",null,"Aventura Maker")),
+    h("span",{class:"pill",style:"color:var(--text)"},S.title||"Mi historia"),
     h("span",{class:"pill"},"carpeta: "+st.cat.historia),
     h("span",{class:"pill "+(errs?"bad":warns?"warn":"good"),id:"stpill"},errs?errs+" error(es)":warns?warns+" aviso(s)":"sin errores"),
     h("span",{class:"pill warn",id:"dirtypill",style:dirty()?"":"display:none"},"cambios sin guardar"),
@@ -429,7 +430,7 @@ function viewStory(){
     historiesCard());
 }
 function historiesCard(){
-  const box=h("div",{class:"card"},h("h3",null,"Tus historias ",h("span",{class:"hint"},"cada una es una carpeta en plugins/EclipseRPG/historias")));
+  const box=h("div",{class:"card"},h("h3",null,"Tus historias ",h("span",{class:"hint"},"cada una es una carpeta en plugins/AventuraMaker/historias")));
   api("historias").then(r=>{
     box.append(h("div",{class:"rows"},r.lista.map(id=>h("div",{class:"rw",style:"grid-template-columns:1fr auto"},h("div",null,h("b",null,id),id===r.actual?h("span",{class:"pill good",style:"margin-left:8px"},"en uso"):null),
       id===r.actual?h("span"):h("button",{class:"btn sm",onclick:()=>useStory(id)},"Jugar esta historia")))),

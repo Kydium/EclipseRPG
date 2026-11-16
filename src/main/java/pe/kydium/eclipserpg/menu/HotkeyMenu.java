@@ -81,7 +81,7 @@ public final class HotkeyMenu implements Listener {
             dialog.getParentFile().mkdirs();
             tag.getParentFile().mkdirs();
             Files.writeString(mcmeta.toPath(), """
-                    {"pack": {"description": "EclipseRPG: menú con la tecla G", "min_format": 80, "max_format": 200}}
+                    {"pack": {"description": "Aventura Maker: menú con la tecla G", "min_format": 80, "max_format": 200}}
                     """, StandardCharsets.UTF_8);
             Files.writeString(dialog.toPath(), """
                     {

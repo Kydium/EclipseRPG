@@ -215,7 +215,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
     }
 
     private void help(CommandSender s) {
-        Txt.send(s, "<gold>Comandos de EclipseRPG:");
+        Txt.send(s, "<gold>Comandos de Aventura Maker:");
         String[] lines = {
                 "/eclipse tienda <id> <jugador>", "/eclipse contratos <jugador>", "/eclipse grieta <jugador>",
                 "/eclipse xp <jugador> <n>", "/eclipse soles <jugador> <dar|quitar|poner> <n>",

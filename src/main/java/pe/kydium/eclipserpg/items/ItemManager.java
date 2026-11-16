@@ -140,7 +140,7 @@ public final class ItemManager implements Listener {
                 plugin.getLogger().warning("items.yml: atributo desconocido '" + a.attribute() + "' en " + id);
                 continue;
             }
-            NamespacedKey key = new NamespacedKey(plugin, ("it_" + id + "_" + idx++).toLowerCase());
+            NamespacedKey key = pe.kydium.eclipserpg.util.Keys.k(("it_" + id + "_" + idx++).toLowerCase());
             meta.addAttributeModifier(attr, new AttributeModifier(key, a.value(), Reg.operation(a.operation()), Reg.slot(a.slot())));
         }
         if (ci.unbreakable) meta.setUnbreakable(true);
@@ -183,7 +183,7 @@ public final class ItemManager implements Listener {
         lvl++;
         ItemMeta meta = it.getItemMeta();
         if (meta == null) return false;
-        NamespacedKey key = new NamespacedKey(plugin, "mejora");
+        NamespacedKey key = pe.kydium.eclipserpg.util.Keys.k("mejora");
         Collection<AttributeModifier> mods = meta.getAttributeModifiers(Attribute.ATTACK_DAMAGE);
         if (mods != null) {
             for (AttributeModifier m : new ArrayList<>(mods)) {

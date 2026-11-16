@@ -25,7 +25,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * Historias: cada una vive en plugins/EclipseRPG/historias/&lt;id&gt;/ con un historia.txt en español
+ * Historias: cada una vive en plugins/AventuraMaker/historias/&lt;id&gt;/ con un historia.txt en español
  * sencillo, una carpeta skins/ opcional y una carpeta avanzado/ opcional (objetos, mobs, tiendas,
  * contratos y mazmorras en YAML). El motor no cambia entre historias.
  */

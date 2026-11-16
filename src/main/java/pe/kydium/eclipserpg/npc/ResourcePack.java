@@ -121,7 +121,7 @@ public final class ResourcePack implements Listener {
                 }
             });
             server.setExecutor(Executors.newFixedThreadPool(2, r -> {
-                Thread t = new Thread(r, "EclipseRPG-paquete");
+                Thread t = new Thread(r, "AventuraMaker-paquete");
                 t.setDaemon(true);
                 return t;
             }));

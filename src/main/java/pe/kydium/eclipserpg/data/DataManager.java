@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Guarda y carga el progreso de cada jugador en plugins/EclipseRPG/jugadores/<uuid>.yml */
+/** Guarda y carga el progreso de cada jugador en plugins/AventuraMaker/jugadores/<uuid>.yml */
 public final class DataManager {
     private final EclipseRPG plugin;
     private final File folder;

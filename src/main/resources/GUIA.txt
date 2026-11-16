@@ -1,5 +1,5 @@
 =====================================================================
-  CÓMO CREAR TU PROPIA HISTORIA  —  Motor EclipseRPG
+  CÓMO CREAR TU PROPIA HISTORIA  —  Aventura Maker
 =====================================================================
 
 LA FORMA MÁS FÁCIL: EL EDITOR VISUAL
@@ -13,7 +13,7 @@ LA FORMA MÁS FÁCIL: EL EDITOR VISUAL
 
 Todo se escribe en UN archivo de texto, en español:
 
-    plugins/EclipseRPG/historias/<nombre>/historia.txt
+    plugins/AventuraMaker/historias/<nombre>/historia.txt
 
 No necesitas programar ni compilar nada. Ábrelo con el Bloc de notas,
 guárdalo (codificación UTF-8) y en el juego escribe:
@@ -143,7 +143,7 @@ Se juegan en el orden en que las escribes, una tras otra.
 
   Nombres de objetos y enemigos: en español (pan, lingote de hierro,
   espada de diamante, zombi, araña…). La lista completa está en
-  plugins/EclipseRPG/motor/diccionario.txt. Si algo no está, usa el id
+  plugins/AventuraMaker/motor/diccionario.txt. Si algo no está, usa el id
   de Minecraft en inglés:  entrega 4 copper_ingot
 
 

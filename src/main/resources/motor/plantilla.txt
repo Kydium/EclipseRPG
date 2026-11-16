@@ -3,7 +3,7 @@
 #  Las líneas que empiezan con # son comentarios: el juego las ignora.
 #  Cuando termines:  /historia revisar   (te dice si algo está mal)
 #                    /historia usar <nombre-de-esta-carpeta> confirmar
-#  La guía completa está en plugins/EclipseRPG/GUIA.txt
+#  La guía completa está en plugins/AventuraMaker/GUIA.txt
 # =====================================================================
 
 HISTORIA: La Isla del Kraken
