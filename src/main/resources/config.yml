@@ -1,7 +1,10 @@
 # =========================================================
-#  EclipseRPG — Crónicas del Eclipse
-#  Moneda: Soles (☀). Colores con formato MiniMessage.
+#  EclipseRPG — motor de historias RPG
+#  Las historias están en plugins/EclipseRPG/historias/<nombre>/historia.txt
+#  Guía: plugins/EclipseRPG/GUIA.txt   ·   Comando: /historia
 # =========================================================
+
+historia: eclipse               # carpeta de la historia que se juega (cámbiala con /historia usar)
 
 zona-horaria: America/Lima      # para contratos diarios y mercado oscuro
 autoguardado-minutos: 5
@@ -128,7 +131,7 @@ grieta:
     10: [enderman_corrompido, piglin_bruto_corrompido, sombra_corrompida]
 
 aldea:
-  auto: true                    # construir la Aldea del Alba sola al iniciar un mundo nuevo
+  auto: true                    # construir la aldea sola al iniciar un mundo nuevo
   biomas: [plains, sunflower_plains, meadow, forest, flower_forest, birch_forest, old_growth_birch_forest, cherry_grove, savanna]
   busqueda-max: 1500            # distancia máxima desde el spawn para buscar lugar
   desnivel-max: 7               # diferencia de altura aceptada en el terreno
@@ -139,13 +142,13 @@ aldea:
 # Se guarda con /eclipse setcampamento (destino del Pergamino del Campamento)
 campamento: {}
 
-# Paquete de recursos con las skins de los NPCs (se envía solo al entrar).
-# Déjalo vacío para usar el que viene con el plugin.
+# Paquete de recursos con las skins de los NPCs: el propio servidor lo arma y lo sirve.
+# Si tus amigos no pueden descargarlo, revisa que el puerto no esté bloqueado.
 paquete-recursos:
   activo: true
-  obligatorio: false
-  url: ""
-  sha1: ""
+  obligatorio: false            # true = quien lo rechace no puede entrar
+  puerto: 25580
+  direccion: ""                 # vacío = la misma dirección con la que se conectan
 
 # Paseo de los NPCs (bloques alrededor de su puesto)
 npc-paseo:

@@ -131,7 +131,7 @@ public final class MobManager implements Listener {
         }
         if (tiers.isEmpty()) tiers.add(new Tier(30, 2, 10, 2));
 
-        YamlConfiguration y = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "mobs.yml"));
+        YamlConfiguration y = plugin.story().yaml("mobs");
         ConfigurationSection root = y.getConfigurationSection("mobs");
         if (root != null) {
             for (String id : root.getKeys(false)) {

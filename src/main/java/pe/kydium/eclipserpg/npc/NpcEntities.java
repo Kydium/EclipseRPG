@@ -94,10 +94,6 @@ public final class NpcEntities implements Listener {
             Map.entry("curtidor", "Curtidor"), Map.entry("guardia", "Guardia del Alba"), Map.entry("erudito", "Erudito"),
             Map.entry("aldeano", "Aldeano"), Map.entry("aldeana", "Aldeana"), Map.entry("nino", "Niño"), Map.entry("nina", "Niña"));
 
-    private static final Map<String, String> STORY_TITLE = Map.of(
-            "tula", "Anciana de la aldea", "bruno", "Herrero", "ines", "Capitana de la guardia", "pip", "Mercader",
-            "lia", "Exploradora", "odon", "Fraile y sabio", "velkar", "Hechicero", "errante", "???");
-
     private static final Map<String, List<String>> CHATTER = Map.of(
             "guardia", List.of("Mantén los ojos abiertos, viajero.", "Nada pasa por esta puerta sin que lo vea.", "Dicen que de noche algo ronda los bosques."),
             "nino", List.of("¿Quieres jugar a las escondidas?", "¡Un día seré un héroe como tú!", "Mi abuela dice que no salga de noche."),
@@ -115,28 +111,9 @@ public final class NpcEntities implements Listener {
     private final Set<UUID> fillers = new HashSet<>();
     private final Map<UUID, Walk> walks = new HashMap<>();
     private final Map<String, Map<Mark, UUID>> marks = new HashMap<>();
-    private final Map<String, List<String>> skins = new HashMap<>();
 
     public NpcEntities(EclipseRPG plugin) {
         this.plugin = plugin;
-        loadSkinList();
-    }
-
-    private void loadSkinList() {
-        try (InputStream in = plugin.getResource("npc-skins.txt")) {
-            if (in == null) return;
-            BufferedReader r = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            String line;
-            while ((line = r.readLine()) != null) {
-                line = line.trim();
-                if (line.isEmpty()) continue;
-                int u = line.lastIndexOf('_');
-                String role = u > 0 ? line.substring(0, u) : line;
-                skins.computeIfAbsent(role, k -> new ArrayList<>()).add(line);
-            }
-        } catch (Exception e) {
-            plugin.getLogger().warning("No se pudo leer la lista de skins: " + e.getMessage());
-        }
     }
 
     public void load() {
@@ -174,9 +151,8 @@ public final class NpcEntities implements Listener {
         return new int[]{(int) (m >> 32), (int) m, (int) (l >> 32), (int) l};
     }
 
-    private static boolean slim(String skin) {
-        return skin.startsWith("tula") || skin.startsWith("ines") || skin.startsWith("lia")
-                || skin.startsWith("campesina") || skin.startsWith("pastora") || skin.startsWith("aldeana") || skin.startsWith("nina");
+    private boolean slim(String skin) {
+        return plugin.story().slim(skin);
     }
 
     /** Invoca un maniquí con una skin del paquete de recursos (assets/eclipse/textures/npc/&lt;skin&gt;.png). */
@@ -234,32 +210,98 @@ public final class NpcEntities implements Listener {
     public void spawn(String id, Location at) {
         NpcManager.NpcDef def = plugin.npcs().def(id);
         if (def == null || at.getWorld() == null) return;
-        UUID old = npcs.get(id);
+        despawn(id);
+        String skin = def.skin == null ? "aldeano_1" : def.skin;
+        LivingEntity le = summon(safeSpot(at), skin);
+        if (le == null) return;
+        le.customName(Txt.mm(def.name));
+        le.setCustomNameVisible(true);
+        describe(le, def.role == null ? "" : def.role);
+        le.getPersistentDataContainer().set(Keys.NPC, PersistentDataType.STRING, id);
+        hold(le, mat(def.hand), mat(def.offhand));
+        npcs.put(id, le.getUniqueId());
+        plugin.getConfig().set("npc-entidades." + id, le.getUniqueId().toString());
+    }
+
+    private static Material mat(String id) {
+        return id == null ? null : Material.matchMaterial(id);
+    }
+
+    /** Quita el maniquí de un NPC de la historia (si está cargado). */
+    public void despawn(String id) {
+        UUID old = npcs.remove(id);
         if (old != null) {
             Entity e = Bukkit.getEntity(old);
             if (e != null) e.remove();
             walks.remove(old);
         }
         removeMarks(id);
-        String skin = plugin.getConfig().getString("npc-skins." + id, id);
-        LivingEntity le = summon(safeSpot(at), skin);
-        if (le == null) return;
-        le.customName(Txt.mm(def.name));
-        le.setCustomNameVisible(true);
-        describe(le, plugin.getConfig().getString("npc-roles." + id, STORY_TITLE.getOrDefault(id, "")));
-        le.getPersistentDataContainer().set(Keys.NPC, PersistentDataType.STRING, id);
-        switch (id) {
-            case "tula" -> hold(le, Material.WOODEN_HOE, null);
-            case "bruno" -> hold(le, Material.MACE, null);
-            case "ines" -> hold(le, Material.IRON_SWORD, Material.SHIELD);
-            case "pip" -> hold(le, Material.EMERALD, null);
-            case "lia" -> hold(le, Material.SPYGLASS, Material.MAP);
-            case "odon" -> hold(le, Material.BOOK, null);
-            case "velkar" -> hold(le, Material.BLAZE_ROD, null);
-            default -> { }
+        plugin.getConfig().set("npc-entidades." + id, null);
+    }
+
+    /**
+     * Pone a todos los NPCs de la historia en su lugar: primero el que fijaste con /historia colocar,
+     * luego el "lugar:" de historia.txt y si no, el siguiente lugar libre de la aldea.
+     */
+    public int placeStoryNpcs() {
+        var cfg = plugin.getConfig();
+        World w = Bukkit.getWorld(cfg.getString("aldea.mundo", "world"));
+        if (w == null || !cfg.contains("aldea.centro.x")) return 0;
+        // NPCs que ya no están en la historia
+        for (String id : new ArrayList<>(npcs.keySet())) if (plugin.npcs().def(id) == null) despawn(id);
+        Map<String, Location> slots = new java.util.LinkedHashMap<>();
+        for (String slot : pe.kydium.eclipserpg.story.StoryManager.PLACES) {
+            String k = "aldea.lugares." + slot;
+            if (cfg.contains(k + ".x")) slots.put(slot, new Location(w, cfg.getDouble(k + ".x"), cfg.getDouble(k + ".y"),
+                    cfg.getDouble(k + ".z"), (float) cfg.getDouble(k + ".yaw"), 0f));
         }
-        npcs.put(id, le.getUniqueId());
-        plugin.getConfig().set("npc-entidades." + id, le.getUniqueId().toString());
+        Set<String> used = new HashSet<>();
+        Map<String, Location> spots = new java.util.LinkedHashMap<>();
+        List<NpcManager.NpcDef> pending = new ArrayList<>();
+        for (String id : plugin.npcs().ids()) {
+            NpcManager.NpcDef def = plugin.npcs().def(id);
+            String k = "npc-lugares." + id;
+            if (cfg.contains(k + ".x")) {
+                World cw = Bukkit.getWorld(cfg.getString(k + ".mundo", w.getName()));
+                spots.put(id, new Location(cw == null ? w : cw, cfg.getDouble(k + ".x"), cfg.getDouble(k + ".y"), cfg.getDouble(k + ".z"),
+                        (float) cfg.getDouble(k + ".yaw"), 0f));
+            } else if (def.place != null && slots.containsKey(def.place)) {
+                Location l = slots.get(def.place).clone();
+                if (!used.add(def.place)) l.add(1.5, 0, 0);   // dos NPCs en el mismo lugar: uno al lado del otro
+                spots.put(id, l);
+            } else pending.add(def);
+        }
+        for (NpcManager.NpcDef def : pending) {
+            String free = null;
+            for (String slot : slots.keySet()) if (!used.contains(slot)) {
+                free = slot;
+                break;
+            }
+            if (free != null) {
+                used.add(free);
+                spots.put(def.id, slots.get(free));
+            } else {
+                Location c = plugin.items().campLocation();
+                double a = ThreadLocalRandom.current().nextDouble() * Math.PI * 2;
+                spots.put(def.id, c.clone().add(Math.cos(a) * 6, 0, Math.sin(a) * 6));
+            }
+        }
+        spawnAll(spots);
+        plugin.getConfig().set("npc-firma", signature());
+        return spots.size();
+    }
+
+    /** Guarda la posición elegida para un NPC (comando /historia colocar). */
+    public void setCustomSpot(String id, Location at) {
+        String k = "npc-lugares." + id;
+        var cfg = plugin.getConfig();
+        cfg.set(k + ".mundo", at.getWorld().getName());
+        cfg.set(k + ".x", at.getX());
+        cfg.set(k + ".y", at.getY());
+        cfg.set(k + ".z", at.getZ());
+        cfg.set(k + ".yaw", (double) at.getYaw());
+        spawn(id, at);
+        plugin.saveConfig();
     }
 
     /** Elimina los NPCs de relleno que existan. */
@@ -297,7 +339,9 @@ public final class NpcEntities implements Listener {
     }
 
     public void spawnFiller(String role, Location at) {
-        List<String> opts = skins.getOrDefault(role, skins.getOrDefault("aldeano", List.of("aldeano_1")));
+        List<String> opts = new ArrayList<>();
+        for (String k : plugin.story().skins().keySet()) if (k.startsWith(role + "_")) opts.add(k);
+        if (opts.isEmpty()) opts.add("aldeano_1");
         String skin = opts.get(ThreadLocalRandom.current().nextInt(opts.size()));
         at.setYaw(ThreadLocalRandom.current().nextFloat() * 360f - 180f);
         LivingEntity le = summon(safeSpot(at), skin);
@@ -339,6 +383,47 @@ public final class NpcEntities implements Listener {
     }
 
     // ---------- Eventos ----------
+
+    /** Al cargar entidades: quitar NPCs viejos o duplicados (por ejemplo, de una versión anterior de la historia). */
+    @EventHandler
+    public void onEntitiesLoad(org.bukkit.event.world.EntitiesLoadEvent e) {
+        for (Entity en : e.getEntities()) {
+            String id = npcId(en);
+            if (id != null) {
+                UUID cur = npcs.get(id);
+                if (cur == null || !cur.equals(en.getUniqueId())) en.remove();
+                continue;
+            }
+            if (fillerRole(en) != null && !fillers.contains(en.getUniqueId())) en.remove();
+            // marcadores "?" sueltos de una sesión anterior
+            if (en instanceof TextDisplay && !en.isPersistent() && en.getVehicle() == null
+                    && en.getScoreboardTags().contains("eclipse_marca")) en.remove();
+        }
+    }
+
+    /** Firma de los NPCs de la historia: si cambia (editaste historia.txt), se vuelven a crear. */
+    public String signature() {
+        StringBuilder b = new StringBuilder();
+        for (String id : plugin.npcs().ids()) {
+            NpcManager.NpcDef d = plugin.npcs().def(id);
+            b.append(id).append('|').append(d.name).append('|').append(d.skin).append('|').append(d.role).append('|')
+                    .append(d.place).append('|').append(d.hand).append('|').append(d.offhand).append(';');
+        }
+        var sec = plugin.getConfig().getConfigurationSection("npc-lugares");
+        if (sec != null) b.append(sec.getValues(true));
+        return Integer.toHexString(b.toString().hashCode());
+    }
+
+    /** Al iniciar: si la historia cambió desde la última vez, recolocar a los NPCs. */
+    public void refreshIfChanged() {
+        if (!plugin.village().isGenerated()) return;
+        String sig = signature();
+        if (sig.equals(plugin.getConfig().getString("npc-firma")) && npcs.keySet().containsAll(plugin.npcs().ids())) return;
+        int n = placeStoryNpcs();
+        plugin.getConfig().set("npc-firma", sig);
+        plugin.saveConfig();
+        plugin.getLogger().info("Los NPCs cambiaron en historia.txt: " + n + " NPCs recolocados.");
+    }
 
     private final Map<UUID, Long> clickCd = new HashMap<>();
 
@@ -599,6 +684,7 @@ public final class NpcEntities implements Listener {
             td.setPersistent(false);
             td.setShadowed(true);
             td.setBackgroundColor(Color.fromARGB(0, 0, 0, 0));
+            td.addScoreboardTag("eclipse_marca");
             td.setTransformation(new Transformation(new Vector3f(0f, 0.75f, 0f), new AxisAngle4f(),
                     new Vector3f(2.2f, 2.2f, 2.2f), new AxisAngle4f()));
             v.addPassenger(td);

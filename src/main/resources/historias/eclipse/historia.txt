@@ -1,0 +1,1092 @@
+# =====================================================================
+#  Crónicas del Eclipse — historia de ejemplo del motor EclipseRPG
+#  Edita este archivo con el Bloc de notas y usa /historia recargar.
+#  La guía completa está en GUIA.txt (misma carpeta del plugin).
+# =====================================================================
+
+HISTORIA: Crónicas del Eclipse
+DESCRIPCION: El sol no volvió a salir del todo. Una aldea, un eclipse y un héroe que despierta junto al camino.
+ALDEA: Aldea del Alba
+MONEDA: soles
+
+# ---------------------------------------------------------------- NPCs
+
+NPC tula
+  nombre: Abuela Tula
+  color: verde
+  skin: anciana
+  oficio: Anciana de la aldea
+  lugar: casa
+  objeto: azada de madera
+  charla: Ay, niño… pase lo que pase, este campamento es tu hogar.
+
+NPC bruno
+  nombre: Bruno el Herrero
+  color: dorado
+  skin: herrero
+  oficio: Herrero
+  lugar: herreria
+  objeto: maza
+  servicio: tienda herreria
+  charla: Hmpf. Mi forja estará encendida hasta el final. Ve y gana.
+
+NPC ines
+  nombre: Capitana Inés
+  color: rojo
+  skin: capitana
+  oficio: Capitana de la guardia
+  lugar: cuartel
+  objeto: espada de hierro
+  otra mano: escudo
+  servicio: contratos
+  servicio: grieta
+  charla: Mi espada está lista. Cuando vayas, iré contigo en espíritu.
+
+NPC pip
+  nombre: Pip el Mercader
+  color: amarillo
+  skin: mercader
+  oficio: Mercader
+  lugar: tienda
+  objeto: esmeralda
+  servicio: tienda general
+  charla: ¡Si salvas el mundo, te hago descuento! Bueno… un poquito.
+
+NPC lia
+  nombre: Lía la Exploradora
+  color: celeste
+  skin: exploradora
+  oficio: Exploradora
+  lugar: mapas
+  objeto: catalejo
+  otra mano: mapa
+  charla: Ya mapeé el camino. Lo que haya al otro lado, lo veremos juntos.
+
+NPC odon
+  nombre: Fray Odón
+  color: turquesa
+  skin: fraile
+  oficio: Fraile y sabio
+  lugar: biblioteca
+  objeto: libro
+  servicio: tienda alquimia
+  charla: Velkar dejó su tienda abierta… y su diario encima de la mesa. Tienes que leer esto.
+
+NPC velkar
+  nombre: Velkar
+  color: morado
+  skin: hechicero
+  oficio: Hechicero
+  lugar: torre
+  objeto: vara de blaze
+  charla: …No me mires así. Pronto lo entenderás.
+
+NPC errante
+  nombre: El Errante
+  color: gris oscuro
+  skin: encapuchado
+  oficio: ???
+  lugar: tienda_negra
+  servicio: tienda mercado
+  charla: El Fin no es un lugar. Es una puerta. Y tú tienes la llave.
+
+# ---------------------------------------------------------------- MISIONES
+
+ACTO 1: El Despertar
+
+MISIÓN La primera noche
+  npc: tula
+  dice: ¡Por fin despiertas! Te encontramos tirado junto al camino.
+  dice: Mira el cielo… el sol no salió del todo. Lo llaman el Eclipse.
+  dice: Antes de que caiga la noche necesitamos madera. Tala 16 troncos y hazte una mesa de trabajo.
+  objetivo: tala 16 troncos
+  objetivo: ten una mesa de trabajo
+  premio: 250 xp, 40 soles, 10 pan
+  final: Bien hecho. Con eso levantaremos el Campamento del Alba.
+
+MISIÓN Un techo
+  npc: tula
+  dice: De noche salen cosas que no deberían existir.
+  dice: Hazte una cama y unas antorchas. La luz los mantiene lejos… casi siempre.
+  objetivo: ten una cama
+  objetivo: ten 8 antorchas
+  premio: 250 xp, 40 soles
+  final: Así me gusta. Duerme con un ojo abierto.
+
+MISIÓN Herramientas de piedra
+  npc: bruno
+  dice: Soy Bruno. Herrero. No hablo mucho.
+  dice: Con las manos no vas a durar. Pico, hacha y espada de piedra. Ya.
+  objetivo: ten un pico de piedra
+  objetivo: ten un hacha de piedra
+  objetivo: ten una espada de piedra
+  premio: 250 xp, 40 soles, 16 carbon
+  final: Hmpf. No están mal. Toma carbón para la forja.
+
+MISIÓN Comida para todos
+  npc: tula
+  dice: Somos pocos, pero comemos como muchos.
+  dice: Caza unos animales para el campamento, ¿sí?
+  objetivo: mata 6 cow o pig o sheep o chicken o rabbit | Caza 6 animales
+  premio: 250 xp, 40 soles, 3 manzana
+  final: ¡Esta noche hay guiso! Toma, unas manzanas para el camino.
+
+MISIÓN Los primeros Corrompidos
+  npc: ines
+  dice: Capitana Inés, guardia del campamento.
+  dice: ¿Ves esos zombis con ojos morados? Son Corrompidos: el Eclipse los hace más fuertes.
+  dice: Ahí vienen unos. Demuéstrame que sabes pelear.
+  objetivo: mata 5 zombie o husk o drowned o zombie_villager corrompidos | Mata 5 Zombis Corrompidos
+  aparecen: 3 zombi_corrompido
+  premio: 250 xp, 40 soles, 1 escudo
+  final: Nada mal, recluta. Toma este escudo, lo vas a necesitar.
+
+MISIÓN Hierro para la forja
+  npc: bruno
+  dice: La piedra no aguanta a un Corrompido.
+  dice: Baja a las cuevas, saca hierro y fúndelo. Doce lingotes.
+  objetivo: funde 12 lingotes de hierro
+  premio: 250 xp, 40 soles
+  final: Buen hierro. Ahora sí podemos trabajar.
+
+MISIÓN Armadura de hierro
+  npc: bruno
+  dice: Un guerrero sin armadura es un guerrero muerto.
+  dice: Hazte el set completo de hierro.
+  objetivo: ten 1 iron_helmet | Casco de hierro
+  objetivo: ten 1 iron_chestplate | Pechera de hierro
+  objetivo: ten 1 iron_leggings | Pantalones de hierro
+  objetivo: ten 1 iron_boots | Botas de hierro
+  premio: 250 xp, 40 soles, 5 oro
+  final: Ahora pareces alguien. Toma, oro para lo que venga.
+
+MISIÓN Telarañas
+  npc: ines
+  dice: Las arañas del bosque también se corrompieron.
+  dice: Limpia la zona y tráeme hilo para hacer cuerdas de arco.
+  objetivo: mata 6 spider o cave_spider corrompidos | Mata 6 Arañas Corrompidas
+  objetivo: entrega 8 hilos
+  aparecen: 4 arana_corrompida
+  premio: 250 xp, 40 soles, 1 arco
+  final: Con esto armamos arcos para todos. Uno es tuyo.
+
+MISIÓN El estanque
+  npc: tula
+  dice: Cuando era joven pescaba en el estanque al amanecer…
+  dice: Tráeme algo de pescado, me trae buenos recuerdos.
+  objetivo: pesca 5 veces
+  premio: 250 xp, 40 soles, 3 pociones de curacion
+  final: Gracias, niño. Toma estas pociones, las preparé yo misma.
+
+MISIÓN La noche más larga
+  npc: ines
+  dice: Algo grande se mueve cerca del campamento. Los monstruos están nerviosos.
+  dice: Mata todo lo que se acerque esta noche.
+  objetivo: mata 15 monstruos
+  premio: 250 xp, 40 soles, objeto fragmento_mejora
+  final: Lo sentí… es el Rondador Podrido. Toma este Fragmento de Mejora y llévaselo a Bruno.
+
+MISIÓN JEFE: Rondador Podrido
+  npc: ines
+  nivel: 5
+  jefe: sí
+  mazmorra: 1
+  dice: El Rondador Podrido guarda el primer Fragmento Solar.
+  dice: Lleva amigos si puedes. No es un zombi cualquiera.
+  dice: Su guarida es Cripta del Bosque Podrido. Toma esta brújula: te llevará a la entrada.
+  dice: Atraviesa la mazmorra. El jefe te espera en la sala más profunda.
+  objetivo: encuentra Cripta del Bosque Podrido
+  objetivo: derrota al Rondador Podrido
+  final: ¡Lo lograste! El primer Fragmento Solar… la Abuela Tula tiene que ver esto.
+
+ACTO 2: Las Minas Silenciosas
+
+MISIÓN El mercader perdido
+  npc: pip
+  dice: ¡Uf! ¡Gente! Soy Pip, mercader… o lo era, hasta que algo me sacó de las minas.
+  dice: ¿Me prestas algo de carbón? Perdí todo mi cargamento.
+  objetivo: entrega 10 carbones
+  premio: 500 xp, 80 soles, 3 esmeralda
+  final: ¡Eres un sol! Aquí tienes, esmeraldas. Desde hoy tengo tienda aquí.
+
+MISIÓN Hacia lo profundo
+  npc: bruno
+  dice: Pip dice que los mineros desaparecen en lo profundo.
+  dice: Baja hasta la pizarra profunda. Quiero saber qué hay allá abajo.
+  objetivo: mina 32 deepslate o cobbled_deepslate | Mina 32 de pizarra profunda
+  premio: 500 xp, 80 soles
+  final: Pizarra profunda… y huellas de hueso. Esto no me gusta.
+
+MISIÓN Oro para Pip
+  npc: pip
+  dice: Un mercader sin oro es un mercader triste.
+  dice: ¿Me consigues unos lingotes? Te pago bien, palabra de Pip.
+  objetivo: funde 8 lingotes de oro
+  premio: 500 xp, 80 soles, 5 esmeralda
+  final: ¡Brillante! Literalmente.
+
+MISIÓN Huesos que caminan
+  npc: ines
+  dice: Los esqueletos de las minas suben a la superficie.
+  dice: Ahí vienen. ¡Cúbrete de las flechas!
+  objetivo: mata 8 skeleton o stray o bogged corrompidos | Mata 8 Esqueletos Corrompidos
+  aparecen: 5 esqueleto_corrompido
+  premio: 500 xp, 80 soles, 32 flecha
+  final: Buen trabajo. Toma flechas, te gastaste las tuyas.
+
+MISIÓN Creepers silenciosos
+  npc: ines
+  dice: Estos creepers no hacen ruido… y corren.
+  dice: Mátalos antes de que exploten y tráeme su pólvora.
+  objetivo: mata 5 Creepers Corrompidos
+  objetivo: entrega 10 de pólvora
+  aparecen: 3 creeper_corrompido
+  premio: 500 xp, 80 soles, objeto fragmento_mejora
+  final: La pólvora servirá para las defensas. Toma, un Fragmento.
+
+MISIÓN Brillo azul
+  npc: bruno
+  dice: Para encantar armas necesitamos lapislázuli.
+  dice: Búscalo en las cuevas.
+  objetivo: mina 8 lapis_ore o deepslate_lapis_ore | Mina 8 menas de lapislázuli
+  premio: 500 xp, 80 soles, 1 mesa de encantamiento
+  final: Toma, una mesa de encantamientos. Fray Odón te enseñará luego.
+
+MISIÓN Venas rojas
+  npc: bruno
+  dice: La redstone brilla como sangre en la roca.
+  dice: Tráeme lo que encuentres.
+  objetivo: mina 12 redstone_ore o deepslate_redstone_ore | Mina 12 menas de redstone
+  premio: 500 xp, 80 soles
+  final: Bien. Esto alimentará mis máquinas.
+
+MISIÓN El tesoro de las minas
+  npc: bruno
+  dice: Los mineros buscaban diamantes cuando desaparecieron.
+  dice: Encuentra cinco. Quédatelos, solo quiero verlos.
+  objetivo: ten 5 diamantes
+  premio: 500 xp, 80 soles, 10 esmeralda
+  final: Diamantes de verdad… Ahora entiendo por qué bajaron tanto.
+
+MISIÓN Túneles abandonados
+  npc: pip
+  dice: Mi carreta quedó en una mina abandonada.
+  dice: Tráeme los rieles de allí, valen oro.
+  objetivo: entrega 16 rail | Entrega 16 rieles
+  premio: 500 xp, 80 soles, 1 pico de diamante
+  final: ¡Mis rieles! Toma este pico de diamante, era de un minero perdido.
+
+MISIÓN Cristales
+  npc: pip
+  dice: Dicen que en las geodas hay cristales morados que cantan.
+  dice: Tráeme unos, por favor.
+  objetivo: entrega 8 fragmentos de amatista
+  premio: 500 xp, 80 soles, 1 catalejo
+  final: Preciosos. Toma este catalejo.
+
+MISIÓN JEFE: Capataz Hueso
+  npc: ines
+  nivel: 10
+  jefe: sí
+  mazmorra: 2
+  dice: El Capataz Hueso manda a los esqueletos de las minas. Él se llevó a los mineros.
+  dice: Su guarida es Minas del Capataz. Toma esta brújula: te llevará a la entrada.
+  dice: Atraviesa la mazmorra. El jefe te espera en la sala más profunda.
+  objetivo: encuentra Minas del Capataz
+  objetivo: derrota al Capataz Hueso
+  final: El segundo Fragmento Solar. Los mineros pueden descansar en paz.
+
+ACTO 3: Sangre en las Aldeas
+
+MISIÓN La exploradora
+  npc: lia
+  dice: ¡Hola! Soy Lía, exploradora. Vengo de las aldeas del este.
+  dice: Los saqueadores las están atacando… y llevan la marca del Eclipse.
+  dice: Hazme un mapa para marcar las aldeas.
+  objetivo: entrega 1 map o filled_map | Entrega un mapa
+  premio: 750 xp, 120 soles, 1 brujula
+  final: Perfecto. Toma esta brújula.
+
+MISIÓN Comercio con la aldea
+  npc: lia
+  dice: Los aldeanos confían en quien comercia con ellos.
+  dice: Consigue esmeraldas: comercia, vende o explora.
+  objetivo: ten 10 esmeraldas
+  premio: 750 xp, 120 soles
+  final: Ya te conocen en la aldea. Eso nos ayudará.
+
+MISIÓN Cosecha
+  npc: tula
+  dice: Llegan refugiados de las aldeas. Hay que alimentarlos.
+  dice: Siembra y cosecha, niño.
+  objetivo: entrega 32 de trigo
+  objetivo: entrega 16 zanahorias
+  premio: 750 xp, 120 soles, 3 pociones de regeneracion
+  final: Gracias. Toma, pociones de regeneración.
+
+MISIÓN Pan para los refugiados
+  npc: tula
+  dice: Con el trigo ya podemos hacer pan.
+  dice: Veinte panes alcanzarán para todos.
+  objetivo: entrega 20 panes
+  premio: 750 xp, 120 soles, objeto fragmento_mejora
+  final: Mira sus caras… les devolviste la esperanza.
+
+MISIÓN Patrulla saqueadora
+  npc: ines
+  dice: Una patrulla de saqueadores viene hacia acá.
+  dice: Que no lleguen al campamento.
+  objetivo: mata 6 Saqueadores Corrompidos
+  aparecen: 3 saqueador_corrompido
+  premio: 750 xp, 120 soles, 1 ballesta
+  final: Bien hecho. Quédate con una de sus ballestas.
+
+MISIÓN Hachas en la noche
+  npc: ines
+  dice: Los vindicadores son peores. Usan hachas y no tienen miedo.
+  dice: Cuídate la cabeza.
+  objetivo: mata 4 Vindicadores Corrompidos
+  aparecen: 3 vindicador_corrompido
+  premio: 750 xp, 120 soles, 1 casco de diamante
+  final: Toma este casco de diamante. Te lo ganaste.
+
+MISIÓN Cazar a la patrulla
+  npc: ines
+  dice: Los illagers se están organizando. Alguien los dirige.
+  dice: Busca sus patrullas y su mansión. Mata a todos los que puedas.
+  objetivo: mata 10 pillager o vindicator o evoker o ravager o vex | Mata 10 illagers
+  premio: 750 xp, 120 soles, 3 manzana dorada
+  final: Hablan de un 'Heraldo'… Toma estas manzanas doradas.
+
+MISIÓN Preparar la defensa
+  npc: bruno
+  dice: Si vienen, que nos encuentren listos.
+  dice: Escudo y muchas flechas.
+  objetivo: ten un escudo
+  objetivo: ten 64 flechas
+  premio: 750 xp, 120 soles
+  final: Hmpf. Ahora sí.
+
+MISIÓN Un guardián de hierro
+  npc: lia
+  dice: Las aldeas tienen golems de hierro que las protegen.
+  dice: Tráeme los materiales y armaremos uno para el campamento.
+  objetivo: entrega 4 bloques de hierro
+  objetivo: entrega una calabaza tallada
+  premio: 750 xp, 120 soles, 1 peto de diamante
+  final: ¡Ya tenemos guardián! Y para ti, una pechera de diamante.
+
+MISIÓN La mansión del bosque
+  npc: lia
+  dice: Los evocadores guardan tótems que engañan a la muerte.
+  dice: Encuentra uno. Ya sea en una mansión o en una invasión.
+  objetivo: entrega un tótem de inmortalidad
+  premio: 750 xp, 120 soles, objeto fragmento_mejora
+  final: Con esto el Heraldo no podrá esconderse.
+
+MISIÓN JEFE: Heraldo de la Mancha
+  npc: ines
+  nivel: 15
+  jefe: sí
+  mazmorra: 3
+  dice: El Heraldo de la Mancha es quien manda a los illagers.
+  dice: Su guarida es Fortín del Heraldo. Toma esta brújula: te llevará a la entrada.
+  dice: Atraviesa la mazmorra. El jefe te espera en la sala más profunda.
+  objetivo: encuentra Fortín del Heraldo
+  objetivo: derrota al Heraldo de la Mancha
+  final: ¡El tercer Fragmento! Las aldeas vuelven a estar a salvo.
+
+ACTO 4: Lo que Duerme en el Agua
+
+MISIÓN El monje náufrago
+  npc: odon
+  dice: Soy Fray Odón… estudioso. Mi barco se hundió y llegué a esta orilla.
+  dice: Bajo el agua vi una corona que brillaba. Necesito libros para escribirlo todo.
+  objetivo: entrega 3 libros
+  premio: 1000 xp, 160 soles, libro proteccion 3
+  final: Gracias. Toma este libro encantado, lo encontré en el naufragio.
+
+MISIÓN Tinta para el diario
+  npc: odon
+  dice: Sin tinta no hay historia.
+  dice: Los calamares tienen la que necesito.
+  objetivo: entrega 10 sacos de tinta
+  objetivo: entrega un libro y pluma
+  premio: 1000 xp, 160 soles
+  final: Ahora puedo escribir lo que vi bajo el mar.
+
+MISIÓN Navegante
+  npc: lia
+  dice: Para llegar a esa corona hay que cruzar el océano.
+  dice: Hazte un bote.
+  objetivo: ten un bote
+  premio: 1000 xp, 160 soles, 16 bacalao cocido
+  final: Toma comida para el viaje. El mar es largo.
+
+MISIÓN Tesoro enterrado
+  npc: lia
+  dice: Los naufragios esconden mapas del tesoro.
+  dice: Encuentra un corazón del mar. Dicen que late cerca de la corona.
+  objetivo: entrega un corazón del mar
+  premio: 1000 xp, 160 soles, 10 esmeralda
+  final: Late… de verdad late. Toma, esmeraldas.
+
+MISIÓN La marea muerta
+  npc: ines
+  dice: Los ahogados salen del agua por las noches.
+  dice: Acaba con ellos antes de que lleguen a la playa.
+  objetivo: mata 8 drowned o zombie corrompidos | Mata 8 Ahogados Corrompidos
+  aparecen: 5 ahogado_corrompido
+  premio: 1000 xp, 160 soles, objeto fragmento_mejora
+  final: Buen trabajo. El mar está más tranquilo.
+
+MISIÓN Piedras del templo
+  npc: lia
+  dice: Hay un templo bajo el agua. Sus piedras son verdes y brillan.
+  dice: Tráeme prismarina, quiero estudiarla.
+  objetivo: entrega 16 bloques de prismarina
+  premio: 1000 xp, 160 soles, 3 pociones de respiracion acuatica, 3 pociones de vision nocturna
+  final: Toma estas pociones para respirar y ver bajo el agua.
+
+MISIÓN Ojos en el agua
+  npc: ines
+  dice: El templo está lleno de guardianes, esos peces con un ojo.
+  dice: Abre el camino.
+  objetivo: mata 6 guardianes
+  premio: 1000 xp, 160 soles, 1 casco de tortuga
+  final: Toma este caparazón de tortuga. Respirarás más.
+
+MISIÓN Magia antigua
+  npc: odon
+  dice: La magia de los encantamientos viene de antes del Eclipse.
+  dice: Encanta tres objetos en la mesa. Te hará falta.
+  objetivo: encanta 3 objetos
+  premio: 1000 xp, 160 soles, 30 experience_bottle
+  final: Excelente. Toma botellas de experiencia.
+
+MISIÓN Esponjas
+  npc: lia
+  dice: Para entrar a la sala del tesoro hay que secar el agua.
+  dice: Consigue esponjas del templo.
+  objetivo: entrega 5 esponjas
+  premio: 1000 xp, 160 soles
+  final: Con esto vaciamos la sala. ¡Vamos!
+
+MISIÓN Pesca profunda
+  npc: pip
+  dice: El mar da tesoros a quien tiene paciencia.
+  dice: Pesca un buen rato, a ver qué sale.
+  objetivo: pesca 15 veces
+  premio: 1000 xp, 160 soles, libro suerte del mar 3
+  final: Toma este libro. Pescarás puro tesoro.
+
+MISIÓN JEFE: Ahogado Coronado
+  npc: ines
+  nivel: 20
+  jefe: sí
+  mazmorra: 4
+  dice: Era un rey antes de ahogarse. Ahora lleva el cuarto Fragmento en su corona.
+  dice: Su guarida es Templo Hundido. Toma esta brújula: te llevará a la entrada.
+  dice: Atraviesa la mazmorra. El jefe te espera en la sala más profunda.
+  objetivo: encuentra Templo Hundido
+  objetivo: derrota al Ahogado Coronado
+  final: ¡El cuarto Fragmento! Fray Odón no lo va a creer.
+
+ACTO 5: Arena y Selva
+
+MISIÓN Hacia el desierto
+  npc: lia
+  dice: El quinto Fragmento está en el desierto. Dicen que una bruja lo guarda.
+  dice: Tráeme cactus para probar que llegaste.
+  objetivo: entrega 8 cactus
+  premio: 1250 xp, 200 soles
+  final: Arena hasta en los dientes, ¿eh?
+
+MISIÓN Los momificados
+  npc: ines
+  dice: Los muertos del desierto se levantaron.
+  dice: Ten cuidado: dan hambre al golpear.
+  objetivo: mata 10 husk o zombie corrompidos | Mata 10 Husks Corrompidos
+  aparecen: 5 husk_corrompido
+  premio: 1250 xp, 200 soles, 1 pantalones de diamante
+  final: Toma estos pantalones de diamante.
+
+MISIÓN El templo de arena
+  npc: lia
+  dice: Hay un templo con trampas de TNT.
+  dice: Saquea el cofre sin volar en pedazos.
+  objetivo: entrega una silla de montar
+  objetivo: entrega 2 diamantes
+  premio: 1250 xp, 200 soles, 15 esmeralda
+  final: ¡Sigues entero! Toma tu parte.
+
+MISIÓN Arqueología
+  npc: odon
+  dice: La arena esconde historias de antes del Eclipse.
+  dice: Usa un pincel en la arena sospechosa y trae fragmentos de cerámica.
+  objetivo: ten un pincel
+  objetivo: entrega 3 fragmentos de cerámica
+  premio: 1250 xp, 200 soles, objeto fragmento_mejora
+  final: Estos dibujos… muestran una corona rota en diez pedazos.
+
+MISIÓN La selva
+  npc: lia
+  dice: La bruja huyó hacia la selva.
+  dice: Tráeme pruebas de que llegaste.
+  objetivo: entrega 16 bambúes
+  objetivo: entrega 8 granos de cacao
+  premio: 1250 xp, 200 soles, 20 galleta
+  final: ¡Galletas para todos!
+
+MISIÓN Ruinas cubiertas
+  npc: lia
+  dice: En la selva hay un templo cubierto de musgo.
+  dice: Tráeme piedra de allí.
+  objetivo: entrega 16 de piedra musgosa
+  premio: 1250 xp, 200 soles, libro irrompibilidad 3
+  final: Toma este libro encantado.
+
+MISIÓN El aquelarre
+  npc: ines
+  dice: Las brujas se juntan para ayudar a su señora.
+  dice: Termina con ellas. Cuidado con sus pociones.
+  objetivo: mata 5 Brujas Corrompidas
+  aparecen: 3 bruja_corrompida
+  premio: 1250 xp, 200 soles, 5 manzana dorada
+  final: Toma manzanas doradas, contra el veneno.
+
+MISIÓN Ingredientes
+  npc: odon
+  dice: Para vencer a una bruja, piensa como una bruja.
+  dice: Tráeme ingredientes para pociones.
+  objetivo: entrega 5 ojos de araña
+  objetivo: entrega 10 de azúcar
+  premio: 1250 xp, 200 soles, 1 soporte para pociones
+  final: Toma este soporte para pociones.
+
+MISIÓN Compañeros fieles
+  npc: pip
+  dice: ¡Viajar solo es aburrido! Y peligroso.
+  dice: Domestica unos lobos, ellos te cuidarán.
+  objetivo: domestica 2 lobos
+  premio: 1250 xp, 200 soles, 12 hueso
+  final: ¡Qué lindos! Toma huesos para ellos.
+
+MISIÓN Tormenta de arena
+  npc: ines
+  dice: Se acerca una tormenta. La bruja la está llamando.
+  dice: Aguanta y mata todo lo que salga.
+  objetivo: mata 20 monstruos
+  premio: 1250 xp, 200 soles, objeto fragmento_mejora
+  final: Ya está cerca. Toma este Fragmento.
+
+MISIÓN JEFE: Bruja de las Dunas
+  npc: ines
+  nivel: 25
+  jefe: sí
+  mazmorra: 5
+  dice: La Bruja de las Dunas te va a envenenar y hacer flotar.
+  dice: Su guarida es Tumba de las Dunas. Toma esta brújula: te llevará a la entrada.
+  dice: Atraviesa la mazmorra. El jefe te espera en la sala más profunda.
+  objetivo: encuentra Tumba de las Dunas
+  objetivo: derrota a la Bruja de las Dunas
+  final: ¡El quinto Fragmento! Vamos por la mitad.
+
+ACTO 6: Portal de Fuego
+
+MISIÓN El mago de fuego
+  npc: velkar
+  dice: Saludos, Guardián. Me llamo Velkar, mago del fuego.
+  dice: Sé dónde está el sexto Fragmento: en una fortaleza del Nether.
+  dice: Tráeme obsidiana y te enseñaré a abrir el portal.
+  objetivo: entrega 10 obsidianas
+  premio: 1500 xp, 240 soles, 1 yesquero
+  final: Perfecto. Toma este mechero.
+
+MISIÓN Al otro lado
+  npc: velkar
+  dice: Construye el portal y cruza.
+  dice: Tráeme roca del otro lado como prueba.
+  objetivo: entra al Nether
+  objetivo: entrega 16 de netherrack
+  premio: 1500 xp, 240 soles
+  final: Bienvenido al infierno, Guardián. Literalmente.
+
+MISIÓN Verrugas
+  npc: odon
+  dice: Las verrugas del Nether son la base de toda poción.
+  dice: Las encontrarás en las fortalezas.
+  objetivo: entrega 8 verrugas del Nether
+  premio: 1500 xp, 240 soles, 5 pociones de resistencia al fuego
+  final: Toma pociones contra el fuego. Las vas a necesitar.
+
+MISIÓN Varas de fuego
+  npc: ines
+  dice: Los blazes custodian la fortaleza.
+  dice: Mátalos y trae sus varas.
+  objetivo: mata 6 Blazes Corrompidos
+  objetivo: entrega 6 varas de blaze
+  aparecen: 3 blaze_corrompido
+  premio: 1500 xp, 240 soles, objeto fragmento_mejora
+  final: Bien. Toma este Fragmento.
+
+MISIÓN El alquimista
+  npc: odon
+  dice: Ya tienes soporte, verrugas y fuego.
+  dice: Prepara tus propias pociones.
+  objetivo: entrega 4 de polvo de blaze
+  objetivo: ten 3 potion o splash_potion | Ten 3 pociones
+  premio: 1500 xp, 240 soles
+  final: ¡Ya eres todo un alquimista!
+
+MISIÓN Huesos negros
+  npc: ines
+  dice: Los esqueletos wither te pudren la vida con cada golpe.
+  dice: Ten leche a mano.
+  objetivo: mata 8 Esqueletos Wither Corrompidos
+  aparecen: 4 esqueleto_wither_corrompido
+  premio: 1500 xp, 240 soles, 1 espada de diamante
+  final: Toma esta espada de diamante.
+
+MISIÓN Cuarzo
+  npc: bruno
+  dice: El cuarzo del Nether es perfecto para la forja.
+  dice: Tráeme lo que puedas.
+  objetivo: mina 20 menas de cuarzo
+  premio: 1500 xp, 240 soles, 20 esmeralda
+  final: Hmpf. Buen cuarzo.
+
+MISIÓN Lágrimas
+  npc: ines
+  dice: Los ghasts lloran… y sus lágrimas curan.
+  dice: Devuélveles sus bolas de fuego.
+  objetivo: entrega 3 lágrimas de ghast
+  premio: 1500 xp, 240 soles, 2 pociones de regeneracion fuerte
+  final: Toma pociones fuertes de regeneración.
+
+MISIÓN Trueque dorado
+  npc: pip
+  dice: ¡Los piglins cambian cosas por oro! Negocio puro.
+  dice: Consígueme perlas de ender, ya sea con ellos o con endermans.
+  objetivo: entrega 8 perlas de ender
+  premio: 1500 xp, 240 soles
+  final: ¡Trato hecho, socio!
+
+MISIÓN Los planes de Velkar
+  npc: velkar
+  dice: Necesito dos cráneos de esqueleto wither.
+  dice: ¿Para qué? Para… estudiarlos. Nada más.
+  objetivo: entrega 2 cráneos de esqueleto wither
+  premio: 1500 xp, 240 soles, objeto fragmento_mejora
+  final: Excelente. Muy… excelente.
+
+MISIÓN JEFE: Señor de Brasas
+  npc: ines
+  nivel: 30
+  jefe: sí
+  mazmorra: 6
+  dice: El Señor de Brasas manda en la fortaleza. Te va a prender fuego.
+  dice: Su guarida es Fortaleza Ígnea. Toma esta brújula: te llevará a la entrada.
+  dice: Atraviesa la mazmorra. El jefe te espera en la sala más profunda.
+  objetivo: encuentra Fortaleza Ígnea
+  objetivo: derrota al Señor de Brasas
+  final: ¡El sexto Fragmento! Aunque… Velkar se veía raro cuando volviste.
+
+ACTO 7: Las Cámaras de Prueba
+
+MISIÓN Vientos extraños
+  npc: lia
+  dice: Sentí un viento que sopla al revés, desde debajo de la tierra.
+  dice: Viene de unas cámaras de cobre enterradas. Tráeme toba.
+  objetivo: entrega 16 de toba
+  premio: 1750 xp, 280 soles
+  final: Es de las Cámaras de Prueba. Lo sabía.
+
+MISIÓN Las llaves
+  npc: lia
+  dice: Las cámaras tienen bóvedas que se abren con llaves.
+  dice: Gánalas venciendo a sus generadores.
+  objetivo: entrega 3 llaves de prueba
+  premio: 1750 xp, 280 soles, 20 esmeralda
+  final: ¡Tres llaves! Toma tu parte.
+
+MISIÓN Pantanos vivos
+  npc: ines
+  dice: Los bogged disparan flechas venenosas.
+  dice: Mantén distancia.
+  objetivo: mata 8 bogged o skeleton corrompidos | Mata 8 Bogged Corrompidos
+  aparecen: 4 bogged_corrompido
+  premio: 1750 xp, 280 soles, objeto fragmento_mejora
+  final: Bien hecho.
+
+MISIÓN Remolinos
+  npc: ines
+  dice: Los breezes son viento con malas intenciones.
+  dice: Te van a mandar a volar. No te caigas.
+  objetivo: mata 6 Breezes Corrompidos
+  aparecen: 4 breeze_corrompido
+  premio: 1750 xp, 280 soles, 5 manzana dorada
+  final: Toma manzanas doradas.
+
+MISIÓN Varas de viento
+  npc: bruno
+  dice: Con varas de breeze puedo forjar algo nuevo.
+  dice: Tráeme cuatro.
+  objetivo: entrega 4 varas de breeze
+  premio: 1750 xp, 280 soles
+  final: Hmpf. Interesante.
+
+MISIÓN El núcleo pesado
+  npc: bruno
+  dice: Las bóvedas ominosas guardan un núcleo muy pesado.
+  dice: Con eso se forja un mazo.
+  objetivo: entrega un núcleo pesado
+  premio: 1750 xp, 280 soles, libro densidad 4
+  final: Toma este libro de Densidad.
+
+MISIÓN Llave ominosa
+  npc: lia
+  dice: Las pruebas ominosas son mucho más difíciles.
+  dice: Consigue una llave ominosa.
+  objetivo: entrega una llave de prueba ominosa
+  premio: 1750 xp, 280 soles
+  final: Eres valiente… o loco.
+
+MISIÓN Cobre antiguo
+  npc: bruno
+  dice: El cobre de las cámaras es antiguo y fuerte.
+  dice: Treinta y dos lingotes.
+  objetivo: entrega 32 lingotes de cobre
+  premio: 1750 xp, 280 soles, objeto fragmento_mejora
+  final: Toma un Fragmento de Mejora.
+
+MISIÓN Cargas de viento
+  npc: ines
+  dice: Las cargas de viento te ayudan a saltar y empujar.
+  dice: Hazte unas cuantas.
+  objetivo: ten 16 cargas de viento
+  premio: 1750 xp, 280 soles, 30 experience_bottle
+  final: Toma experiencia.
+
+MISIÓN La prueba ominosa
+  npc: ines
+  dice: El Viento Encadenado despierta. Las cámaras tiemblan.
+  dice: Despeja el camino.
+  objetivo: mata 25 monstruos
+  premio: 1750 xp, 280 soles
+  final: Está listo. Y tú también.
+
+MISIÓN JEFE: Viento Encadenado
+  npc: ines
+  nivel: 35
+  jefe: sí
+  mazmorra: 7
+  dice: El Viento Encadenado protege el séptimo Fragmento.
+  dice: Lucha en un lugar cerrado o te mandará a volar.
+  dice: Su guarida es Cámaras de Cobre. Toma esta brújula: te llevará a la entrada.
+  dice: Atraviesa la mazmorra. El jefe te espera en la sala más profunda.
+  objetivo: encuentra Cámaras de Cobre
+  objetivo: derrota al Viento Encadenado
+  final: ¡El séptimo! Pero… ¿dónde está Velkar?
+
+ACTO 8: La Ciudad Antigua
+
+MISIÓN La tienda vacía
+  npc: tula
+  dice: Velkar desapareció anoche. Su tienda está vacía.
+  dice: Fray Odón estaba revisando sus cosas. Ve con él.
+  objetivo: habla con Fray Odón
+  premio: 2000 xp, 320 soles
+  final: Algo me dice que no nos va a gustar lo que encuentre.
+
+MISIÓN El diario de Velkar
+  npc: odon
+  dice: En el diario hay un mapa a la Ciudad Antigua, en lo más profundo.
+  dice: Tráeme sculk de allá para confirmar que existe.
+  objetivo: entrega 16 bloques de sculk
+  premio: 2000 xp, 320 soles
+  final: Es real… y el diario dice algo terrible.
+
+MISIÓN Sombras en la oscuridad
+  npc: ines
+  dice: En la oscuridad hay sombras que no se ven.
+  dice: Escucha. Atácalas cuando las oigas.
+  objetivo: mata 10 skeleton corrompidos | Mata 10 Sombras Corrompidas
+  aparecen: 4 sombra_corrompida
+  premio: 2000 xp, 320 soles, objeto fragmento_mejora
+  final: Eran invisibles… pero no para ti.
+
+MISIÓN Ecos
+  npc: lia
+  dice: En la Ciudad Antigua hay cofres con fragmentos de eco.
+  dice: No hagas ruido o despertarás al Warden.
+  objetivo: entrega 3 fragmentos de eco
+  premio: 2000 xp, 320 soles
+  final: Silencioso como un gato.
+
+MISIÓN Lo que escucha
+  npc: bruno
+  dice: Esos sensores oyen todo.
+  dice: Tráeme algunos. Quiero alarmas para el campamento.
+  objetivo: entrega 4 sensores de sculk
+  premio: 2000 xp, 320 soles, 25 esmeralda
+  final: Ahora nadie entra sin que lo sepamos.
+
+MISIÓN Pasos silenciosos
+  npc: odon
+  dice: Para entrar al centro de la ciudad necesitas magia.
+  dice: Tráeme un libro encantado de sus cofres.
+  objetivo: entrega un libro encantado
+  premio: 2000 xp, 320 soles, 5 pociones de invisibilidad
+  final: Toma pociones de invisibilidad.
+
+MISIÓN La confesión
+  npc: tula
+  dice: Fray Odón me leyó el diario de Velkar.
+  dice: Fue él, niño. Él rompió la Corona Solar.
+  dice: Su hermana murió el día del Eclipse… y quiere usar ese poder para traerla de vuelta.
+  dice: No lo odies. Pero tampoco lo dejes terminar.
+  premio: 2000 xp, 320 soles
+  final: Ve. Su sombra te espera en la Ciudad Antigua.
+
+MISIÓN Lo que se perdió
+  npc: lia
+  dice: Una brújula de recuperación te lleva a donde caíste.
+  dice: Allá abajo la vas a necesitar.
+  objetivo: ten una brújula de recuperación
+  premio: 2000 xp, 320 soles, 1 totem
+  final: Toma un tótem. Por si acaso.
+
+MISIÓN Velas para los caídos
+  npc: pip
+  dice: Quiero encender velas por los que se perdió el Eclipse.
+  dice: ¿Me ayudas?
+  objetivo: entrega 16 velas
+  premio: 2000 xp, 320 soles, objeto fragmento_mejora
+  final: Gracias, socio. De verdad.
+
+MISIÓN No despiertes al Warden
+  npc: ines
+  sin morir: sí
+  dice: La Sombra de Velkar llama a sus sombras.
+  dice: Mata quince sin morir. Si caes, empiezas de nuevo.
+  objetivo: mata 15 skeleton corrompidos | Mata 15 Sombras Corrompidas
+  aparecen: 5 sombra_corrompida
+  premio: 2000 xp, 320 soles
+  final: Impecable. Estás listo.
+
+MISIÓN JEFE: Sombra de Velkar
+  npc: ines
+  nivel: 40
+  jefe: sí
+  mazmorra: 8
+  dice: Es la sombra de Velkar. Usa la oscuridad y el wither.
+  dice: Su guarida es Ciudad de las Sombras. Toma esta brújula: te llevará a la entrada.
+  dice: Atraviesa la mazmorra. El jefe te espera en la sala más profunda.
+  objetivo: encuentra Ciudad de las Sombras
+  objetivo: derrota a la Sombra de Velkar
+  final: El octavo Fragmento… La sombra dijo algo antes de desaparecer: 'el Rey ya tiene los cráneos'.
+
+ACTO 9: La Corona del Wither
+
+MISIÓN El Errante
+  npc: errante
+  dice: …Te estaba esperando, Guardián.
+  dice: Velkar le dio los cráneos al Rey de Ceniza. Quieren despertar al Wither.
+  dice: Muéstrame que puedes ver lo invisible: tráeme un ojo de ender.
+  objetivo: entrega un ojo de ender
+  premio: 2250 xp, 360 soles
+  final: Bien. Tus ojos ya están abiertos.
+
+MISIÓN Bastiones
+  npc: lia
+  dice: El Rey vive en un bastión del Nether.
+  dice: Tráeme piedra negra dorada de allí.
+  objetivo: entrega 4 de piedra negra dorada
+  premio: 2250 xp, 360 soles, 30 esmeralda
+  final: Ya sé dónde está su trono.
+
+MISIÓN Los brutos
+  npc: ines
+  dice: Los brutos protegen el bastión. No se dejan sobornar con oro.
+  dice: Acaba con ellos.
+  objetivo: mata 6 piglin_brute o piglin corrompidos | Mata 6 Piglins Brutos Corrompidos
+  aparecen: 3 piglin_bruto_corrompido
+  premio: 2250 xp, 360 soles, objeto fragmento_mejora
+  final: Ya no queda guardia.
+
+MISIÓN Bestias del Nether
+  npc: ines
+  dice: Los hoglins embisten como trenes.
+  dice: Esquiva y golpea.
+  objetivo: mata 8 hoglin o zoglin corrompidos | Mata 8 Hoglins Corrompidos
+  aparecen: 4 hoglin_corrompido
+  premio: 2250 xp, 360 soles, 5 manzana dorada
+  final: Toma manzanas doradas.
+
+MISIÓN Escombros ancestrales
+  npc: bruno
+  dice: Para la armadura final necesito netherita.
+  dice: Busca escombros ancestrales en lo profundo del Nether.
+  objetivo: entrega 8 escombros ancestrales
+  premio: 2250 xp, 360 soles
+  final: Hmpf. Esto es oro… mejor que oro.
+
+MISIÓN El metal más fuerte
+  npc: bruno
+  dice: Funde los escombros y combínalos con oro.
+  dice: Cuatro lingotes de netherita.
+  objetivo: ten 4 lingotes de netherita
+  premio: 2250 xp, 360 soles, objeto fragmento_mejora
+  final: Ahora estás a la altura del Rey.
+
+MISIÓN La plantilla
+  npc: bruno
+  dice: Sin plantilla no puedo mejorar nada a netherita.
+  dice: Los bastiones las guardan.
+  objetivo: entrega una plantilla de mejora de netherita
+  premio: 2250 xp, 360 soles
+  final: Perfecto. Mi forja está lista.
+
+MISIÓN Cráneos negros
+  npc: errante
+  dice: Si el Rey despierta al Wither, que sea bajo nuestras reglas.
+  dice: Consigue tres cráneos. Tú lo invocarás.
+  objetivo: ten 3 cráneos de esqueleto wither
+  premio: 2250 xp, 360 soles, objeto fragmento_mejora
+  final: Guárdalos bien.
+
+MISIÓN Arena de almas
+  npc: errante
+  dice: El Wither necesita un cuerpo de almas.
+  dice: Cuatro bloques de arena de almas.
+  objetivo: ten 4 soul_sand o soul_soil | Ten 4 de arena de almas
+  premio: 2250 xp, 360 soles
+  final: Ya tienes todo… menos el valor.
+
+MISIÓN El Rey de Ceniza
+  npc: ines
+  nivel: 43
+  jefe: sí
+  mazmorra: 9
+  dice: El Rey de Ceniza no debe llegar al Wither.
+  dice: Su guarida es Bastión del Rey de Ceniza. Toma esta brújula: te llevará a la entrada.
+  dice: Atraviesa la mazmorra. El jefe te espera en la sala más profunda.
+  objetivo: encuentra Bastión del Rey de Ceniza
+  objetivo: derrota al Rey de Ceniza
+  final: El Rey cayó. Ahora solo queda el Wither.
+
+MISIÓN JEFE: El Wither
+  npc: errante
+  nivel: 45
+  jefe: sí
+  dice: Construye al Wither con los cráneos y la arena de almas.
+  dice: Hazlo lejos del campamento. Muy lejos.
+  objetivo: mata 1 wither | Invoca y derrota al Wither
+  final: El noveno Fragmento… y la armadura de la Ceniza. Solo falta uno.
+
+ACTO 10: El Fin del Eclipse
+
+MISIÓN Ojos del Fin
+  npc: errante
+  dice: El último Fragmento está al otro lado del portal del Fin.
+  dice: Los endermans saben el camino. Quítales sus perlas.
+  objetivo: mata 12 Endermans Corrompidos
+  aparecen: 4 enderman_corrompido
+  premio: 2500 xp, 400 soles
+  final: Bien. Ahora haz los ojos.
+
+MISIÓN El camino
+  npc: errante
+  dice: Doce ojos para abrir el portal.
+  dice: Lánzalos y te guiarán a la fortaleza.
+  objetivo: ten 12 ojos de ender
+  premio: 2500 xp, 400 soles, objeto fragmento_mejora
+  final: El camino está claro.
+
+MISIÓN La fortaleza
+  npc: lia
+  dice: ¡La fortaleza existe! Quiero un recuerdo.
+  dice: Tráeme ladrillos agrietados de sus pasillos.
+  objetivo: entrega 6 ladrillos de piedra agrietados
+  premio: 2500 xp, 400 soles
+  final: Mi último mapa. El mejor de todos.
+
+MISIÓN Al otro lado
+  npc: errante
+  dice: Activa el portal y cruza.
+  dice: Tráeme piedra del Fin. Y vuelve vivo.
+  objetivo: entra al Fin
+  objetivo: entrega 16 de piedra del Fin
+  premio: 2500 xp, 400 soles, 10 manzana dorada
+  final: Volviste. Pocos lo logran.
+
+MISIÓN JEFE: Dragón del Fin
+  npc: ines
+  nivel: 48
+  jefe: sí
+  dice: El Dragón se alimenta del Eclipse.
+  dice: Destruye los cristales y luego a él. Vamos todos.
+  objetivo: derrota al Dragón del Fin
+  final: ¡El Dragón cayó! El cielo ya se ve más claro.
+
+MISIÓN Ciudades flotantes
+  npc: lia
+  dice: Más allá hay ciudades flotantes.
+  dice: Tráeme frutas coral de sus islas.
+  objetivo: entrega 16 frutas coral
+  premio: 2500 xp, 400 soles
+  final: Saben horrible. Me encantan.
+
+MISIÓN Cajas vivientes
+  npc: ines
+  dice: Las ciudades están llenas de shulkers.
+  dice: Te van a hacer flotar. Mátalos y trae sus caparazones.
+  objetivo: mata 8 shulkers
+  objetivo: entrega 4 caparazones de shulker
+  premio: 2500 xp, 400 soles, 1 shulker_box
+  final: Toma una caja de shulker.
+
+MISIÓN Alas
+  npc: lia
+  dice: En los barcos del Fin hay alas de verdad.
+  dice: Consigue unos élitros.
+  objetivo: ten unos élitros
+  premio: 2500 xp, 400 soles, 64 fuegos artificiales
+  final: ¡Ahora puedes volar! Toma cohetes.
+
+MISIÓN Antes del final
+  npc: tula
+  dice: Mañana es la última batalla, niño.
+  dice: Antes, despídete de todos. Ellos también pelean contigo.
+  objetivo: habla con Bruno
+  objetivo: habla con la Capitana Inés
+  objetivo: habla con Pip
+  objetivo: habla con Lía
+  objetivo: habla con Fray Odón
+  objetivo: habla con El Errante
+  premio: 2500 xp, 400 soles
+  final: Ya estamos todos. Ve y trae el sol de vuelta.
+
+MISIÓN JEFE FINAL: Guardián del Eclipse
+  npc: ines
+  nivel: 50
+  jefe: sí
+  mazmorra: 10
+  dice: El Guardián del Eclipse es el corazón de todo esto.
+  dice: Su guarida es Ciudadela del Eclipse. Toma esta brújula: te llevará a la entrada.
+  dice: Atraviesa la mazmorra. El jefe te espera en la sala más profunda.
+  objetivo: encuentra Ciudadela del Eclipse
+  objetivo: derrota al Guardián del Eclipse
+  final: ¡El décimo Fragmento! La Corona Solar está completa.
+
+MISIÓN La decisión
+  npc: tula
+  dice: Con los diez fragmentos puedes reconstruir la Corona Solar.
+  dice: Pero Velkar dejó algo más en su diario: con una parte del poder, su hermana podría volver.
+  dice: El sol brillaría un poco menos… pero dos personas volverían a casa.
+  dice: La decisión es tuya, Guardián del Alba.
+  premio: 5000 xp, 3000 soles
+  final: Elige con el corazón.
+  elección: Restaurar el sol -> premio: objeto espada_amanecer_eterno; mensaje: La Corona brilla y el Eclipse se rompe. El sol vuelve, entero. Toma la Espada del Amanecer Eterno.; marca: final_sol
+  elección: Perdonar a Velkar -> premio: objeto baculo_velkar; mensaje: El sol vuelve, un poco más tenue. Velkar y su hermana Aria regresan al campamento. Él te entrega su báculo.; marca: final_velkar

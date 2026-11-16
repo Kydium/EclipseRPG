@@ -1,0 +1,71 @@
+# =====================================================================
+#  MI HISTORIA — plantilla de ejemplo
+#  Las líneas que empiezan con # son comentarios: el juego las ignora.
+#  Cuando termines:  /historia revisar   (te dice si algo está mal)
+#                    /historia usar <nombre-de-esta-carpeta> confirmar
+#  La guía completa está en plugins/EclipseRPG/GUIA.txt
+# =====================================================================
+
+HISTORIA: La Isla del Kraken
+DESCRIPCION: Naufragaste en una isla donde los piratas temen al mar.
+ALDEA: Puerto Sal
+MONEDA: doblones
+
+# ------------------------------------------------------------ PERSONAJES
+NPC capitan
+  nombre: Capitán Rojo
+  color: rojo
+  skin: pirata
+  oficio: Capitán del puerto
+  lugar: muelle
+  objeto: espada de hierro
+  servicio: tienda general
+  charla: ¡Arrr! El mar no perdona a los distraídos.
+
+NPC mara
+  nombre: Mara la Posadera
+  color: dorado
+  skin: posadera
+  oficio: Dueña de la posada
+  lugar: plaza_norte
+  charla: Si tienes hambre, aquí siempre hay sopa caliente.
+
+NPC vigia
+  nombre: Vigía Tomás
+  color: celeste
+  skin: marinero
+  oficio: Vigía del faro
+  lugar: puerta_norte
+  objeto: catalejo
+  servicio: contratos
+  charla: Desde el faro se ve todo… incluso lo que no quieres ver.
+
+# ------------------------------------------------------------ ACTO 1
+ACTO 1: El naufragio
+
+MISIÓN Despertar en la arena
+  npc: mara
+  dice: ¡Estás vivo! Te sacamos del agua esta mañana.
+  dice: Necesitas fuerzas. Trae algo de comer y te cuento dónde estás.
+  objetivo: entrega 5 pan
+  premio: 100 xp, 20 doblones
+  final: Así me gusta. Ahora ve con el Capitán Rojo, te está buscando.
+
+MISIÓN Las órdenes del capitán
+  npc: capitan
+  dice: Así que tú eres el náufrago. En esta isla nadie come gratis.
+  dice: De noche salen criaturas de la playa. Acaba con algunas.
+  objetivo: mata 10 zombis o esqueletos
+  objetivo: tala 16 troncos
+  premio: 200 xp, 40 doblones, espada de hierro
+  final: No está mal para alguien que casi se ahoga.
+
+MISIÓN La luz del faro
+  npc: vigia
+  nivel: 3
+  dice: El faro se apagó y los barcos chocan contra las rocas.
+  objetivo: entrega 8 carbón
+  objetivo: entrega 4 lingotes de hierro
+  objetivo: habla con el Capitán Rojo
+  premio: 300 xp, 60 doblones, poción de curación
+  final: ¡La luz vuelve a brillar! Algo se movió en el agua… algo enorme.

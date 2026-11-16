@@ -63,7 +63,7 @@ public final class HotkeyMenu implements Listener {
             plugin.village().giveCompass(p);
         }));
         buttons.add(new DialogUI.Button("<gray>Cerrar", null, null));
-        ui.show(p, "<gold><bold>☀ Crónicas del Eclipse", body, buttons, true);
+        ui.show(p, "<gold><bold>☀ " + plugin.title(), body, buttons, true);
     }
 
     // ---------- Paquete de datos para la tecla G ----------

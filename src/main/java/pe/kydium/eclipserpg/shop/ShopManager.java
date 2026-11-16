@@ -61,7 +61,7 @@ public final class ShopManager {
 
     public void load() {
         shops.clear();
-        YamlConfiguration y = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "shops.yml"));
+        YamlConfiguration y = plugin.story().yaml("tiendas");
         ConfigurationSection root = y.getConfigurationSection("tiendas");
         if (root == null) return;
         for (String id : root.getKeys(false)) {

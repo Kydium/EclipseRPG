@@ -41,15 +41,16 @@ public final class EclipseRPG extends JavaPlugin {
     private VillageBuilder village;
     private NpcEntities npcEntities;
     private HotkeyMenu hotkeys;
+    private pe.kydium.eclipserpg.story.StoryManager story;
+    private pe.kydium.eclipserpg.npc.ResourcePack resourcePack;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        for (String f : new String[]{"items.yml", "mobs.yml", "shops.yml", "contracts.yml", "quests.yml", "npcs.yml", "mazmorras.yml"}) {
-            if (!new File(getDataFolder(), f).exists()) saveResource(f, false);
-        }
         Keys.init(this);
         checkNewWorld();
+        story = new pe.kydium.eclipserpg.story.StoryManager(this);
+        story.init();
 
         data = new DataManager(this);
         levels = new LevelManager(this);
@@ -80,10 +81,19 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(ruins, this);
         pm.registerEvents(village, this);
         pm.registerEvents(npcEntities, this);
-        pm.registerEvents(new pe.kydium.eclipserpg.npc.ResourcePack(this), this);
+        resourcePack = new pe.kydium.eclipserpg.npc.ResourcePack(this);
+        resourcePack.start();
+        pm.registerEvents(resourcePack, this);
         pm.registerEvents(hotkeys, this);
         hotkeys.installDatapack();
 
+        var storyCmd = new pe.kydium.eclipserpg.story.StoryCommand(this);
+        PluginCommand hc = getCommand("historia");
+        if (hc != null) {
+            hc.setExecutor(storyCmd);
+            hc.setTabCompleter(storyCmd);
+        }
+        pm.registerEvents(storyCmd, this);
         PlayerCommands pc = new PlayerCommands(this);
         for (String c : new String[]{"nivel", "soles", "pagar", "misiones", "mision", "guardian"}) bind(c, pc);
         AdminCommand ac = new AdminCommand(this);
@@ -101,6 +111,7 @@ public final class EclipseRPG extends JavaPlugin {
         ruins.startTask();
         npcEntities.startTask();
         Bukkit.getScheduler().runTaskLater(this, village::autoGenerate, 100L);
+        Bukkit.getScheduler().runTaskLater(this, npcEntities::refreshIfChanged, 60L);
         if (pe.kydium.eclipserpg.test.SmokeTest.enabled()) new pe.kydium.eclipserpg.test.SmokeTest(this).start();
         long autosave = getConfig().getLong("autoguardado-minutos", 5) * 60L * 20L;
         Bukkit.getScheduler().runTaskTimer(this, data::saveAll, autosave, autosave);
@@ -119,6 +130,7 @@ public final class EclipseRPG extends JavaPlugin {
         if (data != null) data.saveAll();
         if (ruins != null) ruins.save();
         if (npcEntities != null) npcEntities.cleanup();
+        if (resourcePack != null) resourcePack.stop();
     }
 
     /**
@@ -164,11 +176,60 @@ public final class EclipseRPG extends JavaPlugin {
         mobs.load();
         shops.load();
         contracts.load();
-        quests.load();
-        npcs.load();
         dungeons.load();
         ruins.reloadSettings();
+        var r = story.read();
+        story.apply(r);
+        quests.load(story.doc());
+        npcs.load(story.doc());
         npcEntities.load();
+        logStory(r);
+    }
+
+    private void logStory(pe.kydium.eclipserpg.story.StoryParser.Result r) {
+        getLogger().info("Historia \"" + r.doc().title + "\" (" + story.id() + "): " + r.doc().missions.size() + " misiones, "
+                + r.doc().npcs.size() + " NPCs, " + r.errors() + " errores, " + (r.problems().size() - r.errors()) + " avisos");
+        int shown = 0;
+        for (var pr : r.problems()) {
+            if (!pr.error()) continue;
+            if (shown++ >= 15) {
+                getLogger().warning("…y más. Mira historias/" + story.id() + "/errores.txt");
+                break;
+            }
+            getLogger().warning(pr.toString());
+        }
+    }
+
+    /**
+     * Vuelve a leer la historia. Si tiene errores no la aplica (sigue la anterior) salvo que force sea true.
+     * Devuelve el resultado para mostrarlo al jugador.
+     */
+    public pe.kydium.eclipserpg.story.StoryParser.Result reloadStory(boolean force) {
+        reloadConfig();
+        items.load();
+        mobs.load();
+        shops.load();
+        contracts.load();
+        dungeons.load();
+        ruins.reloadSettings();
+        var r = story.read();
+        if (r.errors() > 0 && !force) {
+            // guardar el informe pero seguir con la historia que ya funcionaba
+            story.reportOnly(r);
+            return r;
+        }
+        story.apply(r);
+        quests.load(story.doc());
+        npcs.load(story.doc());
+        npcEntities.placeStoryNpcs();
+        saveConfig();
+        logStory(r);
+        if (resourcePack != null) {
+            String before = resourcePack.sha1();
+            resourcePack.rebuild();
+            if (!before.equals(resourcePack.sha1())) for (Player p : Bukkit.getOnlinePlayers()) resourcePack.send(p);
+        }
+        return r;
     }
 
     public void reloadAll() {
@@ -191,4 +252,11 @@ public final class EclipseRPG extends JavaPlugin {
     public VillageBuilder village() { return village; }
     public NpcEntities npcEntities() { return npcEntities; }
     public HotkeyMenu hotkeys() { return hotkeys; }
+    public pe.kydium.eclipserpg.story.StoryManager story() { return story; }
+
+    /** Nombre de la historia y de su aldea (para los textos del juego). */
+    public String title() { return story == null ? "EclipseRPG" : story.doc().title; }
+
+    public String villageName() { return story == null ? "la Aldea" : story.doc().village; }
+    public pe.kydium.eclipserpg.npc.ResourcePack resourcePack() { return resourcePack; }
 }

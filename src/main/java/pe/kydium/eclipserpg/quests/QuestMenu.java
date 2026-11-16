@@ -15,7 +15,7 @@ public final class QuestMenu extends Menu {
     private final EclipseRPG plugin;
 
     public QuestMenu(EclipseRPG plugin, Player player) {
-        super(player, 3, "<dark_gray>Diario · Crónicas del Eclipse");
+        super(player, 3, "<dark_gray>Diario");
         this.plugin = plugin;
     }
 

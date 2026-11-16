@@ -91,7 +91,7 @@ public final class DungeonManager implements Listener {
     // ---------- Configuración y datos ----------
 
     public void load() {
-        cfg = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "mazmorras.yml"));
+        cfg = plugin.story().yaml("mazmorras");
         dungeons.clear();
         YamlConfiguration y = YamlConfiguration.loadConfiguration(dataFile);
         for (String k : y.getKeys(false)) {
@@ -245,49 +245,65 @@ public final class DungeonManager implements Listener {
         ConfigurationSection t = theme(act);
         if (t == null) {
             msg(p, "<red>No hay mazmorra configurada para el acto " + act);
+            waiting.remove(act);
             return;
         }
         Location camp = plugin.items().campLocation();
         World w = camp.getWorld();
+        building.add(act);
+        msg(p, "<gray>Buscando dónde está " + name(act) + "<gray>…");
+        searchSite(act, p, w, camp, new Random(w.getSeed() ^ (act * 7919L)), 0);
+    }
+
+    /** Prueba lugares uno por uno, cargando sus chunks en segundo plano (no congela el servidor). */
+    private void searchSite(int act, Player p, World w, Location camp, Random r, int tries) {
         ConfigurationSection g = cfg.getConfigurationSection("general");
         int min = g == null ? 250 : g.getInt("distancia-min", 250);
         int max = g == null ? 450 : g.getInt("distancia-max", 450);
         int depth = g == null ? 18 : g.getInt("profundidad", 18);
-        Random r = new Random(w.getSeed() ^ (act * 7919L));
-        Location spot = null;
-        int surface = 0;
-        for (int tries = 0; tries < 60 && spot == null; tries++) {
-            double ang = r.nextDouble() * Math.PI * 2;
-            double dist = min + r.nextDouble() * (max - min);
-            int x = camp.getBlockX() + (int) (Math.cos(ang) * dist);
-            int z = camp.getBlockZ() + (int) (Math.sin(ang) * dist);
-            Block top = w.getHighestBlockAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
-            Material m = top.getType();
-            if (top.isLiquid() || m == Material.ICE || m == Material.PACKED_ICE || m == Material.BLUE_ICE
-                    || m == Material.SNOW_BLOCK || m == Material.POWDER_SNOW || top.getRelative(0, 1, 0).getType() == Material.SNOW) continue;
-            String biome = w.getBiome(x, top.getY(), z).getKey().getKey();
-            boolean badBiome = false;
-            for (String bad : cfg.getStringList("general.biomas-prohibidos")) if (biome.contains(bad)) badBiome = true;
-            if (badBiome) continue;
-            // terreno más o menos plano alrededor de la entrada
-            int hMin = top.getY(), hMax = top.getY();
-            boolean wet = false;
-            for (int[] o2 : new int[][]{{6, 0}, {-6, 0}, {0, 6}, {0, -6}, {12, 0}, {18, 0}}) {
-                Block b2 = w.getHighestBlockAt(x + o2[0], z + o2[1], HeightMap.MOTION_BLOCKING_NO_LEAVES);
-                if (b2.isLiquid()) wet = true;
-                hMin = Math.min(hMin, b2.getY());
-                hMax = Math.max(hMax, b2.getY());
-            }
-            if (wet || hMax - hMin > 4) continue;
-            if (top.getY() - depth < w.getMinHeight() + 6) continue;
-            spot = top.getLocation();
-            surface = top.getY();
-        }
-        if (spot == null) {
+        if (tries >= 80) {
             msg(p, "<red>No encontré un buen lugar para la mazmorra. Intenta de nuevo más tarde.");
+            building.remove(act);
             waiting.remove(act);
             return;
         }
+        double ang = r.nextDouble() * Math.PI * 2;
+        double dist = min + r.nextDouble() * (max - min);
+        int x = camp.getBlockX() + (int) (Math.cos(ang) * dist);
+        int z = camp.getBlockZ() + (int) (Math.sin(ang) * dist);
+        int[][] pts = {{x, z}, {x + 6, z}, {x - 6, z}, {x, z + 6}, {x, z - 6}, {x + 12, z}, {x + 18, z}};
+        pe.kydium.eclipserpg.util.AsyncChunks.load(w, pe.kydium.eclipserpg.util.AsyncChunks.around(pts)).whenComplete((v, ex) ->
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    Block top = w.getHighestBlockAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
+                    Material m = top.getType();
+                    boolean ok = ex == null && !top.isLiquid() && m != Material.ICE && m != Material.PACKED_ICE && m != Material.BLUE_ICE
+                            && m != Material.SNOW_BLOCK && m != Material.POWDER_SNOW && top.getRelative(0, 1, 0).getType() != Material.SNOW;
+                    if (ok) {
+                        String biome = w.getBiome(x, top.getY(), z).getKey().getKey();
+                        for (String bad : cfg.getStringList("general.biomas-prohibidos")) if (biome.contains(bad)) ok = false;
+                    }
+                    if (ok) {
+                        int hMin = top.getY(), hMax = top.getY();
+                        for (int i = 1; i < pts.length; i++) {
+                            Block b2 = w.getHighestBlockAt(pts[i][0], pts[i][1], HeightMap.MOTION_BLOCKING_NO_LEAVES);
+                            if (b2.isLiquid()) ok = false;
+                            hMin = Math.min(hMin, b2.getY());
+                            hMax = Math.max(hMax, b2.getY());
+                        }
+                        if (hMax - hMin > 4 || top.getY() - depth < w.getMinHeight() + 6) ok = false;
+                    }
+                    if (!ok) {
+                        searchSite(act, p, w, camp, r, tries + 1);
+                        return;
+                    }
+                    buildAt(act, p, w, top.getLocation(), top.getY());
+                }));
+    }
+
+    private void buildAt(int act, Player p, World w, Location spot, int surface) {
+        ConfigurationSection t = theme(act);
+        ConfigurationSection g = cfg.getConfigurationSection("general");
+        int depth = g == null ? 18 : g.getInt("profundidad", 18);
         DungeonBuilder.Theme th = new DungeonBuilder.Theme();
         th.floor = mats(t, "suelo");
         th.wall = mats(t, "pared");
@@ -325,6 +341,16 @@ public final class DungeonManager implements Listener {
         dungeons.put(act, d);
         building.add(act);
         msg(p, "<light_purple>La tierra tiembla… " + name(act) + "<light_purple> está emergiendo.");
+        java.util.Set<Long> area = pe.kydium.eclipserpg.util.AsyncChunks.area(res.bounds.x1() - 2, res.bounds.z1() - 2,
+                res.bounds.x2() + 2, res.bounds.z2() + 2);
+        pe.kydium.eclipserpg.util.AsyncChunks.load(w, area).whenComplete((v, ex) -> Bukkit.getScheduler().runTask(plugin, () -> {
+            for (long k : area) w.addPluginChunkTicket((int) (k >> 32), (int) k, plugin);
+            place(act, w, res, area);
+        }));
+    }
+
+    private void place(int act, World w, DungeonBuilder.Result res, java.util.Set<Long> area) {
+        ConfigurationSection g = cfg.getConfigurationSection("general");
 
         int perTick = g == null ? 6000 : g.getInt("bloques-por-tick", 6000);
         List<DungeonBuilder.Op> ops = res.ops;
@@ -347,6 +373,10 @@ public final class DungeonManager implements Listener {
             if (idx[0] >= ops.size()) {
                 task.cancel();
                 Connect.fix(w, joins);
+                if (!Boolean.getBoolean("eclipse.prueba"))
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        for (long k : area) w.removePluginChunkTicket((int) (k >> 32), (int) k, plugin);
+                    }, 100L);
                 finish(finalAct, w, specials);
             }
         }, 1L, 1L);

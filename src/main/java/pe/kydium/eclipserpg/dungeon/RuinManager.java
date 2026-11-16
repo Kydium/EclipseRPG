@@ -39,7 +39,7 @@ public final class RuinManager implements Listener {
     }
 
     private YamlConfiguration cfg() {
-        return YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "mazmorras.yml"));
+        return plugin.story().yaml("mazmorras");
     }
 
     public void load() {

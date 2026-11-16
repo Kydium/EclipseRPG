@@ -59,9 +59,111 @@ public final class SmokeTest {
         else fail(m);
     }
 
+    private double maxTickMs;
+    private int slowTicks;
+
     public void start() {
         plugin.getLogger().info("[PRUEBA] Iniciando prueba automática…");
+        Bukkit.getPluginManager().registerEvents(new org.bukkit.event.Listener() {
+            @org.bukkit.event.EventHandler
+            public void onTick(com.destroystokyo.paper.event.server.ServerTickEndEvent e) {
+                if (ticks < 3) return; // el arranque no cuenta
+                maxTickMs = Math.max(maxTickMs, e.getTickDuration());
+                if (e.getTickDuration() > 1000) slowTicks++;
+            }
+        }, plugin);
+        checkStory();
         task = Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 20L, 20L);
+    }
+
+    // ---------------------------------------------------------------- historias
+
+    private void checkStory() {
+        var st = plugin.story();
+        for (var pr : st.problems()) plugin.getLogger().info("[PRUEBA] historia: " + pr);
+        check(st.errorCount() == 0, "la historia de ejemplo no tiene errores (" + st.errorCount() + ")");
+        check(st.doc().missions.size() == 110, "la historia tiene 110 misiones (" + st.doc().missions.size() + ")");
+        check(st.doc().npcs.size() == 8 && plugin.npcs().ids().size() == 8, "la historia tiene 8 NPCs");
+        check(plugin.quests().total() == 110, "el motor cargó 110 misiones (" + plugin.quests().total() + ")");
+        // la plantilla de /historia nueva
+        try (var in = plugin.getResource("motor/plantilla.txt")) {
+            var lines = java.util.Arrays.asList(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).split("\\R"));
+            var r = new pe.kydium.eclipserpg.story.StoryParser(st.dictionary(), st.catalog()).parse(lines);
+            for (var pr : r.problems()) plugin.getLogger().info("[PRUEBA] plantilla: " + pr);
+            check(r.problems().isEmpty() && r.doc().missions.size() == 3, "la plantilla de historia nueva está perfecta");
+        } catch (Exception e) {
+            fail("no se pudo leer la plantilla: " + e);
+        }
+        // una historia con errores a propósito
+        List<String> bad = List.of("HISTORIA: Mala", "NPC x", "  skin: noexiste", "  lugar: lunar", "MISIÓN Uno", "  npc: nadie",
+                "  objetivo: bailar 3 veces", "  objetivo: entrega 5 pizzas", "  premio: 3 hierroo", "  colorr: rojo");
+        var rb = new pe.kydium.eclipserpg.story.StoryParser(st.dictionary(), st.catalog()).parse(bad);
+        for (var pr : rb.problems()) plugin.getLogger().info("[PRUEBA] historia mala: " + pr);
+        check(rb.errors() >= 7, "una historia con errores se detecta (" + rb.errors() + " errores)");
+        // diccionario: todo lo que nombra existe en esta versión de Minecraft
+        checkDictionary();
+    }
+
+    private void checkDictionary() {
+        java.util.List<String> bad = new java.util.ArrayList<>();
+        String sec = "objetos";
+        try (var in = plugin.getResource("motor/diccionario.txt")) {
+            for (String l : new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).split("\\R")) {
+                l = l.trim();
+                if (l.isEmpty() || l.startsWith("#")) continue;
+                if (l.startsWith("[")) {
+                    sec = l.substring(1, l.length() - 1);
+                    continue;
+                }
+                int eq = l.indexOf('=');
+                if (eq < 0) continue;
+                for (String id : l.substring(eq + 1).split(",")) {
+                    id = id.trim();
+                    if (id.contains("*")) continue;
+                    boolean ok = switch (sec) {
+                        case "objetos" -> Material.matchMaterial(id) != null;
+                        case "mobs" -> org.bukkit.Registry.ENTITY_TYPE.get(org.bukkit.NamespacedKey.minecraft(id)) != null;
+                        case "pociones" -> org.bukkit.Registry.POTION.get(org.bukkit.NamespacedKey.minecraft(id)) != null;
+                        case "encantamientos" -> io.papermc.paper.registry.RegistryAccess.registryAccess()
+                                .getRegistry(io.papermc.paper.registry.RegistryKey.ENCHANTMENT).get(org.bukkit.NamespacedKey.minecraft(id)) != null;
+                        default -> true;
+                    };
+                    if (!ok) bad.add(sec + ": " + id);
+                }
+            }
+        } catch (Exception e) {
+            fail("no se pudo leer el diccionario: " + e);
+        }
+        for (String b : bad) plugin.getLogger().severe("[PRUEBA] diccionario inválido: " + b);
+        check(bad.isEmpty(), "todo el diccionario existe en Minecraft " + Bukkit.getMinecraftVersion() + " (" + bad.size() + " malos)");
+    }
+
+    private void checkPack() {
+        var rp = plugin.resourcePack();
+        check(rp != null && rp.bytes() != null && rp.bytes().length > 10000, "el paquete de skins se armó");
+        if (rp == null || rp.bytes() == null) return;
+        try {
+            var client = java.net.http.HttpClient.newBuilder().proxy(java.net.ProxySelector.of(null)).build();
+            var req = java.net.http.HttpRequest.newBuilder(java.net.URI.create("http://127.0.0.1:" + rp.port() + "/eclipse-"
+                    + rp.sha1().substring(0, 12) + ".zip")).timeout(java.time.Duration.ofSeconds(10)).build();
+            var resp = client.send(req, java.net.http.HttpResponse.BodyHandlers.ofByteArray());
+            String sha = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-1").digest(resp.body()));
+            check(resp.statusCode() == 200 && sha.equals(rp.sha1()), "el servidor entrega el paquete de skins por HTTP ("
+                    + resp.statusCode() + ", " + resp.body().length / 1024 + " KB)");
+            int skins = 0;
+            try (var z = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(resp.body()))) {
+                java.util.zip.ZipEntry en;
+                while ((en = z.getNextEntry()) != null) if (en.getName().endsWith(".png")) skins++;
+            }
+            check(skins == plugin.story().skins().size(), "el paquete trae todas las skins (" + skins + ")");
+        } catch (Exception e) {
+            fail("no se pudo descargar el paquete de skins: " + e);
+        }
+        // cada NPC usa una skin que existe
+        for (String id : plugin.npcs().ids()) {
+            String skin = plugin.npcs().def(id).skin;
+            if (!plugin.story().skins().containsKey(skin)) fail("el NPC " + id + " usa la skin inexistente " + skin);
+        }
     }
 
     private void tick() {
@@ -89,6 +191,8 @@ public final class SmokeTest {
                     wait = 15;
                 }
                 case 2 -> {
+                    checkPack();
+                    checkReload();
                     checkBlockNames();
                     checkWalking();
                     checkRuin();
@@ -258,8 +362,30 @@ public final class SmokeTest {
         return n;
     }
 
+    private void checkReload() {
+        var before = new java.util.HashMap<>(plugin.npcEntities().storyIds());
+        var r = plugin.reloadStory(false);
+        check(r.errors() == 0 && plugin.quests().total() == 110, "/historia recargar funciona");
+        int alive = 0;
+        for (UUID u : plugin.npcEntities().storyIds().values()) if (Bukkit.getEntity(u) instanceof Mannequin m && m.isValid()) alive++;
+        check(alive == 8, "después de recargar siguen los 8 NPCs (" + alive + ")");
+        int dupes = 0;
+        for (UUID u : before.values()) if (Bukkit.getEntity(u) != null && !plugin.npcEntities().storyIds().containsValue(u)) dupes++;
+        check(dupes == 0, "recargar no deja NPCs duplicados (" + dupes + ")");
+        // colocar un NPC a mano
+        String id = plugin.npcs().ids().iterator().next();
+        Location to = plugin.village().center().clone().add(2.5, 0, 2.5);
+        plugin.npcEntities().setCustomSpot(id, to);
+        Entity en = Bukkit.getEntity(plugin.npcEntities().storyIds().get(id));
+        check(en != null && en.getLocation().distance(to) < 3, "/historia colocar mueve al NPC");
+        plugin.getConfig().set("npc-lugares." + id, null);
+        plugin.npcEntities().placeStoryNpcs();
+    }
+
     private void finish() {
         if (task != null) task.cancel();
+        plugin.getLogger().info(String.format(java.util.Locale.ROOT, "[PRUEBA] tick más lento: %.0f ms, ticks de más de 1 s: %d", maxTickMs, slowTicks));
+        check(maxTickMs < 5000, String.format(java.util.Locale.ROOT, "el servidor nunca se congeló (tick más lento %.0f ms)", maxTickMs));
         if (fails.isEmpty()) plugin.getLogger().info("[PRUEBA] RESULTADO: TODO BIEN");
         else plugin.getLogger().severe("[PRUEBA] RESULTADO: " + fails.size() + " FALLOS");
         Bukkit.getScheduler().runTaskLater(plugin, Bukkit::shutdown, 40L);

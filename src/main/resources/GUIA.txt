@@ -1,0 +1,181 @@
+=====================================================================
+  CÓMO CREAR TU PROPIA HISTORIA  —  Motor EclipseRPG
+=====================================================================
+
+Todo se escribe en UN archivo de texto, en español:
+
+    plugins/EclipseRPG/historias/<nombre>/historia.txt
+
+No necesitas programar ni compilar nada. Ábrelo con el Bloc de notas,
+guárdalo (codificación UTF-8) y en el juego escribe:
+
+    /historia revisar     → te dice si hay errores (con número de línea)
+    /historia recargar    → aplica los cambios sin reiniciar el servidor
+
+Si hay errores, el juego NO aplica el archivo: sigue con la versión que
+funcionaba y te muestra qué arreglar. Así nunca se rompe la partida.
+
+
+---------------------------------------------------------------------
+ 1. EMPEZAR UNA HISTORIA NUEVA
+---------------------------------------------------------------------
+    /historia nueva piratas          → crea historias/piratas/historia.txt
+                                        con un ejemplo corto para copiar
+    (edítalo)
+    /historia revisar
+    /historia usar piratas confirmar → la activa (las misiones de todos
+                                        empiezan de cero; los niveles no)
+
+    /historia lista                  → ver tus historias
+
+
+---------------------------------------------------------------------
+ 2. EL ENCABEZADO (arriba del archivo)
+---------------------------------------------------------------------
+    HISTORIA: La Isla del Kraken
+    DESCRIPCION: Una frase que resume la aventura.
+    ALDEA: Puerto Sal              (nombre de la aldea que se construye)
+    MONEDA: doblones               (cómo se llama el dinero)
+
+    ACTO 1: El naufragio           (agrupa misiones; puedes tener muchos)
+
+Las líneas que empiezan con # son comentarios.
+
+
+---------------------------------------------------------------------
+ 3. PERSONAJES (NPC)
+---------------------------------------------------------------------
+    NPC capitan                    ← nombre corto, sin espacios
+      nombre: Capitán Rojo         ← el que se ve en el juego
+      color: rojo
+      skin: pirata
+      oficio: Capitán del puerto   ← aparece debajo del nombre
+      lugar: muelle
+      objeto: espada de hierro     ← lo que lleva en la mano (opcional)
+      otra mano: escudo            (opcional)
+      servicio: tienda general     (opcional; ver abajo)
+      charla: ¡Arrr!               ← lo que dice al saludar (puedes poner varias)
+
+  colores: verde, verde oscuro, rojo, rojo oscuro, azul, azul oscuro,
+           celeste, turquesa, amarillo, dorado, naranja, morado, rosa,
+           blanco, gris, gris oscuro, negro   (o un código como #ff8800)
+
+  servicios: tienda <nombre>, contratos, grieta
+     tiendas que vienen: general, herreria, alquimia, mercado
+
+  lugares de la aldea:
+     casa, cuartel, herreria, tienda, biblioteca, mapas, torre,
+     tienda_negra, plaza_norte, plaza_sur, plaza_este, plaza_oeste,
+     fuente, muelle, granja, puerta_norte, puerta_sur, puerta_este,
+     puerta_oeste
+  Si no pones lugar, el NPC ocupa el primero libre.
+  También puedes pararte donde quieras y escribir:
+     /historia colocar capitan        (y "/historia colocar capitan auto"
+                                        para devolverlo a su lugar)
+
+  skins que vienen con el plugin:
+    anciana bruja caballero capitana cazador druida encapuchado 
+    exploradora fraile hechicero herrero ladron mago marinero mendigo 
+    mercader minero monja nigromante noble pirata pirata_mujer posadera 
+    princesa reina rey soldado vikingo 
+  y con variantes (escribe por ejemplo  aldeano_2):
+    aldeana aldeano aprendiz arquero campesina campesino cantero 
+    carnicero curtidor erudito guardia monje nina nino pastora pescador 
+
+  Tu propia skin: pon un PNG de 64x64 en historias/<nombre>/skins/
+  (por ejemplo capitan_rojo.png) y escribe  skin: capitan_rojo
+
+
+---------------------------------------------------------------------
+ 4. MISIONES
+---------------------------------------------------------------------
+Se juegan en el orden en que las escribes, una tras otra.
+
+    MISIÓN Las órdenes del capitán
+      npc: capitan                 ← quién la da (nombre corto o nombre visible)
+      nivel: 3                     (opcional: nivel mínimo para aceptarla)
+      dice: Primera línea de diálogo.
+      dice: Segunda línea…
+      objetivo: mata 10 zombis
+      objetivo: tala 16 troncos
+      premio: 200 xp, 40 doblones, espada de hierro
+      final: Lo que dice cuando la entregas.
+
+  Otros campos opcionales:
+      recibe: 16 antorchas         ← lo que te da al aceptar
+      aparecen: 3 zombi_corrompido ← enemigos especiales que salen al aceptar
+      recuerda: texto              ← lo que dice si vuelves sin terminar
+      jefe: sí                     ← misión de jefe (se marca distinto)
+      mazmorra: 2                  ← genera la mazmorra 2 al aceptar
+      sin morir: sí                ← si mueres, se reinicia
+      elección: Perdonarlo -> premio: 5 diamantes; mensaje: Gracias.; marca: perdono
+
+
+---------------------------------------------------------------------
+ 5. OBJETIVOS (escribe como hablas)
+---------------------------------------------------------------------
+    matar        mata 10 zombis · mata 5 esqueletos o arañas
+                 mata 8 corrompidos        (enemigos del eclipse)
+                 derrota al Rey de Ceniza  (un jefe de mobs.yml)
+    minar/talar  tala 16 troncos · mina 20 mineral de hierro
+    tener        ten una mesa de trabajo · consigue 3 diamantes
+    entregar     entrega 10 pan     (el NPC se lo queda)
+    fundir       funde 8 lingotes de oro
+    pescar       pesca 5 peces
+    domesticar   domestica 2 lobos
+    encantar     encanta 3 objetos
+    viajar       ve al nether · entra al end
+    hablar       habla con Mara    (con otro NPC)
+    mazmorra     explora la mazmorra 3
+
+  Los números pueden ir en letras (un, dos, diez…).
+  Si quieres que el jugador vea otro texto, ponlo después de una barra:
+      objetivo: entrega 8 carbón | Lleva carbón para el faro
+
+  Nombres de objetos y enemigos: en español (pan, lingote de hierro,
+  espada de diamante, zombi, araña…). La lista completa está en
+  plugins/EclipseRPG/motor/diccionario.txt. Si algo no está, usa el id
+  de Minecraft en inglés:  entrega 4 copper_ingot
+
+
+---------------------------------------------------------------------
+ 6. PREMIOS
+---------------------------------------------------------------------
+    premio: 250 xp, 40 doblones, 10 pan, espada de hierro
+    premio: poción de curación, 2 pociones de fuerza
+    premio: libro filo 3          (libro encantado)
+    premio: objeto espada_solar   (objeto especial de objetos.yml)
+
+
+---------------------------------------------------------------------
+ 7. PARA EXPERTOS (opcional)
+---------------------------------------------------------------------
+Dentro de la historia puede haber una carpeta  avanzado/  con:
+    objetos.yml    armas y objetos especiales con estadísticas
+    mobs.yml       enemigos y jefes con habilidades
+    tiendas.yml    tiendas y precios
+    contratos.yml  encargos diarios
+    mazmorras.yml  aspecto de las mazmorras de cada acto
+Si no la pones, se usan las de Crónicas del Eclipse. Copia la carpeta
+historias/eclipse/avanzado/ y cámbiala a tu gusto.
+
+
+---------------------------------------------------------------------
+ 8. AYUDA DE UNA IA (gratis)
+---------------------------------------------------------------------
+Abre PROMPT-IA.txt, copia todo, pégalo en ChatGPT, Gemini o Claude
+(la versión gratis sirve) y debajo escribe tu idea. Lo que te devuelva
+pégalo en historia.txt y usa /historia revisar: si la IA se equivocó,
+el juego te dice exactamente en qué línea.
+
+
+---------------------------------------------------------------------
+ 9. SI ALGO SALE MAL
+---------------------------------------------------------------------
+ • "/historia errores" muestra los problemas; también quedan en
+   historias/<nombre>/errores.txt
+ • Las tildes se ven raras: guarda el archivo como UTF-8 en el Bloc de
+   notas (Guardar como → Codificación: UTF-8).
+ • Los NPCs se ven sin ropa: acepta el paquete de recursos al entrar.
+   Si tus amigos no pueden descargarlo, abre el puerto 25580 (o cambia
+   paquete-recursos.puerto en config.yml).

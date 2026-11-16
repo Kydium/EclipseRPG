@@ -60,7 +60,7 @@ public final class ContractManager implements Listener {
 
     public void load() {
         pool.clear();
-        YamlConfiguration y = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "contracts.yml"));
+        YamlConfiguration y = plugin.story().yaml("contratos");
         ConfigurationSection root = y.getConfigurationSection("contratos");
         if (root == null) return;
         for (String id : root.getKeys(false)) {

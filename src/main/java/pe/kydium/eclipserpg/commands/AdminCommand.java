@@ -59,7 +59,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 plugin.getConfig().set("campamento.yaw", l.getYaw());
                 plugin.getConfig().set("campamento.pitch", l.getPitch());
                 plugin.saveConfig();
-                Txt.send(s, "<green>Campamento del Alba guardado aquí.");
+                Txt.send(s, "<green>Punto de regreso de la aldea guardado aquí.");
             }
             case "npc" -> {
                 // /eclipse npc <id> <jugador>  (lo usa Citizens al hacer clic)

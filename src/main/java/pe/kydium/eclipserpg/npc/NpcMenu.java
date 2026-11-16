@@ -72,7 +72,7 @@ public final class NpcMenu extends Menu {
             }
             case FINISHED -> {
                 title = "<gold>Historia completada";
-                lore.add("<gray>Gracias, Guardián del Alba.");
+                lore.add("<gray>Gracias por todo, héroe.");
             }
             default -> {
                 title = "<gray>Sin misiones por ahora";

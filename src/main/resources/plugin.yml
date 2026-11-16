@@ -3,8 +3,7 @@ version: '${version}'
 main: pe.kydium.eclipserpg.EclipseRPG
 api-version: '1.21'
 author: Kydium
-description: Niveles, Soles, tiendas, Corrompidos, jefes y Grietas para Crónicas del Eclipse
-softdepend: [Citizens, BetonQuest]
+description: Motor de historias RPG — escribe tu historia en un .txt y juégala con tus amigos
 
 commands:
   nivel:
@@ -25,6 +24,11 @@ commands:
   mision:
     description: Ver tu misión actual o elegir en una decisión
     usage: /mision [elegir <n>]
+  historia:
+    description: Crear, revisar y recargar historias (historia.txt)
+    usage: /historia [recargar|errores|colocar|skins|lugares|lista|nueva|usar]
+    permission: eclipserpg.admin
+    aliases: [story, h]
   eclipse:
     description: Administración de EclipseRPG
     permission: eclipserpg.admin

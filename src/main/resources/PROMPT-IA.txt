@@ -1,0 +1,65 @@
+Copia TODO este texto en ChatGPT, Gemini o Claude (sirve la versión gratis).
+Al final, donde dice MI IDEA, escribe tu historia en pocas palabras.
+Pega la respuesta en historias/<nombre>/historia.txt y usa /historia revisar.
+---------------------------------------------------------------------------
+
+Eres un escritor de misiones para un servidor de Minecraft. Escribe una
+historia en el formato EXACTO de abajo, en español. Responde SOLO con el
+contenido del archivo, sin explicaciones ni bloques de código.
+
+FORMATO
+-------
+HISTORIA: <título>
+DESCRIPCION: <una frase>
+ALDEA: <nombre de la aldea>
+MONEDA: <nombre del dinero, en plural>
+
+NPC <id corto sin espacios ni tildes>
+  nombre: <nombre visible>
+  color: <verde|rojo|azul|celeste|turquesa|amarillo|dorado|morado|rosa|blanco|gris>
+  skin: <una de la lista SKINS>
+  oficio: <rol corto>
+  lugar: <uno de la lista LUGARES, sin repetir>
+  objeto: <objeto en la mano, opcional>
+  servicio: <opcional: "tienda general", "tienda herreria", "tienda alquimia", "tienda mercado", "contratos" o "grieta">
+  charla: <frase de saludo>
+
+ACTO <número>: <nombre del acto>
+
+MISIÓN <título>
+  npc: <id del NPC que la da>
+  nivel: <opcional, nivel mínimo; sube poco a poco: 1 al inicio, hasta 50>
+  dice: <línea de diálogo>          (2 a 4 líneas "dice:")
+  objetivo: <frase>                 (1 a 3 objetivos)
+  premio: <N> xp, <N> <moneda>, <objetos opcionales>
+  final: <lo que dice al entregar>
+
+FRASES DE OBJETIVO PERMITIDAS (cambia los números y cosas):
+  mata 10 zombis | mata 6 esqueletos o arañas | mata 8 corrompidos
+  tala 16 troncos | mina 12 mineral de hierro
+  ten una mesa de trabajo | consigue 3 diamantes
+  entrega 10 pan | entrega 5 lingotes de hierro
+  funde 8 lingotes de oro | pesca 5 peces | domestica 2 lobos
+  encanta 3 objetos | ve al nether | ve al end
+  habla con <id de otro NPC>
+Usa solo objetos y enemigos normales de Minecraft, con su nombre en
+español (pan, carbón, lingote de hierro, espada de diamante, zombi,
+esqueleto, araña, creeper, enderman, bruja, blaze…).
+
+PREMIOS PERMITIDOS: "<N> xp", "<N> <moneda>", "<N> <objeto de Minecraft>",
+  "poción de curación", "2 pociones de fuerza", "libro filo 3".
+
+SKINS: aldeana_1, aldeana_2, aldeana_3, aldeano_1, aldeano_2, aldeano_3, anciana, aprendiz_1, aprendiz_2, arquero_1, arquero_2, bruja, caballero, campesina_1, campesina_2, campesina_3, campesino_1, campesino_2, campesino_3, cantero_1, cantero_2, capitana, carnicero_1, carnicero_2, cazador, curtidor_1, curtidor_2, druida, encapuchado, erudito_1, erudito_2, exploradora, fraile, guardia_1, guardia_2, guardia_3, hechicero, herrero, ladron, mago, marinero, mendigo, mercader, minero, monja, monje_1, monje_2, nigromante, nina_1, nina_2, nina_3, nino_1, nino_2, nino_3, noble, pastora_1, pastora_2, pescador_1, pescador_2, pirata, pirata_mujer, posadera, princesa, reina, rey, soldado, vikingo
+
+LUGARES: casa, cuartel, herreria, tienda, biblioteca, mapas, torre,
+tienda_negra, plaza_norte, plaza_sur, plaza_este, plaza_oeste, fuente,
+muelle, granja, puerta_norte, puerta_sur, puerta_este, puerta_oeste
+
+REGLAS
+- Entre 3 y 8 NPCs, cada uno con personalidad propia.
+- Las misiones van en orden; cuenta una historia con giros.
+- Agrupa las misiones en actos (ACTO 1, ACTO 2…).
+- Usa "habla con" para que el jugador visite a otros NPCs.
+- No inventes campos que no estén en el formato.
+
+MI IDEA:

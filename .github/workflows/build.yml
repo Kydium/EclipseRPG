@@ -25,7 +25,10 @@ jobs:
 
       - name: Paquete de recursos (skins de NPCs)
         run: |
-          cd resourcepack
+          mkdir -p pack/assets/eclipse/textures/npc
+          cp src/main/resources/motor/pack.mcmeta pack/
+          cp src/main/resources/skins/*.png pack/assets/eclipse/textures/npc/
+          cd pack
           find . -exec touch -t 202601010000 {} +
           zip -X -r -9 ../EclipseRPG-pack.zip pack.mcmeta assets
           cd ..

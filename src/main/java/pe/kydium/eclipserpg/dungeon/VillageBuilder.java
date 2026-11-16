@@ -23,6 +23,7 @@ import org.bukkit.inventory.meta.CompassMeta;
 import pe.kydium.eclipserpg.EclipseRPG;
 import pe.kydium.eclipserpg.data.PlayerData;
 import pe.kydium.eclipserpg.npc.NpcEntities;
+import pe.kydium.eclipserpg.util.AsyncChunks;
 import pe.kydium.eclipserpg.util.Txt;
 
 import java.io.BufferedReader;
@@ -112,46 +113,77 @@ public final class VillageBuilder implements Listener {
         return plugin.getConfig().getStringList("aldea.biomas").contains(key);
     }
 
-    /** Busca un lugar plano en un bioma bueno, en espiral desde el spawn. */
-    public Location findSite(World w) {
+    /**
+     * Busca un lugar plano en un bioma bueno, en espiral desde el spawn, SIN congelar el servidor:
+     * cada candidato carga sus chunks en segundo plano y se revisa un candidato por tick.
+     */
+    public void findSiteAsync(World w, java.util.function.Consumer<Location> done) {
         Location spawn = w.getSpawnLocation();
         int maxR = plugin.getConfig().getInt("aldea.busqueda-max", 1500);
-        Location best = null;
-        int bestDiff = Integer.MAX_VALUE;
+        int maxDiff = plugin.getConfig().getInt("aldea.desnivel-max", 7);
+        List<int[]> cands = new ArrayList<>();
         for (int r = 0; r <= maxR; r += 96) {
             int steps = r == 0 ? 1 : Math.max(8, r / 48);
             for (int i = 0; i < steps; i++) {
                 double a = 2 * Math.PI * i / steps;
-                int x = spawn.getBlockX() + (int) (Math.cos(a) * r);
-                int z = spawn.getBlockZ() + (int) (Math.sin(a) * r);
-                Block top = w.getHighestBlockAt(x, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
-                if (top.isLiquid() || !goodBiome(w, x, top.getY(), z)) continue;
-                int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
-                boolean water = false;
-                List<Integer> hs = new ArrayList<>();
-                for (int dx = -40; dx <= 40; dx += 20) {
-                    for (int dz = -40; dz <= 40; dz += 20) {
-                        Block b = w.getHighestBlockAt(x + dx, z + dz, HeightMap.MOTION_BLOCKING_NO_LEAVES);
-                        if (b.isLiquid() || b.getType() == Material.ICE) water = true;
-                        min = Math.min(min, b.getY());
-                        max = Math.max(max, b.getY());
-                        hs.add(b.getY());
-                    }
-                }
-                if (water) continue;
-                int diff = max - min;
-                hs.sort(Integer::compare);
-                int gy = hs.get(hs.size() / 2);
-                if (diff <= plugin.getConfig().getInt("aldea.desnivel-max", 7)) {
-                    return new Location(w, x, gy, z);
-                }
-                if (diff < bestDiff) {
-                    bestDiff = diff;
-                    best = new Location(w, x, gy, z);
-                }
+                cands.add(new int[]{spawn.getBlockX() + (int) (Math.cos(a) * r), spawn.getBlockZ() + (int) (Math.sin(a) * r)});
             }
         }
-        return best;
+        new Object() {
+            int idx;
+            Location best;
+            int bestDiff = Integer.MAX_VALUE;
+
+            void next() {
+                if (idx >= cands.size()) {
+                    done.accept(best);
+                    return;
+                }
+                if (idx % 10 == 0) progress("<gray>Buscando un buen lugar para la aldea… <white>" + (100 * idx / cands.size()) + "%");
+                int[] c = cands.get(idx++);
+                AsyncChunks.load(w, AsyncChunks.around(new int[][]{c})).whenComplete((v, ex) -> Bukkit.getScheduler().runTask(plugin, () -> {
+                    Block top = w.getHighestBlockAt(c[0], c[1], HeightMap.MOTION_BLOCKING_NO_LEAVES);
+                    if (ex != null || top.isLiquid() || !goodBiome(w, c[0], top.getY(), c[1])) {
+                        next();
+                        return;
+                    }
+                    int[][] grid = new int[25][];
+                    int k = 0;
+                    for (int dx = -40; dx <= 40; dx += 20)
+                        for (int dz = -40; dz <= 40; dz += 20) grid[k++] = new int[]{c[0] + dx, c[1] + dz};
+                    AsyncChunks.load(w, AsyncChunks.around(grid)).whenComplete((v2, ex2) -> Bukkit.getScheduler().runTask(plugin, () -> {
+                        int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+                        boolean water = false;
+                        List<Integer> hs = new ArrayList<>();
+                        for (int[] g : grid) {
+                            Block b = w.getHighestBlockAt(g[0], g[1], HeightMap.MOTION_BLOCKING_NO_LEAVES);
+                            if (b.isLiquid() || b.getType() == Material.ICE) water = true;
+                            min = Math.min(min, b.getY());
+                            max = Math.max(max, b.getY());
+                            hs.add(b.getY());
+                        }
+                        if (ex2 == null && !water) {
+                            hs.sort(Integer::compare);
+                            Location here = new Location(w, c[0], hs.get(hs.size() / 2), c[1]);
+                            int diff = max - min;
+                            if (diff <= maxDiff) {
+                                done.accept(here);
+                                return;
+                            }
+                            if (diff < bestDiff) {
+                                bestDiff = diff;
+                                best = here;
+                            }
+                        }
+                        next();
+                    }));
+                }));
+            }
+        }.next();
+    }
+
+    private void progress(String msg) {
+        for (Player p : Bukkit.getOnlinePlayers()) p.sendActionBar(Txt.mm(msg));
     }
 
     // ---------- Construcción ----------
@@ -168,13 +200,17 @@ public final class VillageBuilder implements Listener {
     public void autoGenerate() {
         if (isGenerated() || !plugin.getConfig().getBoolean("aldea.auto", true)) return;
         World w = Bukkit.getWorlds().get(0);
-        plugin.getLogger().info("Buscando un buen lugar para la Aldea del Alba…");
-        Location site = findSite(w);
-        if (site == null) {
-            plugin.getLogger().warning("No se encontró lugar para la aldea. Usa /eclipse construiraldea donde quieras.");
-            return;
-        }
-        build(site, null);
+        if (busy) return;
+        busy = true;
+        plugin.getLogger().info("Buscando un buen lugar para la aldea (sin detener el servidor)…");
+        findSiteAsync(w, site -> {
+            busy = false;
+            if (site == null) {
+                plugin.getLogger().warning("No se encontró lugar para la aldea. Usa /eclipse construiraldea donde quieras.");
+                return;
+            }
+            build(site, null);
+        });
     }
 
     /** Construye la aldea con el centro de la plaza en "center" (y = nivel del suelo). */
@@ -189,6 +225,17 @@ public final class VillageBuilder implements Listener {
         }
         busy = true;
         World w = center.getWorld();
+        int cx0 = center.getBlockX(), cz0 = center.getBlockZ(), R0 = radius + 2;
+        progress("<gray>Preparando el terreno de la aldea…");
+        java.util.Set<Long> area = AsyncChunks.area(cx0 - R0, cz0 - R0, cx0 + R0, cz0 + R0);
+        AsyncChunks.load(w, area).whenComplete((v, ex) -> Bukkit.getScheduler().runTask(plugin, () -> {
+            for (long k : area) w.addPluginChunkTicket((int) (k >> 32), (int) k, plugin);
+            place(center, who);
+        }));
+    }
+
+    private void place(Location center, Player who) {
+        World w = center.getWorld();
         int cx = center.getBlockX(), cz = center.getBlockZ(), gy = center.getBlockY();
         int R = radius + 2;
         if (Boolean.getBoolean("eclipse.prueba")) {
@@ -197,8 +244,8 @@ public final class VillageBuilder implements Listener {
                 for (int z = (cz - R) >> 4; z <= (cz + R) >> 4; z++) w.addPluginChunkTicket(x, z, plugin);
         }
         List<int[]> prep = new ArrayList<>();
-        plugin.getLogger().info("Construyendo la Aldea del Alba en " + cx + " " + gy + " " + cz);
-        if (who != null) Txt.send(who, "<yellow>Construyendo la Aldea del Alba… dame unos segundos.");
+        plugin.getLogger().info("Construyendo la aldea en " + cx + " " + gy + " " + cz);
+        if (who != null) Txt.send(who, "<yellow>Construyendo " + plugin.villageName() + "… dame unos segundos.");
 
         // fase 1: preparar terreno (rellenar debajo y despejar encima)
         for (int x = cx - R; x <= cx + R; x++)
@@ -224,7 +271,10 @@ public final class VillageBuilder implements Listener {
                 }
                 budget -= 40;
             }
-            if (i[0] < prep.size()) return;
+            if (i[0] < prep.size()) {
+                if (i[0] % 2000 < 200) progress("<gray>Construyendo la aldea… <white>" + (40 * i[0] / prep.size()) + "%");
+                return;
+            }
             // fase 2: el plano
             while (j[0] < ops.size() && budget > 0) {
                 Op o = ops.get(j[0]++);
@@ -234,10 +284,15 @@ public final class VillageBuilder implements Listener {
                 if (Connect.needs(o.data())) joins.add(new int[]{cx + o.x(), gy + o.y(), cz + o.z()});
                 budget--;
             }
+            if (j[0] < ops.size() && j[0] % 4000 < perTick) progress("<gray>Construyendo la aldea… <white>" + (40 + 60 * j[0] / ops.size()) + "%");
             if (j[0] < ops.size()) return;
             task.cancel();
             Connect.fix(w, joins);
             finish(w, cx, gy, cz, who);
+            if (!Boolean.getBoolean("eclipse.prueba")) {
+                // soltar los chunks un poco después (los NPCs ya quedaron guardados)
+                Bukkit.getScheduler().runTaskLater(plugin, () -> w.removePluginChunkTickets(plugin), 200L);
+            }
         }, 1L, 1L);
     }
 
@@ -253,7 +308,7 @@ public final class VillageBuilder implements Listener {
                 case "center" -> campSpot = at;
                 case "npc" -> {
                     at.setYaw(m.get("yaw").getAsFloat());
-                    npcSpots.put(m.get("id").getAsString(), at);
+                    npcSpots.put(m.get("id").getAsString(), at);   // lugar de la aldea (casa, herreria, plaza_norte…)
                 }
                 case "villager" -> {
                     String prof = m.has("prof") && !m.get("prof").isJsonNull() ? m.get("prof").getAsString() : null;
@@ -286,8 +341,9 @@ public final class VillageBuilder implements Listener {
         cfg.set("campamento.z", campSpot.getZ());
         cfg.set("campamento.yaw", 180.0);
         cfg.set("campamento.pitch", 0.0);
+        cfg.set("aldea.puestos", null);
         for (Map.Entry<String, Location> e : npcSpots.entrySet()) {
-            String k = "aldea.puestos." + e.getKey();
+            String k = "aldea.lugares." + e.getKey();
             cfg.set(k + ".x", e.getValue().getX());
             cfg.set(k + ".y", e.getValue().getY());
             cfg.set(k + ".z", e.getValue().getZ());
@@ -300,9 +356,11 @@ public final class VillageBuilder implements Listener {
         cfg.set("aldea.generada", true);
         plugin.saveConfig();
         busy = false;
-        plugin.npcEntities().spawnAll(npcSpots);
-        plugin.getLogger().info("¡Aldea del Alba lista en " + cx + " " + gy + " " + cz + "!");
-        if (who != null) Txt.send(who, "<green>¡La Aldea del Alba está lista con sus NPCs y aldeanos!");
+        plugin.npcEntities().placeStoryNpcs();
+        plugin.saveConfig();
+        plugin.getLogger().info("¡Aldea lista en " + cx + " " + gy + " " + cz + "!");
+        for (Player p : Bukkit.getOnlinePlayers()) p.sendActionBar(Txt.mm("<green>✔ " + plugin.villageName() + " está lista"));
+        if (who != null) Txt.send(who, "<green>✔ " + plugin.villageName() + " está lista, con sus NPCs y aldeanos.");
         for (Player p : Bukkit.getOnlinePlayers()) giveCompassIfNew(p);
     }
 
@@ -353,7 +411,7 @@ public final class VillageBuilder implements Listener {
         if (it.getItemMeta() instanceof CompassMeta meta) {
             meta.setLodestone(c);
             meta.setLodestoneTracked(false);
-            meta.displayName(Txt.item("<gold>Brújula de la Aldea del Alba"));
+            meta.displayName(Txt.item("<gold>Brújula: " + plugin.villageName()));
             meta.lore(Txt.lore(List.of("<gray>Apunta a la aldea donde empieza", "<gray>tu historia.",
                     "<gray>X " + c.getBlockX() + " · Z " + c.getBlockZ())));
             meta.setEnchantmentGlintOverride(true);
@@ -370,8 +428,10 @@ public final class VillageBuilder implements Listener {
         d.dirty = true;
         giveCompass(p);
         Location c = center();
-        Txt.send(p, "<gold>Recibiste la Brújula de la Aldea del Alba. <gray>Síguela hasta <white>X " + c.getBlockX() + ", Z " + c.getBlockZ()
-                + "<gray> y habla con la Abuela Tula.");
+        var first = plugin.quests().byNumber(1);
+        String who = first == null ? "" : "<gray> y habla con " + plugin.npcs().name(first.npc) + "<gray>.";
+        Txt.send(p, "<gold>🧭 Recibiste una brújula. <gray>Síguela hasta <white>" + plugin.villageName() + " <gray>(X " + c.getBlockX()
+                + ", Z " + c.getBlockZ() + ")" + who);
     }
 
     @EventHandler

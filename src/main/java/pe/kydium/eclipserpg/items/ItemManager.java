@@ -69,7 +69,7 @@ public final class ItemManager implements Listener {
 
     public void load() {
         items.clear();
-        YamlConfiguration y = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "items.yml"));
+        YamlConfiguration y = plugin.story().yaml("objetos");
         ConfigurationSection root = y.getConfigurationSection("items");
         if (root == null) return;
         for (String id : root.getKeys(false)) {
@@ -273,7 +273,7 @@ public final class ItemManager implements Listener {
             it.setAmount(it.getAmount() - 1);
             p.teleportAsync(campLocation()).thenRun(() -> {
                 Txt.sound(p, "entity.enderman.teleport", 1f, 1f);
-                Txt.send(p, "<yellow>Volviste al Campamento del Alba.");
+                Txt.send(p, "<yellow>Volviste a " + plugin.villageName() + ".");
             });
         }
     }

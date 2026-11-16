@@ -58,63 +58,49 @@ public final class QuestManager implements Listener {
 
     // ---------- Carga ----------
 
-    public void load() {
+    /** Carga las misiones de la historia activa (historia.txt). */
+    public void load(pe.kydium.eclipserpg.story.StoryDoc doc) {
         quests.clear();
         actNames.clear();
-        YamlConfiguration y = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "quests.yml"));
-        ConfigurationSection acts = y.getConfigurationSection("actos");
-        if (acts != null) for (String k : acts.getKeys(false)) actNames.put(Integer.parseInt(k), acts.getString(k));
-        ConfigurationSection root = y.getConfigurationSection("misiones");
-        if (root == null) return;
-        int n = 0;
-        for (String id : root.getKeys(false)) {
-            ConfigurationSection s = root.getConfigurationSection(id);
-            if (s == null) continue;
+        actNames.putAll(doc.acts);
+        for (pe.kydium.eclipserpg.story.StoryDoc.Mission m : doc.missions) {
+            if (m.npc == null) continue;
             Quest q = new Quest();
-            q.id = id;
-            q.number = ++n;
-            q.act = s.getInt("acto", 1);
-            q.name = s.getString("nombre", id);
-            q.npc = s.getString("npc", "tula").toLowerCase(Locale.ROOT);
-            q.minLevel = s.getInt("nivel", 1);
-            q.boss = s.getBoolean("jefe", false);
-            q.noDeath = s.getBoolean("sin-morir", false);
-            q.dungeon = s.getInt("mazmorra", 0);
-            q.xp = s.getLong("xp", 0);
-            q.soles = s.getLong("soles", 0);
-            q.start.addAll(s.getStringList("dialogo"));
-            q.end.addAll(s.getStringList("final"));
-            q.reminder.addAll(s.getStringList("recordatorio"));
-            for (Map<?, ?> m : s.getMapList("objetivos")) {
+            q.id = m.id;
+            q.number = quests.size() + 1;
+            q.act = m.act;
+            q.name = m.name;
+            q.npc = m.npc;
+            q.minLevel = m.level;
+            q.boss = m.boss;
+            q.noDeath = m.noDeath;
+            q.dungeon = m.dungeon;
+            q.xp = m.xp;
+            q.soles = m.money;
+            q.start.addAll(m.start);
+            q.end.addAll(m.end);
+            q.reminder.addAll(m.reminder);
+            for (pe.kydium.eclipserpg.story.StoryDoc.Objective so : m.objectives) {
                 Quest.Objective o = new Quest.Objective();
                 try {
-                    o.type = Quest.Type.valueOf(String.valueOf(m.get("tipo")).toUpperCase(Locale.ROOT));
-                } catch (IllegalArgumentException e) {
-                    plugin.getLogger().warning("quests.yml: tipo inválido en " + id + ": " + m.get("tipo"));
+                    o.type = Quest.Type.valueOf(so.type);
+                } catch (IllegalArgumentException | NullPointerException e) {
                     continue;
                 }
-                Object t = m.get("objetivo");
-                if (t != null) for (String part : t.toString().split(",")) {
-                    if (!part.isBlank()) o.targets.add(part.trim().toLowerCase(Locale.ROOT));
-                }
-                o.amount = intOf(m.get("cantidad"), 1);
-                o.corrupted = Boolean.parseBoolean(String.valueOf(m.get("corrompido")));
-                o.text = m.get("texto") == null ? o.type.name() : m.get("texto").toString();
+                o.targets.addAll(so.targets);
+                o.amount = so.amount;
+                o.corrupted = so.corrupted;
+                o.text = so.text;
                 q.objectives.add(o);
             }
-            for (String sp : s.getStringList("aparecen")) {
+            for (String sp : m.spawns) {
                 String[] parts = sp.split(":");
                 q.spawns.add(new Quest.Spawn(parts[0].trim(), parts.length > 1 ? intOf(parts[1].trim(), 1) : 1));
             }
-            q.giveOnAccept.addAll(s.getStringList("al-aceptar"));
-            q.rewards.addAll(s.getStringList("premios"));
-            for (Map<?, ?> m : s.getMapList("elecciones")) {
-                List<String> rw = new ArrayList<>();
-                Object r = m.get("premios");
-                if (r instanceof List<?> l) for (Object o : l) rw.add(String.valueOf(o));
-                q.choices.add(new Quest.Choice(String.valueOf(m.get("texto")), rw,
-                        m.get("marca") == null ? null : m.get("marca").toString(),
-                        m.get("mensaje") == null ? null : m.get("mensaje").toString()));
+            q.giveOnAccept.addAll(m.receive);
+            q.rewards.addAll(m.rewards);
+            for (pe.kydium.eclipserpg.story.StoryDoc.Choice c : m.choices) {
+                q.choices.add(new Quest.Choice(c.text, new ArrayList<>(c.rewards), c.flag, c.message));
             }
             quests.add(q);
         }
@@ -205,7 +191,7 @@ public final class QuestManager implements Listener {
         String npcName = plugin.npcs().name(npcId);
         PlayerData d = plugin.data().get(p);
         if (q == null) {
-            say(p, npcName, List.of("Gracias a ti el sol volvió a brillar, Guardián del Alba."), null);
+            say(p, npcName, List.of(plugin.npcs().talkLines(npcId).isEmpty() ? "Gracias por todo, héroe." : plugin.npcs().talkLines(npcId).get(0)), null);
             return;
         }
         if (!q.npc.equals(npcId)) {
@@ -224,7 +210,7 @@ public final class QuestManager implements Listener {
         if (!d.questAccepted) {
             if (d.level < q.minLevel) {
                 say(p, npcName, List.of("Todavía no estás listo para esto. Vuelve cuando seas <yellow>nivel " + q.minLevel
-                        + "<white>. Haz contratos con Inés o abre Grietas para entrenar."), null);
+                        + "<white>. Entrena con contratos, Grietas o explorando ruinas."), null);
                 return;
             }
             if (ui.enabled()) {
@@ -315,7 +301,7 @@ public final class QuestManager implements Listener {
                     Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(2), Duration.ofMillis(500))));
             Quest next = current(p);
             if (next == null) {
-                Txt.send(p, "<gold><bold>¡Completaste Crónicas del Eclipse! El sol vuelve a brillar.");
+                Txt.send(p, "<gold><bold>¡Completaste " + plugin.title() + "!");
                 return;
             }
             if (next.act != q.act) {

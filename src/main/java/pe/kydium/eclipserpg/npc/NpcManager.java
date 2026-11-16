@@ -24,6 +24,11 @@ public final class NpcManager {
         public String name;
         public String citizensName;
         public String skin;
+        public String plainName;
+        public String role = "";
+        public String place;
+        public String hand;
+        public String offhand;
         public Material icon = Material.PLAYER_HEAD;
         public final List<String> services = new ArrayList<>();
         public final List<String> talk = new ArrayList<>();
@@ -36,23 +41,23 @@ public final class NpcManager {
         this.plugin = plugin;
     }
 
-    public void load() {
+    /** Carga los NPCs de la historia activa. */
+    public void load(pe.kydium.eclipserpg.story.StoryDoc doc) {
         npcs.clear();
-        YamlConfiguration y = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "npcs.yml"));
-        ConfigurationSection root = y.getConfigurationSection("npcs");
-        if (root == null) return;
-        for (String id : root.getKeys(false)) {
-            ConfigurationSection s = root.getConfigurationSection(id);
-            if (s == null) continue;
+        for (pe.kydium.eclipserpg.story.StoryDoc.Npc sn : doc.npcs.values()) {
             NpcDef n = new NpcDef();
-            n.id = id.toLowerCase();
-            n.name = s.getString("nombre", id);
-            n.citizensName = s.getString("nombre-citizens", id);
-            n.skin = s.getString("skin");
-            Material m = Material.matchMaterial(s.getString("icono", "PLAYER_HEAD"));
-            if (m != null) n.icon = m;
-            n.services.addAll(s.getStringList("servicios"));
-            n.talk.addAll(s.getStringList("charla"));
+            n.id = sn.id;
+            n.plainName = sn.name;
+            String color = sn.color == null ? "white" : sn.color;
+            n.name = "<" + color + ">" + sn.name;
+            n.citizensName = sn.name;
+            n.skin = sn.skin;
+            n.role = sn.role == null ? "" : sn.role;
+            n.place = sn.place;
+            n.hand = sn.hand;
+            n.offhand = sn.offhand;
+            n.services.addAll(sn.services);
+            n.talk.addAll(sn.talk);
             npcs.put(n.id, n);
         }
         plugin.getLogger().info("NPCs cargados: " + npcs.size());
@@ -76,82 +81,70 @@ public final class NpcManager {
         return n == null ? List.of() : n.talk;
     }
 
+    /**
+     * Al hablar con un NPC: si solo tiene algo de la historia, va directo a la conversación;
+     * si además ofrece servicios, abre su ventana con botones.
+     */
     public boolean open(Player p, String id) {
         NpcDef n = def(id);
         if (n == null) return false;
-        new NpcMenu(plugin, p, n).open();
+        if (!plugin.getConfig().getBoolean("dialogos.ventana", true)) {
+            new NpcMenu(plugin, p, n).open();
+            return true;
+        }
+        var qm = plugin.quests();
+        var st = qm.stateFor(p, id);
+        var q = qm.current(p);
+        boolean storyAction = st == pe.kydium.eclipserpg.quests.QuestManager.State.AVAILABLE
+                || st == pe.kydium.eclipserpg.quests.QuestManager.State.READY
+                || st == pe.kydium.eclipserpg.quests.QuestManager.State.TALK_TARGET
+                || st == pe.kydium.eclipserpg.quests.QuestManager.State.IN_PROGRESS;
+        if (n.services.isEmpty() && storyAction) {
+            qm.talk(p, id);
+            return true;
+        }
+        List<String> body = new ArrayList<>();
+        if (n.role != null && !n.role.isBlank()) body.add("<gray><italic>" + n.role);
+        if (!n.talk.isEmpty()) body.add("<white>" + n.talk.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(n.talk.size())));
+        List<pe.kydium.eclipserpg.quests.DialogUI.Button> b = new ArrayList<>();
+        switch (st) {
+            case AVAILABLE -> b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button("<yellow>❗ Nueva misión: <white>" + q.name,
+                    qm.actName(q.act), () -> qm.talk(p, id)));
+            case READY -> b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button("<green>✔ Entregar: <white>" + q.name,
+                    "Cumpliste todos los objetivos", () -> qm.talk(p, id)));
+            case IN_PROGRESS -> b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button("<gold>⌛ " + q.name,
+                    "Misión en curso", () -> qm.talk(p, id)));
+            case TALK_TARGET -> b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button("<aqua>💬 Hablar",
+                    "Tu misión pide hablar con " + n.plainName, () -> qm.talk(p, id)));
+            case LOCKED -> body.add("<gray>🔒 Tengo una misión para ti cuando seas <yellow>nivel " + q.minLevel + "<gray>.");
+            default -> { }
+        }
+        for (String s : n.services) {
+            if (s.startsWith("tienda:")) {
+                String shop = s.substring(7);
+                b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button("<green>🛒 Tienda", "Comprar y vender", () -> plugin.shops().open(p, shop)));
+            } else if (s.equals("contratos")) {
+                b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button("<yellow>📜 Contratos del día", "3 encargos nuevos cada día",
+                        () -> plugin.contracts().open(p)));
+            } else if (s.equals("grieta")) {
+                long cost = plugin.rifts().cost(p);
+                b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button("<light_purple>🌀 Abrir una Grieta <gray>(" + cost + " ☀)",
+                        "5 oleadas de enemigos de tu nivel; tus amigos cercanos entran contigo", () -> plugin.rifts().start(p)));
+            }
+        }
+        b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button("<gray>Adiós", null, null));
+        new pe.kydium.eclipserpg.quests.DialogUI(plugin).show(p, n.name, body, b, true);
         return true;
     }
 
-    /**
-     * Crea los NPCs de Citizens en círculo alrededor del campamento, usando los comandos
-     * de Citizens como el jugador (que debe ser OP).
-     */
+
+    /** Vuelve a poner a todos los NPCs de la historia en la aldea. */
     public void createAll(Player p) {
-        Map<String, Location> spots = new LinkedHashMap<>();
-        Location c = plugin.items().campLocation();
-        List<NpcDef> all = new ArrayList<>(npcs.values());
-        for (int i = 0; i < all.size(); i++) {
-            NpcDef n = all.get(i);
-            String k = "aldea.puestos." + n.id;
-            Location at;
-            if (plugin.getConfig().contains(k + ".x")) {
-                at = new Location(c.getWorld(), plugin.getConfig().getDouble(k + ".x"), plugin.getConfig().getDouble(k + ".y"),
-                        plugin.getConfig().getDouble(k + ".z"), (float) plugin.getConfig().getDouble(k + ".yaw"), 0f);
-            } else {
-                double a = 2 * Math.PI * i / all.size();
-                at = c.clone().add(Math.cos(a) * 6, 0, Math.sin(a) * 6);
-                at = at.getWorld().getHighestBlockAt(at).getLocation().add(0.5, 1, 0.5);
-                at.setDirection(c.toVector().subtract(at.toVector()));
-            }
-            spots.put(n.id, at);
-        }
-        plugin.npcEntities().spawnAll(spots);
-        Txt.send(p, "<green>Listo: " + spots.size() + " NPCs en sus puestos.");
+        int n = plugin.npcEntities().placeStoryNpcs();
+        plugin.saveConfig();
+        if (n == 0) Txt.send(p, "<red>Todavía no hay aldea. Espera a que se construya o usa /eclipse construiraldea.");
+        else Txt.send(p, "<green>Listo: " + n + " NPCs en sus lugares.");
     }
 
-    /** Versión anterior con Citizens (por si alguien la prefiere). */
-    public void createAllCitizens(Player p) {
-        if (Bukkit.getPluginManager().getPlugin("Citizens") == null) {
-            Txt.send(p, "<red>Citizens no está instalado.");
-            return;
-        }
-        Location center = plugin.items().campLocation();
-        Location back = p.getLocation();
-        List<NpcDef> list = new ArrayList<>(npcs.values());
-        double radius = plugin.getConfig().getDouble("npcs.radio-campamento", 6);
-        long delay = 0;
-        for (int i = 0; i < list.size(); i++) {
-            NpcDef n = list.get(i);
-            Location at;
-            String k = "aldea.puestos." + n.id;
-            if (plugin.getConfig().contains(k + ".x")) {
-                // puesto frente a su casa en la Aldea del Alba
-                at = new Location(center.getWorld(), plugin.getConfig().getDouble(k + ".x"), plugin.getConfig().getDouble(k + ".y"),
-                        plugin.getConfig().getDouble(k + ".z"), (float) plugin.getConfig().getDouble(k + ".yaw"), 0f);
-            } else {
-                double angle = 2 * Math.PI * i / list.size();
-                at = center.clone().add(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-                at = at.getWorld().getHighestBlockAt(at).getLocation().add(0.5, 1, 0.5);
-                // mirando hacia el centro del campamento
-                at.setDirection(center.toVector().subtract(at.toVector()));
-            }
-            final Location spot = at;
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                if (!p.isOnline()) return;
-                p.teleport(spot);
-                p.performCommand("npc create " + n.citizensName);
-                p.performCommand("npc command add eclipse npc " + n.id + " <p>");
-                p.performCommand("npc lookclose");
-                if (n.skin != null && !n.skin.isBlank()) p.performCommand("npc skin " + n.skin);
-            }, delay);
-            delay += 15;
-        }
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (!p.isOnline()) return;
-            p.teleport(back);
-            Txt.send(p, "<green>Listo: se crearon " + list.size() + " NPCs alrededor del campamento.");
-            Txt.send(p, "<gray>Puedes moverlos con <white>/npc select</white> y <white>/npc tphere</white>.");
-        }, delay + 5);
-    }
+
 }
