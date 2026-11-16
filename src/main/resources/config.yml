@@ -138,3 +138,16 @@ aldea:
 
 # Se guarda con /eclipse setcampamento (destino del Pergamino del Campamento)
 campamento: {}
+
+# Paquete de recursos con las skins de los NPCs (se envía solo al entrar).
+# Déjalo vacío para usar el que viene con el plugin.
+paquete-recursos:
+  activo: true
+  obligatorio: false
+  url: ""
+  sha1: ""
+
+# Paseo de los NPCs (bloques alrededor de su puesto)
+npc-paseo:
+  radio-historia: 3.5
+  radio-relleno: 13

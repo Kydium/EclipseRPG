@@ -23,6 +23,17 @@ jobs:
         with:
           gradle-version: '9.1.0'
 
+      - name: Paquete de recursos (skins de NPCs)
+        run: |
+          cd resourcepack
+          find . -exec touch -t 202601010000 {} +
+          zip -X -r -9 ../EclipseRPG-pack.zip pack.mcmeta assets
+          cd ..
+          SHA=$(sha1sum EclipseRPG-pack.zip | cut -d' ' -f1)
+          echo "url=https://github.com/${{ github.repository }}/releases/download/build-${{ github.run_number }}/EclipseRPG-pack.zip" > src/main/resources/pack.properties
+          echo "sha1=$SHA" >> src/main/resources/pack.properties
+          cat src/main/resources/pack.properties
+
       - name: Compilar
         run: gradle build --no-daemon
 
@@ -36,5 +47,7 @@ jobs:
         with:
           tag_name: build-${{ github.run_number }}
           name: EclipseRPG build ${{ github.run_number }}
-          files: build/libs/*.jar
+          files: |
+            build/libs/*.jar
+            EclipseRPG-pack.zip
           make_latest: true

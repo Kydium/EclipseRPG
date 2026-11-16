@@ -1,25 +1,32 @@
 package pe.kydium.eclipserpg.npc;
 
+import io.papermc.paper.entity.TeleportFlag;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mannequin;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityTransformEvent;
-import org.bukkit.event.entity.VillagerCareerChangeEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Transformation;
 import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
@@ -28,17 +35,27 @@ import pe.kydium.eclipserpg.quests.QuestManager;
 import pe.kydium.eclipserpg.util.Keys;
 import pe.kydium.eclipserpg.util.Txt;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * NPCs de la historia como aldeanos quietos (sin Citizens): miran al jugador,
- * abren su menú al hacer clic y muestran un "?" encima cuando tienen misión para ti.
+ * NPCs con forma de persona (maniquíes de Minecraft) con skins propias según su rol,
+ * que caminan por la aldea. Los de la historia pasean cerca de su puesto, se detienen
+ * a mirarte y muestran "?" encima cuando tienen misión; los de relleno recorren la aldea.
  */
 public final class NpcEntities implements Listener {
 
-    /** Tipos de marcador: nueva misión, lista para entregar, te buscan, bloqueada por nivel. */
     private enum Mark {
         NEW("<yellow><bold>?", QuestManager.State.AVAILABLE),
         READY("<green><bold>✔", QuestManager.State.READY),
@@ -54,53 +71,160 @@ public final class NpcEntities implements Listener {
         }
     }
 
+    /** Estado de paseo de un NPC. */
+    private static final class Walk {
+        double homeX, homeY, homeZ;
+        double radius;
+        double speed;
+        boolean story;
+        double tx, tz;
+        boolean hasTarget;
+        int pause;
+        float yaw;
+    }
+
+    private static final String[] NAMES = {"Rosa", "Tomás", "Lucía", "Mateo", "Carmen", "Andrés", "Elena", "Julián",
+            "Marta", "Diego", "Sofía", "Ramón", "Valeria", "Hugo", "Benito", "Paula", "Óscar", "Nina", "Gael", "Abril",
+            "Ernesto", "Lola", "Simón", "Clara", "Iván", "Rocío", "Bruno", "Inés"};
+
+    private static final Map<String, String> ROLE_TITLE = Map.ofEntries(
+            Map.entry("campesino", "Campesino"), Map.entry("campesina", "Campesina"), Map.entry("pescador", "Pescador"),
+            Map.entry("pastora", "Pastora"), Map.entry("cantero", "Cantero"), Map.entry("monje", "Monje"),
+            Map.entry("carnicero", "Carnicero"), Map.entry("arquero", "Arquero"), Map.entry("aprendiz", "Aprendiz de herrero"),
+            Map.entry("curtidor", "Curtidor"), Map.entry("guardia", "Guardia del Alba"), Map.entry("erudito", "Erudito"),
+            Map.entry("aldeano", "Aldeano"), Map.entry("aldeana", "Aldeana"), Map.entry("nino", "Niño"), Map.entry("nina", "Niña"));
+
+    private static final Map<String, String> STORY_TITLE = Map.of(
+            "tula", "Anciana de la aldea", "bruno", "Herrero", "ines", "Capitana de la guardia", "pip", "Mercader",
+            "lia", "Exploradora", "odon", "Fraile y sabio", "velkar", "Hechicero", "errante", "???");
+
+    private static final Map<String, List<String>> CHATTER = Map.of(
+            "guardia", List.of("Mantén los ojos abiertos, viajero.", "Nada pasa por esta puerta sin que lo vea.", "Dicen que de noche algo ronda los bosques."),
+            "nino", List.of("¿Quieres jugar a las escondidas?", "¡Un día seré un héroe como tú!", "Mi abuela dice que no salga de noche."),
+            "nina", List.of("¡Mira, encontré una flor!", "¿Es verdad que viste un monstruo?", "¡Corre, que te pillo!"),
+            "monje", List.of("Que la luz del alba te guíe.", "El eclipse no es castigo, es advertencia.", "Reza antes de bajar a las criptas."),
+            "carnicero", List.of("Carne fresca mañana, si los lobos no llegan antes.", "¿Tienes hambre? Vuelve más tarde."),
+            "pescador", List.of("Los peces están raros desde el eclipse.", "Una vez saqué un pez con ojos rojos..."),
+            "default", List.of("Buen día, viajero.", "La Abuela Tula sabe más de lo que cuenta.", "¿Has visto el cielo últimamente?",
+                    "Bruno hace las mejores espadas de la región.", "Pip vende de todo… a precio de oro.", "Que el eclipse no te encuentre de noche.",
+                    "Hace tiempo que no llegaba nadie nuevo a la aldea.", "Dicen que bajo la tierra duermen cosas antiguas."));
+
     private final EclipseRPG plugin;
     private final Map<String, UUID> npcs = new HashMap<>();
+    private final Set<UUID> fillers = new HashSet<>();
+    private final Map<UUID, Walk> walks = new HashMap<>();
     private final Map<String, Map<Mark, UUID>> marks = new HashMap<>();
+    private final Map<String, List<String>> skins = new HashMap<>();
 
     public NpcEntities(EclipseRPG plugin) {
         this.plugin = plugin;
+        loadSkinList();
+    }
+
+    private void loadSkinList() {
+        try (InputStream in = plugin.getResource("npc-skins.txt")) {
+            if (in == null) return;
+            BufferedReader r = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            String line;
+            while ((line = r.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+                int u = line.lastIndexOf('_');
+                String role = u > 0 ? line.substring(0, u) : line;
+                skins.computeIfAbsent(role, k -> new ArrayList<>()).add(line);
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("No se pudo leer la lista de skins: " + e.getMessage());
+        }
     }
 
     public void load() {
         npcs.clear();
+        fillers.clear();
         var sec = plugin.getConfig().getConfigurationSection("npc-entidades");
-        if (sec == null) return;
-        for (String id : sec.getKeys(false)) {
+        if (sec != null) {
+            for (String id : sec.getKeys(false)) {
+                try {
+                    npcs.put(id, UUID.fromString(sec.getString(id, "")));
+                } catch (IllegalArgumentException ignored) {
+                    // uuid inválido
+                }
+            }
+        }
+        for (String s : plugin.getConfig().getStringList("relleno-entidades")) {
             try {
-                npcs.put(id, UUID.fromString(sec.getString(id, "")));
+                fillers.add(UUID.fromString(s));
             } catch (IllegalArgumentException ignored) {
                 // uuid inválido
             }
         }
     }
 
-    private Villager.Profession profession(String npcId) {
-        String p = plugin.getConfig().getString("npc-profesiones." + npcId, switch (npcId) {
-            case "tula" -> "farmer";
-            case "bruno" -> "weaponsmith";
-            case "ines" -> "armorer";
-            case "pip" -> "leatherworker";
-            case "lia" -> "cartographer";
-            case "odon" -> "librarian";
-            case "velkar" -> "cleric";
-            default -> "nitwit";
-        });
-        return switch (p) {
-            case "farmer" -> Villager.Profession.FARMER;
-            case "weaponsmith" -> Villager.Profession.WEAPONSMITH;
-            case "armorer" -> Villager.Profession.ARMORER;
-            case "leatherworker" -> Villager.Profession.LEATHERWORKER;
-            case "cartographer" -> Villager.Profession.CARTOGRAPHER;
-            case "librarian" -> Villager.Profession.LIBRARIAN;
-            case "cleric" -> Villager.Profession.CLERIC;
-            case "toolsmith" -> Villager.Profession.TOOLSMITH;
-            case "butcher" -> Villager.Profession.BUTCHER;
-            default -> Villager.Profession.NITWIT;
-        };
+    private void saveFillers() {
+        List<String> l = new ArrayList<>();
+        for (UUID u : fillers) l.add(u.toString());
+        plugin.getConfig().set("relleno-entidades", l);
     }
 
-    /** Crea (o recrea) los NPCs en sus puestos. */
+    // ---------- Crear maniquíes ----------
+
+    private static int[] ints(UUID u) {
+        long m = u.getMostSignificantBits(), l = u.getLeastSignificantBits();
+        return new int[]{(int) (m >> 32), (int) m, (int) (l >> 32), (int) l};
+    }
+
+    private static boolean slim(String skin) {
+        return skin.startsWith("tula") || skin.startsWith("ines") || skin.startsWith("lia")
+                || skin.startsWith("campesina") || skin.startsWith("pastora") || skin.startsWith("aldeana") || skin.startsWith("nina");
+    }
+
+    /** Invoca un maniquí con una skin del paquete de recursos (assets/eclipse/textures/npc/&lt;skin&gt;.png). */
+    private LivingEntity summon(Location at, String skin) {
+        World w = at.getWorld();
+        if (w == null) return null;
+        UUID id = UUID.randomUUID();
+        int[] a = ints(id);
+        String nbt = String.format(Locale.ROOT,
+                "{UUID:[I;%d,%d,%d,%d],profile:{texture:\"eclipse:npc/%s\",model:\"%s\"},immovable:1b,Invulnerable:1b,"
+                        + "PersistenceRequired:1b,NoGravity:1b,Silent:1b,Rotation:[%.1ff,0f]}",
+                a[0], a[1], a[2], a[3], skin, slim(skin) ? "slim" : "wide", at.getYaw());
+        String cmd = String.format(Locale.ROOT, "execute in %s run summon minecraft:mannequin %.3f %.3f %.3f %s",
+                w.getKey().asString(), at.getX(), at.getY(), at.getZ(), nbt);
+        try {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
+        } catch (Exception e) {
+            plugin.getLogger().warning("No se pudo crear el NPC: " + e.getMessage());
+            return null;
+        }
+        Entity e = Bukkit.getEntity(id);
+        if (!(e instanceof LivingEntity le)) {
+            plugin.getLogger().warning("El servidor no creó el maniquí (¿versión sin maniquíes?). Comando: " + cmd);
+            return null;
+        }
+        le.setPersistent(true);
+        le.setRemoveWhenFarAway(false);
+        le.setInvulnerable(true);
+        le.setSilent(true);
+        le.setGravity(false);
+        le.setCollidable(false);
+        if (le instanceof Mannequin m) m.setImmovable(true);
+        le.getPersistentDataContainer().set(Keys.HOME, PersistentDataType.INTEGER_ARRAY,
+                new int[]{(int) Math.floor(at.getX() * 10), (int) Math.floor(at.getY() * 10), (int) Math.floor(at.getZ() * 10)});
+        return le;
+    }
+
+    private static void hold(LivingEntity le, Material main, Material off) {
+        EntityEquipment eq = le.getEquipment();
+        if (eq == null) return;
+        if (main != null) eq.setItemInMainHand(new ItemStack(main));
+        if (off != null) eq.setItemInOffHand(new ItemStack(off));
+    }
+
+    private static void describe(LivingEntity le, String text) {
+        if (le instanceof Mannequin m) m.setDescription(Txt.mm("<gray>" + text));
+    }
+
+    /** Crea (o recrea) los NPCs de la historia en sus puestos. */
     public void spawnAll(Map<String, Location> spots) {
         for (Map.Entry<String, Location> e : spots.entrySet()) spawn(e.getKey(), e.getValue());
         plugin.saveConfig();
@@ -109,71 +233,309 @@ public final class NpcEntities implements Listener {
     public void spawn(String id, Location at) {
         NpcManager.NpcDef def = plugin.npcs().def(id);
         if (def == null || at.getWorld() == null) return;
-        // quitar el anterior si existe
         UUID old = npcs.get(id);
         if (old != null) {
             Entity e = Bukkit.getEntity(old);
             if (e != null) e.remove();
+            walks.remove(old);
         }
         removeMarks(id);
-        if (!(at.getWorld().spawnEntity(at, EntityType.VILLAGER) instanceof Villager v)) return;
-        v.setAI(false);
-        v.setInvulnerable(true);
-        v.setSilent(true);
-        v.setPersistent(true);
-        v.setRemoveWhenFarAway(false);
-        v.setCollidable(false);
-        v.setProfession(profession(id));
-        v.setVillagerLevel(5);
-        v.customName(Txt.mm(def.name));
-        v.setCustomNameVisible(true);
-        v.setRotation(at.getYaw(), 0);
-        v.getPersistentDataContainer().set(Keys.NPC, PersistentDataType.STRING, id);
-        npcs.put(id, v.getUniqueId());
-        plugin.getConfig().set("npc-entidades." + id, v.getUniqueId().toString());
+        String skin = plugin.getConfig().getString("npc-skins." + id, id);
+        LivingEntity le = summon(at, skin);
+        if (le == null) return;
+        le.customName(Txt.mm(def.name));
+        le.setCustomNameVisible(true);
+        describe(le, plugin.getConfig().getString("npc-roles." + id, STORY_TITLE.getOrDefault(id, "")));
+        le.getPersistentDataContainer().set(Keys.NPC, PersistentDataType.STRING, id);
+        switch (id) {
+            case "tula" -> hold(le, Material.WOODEN_HOE, null);
+            case "bruno" -> hold(le, Material.MACE, null);
+            case "ines" -> hold(le, Material.IRON_SWORD, Material.SHIELD);
+            case "pip" -> hold(le, Material.EMERALD, null);
+            case "lia" -> hold(le, Material.SPYGLASS, Material.MAP);
+            case "odon" -> hold(le, Material.BOOK, null);
+            case "velkar" -> hold(le, Material.BLAZE_ROD, null);
+            default -> { }
+        }
+        npcs.put(id, le.getUniqueId());
+        plugin.getConfig().set("npc-entidades." + id, le.getUniqueId().toString());
+    }
+
+    /** Elimina los NPCs de relleno que existan. */
+    public void clearFillers() {
+        for (UUID u : fillers) {
+            Entity e = Bukkit.getEntity(u);
+            if (e != null) e.remove();
+            walks.remove(u);
+        }
+        fillers.clear();
+        saveFillers();
+    }
+
+    /** Rol de relleno a partir del "oficio" del plano de la aldea. */
+    public static String roleFor(String prof) {
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        if (prof == null) {
+            String[] any = {"aldeano", "aldeana", "aldeano", "aldeana", "nino", "nina"};
+            return any[r.nextInt(any.length)];
+        }
+        return switch (prof) {
+            case "farmer" -> r.nextBoolean() ? "campesino" : "campesina";
+            case "librarian", "cartographer" -> "erudito";
+            case "fisherman" -> "pescador";
+            case "shepherd" -> "pastora";
+            case "mason" -> "cantero";
+            case "cleric" -> "monje";
+            case "butcher" -> "carnicero";
+            case "fletcher" -> "arquero";
+            case "toolsmith", "armorer", "weaponsmith" -> "aprendiz";
+            case "leatherworker" -> "curtidor";
+            case "guard" -> "guardia";
+            default -> "aldeano";
+        };
+    }
+
+    public void spawnFiller(String role, Location at) {
+        List<String> opts = skins.getOrDefault(role, skins.getOrDefault("aldeano", List.of("aldeano_1")));
+        String skin = opts.get(ThreadLocalRandom.current().nextInt(opts.size()));
+        at.setYaw(ThreadLocalRandom.current().nextFloat() * 360f - 180f);
+        LivingEntity le = summon(at, skin);
+        if (le == null) return;
+        boolean kid = role.equals("nino") || role.equals("nina");
+        String name = NAMES[ThreadLocalRandom.current().nextInt(NAMES.length)];
+        le.customName(Txt.mm("<white>" + name));
+        le.setCustomNameVisible(false);
+        describe(le, ROLE_TITLE.getOrDefault(role, "Aldeano"));
+        if (kid) {
+            var sc = le.getAttribute(Attribute.SCALE);
+            if (sc != null) sc.setBaseValue(0.62);
+        }
+        switch (role) {
+            case "campesino", "campesina" -> hold(le, Material.IRON_HOE, null);
+            case "pescador" -> hold(le, Material.FISHING_ROD, null);
+            case "pastora" -> hold(le, Material.SHEARS, null);
+            case "cantero" -> hold(le, Material.STONE_PICKAXE, null);
+            case "carnicero" -> hold(le, Material.IRON_AXE, null);
+            case "arquero" -> hold(le, Material.BOW, null);
+            case "aprendiz" -> hold(le, Material.IRON_INGOT, null);
+            case "curtidor" -> hold(le, Material.LEATHER, null);
+            case "guardia" -> hold(le, Material.IRON_SWORD, Material.SHIELD);
+            case "erudito", "monje" -> hold(le, Material.BOOK, null);
+            case "nina" -> hold(le, Material.POPPY, null);
+            default -> { }
+        }
+        le.getPersistentDataContainer().set(Keys.FILLER, PersistentDataType.STRING, role);
+        fillers.add(le.getUniqueId());
+        saveFillers();
     }
 
     private String npcId(Entity e) {
         return e.getPersistentDataContainer().get(Keys.NPC, PersistentDataType.STRING);
     }
 
+    private String fillerRole(Entity e) {
+        return e.getPersistentDataContainer().get(Keys.FILLER, PersistentDataType.STRING);
+    }
+
     // ---------- Eventos ----------
+
+    private final Map<UUID, Long> clickCd = new HashMap<>();
+
+    private void clicked(Player p, Entity ent) {
+        String id = npcId(ent);
+        String role = id == null ? fillerRole(ent) : null;
+        if (id == null && role == null) return;
+        long now = System.currentTimeMillis();
+        Long last = clickCd.get(p.getUniqueId());
+        if (last != null && now - last < 400) return;
+        clickCd.put(p.getUniqueId(), now);
+        Walk w = walks.get(ent.getUniqueId());
+        if (w != null) {
+            w.hasTarget = false;
+            w.pause = 100;
+        }
+        if (id != null) {
+            plugin.npcs().open(p, id);
+            return;
+        }
+        List<String> lines = CHATTER.getOrDefault(role, CHATTER.get("default"));
+        if (ThreadLocalRandom.current().nextInt(3) == 0) lines = CHATTER.get("default");
+        String line = lines.get(ThreadLocalRandom.current().nextInt(lines.size()));
+        var nm = ent.customName();
+        String name = nm == null ? "Aldeano" : net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(nm);
+        Txt.send(p, "<gray>" + name + ": <white>" + line);
+        p.playSound(ent.getLocation(), org.bukkit.Sound.ENTITY_VILLAGER_AMBIENT, 0.6f, 1.2f);
+    }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onInteract(PlayerInteractEntityEvent e) {
-        String id = npcId(e.getRightClicked());
-        if (id == null) return;
+        Entity ent = e.getRightClicked();
+        if (npcId(ent) == null && fillerRole(ent) == null) return;
         e.setCancelled(true);
         if (e.getHand() != EquipmentSlot.HAND) return;
-        plugin.npcs().open(e.getPlayer(), id);
+        clicked(e.getPlayer(), ent);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onInteractAt(PlayerInteractAtEntityEvent e) {
+        Entity ent = e.getRightClicked();
+        if (npcId(ent) == null && fillerRole(ent) == null) return;
+        e.setCancelled(true);
+        if (e.getHand() != EquipmentSlot.HAND) return;
+        clicked(e.getPlayer(), ent);
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageEvent e) {
-        if (npcId(e.getEntity()) != null) e.setCancelled(true);
+        if (npcId(e.getEntity()) != null || fillerRole(e.getEntity()) != null) e.setCancelled(true);
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onTransform(EntityTransformEvent e) {
-        if (npcId(e.getEntity()) != null) e.setCancelled(true);
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onCareer(VillagerCareerChangeEvent e) {
-        if (npcId(e.getEntity()) != null) e.setCancelled(true);
-    }
-
-    // ---------- Mirar al jugador y marcadores "?" ----------
+    // ---------- Tareas: paseo, mirar al jugador y marcadores ----------
 
     public void startTask() {
-        Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 40L, 10L);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::walkTick, 40L, 1L);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::markTick, 40L, 10L);
     }
 
-    private void tick() {
+    private Walk walkFor(LivingEntity le, boolean story) {
+        Walk w = walks.get(le.getUniqueId());
+        if (w != null) return w;
+        w = new Walk();
+        int[] h = le.getPersistentDataContainer().get(Keys.HOME, PersistentDataType.INTEGER_ARRAY);
+        Location l = le.getLocation();
+        if (h != null && h.length == 3) {
+            w.homeX = h[0] / 10.0;
+            w.homeY = h[1] / 10.0;
+            w.homeZ = h[2] / 10.0;
+        } else {
+            w.homeX = l.getX();
+            w.homeY = l.getY();
+            w.homeZ = l.getZ();
+        }
+        w.story = story;
+        String role = fillerRole(le);
+        boolean kid = "nino".equals(role) || "nina".equals(role);
+        boolean guard = "guardia".equals(role);
+        w.radius = story ? plugin.getConfig().getDouble("npc-paseo.radio-historia", 3.5)
+                : guard ? 4 : plugin.getConfig().getDouble("npc-paseo.radio-relleno", 13);
+        w.speed = kid ? 0.14 : (story ? 0.075 : 0.09);
+        w.yaw = l.getYaw();
+        w.pause = ThreadLocalRandom.current().nextInt(20, 120);
+        walks.put(le.getUniqueId(), w);
+        return w;
+    }
+
+    private void walkTick() {
+        for (Map.Entry<String, UUID> e : npcs.entrySet()) {
+            if (Bukkit.getEntity(e.getValue()) instanceof LivingEntity le && le.isValid()) step(le, walkFor(le, true));
+        }
+        for (UUID u : fillers) {
+            if (Bukkit.getEntity(u) instanceof LivingEntity le && le.isValid()) step(le, walkFor(le, false));
+        }
+    }
+
+    private Player nearest(LivingEntity le, double max) {
+        Player best = null;
+        double bd = max * max;
+        for (Player p : le.getWorld().getPlayers()) {
+            if (p.getGameMode() == GameMode.SPECTATOR) continue;
+            double d = p.getLocation().distanceSquared(le.getLocation());
+            if (d < bd) {
+                bd = d;
+                best = p;
+            }
+        }
+        return best;
+    }
+
+    private static float lerpYaw(float from, float to, float t) {
+        float d = ((to - from) % 360 + 540) % 360 - 180;
+        return from + d * t;
+    }
+
+    private void step(LivingEntity le, Walk w) {
+        Location loc = le.getLocation();
+        // nadie cerca: no gastar
+        if (nearest(le, 72) == null) return;
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        Player close = nearest(le, w.story ? 5 : 3);
+        if (close != null) {
+            // detenerse y mirar al jugador
+            Location eye = le.getEyeLocation(), to = close.getEyeLocation();
+            double dx = to.getX() - eye.getX(), dy = to.getY() - eye.getY(), dz = to.getZ() - eye.getZ();
+            float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+            float pitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
+            w.yaw = lerpYaw(w.yaw, yaw, 0.3f);
+            le.setRotation(w.yaw, pitch);
+            w.pause = Math.max(w.pause, 30);
+            return;
+        }
+        if (w.pause > 0) {
+            w.pause--;
+            if (w.pause % 40 == 0 && r.nextInt(3) == 0) {
+                w.yaw = w.yaw + r.nextFloat() * 90 - 45;
+                le.setRotation(w.yaw, 0);
+            }
+            return;
+        }
+        if (!w.hasTarget) {
+            double ang = r.nextDouble() * Math.PI * 2, dist = r.nextDouble() * w.radius;
+            w.tx = w.homeX + Math.cos(ang) * dist;
+            w.tz = w.homeZ + Math.sin(ang) * dist;
+            w.hasTarget = true;
+        }
+        double dx = w.tx - loc.getX(), dz = w.tz - loc.getZ();
+        double d = Math.sqrt(dx * dx + dz * dz);
+        if (d < 0.25) {
+            w.hasTarget = false;
+            w.pause = w.story ? r.nextInt(120, 400) : r.nextInt(30, 200);
+            return;
+        }
+        double nx = loc.getX() + dx / d * w.speed, nz = loc.getZ() + dz / d * w.speed;
+        // mirar un poco más adelante para no meterse en paredes
+        double ax = loc.getX() + dx / d * 0.45, az = loc.getZ() + dz / d * 0.45;
+        double ny = surface(le.getWorld(), nx, nz, loc.getY());
+        double ay = surface(le.getWorld(), ax, az, loc.getY());
+        if (Double.isNaN(ny) || Double.isNaN(ay) || Math.abs(ny - loc.getY()) > 1.05 || Math.abs(ay - loc.getY()) > 1.05
+                || Math.abs(ny - w.homeY) > 6) {
+            w.hasTarget = false;
+            w.pause = r.nextInt(10, 40);
+            return;
+        }
+        float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+        w.yaw = lerpYaw(w.yaw, yaw, 0.25f);
+        Location next = new Location(loc.getWorld(), nx, ny, nz, w.yaw, 0);
+        le.teleport(next, TeleportFlag.EntityState.RETAIN_PASSENGERS);
+    }
+
+    /** Altura del suelo caminable en (x,z) cerca de y; NaN si no se puede pisar. */
+    private static double surface(World w, double x, double z, double y) {
+        int bx = (int) Math.floor(x), bz = (int) Math.floor(z), by = (int) Math.floor(y + 0.01);
+        if (!w.isChunkLoaded(bx >> 4, bz >> 4)) return Double.NaN;
+        for (int yy : new int[]{by, by + 1, by - 1}) {
+            Block below = w.getBlockAt(bx, yy - 1, bz), feet = w.getBlockAt(bx, yy, bz), head = w.getBlockAt(bx, yy + 1, bz);
+            if (!feet.isPassable() || feet.isLiquid() || !head.isPassable() || head.isLiquid()) continue;
+            if (below.isPassable() || below.isLiquid()) continue;
+            Material bm = below.getType();
+            if (bm == Material.MAGMA_BLOCK || bm == Material.CAMPFIRE || bm == Material.SOUL_CAMPFIRE || bm == Material.CACTUS) continue;
+            BoundingBox bb = below.getBoundingBox();
+            if (bb.getHeight() > 1.01 || bb.getHeight() <= 0) continue;
+            return bb.getMaxY();
+        }
+        // escalón de losa dentro del bloque de los pies
+        Block feet = w.getBlockAt(bx, by, bz);
+        if (!feet.isPassable() && !feet.isLiquid()) {
+            BoundingBox bb = feet.getBoundingBox();
+            if (bb.getHeight() <= 0.55 && w.getBlockAt(bx, by + 1, bz).isPassable() && w.getBlockAt(bx, by + 2, bz).isPassable())
+                return bb.getMaxY();
+        }
+        return Double.NaN;
+    }
+
+    private void markTick() {
         for (Map.Entry<String, UUID> e : npcs.entrySet()) {
             Entity ent = Bukkit.getEntity(e.getValue());
-            if (!(ent instanceof Villager v) || !v.isValid()) continue;
-            lookAtNearest(v);
+            if (!(ent instanceof LivingEntity v) || !v.isValid()) continue;
             Map<Mark, UUID> m = ensureMarks(e.getKey(), v);
             for (Player p : v.getWorld().getPlayers()) {
                 if (p.getLocation().distanceSquared(v.getLocation()) > 64 * 64) continue;
@@ -190,44 +552,26 @@ public final class NpcEntities implements Listener {
         }
     }
 
-    private void lookAtNearest(Villager v) {
-        Player best = null;
-        double bd = 8 * 8;
-        for (Player p : v.getWorld().getPlayers()) {
-            double d = p.getLocation().distanceSquared(v.getLocation());
-            if (d < bd) {
-                bd = d;
-                best = p;
-            }
-        }
-        if (best == null) return;
-        Location from = v.getEyeLocation();
-        Location to = best.getEyeLocation();
-        double dx = to.getX() - from.getX(), dy = to.getY() - from.getY(), dz = to.getZ() - from.getZ();
-        float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
-        float pitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
-        v.setRotation(yaw, pitch);
-    }
-
-    private Map<Mark, UUID> ensureMarks(String id, Villager v) {
+    private Map<Mark, UUID> ensureMarks(String id, LivingEntity v) {
         Map<Mark, UUID> m = marks.computeIfAbsent(id, k -> new HashMap<>());
         World w = v.getWorld();
-        Location at = v.getLocation().add(0, 2.45, 0);
         for (Mark mk : Mark.values()) {
             UUID u = m.get(mk);
             Entity e = u == null ? null : Bukkit.getEntity(u);
             if (e != null && e.isValid()) {
-                if (e.getLocation().distanceSquared(at) > 0.5) e.teleport(at);
+                if (!v.getPassengers().contains(e)) v.addPassenger(e);
                 continue;
             }
-            TextDisplay td = (TextDisplay) w.spawnEntity(at, EntityType.TEXT_DISPLAY);
+            TextDisplay td = (TextDisplay) w.spawnEntity(v.getLocation().add(0, 2, 0), EntityType.TEXT_DISPLAY);
             td.text(Txt.mm(mk.text));
             td.setBillboard(Display.Billboard.CENTER);
             td.setVisibleByDefault(false);
             td.setPersistent(false);
             td.setShadowed(true);
             td.setBackgroundColor(Color.fromARGB(0, 0, 0, 0));
-            td.setTransformation(new Transformation(new Vector3f(), new AxisAngle4f(), new Vector3f(2.2f, 2.2f, 2.2f), new AxisAngle4f()));
+            td.setTransformation(new Transformation(new Vector3f(0f, 0.75f, 0f), new AxisAngle4f(),
+                    new Vector3f(2.2f, 2.2f, 2.2f), new AxisAngle4f()));
+            v.addPassenger(td);
             m.put(mk, td.getUniqueId());
         }
         return m;

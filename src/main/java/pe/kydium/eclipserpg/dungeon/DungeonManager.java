@@ -299,6 +299,7 @@ public final class DungeonManager implements Listener {
         int perTick = g == null ? 6000 : g.getInt("bloques-por-tick", 6000);
         List<DungeonBuilder.Op> ops = res.ops;
         List<DungeonBuilder.Op> specials = new ArrayList<>();
+        List<int[]> joins = new ArrayList<>();
         final int[] idx = {0};
         final int finalAct = act;
         Bukkit.getScheduler().runTaskTimer(plugin, task -> {
@@ -307,12 +308,15 @@ public final class DungeonManager implements Listener {
                 DungeonBuilder.Op op = ops.get(i);
                 Block b = w.getBlockAt(op.x(), op.y(), op.z());
                 boolean fluid = op.block().equals("lava") || op.block().equals("water");
-                b.setBlockData(data(op.block()), fluid);
+                BlockData bd = data(op.block());
+                b.setBlockData(bd, fluid);
+                if (Connect.needs(bd)) joins.add(new int[]{op.x(), op.y(), op.z()});
                 if (op.special() != DungeonBuilder.Special.NONE) specials.add(op);
             }
             idx[0] = end;
             if (idx[0] >= ops.size()) {
                 task.cancel();
+                Connect.fix(w, joins);
                 finish(finalAct, w, specials);
             }
         }, 1L, 1L);

@@ -26,7 +26,7 @@ import java.util.Locale;
 public final class AdminCommand implements CommandExecutor, TabCompleter {
     private static final List<String> SUBS = List.of(
             "tienda", "contratos", "grieta", "xp", "soles", "nivel", "item", "spawn",
-            "info", "setcampamento", "recargar", "npc", "crearnpcs", "mision", "construiraldea", "brujula", "reiniciar", "mazmorra", "mazmorras");
+            "info", "setcampamento", "recargar", "npc", "crearnpcs", "mision", "construiraldea", "aldeanos", "brujula", "reiniciar", "mazmorra", "mazmorras");
 
     private final EclipseRPG plugin;
 
@@ -67,6 +67,10 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 Player p = player(s, a[2]);
                 if (p == null) return true;
                 if (!plugin.npcs().open(p, a[1])) Txt.send(s, "<red>No existe el NPC " + a[1]);
+            }
+            case "aldeanos" -> {
+                int n = plugin.village().respawnFillers();
+                Txt.send(s, n > 0 ? "<green>" + n + " aldeanos de relleno colocados en la aldea." : "<red>No hay aldea construida todavía.");
             }
             case "construiraldea" -> {
                 if (!(s instanceof Player p)) {
@@ -218,7 +222,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 "/eclipse nivel <jugador> <n>", "/eclipse item <jugador> <id> [n]",
                 "/eclipse spawn <mob> <jugador> [n]", "/eclipse info <jugador>",
                 "/eclipse npc <id> <jugador>", "/eclipse crearnpcs", "/eclipse mision <jugador> <n>",
-                "/eclipse construiraldea", "/eclipse brujula [jugador]", "/eclipse reiniciar <jugador|todos>", "/eclipse mazmorra <acto> [jugador]", "/eclipse mazmorras",
+                "/eclipse construiraldea", "/eclipse aldeanos", "/eclipse brujula [jugador]", "/eclipse reiniciar <jugador|todos>", "/eclipse mazmorra <acto> [jugador]", "/eclipse mazmorras",
                 "/eclipse setcampamento", "/eclipse recargar"};
         for (String l : lines) s.sendMessage(Txt.mm("<gray>" + l));
     }

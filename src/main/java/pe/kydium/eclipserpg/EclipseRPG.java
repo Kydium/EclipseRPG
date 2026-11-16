@@ -79,6 +79,7 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(ruins, this);
         pm.registerEvents(village, this);
         pm.registerEvents(npcEntities, this);
+        pm.registerEvents(new pe.kydium.eclipserpg.npc.ResourcePack(this), this);
         pm.registerEvents(hotkeys, this);
         hotkeys.installDatapack();
 

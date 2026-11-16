@@ -15,7 +15,9 @@ public final class Keys {
     public static NamespacedKey DMG_DIV;  // divisor de daño (vida sobre 1024)
     public static NamespacedKey ENRAGED;  // el jefe entró en furia
     public static NamespacedKey DUNGEON;  // mob de una mazmorra (acto)
-    public static NamespacedKey NPC;      // aldeano NPC de la historia (id)
+    public static NamespacedKey NPC;      // NPC de la historia (id)
+    public static NamespacedKey FILLER;   // NPC de relleno (rol)
+    public static NamespacedKey HOME;     // casa del NPC (x,y,z)
 
     private Keys() {}
 
@@ -31,5 +33,7 @@ public final class Keys {
         ENRAGED = new NamespacedKey(p, "furia");
         DUNGEON = new NamespacedKey(p, "mazmorra");
         NPC = new NamespacedKey(p, "npc");
+        FILLER = new NamespacedKey(p, "relleno");
+        HOME = new NamespacedKey(p, "casa");
     }
 }

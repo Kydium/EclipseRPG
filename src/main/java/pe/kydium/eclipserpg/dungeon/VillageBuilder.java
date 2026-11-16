@@ -22,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.CompassMeta;
 import pe.kydium.eclipserpg.EclipseRPG;
 import pe.kydium.eclipserpg.data.PlayerData;
+import pe.kydium.eclipserpg.npc.NpcEntities;
 import pe.kydium.eclipserpg.util.Txt;
 
 import java.io.BufferedReader;
@@ -198,6 +199,7 @@ public final class VillageBuilder implements Listener {
         BlockData air = Material.AIR.createBlockData();
         final int[] i = {0};
         final int[] j = {0};
+        List<int[]> joins = new ArrayList<>();
         int perTick = plugin.getConfig().getInt("aldea.bloques-por-tick", 8000);
         Bukkit.getScheduler().runTaskTimer(plugin, task -> {
             int budget = perTick;
@@ -220,19 +222,21 @@ public final class VillageBuilder implements Listener {
                 Block b = w.getBlockAt(cx + o.x(), gy + o.y(), cz + o.z());
                 boolean fluid = FLUIDS.contains(o.data().getMaterial().getKey().getKey());
                 b.setBlockData(o.data(), fluid);
+                if (Connect.needs(o.data())) joins.add(new int[]{cx + o.x(), gy + o.y(), cz + o.z()});
                 budget--;
             }
             if (j[0] < ops.size()) return;
             task.cancel();
+            Connect.fix(w, joins);
             finish(w, cx, gy, cz, who);
         }, 1L, 1L);
     }
 
     private void finish(World w, int cx, int gy, int cz, Player who) {
-        Random rnd = new Random();
         Map<String, Location> npcSpots = new HashMap<>();
         Location campSpot = new Location(w, cx + 0.5, gy + 1, cz + 0.5);
         boolean invul = plugin.getConfig().getBoolean("aldea.aldeanos-invencibles", true);
+        plugin.npcEntities().clearFillers();
         for (JsonObject m : markers) {
             String t = m.get("t").getAsString();
             Location at = new Location(w, cx + m.get("x").getAsInt() + 0.5, gy + m.get("y").getAsInt(), cz + m.get("z").getAsInt() + 0.5);
@@ -243,16 +247,8 @@ public final class VillageBuilder implements Listener {
                     npcSpots.put(m.get("id").getAsString(), at);
                 }
                 case "villager" -> {
-                    if (!(w.spawnEntity(at, EntityType.VILLAGER) instanceof Villager v)) continue;
-                    v.customName(Txt.mm("<gray>" + NAMES[rnd.nextInt(NAMES.length)]));
-                    v.setCustomNameVisible(false);
-                    Villager.Profession prof = profession(m.has("prof") && !m.get("prof").isJsonNull() ? m.get("prof").getAsString() : null);
-                    if (prof != null) v.setProfession(prof);
-                    v.setVillagerLevel(1 + rnd.nextInt(3));
-                    v.setPersistent(true);
-                    v.setRemoveWhenFarAway(false);
-                    v.setInvulnerable(invul);
-                    if (rnd.nextDouble() < 0.2) v.setBaby();
+                    String prof = m.has("prof") && !m.get("prof").isJsonNull() ? m.get("prof").getAsString() : null;
+                    plugin.npcEntities().spawnFiller(NpcEntities.roleFor(prof), at);
                 }
                 case "animal" -> {
                     EntityType type = switch (m.get("type").getAsString()) {
@@ -301,25 +297,28 @@ public final class VillageBuilder implements Listener {
         for (Player p : Bukkit.getOnlinePlayers()) giveCompassIfNew(p);
     }
 
-    private Villager.Profession profession(String id) {
-        if (id == null) return null;
-        return switch (id) {
-            case "farmer" -> Villager.Profession.FARMER;
-            case "librarian" -> Villager.Profession.LIBRARIAN;
-            case "fisherman" -> Villager.Profession.FISHERMAN;
-            case "shepherd" -> Villager.Profession.SHEPHERD;
-            case "mason" -> Villager.Profession.MASON;
-            case "cleric" -> Villager.Profession.CLERIC;
-            case "butcher" -> Villager.Profession.BUTCHER;
-            case "fletcher" -> Villager.Profession.FLETCHER;
-            case "toolsmith" -> Villager.Profession.TOOLSMITH;
-            case "leatherworker" -> Villager.Profession.LEATHERWORKER;
-            case "armorer" -> Villager.Profession.ARMORER;
-            case "weaponsmith" -> Villager.Profession.WEAPONSMITH;
-            case "cartographer" -> Villager.Profession.CARTOGRAPHER;
-            case "nitwit" -> Villager.Profession.NITWIT;
-            default -> null;
-        };
+    /** Vuelve a poner a los NPCs de relleno (caminantes) de una aldea ya construida. */
+    public int respawnFillers() {
+        if (!loadBlueprint()) return 0;
+        var cfg = plugin.getConfig();
+        World w = Bukkit.getWorld(cfg.getString("aldea.mundo", "world"));
+        if (w == null || !cfg.contains("aldea.centro.x")) return 0;
+        int cx = cfg.getInt("aldea.centro.x"), gy = cfg.getInt("aldea.centro.y"), cz = cfg.getInt("aldea.centro.z");
+        plugin.npcEntities().clearFillers();
+        // quitar aldeanos viejos de versiones anteriores dentro de la aldea
+        for (Entity e : w.getNearbyEntities(new Location(w, cx, gy, cz), radius + 4, 40, radius + 4)) {
+            if (e instanceof Villager v && v.getPersistentDataContainer().isEmpty()) v.remove();
+        }
+        int n = 0;
+        for (JsonObject m : markers) {
+            if (!"villager".equals(m.get("t").getAsString())) continue;
+            Location at = new Location(w, cx + m.get("x").getAsInt() + 0.5, gy + m.get("y").getAsInt(), cz + m.get("z").getAsInt() + 0.5);
+            String prof = m.has("prof") && !m.get("prof").isJsonNull() ? m.get("prof").getAsString() : null;
+            plugin.npcEntities().spawnFiller(NpcEntities.roleFor(prof), at);
+            n++;
+        }
+        plugin.saveConfig();
+        return n;
     }
 
     // ---------- Brújula ----------

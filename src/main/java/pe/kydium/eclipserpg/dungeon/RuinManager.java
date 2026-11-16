@@ -120,10 +120,13 @@ public final class RuinManager implements Listener {
         RuinBuilder.Variant v = RuinBuilder.Variant.values()[r.nextInt(RuinBuilder.Variant.values().length)];
         RuinBuilder.Result res = new RuinBuilder(r.nextLong(), desert).build(v);
         int y = top.getY();
+        java.util.List<int[]> joins = new java.util.ArrayList<>();
         for (java.util.Map.Entry<String, String> e : res.blocks.entrySet()) {
             String[] p = e.getKey().split(",");
             int x = cx + Integer.parseInt(p[0]), yy = y + Integer.parseInt(p[1]), z = cz + Integer.parseInt(p[2]);
-            w.getBlockAt(x, yy, z).setBlockData(data(e.getValue()), false);
+            org.bukkit.block.data.BlockData bd = data(e.getValue());
+            w.getBlockAt(x, yy, z).setBlockData(bd, false);
+            if (Connect.needs(bd)) joins.add(new int[]{x, yy, z});
             // rellenar debajo del suelo de la ruina para que no quede flotando
             if (Integer.parseInt(p[1]) == 0) {
                 for (int dy = 1; dy <= 4; dy++) {
@@ -133,6 +136,7 @@ public final class RuinManager implements Listener {
                 }
             }
         }
+        Connect.fix(w, joins);
         pending.add(new Ruin(w.getName(), cx + res.altarX, y + res.altarY, cz + res.altarZ,
                 cx + res.chestX, y + res.chestY, cz + res.chestZ));
         created++;
