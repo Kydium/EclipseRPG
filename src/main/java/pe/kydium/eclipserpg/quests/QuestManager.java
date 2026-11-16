@@ -235,7 +235,7 @@ public final class QuestManager implements Listener {
                     for (Quest.Objective o : q.objectives) body.add("<gray>• <white>" + o.text + " <gray>(" + o.amount + ")");
                 }
                 ui.show(p, npcName + " <dark_gray>· <yellow>" + q.name, body, List.of(
-                        new DialogUI.Button("<green><bold>Aceptar misión", "Misión " + q.number + " · " + actName(q.act), () -> accept(p, q)),
+                        new DialogUI.Button("<green><bold>Aceptar misión", actName(q.act), () -> accept(p, q)),
                         new DialogUI.Button("<gray>Ahora no", "Puedes volver cuando quieras", null)), true);
             } else {
                 say(p, npcName, q.start, () -> accept(p, q));
@@ -283,7 +283,7 @@ public final class QuestManager implements Listener {
                 plugin.mobs().spawn(sp.mob(), plugin.mobs().spawnSpot(p.getLocation(), 8));
             }
         }
-        p.showTitle(Title.title(Txt.mm("<gold>" + q.name), Txt.mm("<gray>Misión " + q.number + " · " + actName(q.act)),
+        p.showTitle(Title.title(Txt.mm("<gold>" + q.name), Txt.mm("<gray>" + actName(q.act)),
                 Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(2), Duration.ofMillis(500))));
         Txt.sound(p, "item.book.page_turn", 1f, 1f);
         if (q.objectives.isEmpty()) {
@@ -400,7 +400,7 @@ public final class QuestManager implements Listener {
     }
 
     public void showObjectives(Player p, Quest q) {
-        p.sendMessage(Txt.mm("<gold>▶ " + q.name + " <gray>(misión " + q.number + "/" + quests.size() + ")"));
+        p.sendMessage(Txt.mm("<gold>▶ " + q.name));
         for (int i = 0; i < q.objectives.size(); i++) {
             Quest.Objective o = q.objectives.get(i);
             int have = progressOf(p, q, i);

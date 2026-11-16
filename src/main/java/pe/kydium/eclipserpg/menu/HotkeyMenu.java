@@ -50,11 +50,11 @@ public final class HotkeyMenu implements Listener {
         List<String> body = new ArrayList<>();
         body.add("<gold>Nivel " + d.level + " <gray>· <yellow>" + Txt.num(d.soles) + " ☀ Soles");
         if (d.points > 0) body.add("<green>Tienes " + d.points + " punto(s) de habilidad sin usar");
-        if (q != null) body.add("<gray>Misión actual: <white>" + q.name + " <gray>(" + q.number + "/" + plugin.quests().total() + ")");
+        if (q != null) body.add("<gray>Misión actual: <white>" + q.name);
         else body.add("<gold>¡Historia completada!");
         List<DialogUI.Button> buttons = new ArrayList<>();
         buttons.add(new DialogUI.Button("<gold>⚔ Nivel y habilidades", "Reparte tus puntos", () -> new StatsMenu(plugin, p).open()));
-        buttons.add(new DialogUI.Button("<yellow>📖 Diario de misiones", "Tu misión y el avance de la historia", () -> new QuestMenu(plugin, p).open()));
+        buttons.add(new DialogUI.Button("<yellow>📖 Diario de misiones", "Tu misión y el avance de la historia", () -> pe.kydium.eclipserpg.quests.QuestBook.open(plugin, p)));
         buttons.add(new DialogUI.Button("<aqua>✦ Ver objetivos en el chat", null, () -> {
             Quest cur = plugin.quests().current(p);
             if (cur != null) plugin.quests().showObjectives(p, cur);

@@ -38,7 +38,7 @@ public final class NpcMenu extends Menu {
             case AVAILABLE -> {
                 title = "<yellow><bold>¡Nueva misión!";
                 lore.add("<white>" + q.name);
-                lore.add("<gray>Misión " + q.number + " · " + qm.actName(q.act));
+                lore.add("<gray>" + qm.actName(q.act));
                 lore.add("");
                 lore.add("<yellow>Clic para hablar");
             }

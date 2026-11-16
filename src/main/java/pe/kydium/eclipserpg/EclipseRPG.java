@@ -49,6 +49,7 @@ public final class EclipseRPG extends JavaPlugin {
             if (!new File(getDataFolder(), f).exists()) saveResource(f, false);
         }
         Keys.init(this);
+        checkNewWorld();
 
         data = new DataManager(this);
         levels = new LevelManager(this);
@@ -117,6 +118,36 @@ public final class EclipseRPG extends JavaPlugin {
         if (data != null) data.saveAll();
         if (ruins != null) ruins.save();
         if (npcEntities != null) npcEntities.cleanup();
+    }
+
+    /**
+     * Si el mundo es nuevo (se borró la carpeta world), olvida la aldea, NPCs, mazmorras y ruinas
+     * del mundo anterior para que todo se genere de nuevo, y reinicia el progreso de los jugadores.
+     */
+    private void checkNewWorld() {
+        if (Bukkit.getWorlds().isEmpty()) return;
+        String uid = Bukkit.getWorlds().get(0).getUID().toString();
+        String prev = getConfig().getString("mundo-uid");
+        if (uid.equals(prev)) return;
+        boolean hadOld = prev != null || getConfig().getBoolean("aldea.generada", false);
+        getConfig().set("mundo-uid", uid);
+        if (hadOld) {
+            getLogger().info("Mundo nuevo detectado: se reinicia la aldea, los NPCs, las mazmorras y las ruinas.");
+            for (String k : new String[]{"campamento", "aldea.centro", "aldea.puestos", "aldea.mundo", "npc-entidades", "relleno-entidades"}) {
+                getConfig().set(k, null);
+            }
+            getConfig().set("aldea.generada", false);
+            for (String f : new String[]{"datos-mazmorras.yml", "datos-ruinas.yml"}) {
+                File file = new File(getDataFolder(), f);
+                if (file.exists() && !file.delete()) getLogger().warning("No se pudo borrar " + f);
+            }
+            if (getConfig().getBoolean("reiniciar-progreso-con-mundo-nuevo", true)) {
+                File[] players = new File(getDataFolder(), "jugadores").listFiles((d, n) -> n.endsWith(".yml"));
+                if (players != null) for (File f : players) if (!f.delete()) getLogger().warning("No se pudo borrar " + f.getName());
+                getLogger().info("Progreso de los jugadores reiniciado (mundo nuevo).");
+            }
+        }
+        saveConfig();
     }
 
     private void bind(String name, PlayerCommands pc) {

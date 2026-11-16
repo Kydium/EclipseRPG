@@ -355,8 +355,9 @@ public final class VillageBuilder implements Listener {
 
     private void giveCompassIfNew(Player p) {
         PlayerData d = plugin.data().get(p);
-        if (d.flags.contains("brujula_aldea") || center() == null) return;
-        d.flags.add("brujula_aldea");
+        String flag = "brujula_" + plugin.getConfig().getString("mundo-uid", "aldea");
+        if (d.flags.contains(flag) || center() == null) return;
+        d.flags.add(flag);
         d.dirty = true;
         giveCompass(p);
         Location c = center();
