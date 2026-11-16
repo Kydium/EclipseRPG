@@ -98,6 +98,21 @@ textarea{resize:vertical;min-height:38px}
 .stat b{display:block;font-size:22px;color:var(--gold)}
 .stat span{font-size:12px;color:var(--muted)}
 .mm{display:inline-block;padding:2px 8px;border-radius:5px;background:#120f0c;border:1px solid var(--line)}
+.chest{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px;background:#2a2219;border:2px solid #4d4135;border-radius:10px;padding:10px;max-width:760px}
+.slot{aspect-ratio:1;background:#120f0c;border:2px solid #3a3128;border-radius:6px;cursor:pointer;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3px;overflow:hidden;min-width:0}
+.slot:hover{border-color:var(--gold2)}
+.slot.sel{border-color:var(--gold);box-shadow:0 0 0 3px #e0b35440}
+.slot.buy{border-color:#3f7a2e;background:#16200f}.slot.sell{border-color:#8a6a1f;background:#221a0b}.slot.up{border-color:#6a3fa0;background:#1b1226}.slot.info{border-style:dashed;cursor:default;color:var(--dim)}
+.slot .nm{font-size:10.5px;line-height:1.15;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-word}
+.slot .pr{font-size:10.5px;color:var(--gold);margin-top:2px;white-space:nowrap}
+.slot .qt{position:absolute;top:2px;right:4px;font-size:10px;color:var(--muted)}
+.slot .tg{position:absolute;top:2px;left:4px;font-size:9px;font-weight:700}
+.slot.buy .tg{color:#8fd05a}.slot.sell .tg{color:#e7bd5f}.slot.up .tg{color:#c9a0ff}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:var(--r);overflow:hidden}
+.seg button{all:unset;cursor:pointer;padding:7px 14px;color:var(--muted)}
+.seg button.on{background:#2f2619;color:var(--gold)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 .lock{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:14px;text-align:center;padding:20px}
 @media (max-width:900px){.main{grid-template-columns:1fr}.nav{flex-direction:row;overflow:auto}.nav hr,.nav .cnt{display:none}.view{grid-template-columns:1fr}.list{max-height:240px}}
 </style>
@@ -714,13 +729,68 @@ function viewShops(){
   return yamlList("tiendas",shopsRoot(),"Tiendas","Lo que compran y venden los NPCs con servicio de tienda.",{ejemplo:"taberna",file:"tiendas",make:()=>({titulo:"<dark_gray>Nueva tienda",filas:6,objetos:[]})},shopForm,
     (id,d)=>({t:mmSplit(d.titulo).text||id,s:id+" · "+((d.objetos||[]).length)+" productos"}));
 }
+function parseSpec(spec){
+  spec=String(spec||""); const i=spec.indexOf(":"); const cls=i<0?"material":spec.slice(0,i).toLowerCase(); let rest=i<0?spec:spec.slice(i+1);
+  if(cls==="libro"){const p=rest.split(":");return {clase:"libro",valor:p[0],nivel:+(p[1]||1)}}
+  return {clase:cls,valor:cls==="material"?rest.toLowerCase():rest,nivel:1};
+}
+function nameToId(v){const n=norm(v);const map=(st.cat.diccionario.idNombre)||{};for(const [id,name] of Object.entries(map))if(norm(name)===n)return id;return n.replace(/ /g,"_")}
+function buildSpec(o){const v=(o.valor||"").trim();if(o.clase==="libro")return "libro:"+v.toLowerCase().replace(/ /g,"_")+":"+(o.nivel||1);if(o.clase==="material")return "material:"+nameToId(v);return o.clase+":"+v.toLowerCase().replace(/ /g,"_")}
+function specLabel(spec){const o=parseSpec(spec);const dn=(st.cat.diccionario.idNombre||{});
+  if(o.clase==="material")return cap(dn[o.valor]||o.valor.replace(/_/g," "));
+  if(o.clase==="custom")return (st.cat.objetosPropios[o.valor]||o.valor).replace(/^[^\wÀ-ɏ]+/,"");
+  if(o.clase.startsWith("pocion"))return (o.clase==="pocion"?"Poción ":o.clase==="pocion-arrojadiza"?"Poción arrojadiza ":"Poción persistente ")+o.valor.replace(/_/g," ");
+  if(o.clase==="libro")return "Libro "+o.valor.replace(/_/g," ")+" "+o.nivel;return spec}
 function shopForm(id,d){
-  const ch=()=>markYaml("tiendas"); d.objetos=d.objetos||[];
-  const rows=listOfMaps(d,"objetos",[["tipo","comprar / vender / mejora",null],["slot","Hueco","num"],["item","Objeto (material:X o custom:id)","dl-itemspec"],["cantidad","Cant.","num"],["precio","Precio","num"],["nivel","Nivel","num"]],{tipo:"comprar",slot:10,item:"material:bread",cantidad:8,precio:20},ch,"+ Añadir producto");
-  return h("div",{class:"form"},h("h2",null,mmSplit(d.titulo).text||id),h("p",{class:"sub"},"id: "+id+" · en un NPC: «servicio: tienda "+id+"»"),
-    h("div",{class:"card"},h("h3",null,"Ventana"),h("div",{class:"row"},field("Título",inp(d,"titulo",ch)),field("Filas (1 a 6)",inp(d,"filas",ch,{type:"number",min:1})))),
-    h("div",{class:"card"},h("h3",null,"Productos ",h("span",{class:"hint"},"hueco: 0 a 53 (9 por fila)")),rows),
-    h("div",null,h("button",{class:"btn danger",onclick:()=>{if(!confirm("¿Eliminar la tienda "+id+"?"))return;delete shopsRoot()[id];ch();renderView()}},"Eliminar tienda")));
+  const ch=()=>{markYaml("tiendas");drawGrid();drawEdit();updateList()}; d.objetos=d.objetos||[]; d.filas=d.filas||6;
+  const title=mmSplit(d.titulo); const setTitle=()=>{d.titulo=(title.color==="gris oscuro"?"<dark_gray>":mmJoin({...title,text:""}))+title.text;markYaml("tiendas");updateList()};
+  const S={sel:st.sel["tiendas_slot"]??null,moving:null};
+  const total=()=>Math.max(1,Math.min(6,+d.filas||6))*9;
+  const at=slot=>d.objetos.find(o=>+o.slot===slot);
+  const grid=h("div",{class:"chest"}); const edit=h("div");
+  const updateList=()=>{const it=document.querySelector(".li.on .s");if(it)it.textContent=id+" · "+d.objetos.length+" productos"};
+  function drawGrid(){
+    grid.replaceChildren(...Array.from({length:total()},(_,slot)=>{
+      if(slot===total()-1) return h("div",{class:"slot info",title:"El último hueco muestra el dinero del jugador"},h("div",{class:"nm"},"Tu dinero"));
+      const o=at(slot); const cls=o?(o.tipo==="vender"?"sell":o.tipo==="mejora"?"up":"buy"):"";
+      return h("div",{class:"slot "+cls+(S.sel===slot?" sel":""),title:o?(o.tipo+": "+(o.tipo==="mejora"?"mejorar arma":specLabel(o.item))):"Hueco vacío "+slot,onclick:()=>{
+          if(S.moving!=null){const m=at(S.moving);if(m&&!at(slot)){m.slot=slot;S.sel=slot;S.moving=null;ch();return}S.moving=null}
+          S.sel=slot;st.sel.tiendas_slot=slot;drawGrid();drawEdit()}},
+        o?[h("span",{class:"tg"},o.tipo==="vender"?"VENDE":o.tipo==="mejora"?"MEJORA":"COMPRA"),o.cantidad>1?h("span",{class:"qt"},"×"+o.cantidad):null,
+          h("div",{class:"nm"},o.tipo==="mejora"?"Mejorar arma":specLabel(o.item)),h("div",{class:"pr"},(o.precio??0)+" ☀")]:null)}));
+  }
+  function drawEdit(){
+    if(S.sel==null){edit.replaceChildren(h("p",{class:"empty"},"Haz clic en un hueco del cofre para poner o editar un producto."));return}
+    const o=at(S.sel);
+    if(!o){edit.replaceChildren(h("div",{class:"card"},h("h3",null,"Hueco "+S.sel+" vacío"),h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},
+      h("button",{class:"btn",onclick:()=>{d.objetos.push({tipo:"comprar",slot:S.sel,item:"material:bread",cantidad:1,precio:10});ch()}},"+ Algo que el jugador compra"),
+      h("button",{class:"btn",onclick:()=>{d.objetos.push({tipo:"vender",slot:S.sel,item:"material:iron_ingot",cantidad:8,precio:20});ch()}},"+ Algo que el jugador vende"),
+      h("button",{class:"btn",onclick:()=>{d.objetos.push({tipo:"mejora",slot:S.sel,precio:300});ch()}},"+ Mejorar arma (+1)"))));return}
+    const sp=parseSpec(o.item); const setItem=()=>{o.item=buildSpec(sp);markYaml("tiendas");drawGrid();prev.textContent=o.tipo==="mejora"?"":"Se verá como: "+specLabel(o.item)};
+    const prev=h("div",{class:"preview"},o.tipo==="mejora"?"":"Se verá como: "+specLabel(o.item));
+    const listFor={material:"dl-objetos",custom:"dl-especiales",pocion:"dl-pociones","pocion-arrojadiza":"dl-pociones","pocion-persistente":"dl-pociones",libro:"dl-encant"}[sp.clase];
+    const n=(k,l,hint)=>field(l,h("input",{type:"number",min:0,value:o[k]??"",placeholder:"—",oninput:e=>{if(e.target.value==="")delete o[k];else o[k]=+e.target.value;markYaml("tiendas");drawGrid()}}),hint);
+    edit.replaceChildren(h("div",{class:"card"},
+      h("h3",null,"Hueco "+S.sel," ",h("span",{class:"hint"},o.tipo==="mejora"?"sube +1 de daño a un arma única":"")),
+      h("div",{style:"margin-bottom:12px"},h("div",{class:"seg"},[["comprar","El jugador compra"],["vender","El jugador vende"],["mejora","Mejorar arma"]].map(([v,l])=>h("button",{class:o.tipo===v?"on":"",onclick:()=>{o.tipo=v;if(v==="mejora")delete o.item,delete o.cantidad;else if(!o.item)o.item="material:bread";ch()}},l)))),
+      o.tipo==="mejora"?null:h("div",{class:"row"},field("Clase de objeto",sel(sp,"clase",[["material","Objeto de Minecraft"],["custom","Objeto especial"],["pocion","Poción"],["pocion-arrojadiza","Poción arrojadiza"],["pocion-persistente","Poción persistente"],["libro","Libro encantado"]],()=>{sp.valor="";setItem();drawEdit()})),
+        field(sp.clase==="material"?"Objeto (en español o id)":sp.clase==="custom"?"Id del objeto especial":sp.clase==="libro"?"Encantamiento (id en inglés)":"Tipo de poción (id en inglés)",h("input",{list:listFor,value:sp.clase==="material"?((st.cat.diccionario.idNombre||{})[sp.valor]||sp.valor):sp.valor,oninput:e=>{sp.valor=e.target.value;setItem()}})),
+        sp.clase==="libro"?field("Nivel",h("input",{type:"number",min:1,value:sp.nivel,oninput:e=>{sp.nivel=+e.target.value||1;setItem()}})):null),
+      h("div",{class:"row"},o.tipo==="mejora"?null:n("cantidad","Cantidad"),n("precio","Precio ("+(st.story.currency||"monedas")+")"),o.tipo==="comprar"?n("nivel","Nivel mínimo","vacío = cualquiera"):null),
+      prev,
+      h("div",{style:"display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"},
+        h("button",{class:"btn",onclick:()=>{S.moving=S.sel;toast("Ahora haz clic en un hueco vacío para moverlo")}},"Mover a otro hueco"),
+        h("button",{class:"btn",onclick:()=>{let f=0;while(f<total()-1&&at(f))f++;if(f>=total()-1){toast("No hay huecos libres","bad");return}d.objetos.push({...JSON.parse(JSON.stringify(o)),slot:f});S.sel=f;ch()}},"Duplicar"),
+        h("button",{class:"btn danger",onclick:()=>{d.objetos.splice(d.objetos.indexOf(o),1);ch()}},"Quitar del hueco"))));
+  }
+  drawGrid(); drawEdit();
+  return h("div",{class:"form"},h("h2",null,title.text||id),h("p",{class:"sub"},"id: "+id+" · para ponerla en un personaje: servicio «tienda "+id+"»"),
+    h("div",{class:"card"},h("h3",null,"Ventana"),h("div",{class:"row"},field("Título",inp(title,"text",setTitle)),field("Color del título",colorSel(title,"color",setTitle)),
+      field("Tamaño",sel(d,"filas",[1,2,3,4,5,6].map(f=>[f,f+" fila"+(f>1?"s":"")+" ("+f*9+" huecos)"]),()=>{d.filas=+d.filas;markYaml("tiendas");if(S.sel>=total()-1)S.sel=null;drawGrid();drawEdit()})))),
+    h("div",{class:"card"},h("h3",null,"Así se ve en el juego ",h("span",{class:"hint"},"clic en un hueco para editarlo")),grid,
+      h("div",{class:"legend"},h("span",null,h("i",{style:"background:#3f7a2e"}),"El jugador compra"),h("span",null,h("i",{style:"background:#8a6a1f"}),"El jugador vende"),h("span",null,h("i",{style:"background:#6a3fa0"}),"Mejora de arma"))),
+    edit,
+    h("div",{style:"margin-top:4px"},h("button",{class:"btn danger",onclick:()=>{if(!confirm("¿Eliminar la tienda "+id+"?"))return;delete shopsRoot()[id];markYaml("tiendas");renderView()}},"Eliminar tienda")));
 }
 
 // ---------------- Revisar y ayuda

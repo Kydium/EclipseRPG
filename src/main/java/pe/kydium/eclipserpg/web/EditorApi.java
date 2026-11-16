@@ -279,6 +279,7 @@ public final class EditorApi {
         JsonObject o = new JsonObject();
         String sec = "objetos";
         Map<String, List<String>> out = new LinkedHashMap<>();
+        Map<String, String> idName = new LinkedHashMap<>();
         try (InputStream in = plugin.getResource("motor/diccionario.txt")) {
             for (String l : new String(in.readAllBytes(), StandardCharsets.UTF_8).split("\\R")) {
                 l = l.trim();
@@ -289,12 +290,16 @@ public final class EditorApi {
                 }
                 int eq = l.indexOf('=');
                 if (eq < 0) continue;
-                out.computeIfAbsent(sec, k -> new ArrayList<>()).add(l.substring(0, eq).split(",")[0].trim());
+                String first = l.substring(0, eq).split(",")[0].trim();
+                out.computeIfAbsent(sec, k -> new ArrayList<>()).add(first);
+                String ids = l.substring(eq + 1).trim();
+                if (sec.equals("objetos") && !ids.contains(",") && !ids.contains("*")) idName.putIfAbsent(ids, first);
             }
         } catch (IOException ignored) {
             // sin diccionario
         }
         out.forEach((k, v) -> o.add(k, GSON.toJsonTree(v)));
+        o.add("idNombre", GSON.toJsonTree(idName));
         return o;
     }
 
