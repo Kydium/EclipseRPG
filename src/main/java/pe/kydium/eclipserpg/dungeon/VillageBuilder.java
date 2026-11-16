@@ -305,6 +305,13 @@ public final class VillageBuilder implements Listener {
         if (w == null || !cfg.contains("aldea.centro.x")) return 0;
         int cx = cfg.getInt("aldea.centro.x"), gy = cfg.getInt("aldea.centro.y"), cz = cfg.getInt("aldea.centro.z");
         plugin.npcEntities().clearFillers();
+        // unir vidrios/vallas de una aldea construida con una versión anterior
+        List<int[]> joins = new ArrayList<>();
+        for (int x = cx - radius; x <= cx + radius; x++)
+            for (int z = cz - radius; z <= cz + radius; z++)
+                for (int y = gy - 2; y <= gy + 28; y++)
+                    if (Connect.needs(w.getBlockAt(x, y, z).getBlockData())) joins.add(new int[]{x, y, z});
+        Connect.fix(w, joins);
         // quitar aldeanos viejos de versiones anteriores dentro de la aldea
         for (Entity e : w.getNearbyEntities(new Location(w, cx, gy, cz), radius + 4, 40, radius + 4)) {
             if (e instanceof Villager v && v.getPersistentDataContainer().isEmpty()) v.remove();
