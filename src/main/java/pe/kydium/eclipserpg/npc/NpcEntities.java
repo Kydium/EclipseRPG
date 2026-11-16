@@ -249,6 +249,13 @@ public final class NpcEntities implements Listener {
         if (w == null || !cfg.contains("aldea.centro.x")) return 0;
         // NPCs que ya no están en la historia
         for (String id : new ArrayList<>(npcs.keySet())) if (plugin.npcs().def(id) == null) despawn(id);
+        // aldeas construidas con versiones anteriores guardaban los puestos con el nombre del NPC
+        Map<String, String> legacy = Map.of("casa", "tula", "cuartel", "ines", "herreria", "bruno", "tienda", "pip",
+                "biblioteca", "odon", "mapas", "lia", "torre", "velkar", "tienda_negra", "errante");
+        for (Map.Entry<String, String> e : legacy.entrySet()) {
+            String old = "aldea.puestos." + e.getValue(), now = "aldea.lugares." + e.getKey();
+            if (cfg.contains(old + ".x") && !cfg.contains(now + ".x")) cfg.set(now, cfg.getConfigurationSection(old).getValues(false));
+        }
         Map<String, Location> slots = new java.util.LinkedHashMap<>();
         for (String slot : pe.kydium.eclipserpg.story.StoryManager.PLACES) {
             String k = "aldea.lugares." + slot;

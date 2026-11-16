@@ -81,17 +81,17 @@ public final class HotkeyMenu implements Listener {
             dialog.getParentFile().mkdirs();
             tag.getParentFile().mkdirs();
             Files.writeString(mcmeta.toPath(), """
-                    {"pack": {"description": "Crónicas del Eclipse: menú con la tecla G", "min_format": 80, "max_format": 200}}
+                    {"pack": {"description": "EclipseRPG: menú con la tecla G", "min_format": 80, "max_format": 200}}
                     """, StandardCharsets.UTF_8);
             Files.writeString(dialog.toPath(), """
                     {
                       "type": "minecraft:multi_action",
-                      "title": {"text": "☀ Crónicas del Eclipse", "color": "gold", "bold": true},
-                      "external_title": {"text": "Crónicas del Eclipse", "color": "gold"},
-                      "body": [{"type": "minecraft:plain_message", "contents": {"text": "Menú rápido del Guardián del Alba", "color": "gray"}}],
+                      "title": {"text": "☀ Menú del aventurero", "color": "gold", "bold": true},
+                      "external_title": {"text": "Menú del aventurero", "color": "gold"},
+                      "body": [{"type": "minecraft:plain_message", "contents": {"text": "Tu nivel, tus misiones y tu brújula", "color": "gray"}}],
                       "columns": 1,
                       "actions": [
-                        {"label": {"text": "☀ Menú del Guardián", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "guardian"}},
+                        {"label": {"text": "☀ Abrir el menú", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "guardian"}},
                         {"label": {"text": "⚔ Nivel y habilidades", "color": "yellow"}, "action": {"type": "minecraft:run_command", "command": "nivel"}},
                         {"label": {"text": "📖 Diario de misiones", "color": "yellow"}, "action": {"type": "minecraft:run_command", "command": "misiones"}},
                         {"label": {"text": "✦ Objetivos en el chat", "color": "aqua"}, "action": {"type": "minecraft:run_command", "command": "mision"}}
