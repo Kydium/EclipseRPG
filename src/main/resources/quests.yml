@@ -189,17 +189,19 @@ misiones:
     nombre: "JEFE: Rondador Podrido"
     jefe: true
     nivel: 5
+    mazmorra: 1
     xp: 0
     soles: 0
     dialogo:
       - "El Rondador Podrido guarda el primer Fragmento Solar."
-      - "Toma este sello. Rómpelo donde quieras pelear y él aparecerá."
       - "Lleva amigos si puedes. No es un zombi cualquiera."
+      - "Su guarida es Cripta del Bosque Podrido. Toma esta brújula: te llevará a la entrada."
+      - "Atraviesa la mazmorra. El jefe te espera en la sala más profunda."
     final:
       - "¡Lo lograste! El primer Fragmento Solar… la Abuela Tula tiene que ver esto."
     objetivos:
+      - {tipo: MAZMORRA, objetivo: "1", cantidad: 1, texto: "Encuentra Cripta del Bosque Podrido"}
       - {tipo: MOB, objetivo: "rondador_podrido", cantidad: 1, texto: "Derrota al Rondador Podrido"}
-    al-aceptar: ["custom:sello_rondador"]
 
   m012:
     acto: 2
@@ -358,16 +360,18 @@ misiones:
     nombre: "JEFE: Capataz Hueso"
     jefe: true
     nivel: 10
+    mazmorra: 2
     xp: 0
     soles: 0
     dialogo:
       - "El Capataz Hueso manda a los esqueletos de las minas. Él se llevó a los mineros."
-      - "Rompe este sello en lo profundo y termina con él."
+      - "Su guarida es Minas del Capataz. Toma esta brújula: te llevará a la entrada."
+      - "Atraviesa la mazmorra. El jefe te espera en la sala más profunda."
     final:
       - "El segundo Fragmento Solar. Los mineros pueden descansar en paz."
     objetivos:
+      - {tipo: MAZMORRA, objetivo: "2", cantidad: 1, texto: "Encuentra Minas del Capataz"}
       - {tipo: MOB, objetivo: "capataz_hueso", cantidad: 1, texto: "Derrota al Capataz Hueso"}
-    al-aceptar: ["custom:sello_capataz"]
 
   m023:
     acto: 3
@@ -529,16 +533,18 @@ misiones:
     nombre: "JEFE: Heraldo de la Mancha"
     jefe: true
     nivel: 15
+    mazmorra: 3
     xp: 0
     soles: 0
     dialogo:
       - "El Heraldo de la Mancha es quien manda a los illagers."
-      - "Rompe el sello y acaba con él. Desaparece y aparece donde menos lo esperas."
+      - "Su guarida es Fortín del Heraldo. Toma esta brújula: te llevará a la entrada."
+      - "Atraviesa la mazmorra. El jefe te espera en la sala más profunda."
     final:
       - "¡El tercer Fragmento! Las aldeas vuelven a estar a salvo."
     objetivos:
+      - {tipo: MAZMORRA, objetivo: "3", cantidad: 1, texto: "Encuentra Fortín del Heraldo"}
       - {tipo: MOB, objetivo: "heraldo_mancha", cantidad: 1, texto: "Derrota al Heraldo de la Mancha"}
-    al-aceptar: ["custom:sello_heraldo"]
 
   m034:
     acto: 4
@@ -696,16 +702,18 @@ misiones:
     nombre: "JEFE: Ahogado Coronado"
     jefe: true
     nivel: 20
+    mazmorra: 4
     xp: 0
     soles: 0
     dialogo:
       - "Era un rey antes de ahogarse. Ahora lleva el cuarto Fragmento en su corona."
-      - "Rompe el sello cerca del agua. Te va a arrastrar, prepárate."
+      - "Su guarida es Templo Hundido. Toma esta brújula: te llevará a la entrada."
+      - "Atraviesa la mazmorra. El jefe te espera en la sala más profunda."
     final:
       - "¡El cuarto Fragmento! Fray Odón no lo va a creer."
     objetivos:
+      - {tipo: MAZMORRA, objetivo: "4", cantidad: 1, texto: "Encuentra Templo Hundido"}
       - {tipo: MOB, objetivo: "ahogado_coronado", cantidad: 1, texto: "Derrota al Ahogado Coronado"}
-    al-aceptar: ["custom:sello_ahogado"]
 
   m045:
     acto: 5
@@ -868,16 +876,18 @@ misiones:
     nombre: "JEFE: Bruja de las Dunas"
     jefe: true
     nivel: 25
+    mazmorra: 5
     xp: 0
     soles: 0
     dialogo:
       - "La Bruja de las Dunas te va a envenenar y hacer flotar."
-      - "Lleva leche y pociones. Rompe el sello."
+      - "Su guarida es Tumba de las Dunas. Toma esta brújula: te llevará a la entrada."
+      - "Atraviesa la mazmorra. El jefe te espera en la sala más profunda."
     final:
       - "¡El quinto Fragmento! Vamos por la mitad."
     objetivos:
+      - {tipo: MAZMORRA, objetivo: "5", cantidad: 1, texto: "Encuentra Tumba de las Dunas"}
       - {tipo: MOB, objetivo: "bruja_dunas", cantidad: 1, texto: "Derrota a la Bruja de las Dunas"}
-    al-aceptar: ["custom:sello_bruja"]
 
   m056:
     acto: 6
@@ -1038,16 +1048,18 @@ misiones:
     nombre: "JEFE: Señor de Brasas"
     jefe: true
     nivel: 30
+    mazmorra: 6
     xp: 0
     soles: 0
     dialogo:
       - "El Señor de Brasas manda en la fortaleza. Te va a prender fuego."
-      - "Bebe resistencia al fuego y rompe el sello."
+      - "Su guarida es Fortaleza Ígnea. Toma esta brújula: te llevará a la entrada."
+      - "Atraviesa la mazmorra. El jefe te espera en la sala más profunda."
     final:
       - "¡El sexto Fragmento! Aunque… Velkar se veía raro cuando volviste."
     objetivos:
+      - {tipo: MAZMORRA, objetivo: "6", cantidad: 1, texto: "Encuentra Fortaleza Ígnea"}
       - {tipo: MOB, objetivo: "senor_brasas", cantidad: 1, texto: "Derrota al Señor de Brasas"}
-    al-aceptar: ["custom:sello_brasas"]
 
   m067:
     acto: 7
@@ -1203,16 +1215,19 @@ misiones:
     nombre: "JEFE: Viento Encadenado"
     jefe: true
     nivel: 35
+    mazmorra: 7
     xp: 0
     soles: 0
     dialogo:
       - "El Viento Encadenado protege el séptimo Fragmento."
       - "Lucha en un lugar cerrado o te mandará a volar."
+      - "Su guarida es Cámaras de Cobre. Toma esta brújula: te llevará a la entrada."
+      - "Atraviesa la mazmorra. El jefe te espera en la sala más profunda."
     final:
       - "¡El séptimo! Pero… ¿dónde está Velkar?"
     objetivos:
+      - {tipo: MAZMORRA, objetivo: "7", cantidad: 1, texto: "Encuentra Cámaras de Cobre"}
       - {tipo: MOB, objetivo: "viento_encadenado", cantidad: 1, texto: "Derrota al Viento Encadenado"}
-    al-aceptar: ["custom:sello_viento"]
 
   m078:
     acto: 8
@@ -1368,16 +1383,18 @@ misiones:
     nombre: "JEFE: Sombra de Velkar"
     jefe: true
     nivel: 40
+    mazmorra: 8
     xp: 0
     soles: 0
     dialogo:
       - "Es la sombra de Velkar. Usa la oscuridad y el wither."
-      - "Rompe el sello en la Ciudad Antigua."
+      - "Su guarida es Ciudad de las Sombras. Toma esta brújula: te llevará a la entrada."
+      - "Atraviesa la mazmorra. El jefe te espera en la sala más profunda."
     final:
       - "El octavo Fragmento… La sombra dijo algo antes de desaparecer: 'el Rey ya tiene los cráneos'."
     objetivos:
+      - {tipo: MAZMORRA, objetivo: "8", cantidad: 1, texto: "Encuentra Ciudad de las Sombras"}
       - {tipo: MOB, objetivo: "sombra_velkar", cantidad: 1, texto: "Derrota a la Sombra de Velkar"}
-    al-aceptar: ["custom:sello_sombra"]
 
   m089:
     acto: 9
@@ -1519,16 +1536,18 @@ misiones:
     nombre: "El Rey de Ceniza"
     jefe: true
     nivel: 43
+    mazmorra: 9
     xp: 0
     soles: 0
     dialogo:
       - "El Rey de Ceniza no debe llegar al Wither."
-      - "Rompe el sello en su bastión."
+      - "Su guarida es Bastión del Rey de Ceniza. Toma esta brújula: te llevará a la entrada."
+      - "Atraviesa la mazmorra. El jefe te espera en la sala más profunda."
     final:
       - "El Rey cayó. Ahora solo queda el Wither."
     objetivos:
+      - {tipo: MAZMORRA, objetivo: "9", cantidad: 1, texto: "Encuentra Bastión del Rey de Ceniza"}
       - {tipo: MOB, objetivo: "rey_ceniza", cantidad: 1, texto: "Derrota al Rey de Ceniza"}
-    al-aceptar: ["custom:sello_rey"]
 
   m099:
     acto: 9
@@ -1692,16 +1711,18 @@ misiones:
     nombre: "JEFE FINAL: Guardián del Eclipse"
     jefe: true
     nivel: 50
+    mazmorra: 10
     xp: 0
     soles: 0
     dialogo:
       - "El Guardián del Eclipse es el corazón de todo esto."
-      - "Rompe el último sello. Por el campamento. Por el sol."
+      - "Su guarida es Ciudadela del Eclipse. Toma esta brújula: te llevará a la entrada."
+      - "Atraviesa la mazmorra. El jefe te espera en la sala más profunda."
     final:
       - "¡El décimo Fragmento! La Corona Solar está completa."
     objetivos:
+      - {tipo: MAZMORRA, objetivo: "10", cantidad: 1, texto: "Encuentra Ciudadela del Eclipse"}
       - {tipo: MOB, objetivo: "guardian_eclipse", cantidad: 1, texto: "Derrota al Guardián del Eclipse"}
-    al-aceptar: ["custom:sello_guardian"]
 
   m110:
     acto: 10

@@ -49,9 +49,11 @@ public final class QuestManager implements Listener {
     private final List<Quest> quests = new ArrayList<>();
     private final Map<Integer, String> actNames = new HashMap<>();
     private final Set<UUID> talking = new HashSet<>();
+    private final DialogUI ui;
 
     public QuestManager(EclipseRPG plugin) {
         this.plugin = plugin;
+        this.ui = new DialogUI(plugin);
     }
 
     // ---------- Carga ----------
@@ -77,6 +79,7 @@ public final class QuestManager implements Listener {
             q.minLevel = s.getInt("nivel", 1);
             q.boss = s.getBoolean("jefe", false);
             q.noDeath = s.getBoolean("sin-morir", false);
+            q.dungeon = s.getInt("mazmorra", 0);
             q.xp = s.getLong("xp", 0);
             q.soles = s.getLong("soles", 0);
             q.start.addAll(s.getStringList("dialogo"));
@@ -224,16 +227,41 @@ public final class QuestManager implements Listener {
                         + "<white>. Haz contratos con Inés o abre Grietas para entrenar."), null);
                 return;
             }
-            say(p, npcName, q.start, () -> accept(p, q));
+            if (ui.enabled()) {
+                List<String> body = new ArrayList<>(q.start);
+                if (!q.objectives.isEmpty()) {
+                    body.add("");
+                    body.add("<gold>Objetivos:");
+                    for (Quest.Objective o : q.objectives) body.add("<gray>• <white>" + o.text + " <gray>(" + o.amount + ")");
+                }
+                ui.show(p, npcName + " <dark_gray>· <yellow>" + q.name, body, List.of(
+                        new DialogUI.Button("<green><bold>Aceptar misión", "Misión " + q.number + " · " + actName(q.act), () -> accept(p, q)),
+                        new DialogUI.Button("<gray>Ahora no", "Puedes volver cuando quieras", null)), true);
+            } else {
+                say(p, npcName, q.start, () -> accept(p, q));
+            }
             return;
         }
         if (!isComplete(p, q)) {
             List<String> lines = new ArrayList<>(q.reminder.isEmpty() ? List.of("¿Ya terminaste? Esto es lo que falta:") : q.reminder);
-            say(p, npcName, lines, () -> showObjectives(p, q));
+            if (ui.enabled()) {
+                lines.add("");
+                for (int i = 0; i < q.objectives.size(); i++) {
+                    Quest.Objective o = q.objectives.get(i);
+                    int have = progressOf(p, q, i);
+                    lines.add((have >= o.amount ? "<green>✔ " : "<gray>• ") + "<white>" + o.text + " <gray>" + have + "/" + o.amount);
+                }
+                if (q.noDeath) lines.add("<red>⚠ Si mueres, el progreso se reinicia");
+                ui.show(p, npcName + " <dark_gray>· <yellow>" + q.name, lines,
+                        List.of(new DialogUI.Button("<yellow>Entendido", null, null)), true);
+            } else {
+                say(p, npcName, lines, () -> showObjectives(p, q));
+            }
             return;
         }
         if (!q.choices.isEmpty()) {
-            say(p, npcName, q.end.isEmpty() ? List.of("Es hora de decidir.") : q.end, () -> showChoices(p, q));
+            if (ui.enabled()) showChoices(p, q);
+            else say(p, npcName, q.end.isEmpty() ? List.of("Es hora de decidir.") : q.end, () -> showChoices(p, q));
             return;
         }
         turnIn(p, q, null);
@@ -249,6 +277,7 @@ public final class QuestManager implements Listener {
             if (o.type == Quest.Type.DIMENSION && o.matches(envName(p.getWorld()))) d.questProgress[i] = o.amount;
         }
         for (String g : q.giveOnAccept) give(p, g);
+        if (q.dungeon > 0) plugin.dungeons().ensure(q.dungeon, p);
         for (Quest.Spawn sp : q.spawns) {
             for (int i = 0; i < sp.amount(); i++) {
                 plugin.mobs().spawn(sp.mob(), plugin.mobs().spawnSpot(p.getLocation(), 8));
@@ -296,17 +325,34 @@ public final class QuestManager implements Listener {
             Txt.send(p, "<yellow>Siguiente misión: <white>" + next.name + " <gray>· habla con " + plugin.npcs().name(next.npc) + lvl);
         };
         String npcName = plugin.npcs().name(q.npc);
-        if (choice != null) {
-            if (choice.message() != null) say(p, npcName, List.of(choice.message()), finish);
-            else finish.run();
-        } else if (!q.end.isEmpty()) {
-            say(p, npcName, q.end, finish);
-        } else {
-            finish.run();
+        // Primero se entregan las recompensas (así cerrar la ventana no las pierde)
+        finish.run();
+        List<String> lines = new ArrayList<>();
+        if (choice != null && choice.message() != null) lines.add(choice.message());
+        else lines.addAll(q.end);
+        if (lines.isEmpty()) return;
+        if (q.xp > 0 || q.soles > 0) {
+            lines.add("");
+            lines.add("<green>Recompensa: <aqua>+" + Txt.num(q.xp) + " XP <yellow>+" + Txt.num(q.soles) + " ☀");
         }
+        Quest next = current(p);
+        if (next != null && ui.enabled()) {
+            lines.add("<gray>Siguiente: <white>" + next.name + " <gray>· " + plugin.npcs().name(next.npc));
+        }
+        say(p, npcName + " <dark_gray>· <green>¡Misión completada!", lines, null);
     }
 
     private void showChoices(Player p, Quest q) {
+        if (ui.enabled()) {
+            List<DialogUI.Button> buttons = new ArrayList<>();
+            for (int i = 0; i < q.choices.size(); i++) {
+                final int idx = i;
+                buttons.add(new DialogUI.Button("<yellow><bold>" + q.choices.get(i).text(), "Esta decisión no se puede deshacer", () -> choose(p, idx)));
+            }
+            List<String> body = new ArrayList<>(q.end.isEmpty() ? List.of("Es hora de decidir.") : q.end);
+            ui.show(p, "<gold><bold>Elige tu destino", body, buttons, false);
+            return;
+        }
         p.sendMessage(Component.empty());
         p.sendMessage(Txt.mm("<gold><bold>Elige tu destino:"));
         for (int i = 0; i < q.choices.size(); i++) {
@@ -333,6 +379,10 @@ public final class QuestManager implements Listener {
 
     /** Muestra líneas de diálogo una por una y al final ejecuta "then". */
     public void say(Player p, String speaker, List<String> lines, Runnable then) {
+        if (ui.enabled()) {
+            ui.show(p, speaker, lines, List.of(new DialogUI.Button(then == null ? "<yellow>Cerrar" : "<yellow>Continuar", null, then)), then == null);
+            return;
+        }
         talking.add(p.getUniqueId());
         long delay = 0;
         for (String line : lines) {
@@ -370,7 +420,7 @@ public final class QuestManager implements Listener {
 
     // ---------- Progreso ----------
 
-    private void addProgress(Player p, Quest.Type type, String id, int amount, boolean corrupted) {
+    public void addProgress(Player p, Quest.Type type, String id, int amount, boolean corrupted) {
         Quest q = current(p);
         PlayerData d = plugin.data().get(p);
         if (q == null || !d.questAccepted) return;

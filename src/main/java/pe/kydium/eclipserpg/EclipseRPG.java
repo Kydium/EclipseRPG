@@ -8,6 +8,8 @@ import pe.kydium.eclipserpg.commands.AdminCommand;
 import pe.kydium.eclipserpg.commands.PlayerCommands;
 import pe.kydium.eclipserpg.contracts.ContractManager;
 import pe.kydium.eclipserpg.data.DataManager;
+import pe.kydium.eclipserpg.dungeon.DungeonManager;
+import pe.kydium.eclipserpg.dungeon.RuinManager;
 import pe.kydium.eclipserpg.items.ItemManager;
 import pe.kydium.eclipserpg.menu.MenuListener;
 import pe.kydium.eclipserpg.mobs.MobManager;
@@ -31,11 +33,13 @@ public final class EclipseRPG extends JavaPlugin {
     private RiftManager rifts;
     private QuestManager quests;
     private NpcManager npcs;
+    private DungeonManager dungeons;
+    private RuinManager ruins;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        for (String f : new String[]{"items.yml", "mobs.yml", "shops.yml", "contracts.yml", "quests.yml", "npcs.yml"}) {
+        for (String f : new String[]{"items.yml", "mobs.yml", "shops.yml", "contracts.yml", "quests.yml", "npcs.yml", "mazmorras.yml"}) {
             if (!new File(getDataFolder(), f).exists()) saveResource(f, false);
         }
         Keys.init(this);
@@ -49,6 +53,9 @@ public final class EclipseRPG extends JavaPlugin {
         rifts = new RiftManager(this);
         quests = new QuestManager(this);
         npcs = new NpcManager(this);
+        dungeons = new DungeonManager(this);
+        ruins = new RuinManager(this);
+        ruins.load();
         loadContent();
 
         var pm = Bukkit.getPluginManager();
@@ -59,6 +66,8 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(contracts, this);
         pm.registerEvents(rifts, this);
         pm.registerEvents(quests, this);
+        pm.registerEvents(dungeons, this);
+        pm.registerEvents(ruins, this);
 
         PlayerCommands pc = new PlayerCommands(this);
         for (String c : new String[]{"nivel", "soles", "pagar", "misiones", "mision"}) bind(c, pc);
@@ -73,6 +82,8 @@ public final class EclipseRPG extends JavaPlugin {
         mobs.startBarTask();
         new pe.kydium.eclipserpg.mobs.BossAbilities(this, mobs).start();
         rifts.startTask();
+        dungeons.startTask();
+        ruins.startTask();
         long autosave = getConfig().getLong("autoguardado-minutos", 5) * 60L * 20L;
         Bukkit.getScheduler().runTaskTimer(this, data::saveAll, autosave, autosave);
 
@@ -88,6 +99,7 @@ public final class EclipseRPG extends JavaPlugin {
         if (rifts != null) rifts.stopAll();
         if (mobs != null) mobs.cleanup();
         if (data != null) data.saveAll();
+        if (ruins != null) ruins.save();
     }
 
     private void bind(String name, PlayerCommands pc) {
@@ -105,6 +117,8 @@ public final class EclipseRPG extends JavaPlugin {
         contracts.load();
         quests.load();
         npcs.load();
+        dungeons.load();
+        ruins.reloadSettings();
     }
 
     public void reloadAll() {
@@ -122,4 +136,5 @@ public final class EclipseRPG extends JavaPlugin {
     public RiftManager rifts() { return rifts; }
     public QuestManager quests() { return quests; }
     public NpcManager npcs() { return npcs; }
+    public DungeonManager dungeons() { return dungeons; }
 }

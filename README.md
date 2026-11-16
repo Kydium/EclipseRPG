@@ -50,6 +50,14 @@ Las misiones van en orden y cada jugador lleva su propio progreso. Se habla con 
 
 Todo está en `quests.yml` (misiones) y `npcs.yml` (NPCs).
 
+## Aldea, mazmorras y ruinas
+
+- `/eclipse construiraldea` (párate en el campamento): construye la **Aldea del Alba** con plaza, pozo, 8 casas (una por NPC), caminos, granjas, muralla y 12 aldeanos de relleno. Después usa `/eclipse crearnpcs` y cada NPC queda frente a su casa.
+- **Mazmorras:** cada misión de jefe crea la mazmorra de su acto entre 250 y 450 bloques del campamento y te da una brújula que apunta a la entrada. Tienen salas con emboscadas, cofres, generadores, trampas de flechas y, al fondo, la sala del jefe: al entrar, las puertas se cierran y aparece el jefe. Las salas vuelven a llenarse de enemigos cada 15 minutos.
+- `/eclipse mazmorras` lista las mazmorras; `/eclipse mazmorra <acto> [jugador]` la crea o da su brújula.
+- **Ruinas corruptas:** aparecen al explorar terreno nuevo. Al acercarte, despiertan Corrompidos de tu nivel y su cofre se llena de botín.
+- Todo se configura en `mazmorras.yml`.
+
 ## NPCs con Citizens
 
 **Forma rápida:** párate en el campamento (después de `/eclipse setcampamento`) y escribe `/eclipse crearnpcs`. Crea los 8 NPCs en círculo alrededor del campamento, ya conectados.

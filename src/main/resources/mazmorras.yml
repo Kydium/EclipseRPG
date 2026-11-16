@@ -1,0 +1,184 @@
+# =========================================================
+#  Mazmorras de Crónicas del Eclipse (una por acto) y ruinas al azar.
+#  La mazmorra de un acto se construye la primera vez que alguien acepta
+#  la misión del jefe de ese acto, a cierta distancia del campamento.
+#  Bloques: ids de Minecraft. botin: "spec cantidad probabilidad(0-1)"
+# =========================================================
+general:
+  distancia-min: 250            # bloques desde el campamento
+  distancia-max: 450
+  profundidad: 18               # bloques bajo la superficie
+  salas-min: 7
+  salas-max: 10
+  bloques-por-tick: 6000        # velocidad de construcción
+  reaparicion-minutos: 15       # las salas vuelven a llenarse de enemigos
+  enemigos-por-sala: 3          # + 1 por cada 3 tiers + 1 por jugador extra
+
+ruinas:
+  activas: true
+  probabilidad: 0.004           # por cada chunk nuevo (≈ 1 de cada 250)
+  distancia-min-spawn: 150      # no aparecen cerca del spawn
+  radio-activacion: 8
+
+mazmorras:
+  1:
+    nombre: "<green>Cripta del Bosque Podrido"
+    jefe: rondador_podrido
+    suelo: [mossy_stone_bricks, cobblestone, mossy_cobblestone]
+    pared: [mossy_cobblestone, cobblestone, mossy_stone_bricks]
+    techo: [cobblestone]
+    acento: [cracked_stone_bricks, chiseled_stone_bricks]
+    luz: jack_o_lantern
+    decoracion: [cobweb, skeleton_skull, moss_carpet]
+    botin:
+      - "BREAD 6 0.8"
+      - "IRON_INGOT 4 0.7"
+      - "ARROW 16 0.6"
+      - "GOLD_INGOT 3 0.4"
+      - "pocion:healing 1 0.5"
+      - "custom:pergamino_campamento 1 0.3"
+      - "custom:fragmento_mejora 1 0.15"
+  2:
+    nombre: "<gray>Minas del Capataz"
+    jefe: capataz_hueso
+    suelo: [deepslate_tiles, cobbled_deepslate, polished_deepslate]
+    pared: [cobbled_deepslate, deepslate_bricks]
+    techo: [deepslate_tiles]
+    acento: [deepslate_iron_ore, deepslate_coal_ore, deepslate_gold_ore]
+    luz: glowstone
+    decoracion: [cobweb, rail, skeleton_skull]
+    botin:
+      - "IRON_INGOT 8 0.8"
+      - "GOLD_INGOT 6 0.6"
+      - "DIAMOND 2 0.4"
+      - "REDSTONE 16 0.5"
+      - "pocion:night_vision 1 0.4"
+      - "custom:fragmento_mejora 1 0.2"
+  3:
+    nombre: "<dark_red>Fortín del Heraldo"
+    jefe: heraldo_mancha
+    suelo: [dark_oak_planks, spruce_planks]
+    pared: [stripped_dark_oak_wood, cobblestone, dark_oak_planks]
+    techo: [dark_oak_planks]
+    acento: [mossy_cobblestone, white_wool]
+    luz: shroomlight
+    decoracion: [cobweb, crafting_table, barrel]
+    botin:
+      - "EMERALD 6 0.8"
+      - "DIAMOND 2 0.5"
+      - "GOLDEN_APPLE 1 0.4"
+      - "libro:sharpness:3 1 0.3"
+      - "CROSSBOW 1 0.3"
+      - "custom:fragmento_mejora 1 0.2"
+  4:
+    nombre: "<dark_aqua>Templo Hundido"
+    jefe: ahogado_coronado
+    suelo: [prismarine_bricks, dark_prismarine]
+    pared: [prismarine, prismarine_bricks]
+    techo: [dark_prismarine]
+    acento: [sea_lantern, dark_prismarine]
+    luz: sea_lantern
+    decoracion: [dried_kelp_block, sea_pickle, wet_sponge]
+    botin:
+      - "PRISMARINE_SHARD 12 0.7"
+      - "DIAMOND 3 0.5"
+      - "NAUTILUS_SHELL 1 0.4"
+      - "pocion:water_breathing 1 0.5"
+      - "libro:depth_strider:3 1 0.3"
+      - "custom:fragmento_mejora 1 0.25"
+  5:
+    nombre: "<yellow>Tumba de las Dunas"
+    jefe: bruja_dunas
+    suelo: [smooth_sandstone, cut_sandstone]
+    pared: [sandstone, smooth_sandstone]
+    techo: [cut_sandstone]
+    acento: [chiseled_sandstone, orange_terracotta]
+    luz: ochre_froglight
+    decoracion: [dead_bush, decorated_pot, cobweb]
+    botin:
+      - "GOLD_INGOT 10 0.7"
+      - "DIAMOND 4 0.5"
+      - "EMERALD 8 0.6"
+      - "GOLDEN_APPLE 2 0.4"
+      - "pocion:strength 1 0.4"
+      - "custom:fragmento_mejora 1 0.3"
+  6:
+    nombre: "<red>Fortaleza Ígnea"
+    jefe: senor_brasas
+    suelo: [nether_bricks, red_nether_bricks]
+    pared: [nether_bricks, cracked_nether_bricks]
+    techo: [nether_bricks]
+    acento: [magma_block, red_nether_bricks]
+    luz: shroomlight
+    decoracion: [nether_wart_block, soul_campfire, magma_block]
+    botin:
+      - "BLAZE_ROD 4 0.7"
+      - "NETHER_WART 8 0.6"
+      - "DIAMOND 4 0.5"
+      - "pocion:fire_resistance 1 0.6"
+      - "GOLDEN_APPLE 2 0.5"
+      - "custom:fragmento_mejora 1 0.3"
+  7:
+    nombre: "<gold>Cámaras de Cobre"
+    jefe: viento_encadenado
+    suelo: [tuff_bricks, polished_tuff]
+    pared: [tuff_bricks, chiseled_tuff]
+    techo: [polished_tuff]
+    acento: [waxed_cut_copper, waxed_chiseled_copper]
+    luz: pearlescent_froglight
+    decoracion: [cobweb, decorated_pot, waxed_copper_grate]
+    botin:
+      - "BREEZE_ROD 2 0.6"
+      - "WIND_CHARGE 8 0.6"
+      - "DIAMOND 5 0.5"
+      - "TRIAL_KEY 1 0.4"
+      - "libro:density:3 1 0.3"
+      - "custom:fragmento_mejora 1 0.35"
+  8:
+    nombre: "<dark_gray>Ciudad de las Sombras"
+    jefe: sombra_velkar
+    suelo: [deepslate_tiles, sculk, polished_deepslate]
+    pared: [deepslate_bricks, deepslate_tiles]
+    techo: [deepslate_tiles]
+    acento: [sculk, polished_basalt]
+    luz: soul_lantern
+    decoracion: [sculk_catalyst, candle, skeleton_skull]
+    botin:
+      - "ECHO_SHARD 2 0.6"
+      - "DIAMOND 6 0.6"
+      - "pocion:invisibility 1 0.5"
+      - "libro:swift_sneak:3 1 0.25"
+      - "ENCHANTED_GOLDEN_APPLE 1 0.1"
+      - "custom:fragmento_mejora 1 0.4"
+  9:
+    nombre: "<dark_red>Bastión del Rey de Ceniza"
+    jefe: rey_ceniza
+    suelo: [polished_blackstone_bricks, blackstone]
+    pared: [polished_blackstone_bricks, cracked_polished_blackstone_bricks]
+    techo: [blackstone]
+    acento: [gilded_blackstone, gold_block]
+    luz: glowstone
+    decoracion: [chain, soul_lantern, cobweb]
+    botin:
+      - "GOLD_BLOCK 2 0.6"
+      - "ANCIENT_DEBRIS 2 0.4"
+      - "NETHERITE_SCRAP 2 0.4"
+      - "NETHERITE_UPGRADE_SMITHING_TEMPLATE 1 0.25"
+      - "GOLDEN_APPLE 3 0.6"
+      - "custom:fragmento_mejora 1 0.45"
+  10:
+    nombre: "<light_purple>Ciudadela del Eclipse"
+    jefe: guardian_eclipse
+    suelo: [end_stone_bricks, purpur_block]
+    pared: [purpur_block, end_stone_bricks]
+    techo: [purpur_block]
+    acento: [purpur_pillar, obsidian]
+    luz: pearlescent_froglight
+    decoracion: [end_rod, purple_carpet, obsidian]
+    botin:
+      - "DIAMOND 8 0.7"
+      - "NETHERITE_INGOT 1 0.3"
+      - "ENCHANTED_GOLDEN_APPLE 1 0.2"
+      - "SHULKER_SHELL 2 0.5"
+      - "libro:mending:1 1 0.3"
+      - "custom:fragmento_mejora 2 0.5"

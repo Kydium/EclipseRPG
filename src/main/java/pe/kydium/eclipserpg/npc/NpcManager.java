@@ -99,11 +99,19 @@ public final class NpcManager {
         long delay = 0;
         for (int i = 0; i < list.size(); i++) {
             NpcDef n = list.get(i);
-            double angle = 2 * Math.PI * i / list.size();
-            Location at = center.clone().add(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-            at = at.getWorld().getHighestBlockAt(at).getLocation().add(0.5, 1, 0.5);
-            // mirando hacia el centro del campamento
-            at.setDirection(center.toVector().subtract(at.toVector()));
+            Location at;
+            String k = "aldea.puestos." + n.id;
+            if (plugin.getConfig().contains(k + ".x")) {
+                // puesto frente a su casa en la Aldea del Alba
+                at = new Location(center.getWorld(), plugin.getConfig().getDouble(k + ".x"), plugin.getConfig().getDouble(k + ".y"),
+                        plugin.getConfig().getDouble(k + ".z"), (float) plugin.getConfig().getDouble(k + ".yaw"), 0f);
+            } else {
+                double angle = 2 * Math.PI * i / list.size();
+                at = center.clone().add(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+                at = at.getWorld().getHighestBlockAt(at).getLocation().add(0.5, 1, 0.5);
+                // mirando hacia el centro del campamento
+                at.setDirection(center.toVector().subtract(at.toVector()));
+            }
             final Location spot = at;
             Bukkit.getScheduler().runTaskLater(plugin, () -> {
                 if (!p.isOnline()) return;

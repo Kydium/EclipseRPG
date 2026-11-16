@@ -92,6 +92,9 @@ dificultad:
   danio-corrompidos: 1.0
   vida-extra-por-jugador: 0.5   # cada jugador extra cerca del jefe le da +50% de vida
 
+dialogos:
+  ventana: true                 # true = ventanas de diálogo · false = diálogos por el chat
+
 jefes:
   soles-si-repite: 200          # si un jugador ya tiene el premio único del jefe
 
@@ -119,6 +122,11 @@ grieta:
     8: [sombra_corrompida, esqueleto_wither_corrompido]
     9: [piglin_bruto_corrompido, hoglin_corrompido]
     10: [enderman_corrompido, piglin_bruto_corrompido, sombra_corrompida]
+
+aldea:
+  aldeanos-relleno: 12          # aldeanos que aparecen al construir la aldea
+  aldeanos-invencibles: true    # que no los maten los Corrompidos
+  # "puestos" se llena solo con /eclipse construiraldea
 
 # Se guarda con /eclipse setcampamento (destino del Pergamino del Campamento)
 campamento: {}
