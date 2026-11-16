@@ -7,6 +7,13 @@
 #  equipo: mano, mano2, casco, pecho, piernas, pies (material o custom:id)
 #  premios: se entregan a cada jugador cerca del jefe. una-vez: solo la primera vez
 #  esbirros: al bajar a la mitad de vida invoca "cantidad-esbirros" refuerzos
+#  armadura / dureza / resistencia-empuje (0 a 1): defensa del mob
+#  furia: al 30% de vida gana Fuerza II y Velocidad, y usa habilidades el doble de rápido
+#  aura: partícula alrededor del jefe (FLAME, SMOKE, PORTAL, WITCH, SOUL_FIRE_FLAME...)
+#  habilidades: tipo ONDA | SALTO | TELEPORTE | INVOCAR | FLECHAS | FUEGO | RAYO | ATRAER | EFECTO
+#    cada: segundos · potencia: daño (en EFECTO, nivel del efecto) · radio: bloques
+#    extra: mobs para INVOCAR o efecto para EFECTO · cantidad: mobs / flechas / segundos del efecto
+#  La vida de los jefes sube +50% por cada jugador extra cerca (config.yml > dificultad).
 # =========================================================
 mobs:
 
@@ -14,30 +21,39 @@ mobs:
   zombi_corrompido:
     tipo: zombie
     nombre: "<dark_purple>☠ Zombi Corrompido"
-    vida: 30
-    danio-extra: 2
+    vida: 45
+    danio-extra: 3
+    armadura: 2
     xp: 10
     soles: 2
     equipo: {casco: LEATHER_HELMET}
   arana_corrompida:
     tipo: spider
     nombre: "<dark_purple>☠ Araña Corrompida"
-    vida: 30
-    danio-extra: 2
-    velocidad: 0.1
+    vida: 40
+    danio-extra: 3
     xp: 10
     soles: 2
+    velocidad: 0.15
   rondador_podrido:
     tipo: zombie
     nombre: "<red><bold>Rondador Podrido"
     jefe: true
     color-barra: RED
-    vida: 60
-    danio: 6
-    escala: 1.3
+    vida: 250
+    danio: 9
+    armadura: 6
+    dureza: 2
+    resistencia-empuje: 0.9
+    escala: 1.4
+    aura: SMOKE
     xp: 600
     soles: 150
-    equipo: {mano: IRON_SWORD, casco: IRON_HELMET}
+    equipo: {mano: IRON_SWORD, casco: IRON_HELMET, pecho: CHAINMAIL_CHESTPLATE}
+    efectos: ["speed:0"]
+    habilidades:
+      - {tipo: SALTO, cada: 8, potencia: 6, radio: 6}
+      - {tipo: INVOCAR, cada: 18, extra: zombi_corrompido, cantidad: 2}
     premios:
       - {item: fragmento_solar_1}
       - {item: hoja_del_alba}
@@ -47,28 +63,38 @@ mobs:
   esqueleto_corrompido:
     tipo: skeleton
     nombre: "<dark_purple>☠ Esqueleto Corrompido"
-    vida: 40
-    danio-extra: 3
+    vida: 65
+    danio-extra: 4
+    armadura: 4
     xp: 14
     soles: 4
     equipo: {mano: BOW, casco: CHAINMAIL_HELMET}
   creeper_corrompido:
     tipo: creeper
     nombre: "<dark_purple>☠ Creeper Corrompido"
-    vida: 40
-    velocidad: 0.25
+    vida: 60
     xp: 14
     soles: 4
+    velocidad: 0.3
   capataz_hueso:
     tipo: skeleton
     nombre: "<red><bold>Capataz Hueso"
     jefe: true
-    vida: 90
-    danio: 8
-    escala: 1.3
+    color-barra: WHITE
+    vida: 400
+    danio: 11
+    armadura: 8
+    dureza: 3
+    resistencia-empuje: 0.9
+    escala: 1.4
+    aura: SMOKE
     xp: 1200
     soles: 300
     equipo: {mano: BOW, casco: IRON_HELMET, pecho: IRON_CHESTPLATE}
+    habilidades:
+      - {tipo: FLECHAS, cada: 9, potencia: 4, radio: 6, cantidad: 8}
+      - {tipo: ONDA, cada: 12, potencia: 7, radio: 5}
+      - {tipo: INVOCAR, cada: 20, extra: esqueleto_corrompido, cantidad: 2}
     premios:
       - {item: fragmento_solar_2}
       - {item: pico_minero_perdido}
@@ -77,16 +103,18 @@ mobs:
   saqueador_corrompido:
     tipo: pillager
     nombre: "<dark_purple>☠ Saqueador Corrompido"
-    vida: 50
-    danio-extra: 4
+    vida: 80
+    danio-extra: 5
+    armadura: 5
     xp: 18
     soles: 6
     equipo: {mano: CROSSBOW}
   vindicador_corrompido:
     tipo: vindicator
     nombre: "<dark_purple>☠ Vindicador Corrompido"
-    vida: 50
-    danio-extra: 4
+    vida: 85
+    danio-extra: 6
+    armadura: 6
     xp: 18
     soles: 6
     equipo: {mano: IRON_AXE}
@@ -95,11 +123,20 @@ mobs:
     nombre: "<red><bold>Heraldo de la Mancha"
     jefe: true
     color-barra: PURPLE
-    vida: 120
-    danio: 9
-    escala: 1.3
+    vida: 550
+    danio: 12
+    armadura: 10
+    dureza: 3
+    resistencia-empuje: 0.9
+    escala: 1.4
+    aura: WITCH
     xp: 1800
     soles: 450
+    habilidades:
+      - {tipo: TELEPORTE, cada: 7}
+      - {tipo: EFECTO, cada: 14, extra: blindness, potencia: 0, radio: 10, cantidad: 4}
+      - {tipo: INVOCAR, cada: 16, extra: vindicador_corrompido, cantidad: 2}
+      - {tipo: RAYO, cada: 11, potencia: 8, radio: 3}
     premios:
       - {item: fragmento_solar_3}
       - {item: ballesta_vigia}
@@ -108,15 +145,16 @@ mobs:
   ahogado_corrompido:
     tipo: drowned
     nombre: "<dark_purple>☠ Ahogado Corrompido"
-    vida: 60
-    danio-extra: 5
+    vida: 100
+    danio-extra: 7
+    armadura: 7
     xp: 22
     soles: 8
   guardian_corrompido:
     tipo: guardian
     nombre: "<dark_purple>☠ Guardián Corrompido"
-    vida: 60
-    danio-extra: 5
+    vida: 95
+    danio-extra: 7
     xp: 22
     soles: 8
   ahogado_coronado:
@@ -124,12 +162,21 @@ mobs:
     nombre: "<red><bold>Ahogado Coronado"
     jefe: true
     color-barra: BLUE
-    vida: 150
-    danio: 11
-    escala: 1.4
+    vida: 700
+    danio: 15
+    armadura: 12
+    dureza: 4
+    resistencia-empuje: 0.9
+    escala: 1.5
+    aura: DRIPPING_WATER
     xp: 2400
     soles: 600
-    equipo: {mano: TRIDENT, casco: GOLDEN_HELMET}
+    equipo: {mano: TRIDENT, casco: GOLDEN_HELMET, pecho: DIAMOND_CHESTPLATE}
+    habilidades:
+      - {tipo: ATRAER, cada: 10, radio: 12}
+      - {tipo: ONDA, cada: 9, potencia: 9, radio: 5}
+      - {tipo: EFECTO, cada: 15, extra: slowness, potencia: 1, radio: 10, cantidad: 5}
+      - {tipo: INVOCAR, cada: 20, extra: ahogado_corrompido, cantidad: 3}
     premios:
       - {item: fragmento_solar_4}
       - {item: tridente_marea_negra}
@@ -138,14 +185,16 @@ mobs:
   husk_corrompido:
     tipo: husk
     nombre: "<dark_purple>☠ Husk Corrompido"
-    vida: 70
-    danio-extra: 6
+    vida: 120
+    danio-extra: 8
+    armadura: 8
     xp: 26
     soles: 10
   bruja_corrompida:
     tipo: witch
     nombre: "<dark_purple>☠ Bruja Corrompida"
-    vida: 70
+    vida: 110
+    armadura: 4
     xp: 26
     soles: 10
   bruja_dunas:
@@ -153,13 +202,22 @@ mobs:
     nombre: "<red><bold>Bruja de las Dunas"
     jefe: true
     color-barra: YELLOW
-    vida: 180
-    danio: 12
-    escala: 1.3
+    vida: 900
+    danio: 16
+    armadura: 12
+    dureza: 4
+    resistencia-empuje: 0.9
+    escala: 1.4
+    aura: WITCH
     xp: 3000
     soles: 750
     esbirros: [husk_corrompido]
     cantidad-esbirros: 3
+    habilidades:
+      - {tipo: EFECTO, cada: 9, extra: poison, potencia: 1, radio: 10, cantidad: 6}
+      - {tipo: TELEPORTE, cada: 8}
+      - {tipo: EFECTO, cada: 16, extra: levitation, potencia: 1, radio: 8, cantidad: 3}
+      - {tipo: INVOCAR, cada: 18, extra: husk_corrompido, cantidad: 3}
     premios:
       - {item: fragmento_solar_5}
       - {item: botas_viento_seco}
@@ -168,15 +226,17 @@ mobs:
   blaze_corrompido:
     tipo: blaze
     nombre: "<dark_purple>☠ Blaze Corrompido"
-    vida: 85
-    danio-extra: 7
+    vida: 140
+    danio-extra: 10
+    armadura: 8
     xp: 30
     soles: 12
   esqueleto_wither_corrompido:
     tipo: wither_skeleton
     nombre: "<dark_purple>☠ Esqueleto Wither Corrompido"
-    vida: 85
-    danio-extra: 7
+    vida: 150
+    danio-extra: 10
+    armadura: 10
     xp: 30
     soles: 12
     equipo: {mano: STONE_SWORD}
@@ -184,15 +244,25 @@ mobs:
     tipo: wither_skeleton
     nombre: "<red><bold>Señor de Brasas"
     jefe: true
-    vida: 230
-    danio: 15
-    escala: 1.4
+    color-barra: RED
+    vida: 1100
+    danio: 20
+    armadura: 14
+    dureza: 5
+    resistencia-empuje: 0.9
+    escala: 1.5
+    aura: FLAME
     xp: 3600
     soles: 900
-    equipo: {mano: NETHERITE_SWORD, casco: NETHERITE_HELMET}
+    equipo: {mano: NETHERITE_SWORD, casco: NETHERITE_HELMET, pecho: NETHERITE_CHESTPLATE}
     efectos: ["fire_resistance:0"]
     esbirros: [blaze_corrompido]
     cantidad-esbirros: 3
+    habilidades:
+      - {tipo: FUEGO, cada: 8, potencia: 6, radio: 8}
+      - {tipo: SALTO, cada: 10, potencia: 10, radio: 6}
+      - {tipo: ONDA, cada: 12, potencia: 10, radio: 6}
+      - {tipo: INVOCAR, cada: 20, extra: blaze_corrompido, cantidad: 2}
     premios:
       - {item: fragmento_solar_6}
       - {item: hacha_ignea}
@@ -201,14 +271,16 @@ mobs:
   breeze_corrompido:
     tipo: breeze
     nombre: "<dark_purple>☠ Breeze Corrompido"
-    vida: 100
+    vida: 160
+    armadura: 6
     xp: 34
     soles: 14
   bogged_corrompido:
     tipo: bogged
     nombre: "<dark_purple>☠ Bogged Corrompido"
-    vida: 100
-    danio-extra: 8
+    vida: 170
+    danio-extra: 11
+    armadura: 10
     xp: 34
     soles: 14
     equipo: {mano: BOW}
@@ -217,13 +289,22 @@ mobs:
     nombre: "<red><bold>Viento Encadenado"
     jefe: true
     color-barra: WHITE
-    vida: 270
-    danio: 16
-    escala: 1.6
+    vida: 1300
+    danio: 22
+    armadura: 14
+    dureza: 5
+    resistencia-empuje: 0.9
+    escala: 1.8
+    aura: CLOUD
     xp: 4200
     soles: 1050
     esbirros: [breeze_corrompido]
     cantidad-esbirros: 3
+    habilidades:
+      - {tipo: ONDA, cada: 6, potencia: 9, radio: 8}
+      - {tipo: ATRAER, cada: 11, radio: 14}
+      - {tipo: RAYO, cada: 9, potencia: 11, radio: 3}
+      - {tipo: FLECHAS, cada: 14, potencia: 6, radio: 8, cantidad: 10}
     premios:
       - {item: fragmento_solar_7}
       - {item: mazo_trueno}
@@ -232,10 +313,12 @@ mobs:
   sombra_corrompida:
     tipo: skeleton
     nombre: "<dark_gray>☠ Sombra Corrompida"
-    vida: 120
-    danio-extra: 9
+    vida: 200
+    danio-extra: 13
+    armadura: 12
     xp: 38
     soles: 16
+    velocidad: 0.15
     equipo: {mano: IRON_SWORD}
     efectos: ["invisibility:0"]
   sombra_velkar:
@@ -243,13 +326,23 @@ mobs:
     nombre: "<dark_purple><bold>Sombra de Velkar"
     jefe: true
     color-barra: PURPLE
-    vida: 320
-    danio: 18
-    escala: 1.4
+    vida: 1500
+    danio: 24
+    armadura: 16
+    dureza: 6
+    resistencia-empuje: 0.9
+    escala: 1.5
+    aura: PORTAL
     xp: 4800
     soles: 1200
     esbirros: [sombra_corrompida]
     cantidad-esbirros: 3
+    habilidades:
+      - {tipo: TELEPORTE, cada: 6}
+      - {tipo: EFECTO, cada: 13, extra: darkness, potencia: 0, radio: 16, cantidad: 8}
+      - {tipo: RAYO, cada: 9, potencia: 12, radio: 3}
+      - {tipo: EFECTO, cada: 17, extra: wither, potencia: 1, radio: 10, cantidad: 5}
+      - {tipo: INVOCAR, cada: 18, extra: sombra_corrompida, cantidad: 3}
     premios:
       - {item: fragmento_solar_8}
       - {item: capa_silencio}
@@ -258,30 +351,42 @@ mobs:
   piglin_bruto_corrompido:
     tipo: piglin_brute
     nombre: "<dark_purple>☠ Piglin Bruto Corrompido"
-    vida: 140
-    danio-extra: 10
+    vida: 240
+    danio-extra: 15
+    armadura: 14
     xp: 42
     soles: 18
     equipo: {mano: GOLDEN_AXE}
   hoglin_corrompido:
     tipo: hoglin
     nombre: "<dark_purple>☠ Hoglin Corrompido"
-    vida: 140
-    danio-extra: 10
+    vida: 250
+    danio-extra: 15
+    armadura: 12
     xp: 42
     soles: 18
   rey_ceniza:
     tipo: piglin_brute
     nombre: "<dark_red><bold>Rey de Ceniza"
     jefe: true
-    vida: 400
-    danio: 20
-    escala: 1.5
+    color-barra: RED
+    vida: 1800
+    danio: 28
+    armadura: 18
+    dureza: 8
+    resistencia-empuje: 0.9
+    escala: 1.7
+    aura: LARGE_SMOKE
     xp: 5400
     soles: 1350
-    equipo: {mano: NETHERITE_AXE, casco: NETHERITE_HELMET, pecho: NETHERITE_CHESTPLATE}
+    equipo: {mano: NETHERITE_AXE, casco: NETHERITE_HELMET, pecho: NETHERITE_CHESTPLATE, piernas: NETHERITE_LEGGINGS}
     esbirros: [piglin_bruto_corrompido]
     cantidad-esbirros: 3
+    habilidades:
+      - {tipo: SALTO, cada: 7, potencia: 14, radio: 7}
+      - {tipo: ONDA, cada: 10, potencia: 12, radio: 7}
+      - {tipo: FUEGO, cada: 12, potencia: 8, radio: 9}
+      - {tipo: INVOCAR, cada: 20, extra: piglin_bruto_corrompido, cantidad: 2}
     premios:
       - {item: fragmento_mejora, cantidad: 2}
 
@@ -289,14 +394,15 @@ mobs:
   enderman_corrompido:
     tipo: enderman
     nombre: "<dark_purple>☠ Enderman Corrompido"
-    vida: 160
-    danio-extra: 12
+    vida: 280
+    danio-extra: 18
+    armadura: 14
     xp: 46
     soles: 20
   shulker_corrompido:
     tipo: shulker
     nombre: "<dark_purple>☠ Shulker Corrompido"
-    vida: 160
+    vida: 260
     xp: 46
     soles: 20
   guardian_eclipse:
@@ -304,16 +410,27 @@ mobs:
     nombre: "<black><bold>Guardián del Eclipse"
     jefe: true
     color-barra: PURPLE
-    vida: 450
-    danio: 22
-    escala: 1.7
+    vida: 2500
+    danio: 32
+    armadura: 20
+    dureza: 10
+    resistencia-empuje: 0.9
+    escala: 1.8
     velocidad: 0.15
+    aura: SOUL_FIRE_FLAME
     xp: 8000
     soles: 2500
     equipo: {mano: NETHERITE_SWORD, casco: NETHERITE_HELMET, pecho: NETHERITE_CHESTPLATE, piernas: NETHERITE_LEGGINGS, pies: NETHERITE_BOOTS}
     efectos: ["fire_resistance:0"]
     esbirros: [enderman_corrompido, sombra_corrompida]
-    cantidad-esbirros: 4
+    cantidad-esbirros: 3
+    habilidades:
+      - {tipo: TELEPORTE, cada: 7}
+      - {tipo: ONDA, cada: 8, potencia: 14, radio: 8}
+      - {tipo: RAYO, cada: 9, potencia: 14, radio: 4}
+      - {tipo: EFECTO, cada: 14, extra: wither, potencia: 2, radio: 12, cantidad: 6}
+      - {tipo: FUEGO, cada: 12, potencia: 10, radio: 10}
+      - {tipo: INVOCAR, cada: 22, extra: "enderman_corrompido,sombra_corrompida", cantidad: 3}
     premios:
       - {item: fragmento_solar_10}
 

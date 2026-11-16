@@ -64,6 +64,7 @@ public final class EclipseRPG extends JavaPlugin {
 
         items.startHeldEffectTask();
         mobs.startBarTask();
+        new pe.kydium.eclipserpg.mobs.BossAbilities(this, mobs).start();
         rifts.startTask();
         long autosave = getConfig().getLong("autoguardado-minutos", 5) * 60L * 20L;
         Bukkit.getScheduler().runTaskTimer(this, data::saveAll, autosave, autosave);

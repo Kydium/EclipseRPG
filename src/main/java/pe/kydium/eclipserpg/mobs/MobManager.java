@@ -56,6 +56,9 @@ public final class MobManager implements Listener {
 
     public record Drop(String item, int amount, double chance) {}
 
+    /** Habilidad de jefe. tipo: ONDA, SALTO, TELEPORTE, INVOCAR, FLECHAS, FUEGO, RAYO, ATRAER, EFECTO */
+    public record Ability(String type, int every, double power, double radius, String extra, int amount) {}
+
     public static final class MobDef {
         public String id;
         public EntityType type;
@@ -75,6 +78,12 @@ public final class MobManager implements Listener {
         public final List<Drop> drops = new ArrayList<>();
         public final List<String> minions = new ArrayList<>();
         public int minionCount = 3;
+        public double armor;
+        public double toughness;
+        public double knockbackResist;
+        public boolean enrage;
+        public String aura;
+        public final List<Ability> abilities = new ArrayList<>();
     }
 
     public record Tier(double health, double damage, long xp, long soles) {}
@@ -88,6 +97,8 @@ public final class MobManager implements Listener {
 
     private static final Set<EntityType> NEVER_CORRUPT = Set.of(
             EntityType.WITHER, EntityType.ENDER_DRAGON, EntityType.WARDEN, EntityType.ELDER_GUARDIAN);
+
+    private static final double MAX_HP = 1024;
 
     private final EclipseRPG plugin;
     private final Map<String, MobDef> defs = new LinkedHashMap<>();
@@ -155,6 +166,19 @@ public final class MobManager implements Listener {
                 }
                 d.minions.addAll(s.getStringList("esbirros"));
                 d.minionCount = s.getInt("cantidad-esbirros", 3);
+                d.armor = s.getDouble("armadura", 0);
+                d.toughness = s.getDouble("dureza", 0);
+                d.knockbackResist = s.getDouble("resistencia-empuje", d.boss ? 0.8 : 0);
+                d.enrage = s.getBoolean("furia", d.boss);
+                d.aura = s.getString("aura");
+                for (Map<?, ?> m : s.getMapList("habilidades")) {
+                    Object t = m.get("tipo");
+                    if (t == null) continue;
+                    d.abilities.add(new Ability(t.toString().toUpperCase(Locale.ROOT),
+                            (int) Math.max(1, num(m.get("cada"), 10)), num(m.get("potencia"), 6),
+                            num(m.get("radio"), 6), m.get("extra") == null ? null : m.get("extra").toString(),
+                            (int) num(m.get("cantidad"), 1)));
+                }
                 defs.put(id, d);
             }
         }
@@ -228,13 +252,31 @@ public final class MobManager implements Listener {
         le.customName(Txt.mm(name));
         le.setCustomNameVisible(true);
 
-        setBase(le, Attribute.MAX_HEALTH, d.health * hpMult);
-        le.setHealth(Math.min(d.health * hpMult, maxHealth(le)));
+        boolean bossLike = d.boss || forceBar;
+        double hpDiff = plugin.getConfig().getDouble(bossLike ? "dificultad.vida-jefes" : "dificultad.vida-corrompidos", 1.0);
+        double dmgDiff = plugin.getConfig().getDouble(bossLike ? "dificultad.danio-jefes" : "dificultad.danio-corrompidos", 1.0);
+        double totalHp = d.health * hpMult * hpDiff;
+        if (bossLike) {
+            int players = 0;
+            for (Player p : loc.getWorld().getPlayers()) {
+                if (p.getGameMode() != GameMode.SPECTATOR && p.getLocation().distanceSquared(loc) < 48 * 48) players++;
+            }
+            double perPlayer = plugin.getConfig().getDouble("dificultad.vida-extra-por-jugador", 0.5);
+            totalHp *= 1.0 + perPlayer * Math.max(0, players - 1);
+        }
+        // Minecraft limita la vida a 1024: el resto se simula reduciendo el daño recibido
+        double realHp = Math.min(totalHp, MAX_HP);
+        setBase(le, Attribute.MAX_HEALTH, realHp);
+        le.setHealth(Math.min(realHp, maxHealth(le)));
+        if (totalHp > MAX_HP) le.getPersistentDataContainer().set(Keys.DMG_DIV, PersistentDataType.DOUBLE, totalHp / MAX_HP);
         AttributeInstance dmg = le.getAttribute(Attribute.ATTACK_DAMAGE);
         if (dmg != null) {
-            if (d.damage > 0) dmg.setBaseValue(d.damage);
-            else dmg.setBaseValue(dmg.getBaseValue() + d.damageExtra);
+            if (d.damage > 0) dmg.setBaseValue(d.damage * dmgDiff);
+            else dmg.setBaseValue((dmg.getBaseValue() + d.damageExtra) * dmgDiff);
         }
+        if (d.armor > 0) setBase(le, Attribute.ARMOR, d.armor);
+        if (d.toughness > 0) setBase(le, Attribute.ARMOR_TOUGHNESS, d.toughness);
+        if (d.knockbackResist > 0) setBase(le, Attribute.KNOCKBACK_RESISTANCE, Math.min(1, d.knockbackResist));
         AttributeInstance spd = le.getAttribute(Attribute.MOVEMENT_SPEED);
         if (spd != null && d.speed != 0) spd.setBaseValue(spd.getBaseValue() * (1.0 + d.speed));
         if (d.scale != 1.0) setBase(le, Attribute.SCALE, d.scale);
@@ -282,10 +324,12 @@ public final class MobManager implements Listener {
         String base = names.getOrDefault(typeKey, Txt.pretty(typeKey));
         le.customName(Txt.mm("<dark_purple>☠ " + base + " Corrompido <gray>[T" + tierNum + "]"));
         le.setCustomNameVisible(false);
-        setBase(le, Attribute.MAX_HEALTH, t.health());
-        le.setHealth(Math.min(t.health(), maxHealth(le)));
+        double hp = Math.min(MAX_HP, t.health() * plugin.getConfig().getDouble("dificultad.vida-corrompidos", 1.0));
+        setBase(le, Attribute.MAX_HEALTH, hp);
+        le.setHealth(Math.min(hp, maxHealth(le)));
         AttributeInstance dmg = le.getAttribute(Attribute.ATTACK_DAMAGE);
-        if (dmg != null) dmg.setBaseValue(dmg.getBaseValue() + t.damage());
+        if (dmg != null) dmg.setBaseValue((dmg.getBaseValue() + t.damage()) * plugin.getConfig().getDouble("dificultad.danio-corrompidos", 1.0));
+        setBase(le, Attribute.ARMOR, Math.min(20, tierNum * 1.5));
         preventConversion(le);
         le.getPersistentDataContainer().set(Keys.MOB, PersistentDataType.STRING, "natural");
         le.getPersistentDataContainer().set(Keys.TIER, PersistentDataType.INTEGER, tierNum);
@@ -415,6 +459,39 @@ public final class MobManager implements Listener {
         }
         if (nearest == null) return;
         corrupt(le, plugin.levels().tier(nearest));
+    }
+
+    /** Reduce el daño a jefes con más de 1024 de vida y activa la furia. */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBossHit(EntityDamageEvent e) {
+        if (!(e.getEntity() instanceof LivingEntity le)) return;
+        PersistentDataContainer pdc = le.getPersistentDataContainer();
+        Double div = pdc.get(Keys.DMG_DIV, PersistentDataType.DOUBLE);
+        if (div != null && div > 1) e.setDamage(e.getDamage() / div);
+        String id = pdc.get(Keys.MOB, PersistentDataType.STRING);
+        MobDef d = id == null ? null : defs.get(id);
+        if (d == null || !d.enrage || pdc.has(Keys.ENRAGED, PersistentDataType.BYTE)) return;
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (le.isDead() || le.getHealth() > maxHealth(le) * 0.3) return;
+            if (le.getPersistentDataContainer().has(Keys.ENRAGED, PersistentDataType.BYTE)) return;
+            le.getPersistentDataContainer().set(Keys.ENRAGED, PersistentDataType.BYTE, (byte) 1);
+            PotionEffectType str = Reg.effect("strength");
+            PotionEffectType spd = Reg.effect("speed");
+            if (str != null) le.addPotionEffect(new PotionEffect(str, PotionEffect.INFINITE_DURATION, 1, false, true));
+            if (spd != null) le.addPotionEffect(new PotionEffect(spd, PotionEffect.INFINITE_DURATION, 0, false, true));
+            le.setGlowing(true);
+            for (Player p : le.getWorld().getPlayers()) {
+                if (p.getLocation().distanceSquared(le.getLocation()) < 48 * 48) {
+                    Txt.send(p, "<dark_red><bold>¡" + d.name + "<dark_red><bold> entra en FURIA!");
+                    Txt.sound(p, "entity.ravager.roar", 1f, 0.7f);
+                }
+            }
+        });
+    }
+
+    /** Jefes vivos con barra (para las habilidades). */
+    public java.util.Collection<UUID> activeBosses() {
+        return new ArrayList<>(bars.keySet());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

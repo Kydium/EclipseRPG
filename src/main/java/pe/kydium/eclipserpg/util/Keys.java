@@ -12,6 +12,8 @@ public final class Keys {
     public static NamespacedKey RIFT;     // id de la Grieta a la que pertenece
     public static NamespacedKey PHASE;    // el jefe ya entró en fase 2
     public static NamespacedKey BOSS_HP;  // multiplicador de vida aplicado
+    public static NamespacedKey DMG_DIV;  // divisor de daño (vida sobre 1024)
+    public static NamespacedKey ENRAGED;  // el jefe entró en furia
 
     private Keys() {}
 
@@ -23,5 +25,7 @@ public final class Keys {
         RIFT = new NamespacedKey(p, "grieta");
         PHASE = new NamespacedKey(p, "fase");
         BOSS_HP = new NamespacedKey(p, "vida_mult");
+        DMG_DIV = new NamespacedKey(p, "div_danio");
+        ENRAGED = new NamespacedKey(p, "furia");
     }
 }
