@@ -124,7 +124,7 @@ public final class RuinBuilder {
         set(1, 1, 1, "chest[facing=north]");
         res.chestX = 1; res.chestY = 1; res.chestZ = 1;
         res.altarX = 0; res.altarY = 2; res.altarZ = 2;
-        set(-2, 4, -2, "chain");
+        set(-2, 4, -2, "iron_chain");
         set(-2, 3, -2, "soul_lantern[hanging=true]");
         bones(5, 2);
         stains(4, 4);
@@ -195,7 +195,7 @@ public final class RuinBuilder {
         res.altarX = 0; res.altarY = 2; res.altarZ = 2;
         set(1, 1, 2, "chest[facing=north]");
         res.chestX = 1; res.chestY = 1; res.chestZ = 2;
-        set(0, 4, 0, "chain");
+        set(0, 4, 0, "iron_chain");
         set(0, 3, 0, "soul_lantern[hanging=true]");
         // lápidas alrededor
         for (int i = 0; i < 6; i++) {

@@ -142,7 +142,7 @@ public final class DungeonBuilder {
 
     /** Cadena colgando del techo con un farol tenue al final. */
     private void hangingChain(int x, int z, int top, int len) {
-        for (int y = top; y > top - len; y--) set(x, y, z, "chain");
+        for (int y = top; y > top - len; y--) set(x, y, z, "iron_chain");
         set(x, top - len, z, t.dimLight + "[hanging=true]");
     }
 
@@ -333,6 +333,18 @@ public final class DungeonBuilder {
 
         // 8) Decorar cada sala según su tipo
         for (RoomPlan r : cells.values()) decorate(r);
+        // al menos 2 generadores de monstruos por mazmorra
+        long spawners = blocks.values().stream().filter(o -> o.special() == Special.SPAWNER).count();
+        for (RoomPlan r : cells.values()) {
+            if (spawners >= 2) break;
+            if (r.type == RoomType.START || r.type == RoomType.BOSS || r.type == RoomType.CHASM || r.type == RoomType.TREASURE) continue;
+            Box in = r.interior;
+            int sx = in.x1() + 2, sz = in.z2() - 2;
+            Op o = blocks.get(key(sx, in.y1(), sz));
+            if (o != null && !o.block().equals("air")) continue;
+            set(sx, in.y1(), sz, "spawner", Special.SPAWNER);
+            spawners++;
+        }
 
         // 9) Pasillos con arcos, telarañas, trampas y huesos
         for (Box c : corridors) {
@@ -396,7 +408,7 @@ public final class DungeonBuilder {
             set(gx, gy + 10, zc, t.wallBlock);
             set(gx, gy + 11, zc, "soul_campfire[lit=true]");
             set(gx - 2, gy + 6, zc, "skeleton_skull[rotation=4]");
-            set(gx - 2, gy + 3, zc, "chain");
+            set(gx - 2, gy + 3, zc, "iron_chain");
             set(gx - 2, gy + 2, zc, t.dimLight + "[hanging=true]");
         }
         for (int dz = -2; dz <= 2; dz++) {
@@ -404,9 +416,9 @@ public final class DungeonBuilder {
             set(gx, gy + 8, gz + dz, t.slab + "[type=bottom]");
             set(gx - 1, gy + 7, gz + dz, t.stairs + "[facing=east,half=top]");
         }
-        set(gx - 1, gy + 6, gz - 1, "chain");
+        set(gx - 1, gy + 6, gz - 1, "iron_chain");
         set(gx - 1, gy + 5, gz - 1, t.dimLight + "[hanging=true]");
-        set(gx - 1, gy + 6, gz + 1, "chain");
+        set(gx - 1, gy + 6, gz + 1, "iron_chain");
         set(gx - 1, gy + 5, gz + 1, t.dimLight + "[hanging=true]");
         // escombros y muros rotos alrededor
         for (int i = 0; i < 14; i++) {
@@ -484,7 +496,7 @@ public final class DungeonBuilder {
                     }
                     set(x + 1, y, in.z1(), "skeleton_skull[rotation=0]");
                     set(x + 2, y, in.z1() + 1, rnd.nextBoolean() ? "bone_block[axis=y]" : "cobweb");
-                    set(x + 1, y + 2, in.z1() + 1, "chain");
+                    set(x + 1, y + 2, in.z1() + 1, "iron_chain");
                 }
                 scatterBones(in, 4);
                 floorStain(in, 3);

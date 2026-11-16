@@ -89,6 +89,7 @@ public final class SmokeTest {
                     wait = 15;
                 }
                 case 2 -> {
+                    checkBlockNames();
                     checkWalking();
                     checkRuin();
                     plugin.dungeons().buildForTest(1);
@@ -162,8 +163,12 @@ public final class SmokeTest {
             if (en == null) continue;
             Location now = en.getLocation();
             if (now.distance(e.getValue()) > 0.5) moved++;
-            Block feet = now.getBlock();
-            if (!feet.isPassable()) stuck++;
+            Block feet = now.getBlock(), head = feet.getRelative(0, 1, 0);
+            boolean inside = !head.isPassable() || (!feet.isPassable() && feet.getBoundingBox().getMaxY() > now.getY() + 0.05);
+            if (inside) {
+                stuck++;
+                plugin.getLogger().info("[PRUEBA] dentro de bloque: " + feet.getType() + "/" + head.getType() + " en " + now.getBlockX() + " " + now.getY() + " " + now.getBlockZ());
+            }
             if (now.getY() < e.getValue().getY() - 3) fail("un aldeano cayó (" + now + ")");
         }
         check(moved >= start.size() / 3, "los aldeanos caminan (" + moved + "/" + start.size() + ")");
@@ -199,7 +204,7 @@ public final class SmokeTest {
                         chests++;
                         if (count(ch.getBlockInventory().getContents()) > 0) full++;
                     }
-                    if (bl.getState() instanceof CreatureSpawner sp && sp.getSpawnedType() != null) spawners++;
+                    if (bl.getType() == Material.SPAWNER) spawners++;
                 }
         plugin.getLogger().info("[PRUEBA] mazmorra: " + solid + " bloques, " + chests + " cofres, " + spawners + " generadores");
         check(solid > 3000, "la mazmorra tiene bloques (" + solid + ")");
@@ -207,6 +212,44 @@ public final class SmokeTest {
         check(spawners > 0, "la mazmorra tiene generadores (" + spawners + ")");
         Block gate = w.getBlockAt(e[0], e[1], e[2]);
         check(gate.isPassable(), "la entrada de la mazmorra está libre (" + gate.getType() + ")");
+    }
+
+    /** Revisa que todos los bloques de los 10 temas y de las ruinas existan en esta versión. */
+    private void checkBlockNames() {
+        java.util.Set<String> bad = new java.util.TreeSet<>();
+        java.util.Set<String> keys = java.util.Set.of("suelo", "pared", "techo", "acento", "decoracion", "luz", "escalera",
+                "losa", "muro", "peligro", "luz-tenue", "sangre", "tesoro");
+        for (int act = 1; act <= 10; act++) {
+            var t = plugin.dungeons().themeFor(act);
+            if (t == null) {
+                fail("no hay tema para el acto " + act);
+                continue;
+            }
+            for (String k : keys) {
+                List<String> vals = t.isList(k) ? t.getStringList(k) : (t.isString(k) ? List.of(t.getString(k)) : List.of());
+                for (String v : vals) if (!valid(v)) bad.add("acto " + act + " " + k + "=" + v);
+            }
+            for (String line : t.getStringList("botin")) {
+                String spec = line.trim().split("\\s+")[0];
+                String sp = spec.contains(":") ? spec : "material:" + spec;
+                if (plugin.shops().buildSpec(sp, 1) == null) bad.add("acto " + act + " botín " + spec);
+            }
+        }
+        for (boolean desert : new boolean[]{false, true})
+            for (pe.kydium.eclipserpg.dungeon.RuinBuilder.Variant v : pe.kydium.eclipserpg.dungeon.RuinBuilder.Variant.values())
+                for (String st : new pe.kydium.eclipserpg.dungeon.RuinBuilder(1, desert).build(v).blocks.values())
+                    if (!valid(st)) bad.add("ruina " + v + " " + st);
+        for (String b : bad) plugin.getLogger().severe("[PRUEBA] bloque/objeto inválido: " + b);
+        check(bad.isEmpty(), "todos los bloques y botines de mazmorras y ruinas existen (" + bad.size() + " malos)");
+    }
+
+    private static boolean valid(String state) {
+        try {
+            Bukkit.createBlockData(state.contains(":") ? state : "minecraft:" + state);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     private static int count(ItemStack[] items) {

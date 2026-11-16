@@ -153,6 +153,10 @@ public final class DungeonManager implements Listener {
         }
     }
 
+    public ConfigurationSection themeFor(int act) {
+        return theme(act);
+    }
+
     private ConfigurationSection theme(int act) {
         return cfg.getConfigurationSection("mazmorras." + act);
     }
