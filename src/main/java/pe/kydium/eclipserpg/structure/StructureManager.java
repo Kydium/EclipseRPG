@@ -598,6 +598,7 @@ public final class StructureManager implements Listener {
                             if (et != null) {
                                 var ent = w.spawnEntity(new Location(w, at[0] + 0.5, at[1], at[2] + 0.5), et);
                                 ent.setPersistent(true);
+                                if (ent instanceof org.bukkit.entity.LivingEntity le) pe.kydium.eclipserpg.npc.Deaths.markRespawn(le, "aldea");
                             }
                         }
                         default -> { }

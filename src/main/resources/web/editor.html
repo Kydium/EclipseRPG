@@ -996,8 +996,8 @@ const MOMENTOS=[["dia","Día"],["noche","Noche"],["amanecer","Amanecer"],["atard
 const LUNAS=[["llena","🌕 Llena"],["menguante","🌗 Menguante"],["nueva","🌑 Nueva"],["creciente","🌓 Creciente"]];
 const BIOGRUPOS=[["frio","Frío / nieve"],["calido","Cálido"],["desierto","Desierto"],["selva","Selva"],["oceano","Agua / playa"],["montana","Montaña"],["pantano","Pantano"],["bosque","Bosque"],["cuevas","Cuevas"]];
 const DIMS=[["overworld","Mundo normal"],["nether","Nether"],["end","End"]];
-const ROLES=[["enemigo","Enemigo · ataca a jugadores y guardianes"],["neutral","Neutral · solo si lo atacan"],["pacifico","Pacífico · nunca ataca"],["guardian","Guardián · defiende y ataca a los enemigos"]];
-function worldRoot(){const d=st.yaml.mundo=st.yaml.mundo||{};d.tiempo=d.tiempo||{};d.reglas=d.reglas||{};d.apariciones=d.apariciones||{};if(!Array.isArray(d.apariciones.reglas))d.apariciones.reglas=[];d.eventos=d.eventos||{};d.roles=d.roles||{};d.roles.guardias=d.roles.guardias||{};d.roles.mobs=d.roles.mobs||{};return d}
+const ROLES=[["enemigo","Enemigo · ataca a todos (guardianes, jugadores, aldeanos…)"],["neutral","Neutral · solo si lo atacan"],["pacifico","Pacífico · nunca ataca"],["guardian","Guardián · defiende y ataca a los enemigos"]];
+function worldRoot(){const d=st.yaml.mundo=st.yaml.mundo||{};d.tiempo=d.tiempo||{};d.reglas=d.reglas||{};d.apariciones=d.apariciones||{};if(!Array.isArray(d.apariciones.reglas))d.apariciones.reglas=[];d.eventos=d.eventos||{};d.roles=d.roles||{};d.roles.guardias=d.roles.guardias||{};d.roles.mobs=d.roles.mobs||{};d.muerte=d.muerte||{};d.muerte.reaparicion=d.muerte.reaparicion||{};return d}
 function arr(v){return Array.isArray(v)?v.map(String):(v==null||v===""?[]:String(v).split(",").map(x=>x.trim()).filter(Boolean))}
 function chips(obj,key,opts,ch){const box=h("div",{class:"chips"});const draw=()=>{const cur=arr(obj[key]);box.replaceChildren(...opts.map(([v,l])=>h("button",{class:"chip"+(cur.includes(v)?" on":""),onclick:()=>{const c=cur.includes(v)?cur.filter(x=>x!==v):[...cur,v];if(c.length)obj[key]=c;else delete obj[key];ch();draw()}},l)))};draw();return box}
 function numK(obj,key,label,hint,ch,ph){return field(label,h("input",{type:"number",step:"any",value:obj[key]??"",placeholder:ph||"—",oninput:e=>{if(e.target.value==="")delete obj[key];else obj[key]=+e.target.value;ch()}}),hint)}
@@ -1105,7 +1105,8 @@ function worldSpawns(){
 }
 function worldRoles(){
   const W=worldRoot(),R=W.roles,G=R.guardias,ch=()=>markYaml("mundo");
-  if(G.pelean==null)G.pelean=true;if(R["aldeanos-huyen"]==null)R["aldeanos-huyen"]=true;
+  if(G.pelean==null)G.pelean=true;if(R["aldeanos-huyen"]==null)R["aldeanos-huyen"]=true;if(R["npcs-pueden-caer"]==null)R["npcs-pueden-caer"]=true;
+  const D=W.muerte;if(D.cuerpos==null)D.cuerpos=true;if(D["cuerpos-criaturas"]==null)D["cuerpos-criaturas"]=true;
   const rows=Object.entries(R.mobs).map(([m,r])=>({m,r}));const sync=()=>{R.mobs={};for(const x of rows)if(x.m)R.mobs[x.m]=x.r||"neutral";ch()};
   const box=h("div",{class:"rows"});
   const draw=()=>box.replaceChildren(...rows.map((x,k)=>h("div",{class:"rw",style:"grid-template-columns:1fr 1.6fr auto"},field("Criatura de Minecraft",h("input",{value:x.m,list:"dl-entidades",placeholder:"wolf",oninput:e=>{x.m=slug(e.target.value);sync()}})),field("Rol",sel(x,"r",ROLES,sync)),h("button",{class:"btn ghost danger",onclick:()=>{rows.splice(k,1);draw();sync()}},"✕"))),
@@ -1113,13 +1114,18 @@ function worldRoles(){
   return h("div",{class:"view single"},h("div",{class:"form",style:"max-width:960px"},h("h2",null,"Roles de combate"),h("p",{class:"sub"},"Quién pelea contra quién."),
     h("div",{class:"card"},h("h3",null,"Los cuatro roles"),h("div",{class:"roles"},
       h("div",null,h("b",{style:"color:var(--blue)"},"⛨ Guardián"),h("span",null,"Defiende. Ataca a cualquier enemigo que vea y nunca a los jugadores.")),
-      h("div",null,h("b",{style:"color:var(--red)"},"☠ Enemigo"),h("span",null,"Ataca a los jugadores y también a los guardianes que tenga cerca.")),
+      h("div",null,h("b",{style:"color:var(--red)"},"☠ Enemigo"),h("span",null,"Ataca a todos: guardianes primero, luego jugadores, aldeanos, NPCs y animales (o solo guardianes y jugadores, según abajo).")),
       h("div",null,h("b",{style:"color:#f3c96b"},"◆ Neutral"),h("span",null,"No ataca a nadie… salvo que lo golpeen primero.")),
       h("div",null,h("b",{style:"color:var(--green)"},"♥ Pacífico"),h("span",null,"Nunca ataca, pase lo que pase."))),
       h("p",{style:"margin:12px 0 0;color:var(--muted)"},"Cada ",h("b",null,"enemigo o jefe")," tiene su rol en «Enemigos y jefes», y cada ",h("b",null,"personaje")," en «Personajes» (guardián, cobarde o neutral).")),
     h("div",{class:"card"},h("h3",null,"Guardias de la aldea"),
       h("div",{style:"display:flex;gap:22px;flex-wrap:wrap;margin-bottom:12px"},chk(G,"pelean","Los guardias pelean contra los hostiles",ch),chk(R,"aldeanos-huyen","Los aldeanos corren a casa si ven un monstruo",ch)),
       h("div",{class:"row"},numK(G,"vida","Vida","20 = un jugador",ch,"40"),numK(G,"danio","Daño por golpe","",ch,"6"),numK(G,"vision","Visión (bloques)","",ch,"14"),numK(G,"persecucion","Persecución (bloques)","cuánto se alejan de su puesto",ch,"24"),numK(G,"recuperacion","Recuperación (segundos)","si los vencen quedan heridos",ch,"45"))),
+    h("div",{class:"card"},h("h3",null,"Enemigos, caídas y reaparición ",h("span",{class:"hint"},"como CustomNPCs")),
+      h("div",{class:"row"},selK(R,"enemigos-atacan",[["todos","A todos (aldeanos, NPCs, animales, gólems y jugadores)"],["guardianes","Solo a guardianes y jugadores"]],"Los enemigos atacan…","",ch,"A todos"),numK(R,"vida-npc","Vida de los NPCs","los que no son guardias",ch,"20")),
+      h("div",{style:"display:flex;gap:22px;flex-wrap:wrap;margin:12px 0"},chk(R,"npcs-pueden-caer","Los enemigos pueden derribar a NPCs y aldeanos",ch),chk(D,"cuerpos","Al caer quedan tendidos en el suelo",ch),chk(D,"cuerpos-criaturas","Los mobs y animales también dejan su cuerpo",ch)),
+      h("div",{class:"row"},numK(D,"cuerpo-segundos","Cuerpo en el suelo (segundos)","",ch,"10"),numK(D.reaparicion,"npcs","Reaparición de NPCs (segundos)","vuelven a su casa",ch,"120"),numK(D.reaparicion,"animales-aldea","Reaparición de animales de la aldea (s)","0 = no vuelven",ch,"300")),
+      h("p",{style:"margin:10px 0 0;color:var(--dim);font-size:12px"},"Los NPCs nunca mueren de verdad: caen, desaparecen y vuelven. Los enemigos de mazmorras reaparecen según «Mazmorras» y los de estructuras según su «reaparición». Un enemigo con «cuerpo: no» desaparece al morir.")),
     h("div",{class:"card"},h("h3",null,"Criaturas normales de Minecraft ",h("span",{class:"hint"},"cámbiales el rol: lobos guardianes, endermans pacíficos…")),box,
       h("p",{style:"margin:10px 0 0;color:var(--dim);font-size:12px"},"«Enemigo» y «Guardián» solo funcionan con criaturas que saben pelear (lobo, gólem de hierro, oso polar, zombi…). Una vaca no va a morder a nadie."))));
 }
@@ -1371,6 +1377,7 @@ function blocksToData(blocks,R,W){
           case "vida":case "danio":case "velocidad":case "escala":case "armadura":case "dureza":case "resistencia-empuje":case "regeneracion":case "xp":case "soles":case "cantidad-esbirros":case "danio-extra":d[f.k]=nb(v);break;
           case "color-barra":d["color-barra"]=norm(v).toUpperCase().replace(/ /g,"_").replace("ROJO","RED").replace("AZUL","BLUE").replace("VERDE","GREEN").replace("AMARILLO","YELLOW").replace("MORADO","PURPLE").replace("ROSA","PINK").replace("BLANCO","WHITE");break;
           case "rol":d.rol=norm(v);break;
+          case "cuerpo":d.cuerpo=bl(v);break;
           case "aura":d.aura=v.toUpperCase().replace(/ /g,"_");break;
           case "furia":d.furia=bl(v);break;
           case "efecto":case "efectos":d.efectos=(d.efectos||[]).concat(csv(f).map(e=>{const p=norm(e).split(" ");let lv=nb(p[p.length-1]);if(lv!=null)p.pop();else lv=1;return R.eff(p.join(" "),b,f)+":"+Math.max(0,lv-1)}));break;
@@ -1498,6 +1505,12 @@ function blocksToData(blocks,R,W){
           case "guardias-pelean":((d.roles=d.roles||{}).guardias=d.roles.guardias||{}).pelean=bl(v);break;
           case "guardias-vida":case "guardias-danio":case "guardias-vision":case "guardias-recuperacion":((d.roles=d.roles||{}).guardias=d.roles.guardias||{})[f.k.slice(9)]=nb(v);break;
           case "aldeanos-huyen":(d.roles=d.roles||{})["aldeanos-huyen"]=bl(v);break;
+          case "enemigos-atacan":(d.roles=d.roles||{})["enemigos-atacan"]=/guard/.test(norm(v))?"guardianes":"todos";break;
+          case "npcs-pueden-caer":(d.roles=d.roles||{})["npcs-pueden-caer"]=bl(v);break;
+          case "vida-npc":(d.roles=d.roles||{})["vida-npc"]=nb(v);break;
+          case "cuerpos":case "cuerpos-criaturas":(d.muerte=d.muerte||{})[f.k]=bl(v);break;
+          case "cuerpo-segundos":(d.muerte=d.muerte||{})["cuerpo-segundos"]=nb(v);break;
+          case "reaparicion-npcs":case "reaparicion-animales":((d.muerte=d.muerte||{}).reaparicion=d.muerte.reaparicion||{})[f.k==="reaparicion-npcs"?"npcs":"animales-aldea"]=nb(v);break;
           case "rol":for(const x of vals(f)){const p=norm(x).split(" ");const r=p.pop();((d.roles=d.roles||{}).mobs=d.roles.mobs||{})[R.mob(p.join(" "),b,f)]=r}break;
           default:warn(b,f,"MUNDO: no conozco el campo «"+f.k+"» (se ignora)");
         }}
@@ -1559,7 +1572,8 @@ function mergeImported(d){
   if(d.apariciones.length){W.apariciones.reglas.push(...d.apariciones);wd=true}
   const M=d.mundo;if(M.tiempo){Object.assign(W.tiempo,M.tiempo);wd=true}
   if(M.apariciones){Object.assign(W.apariciones,M.apariciones);wd=true}
-  if(M.roles){if(M.roles.guardias)Object.assign(W.roles.guardias,M.roles.guardias);if(M.roles.mobs)Object.assign(W.roles.mobs,M.roles.mobs);if(M.roles["aldeanos-huyen"]!=null)W.roles["aldeanos-huyen"]=M.roles["aldeanos-huyen"];wd=true}
+  if(M.roles){if(M.roles.guardias)Object.assign(W.roles.guardias,M.roles.guardias);if(M.roles.mobs)Object.assign(W.roles.mobs,M.roles.mobs);for(const k of ["aldeanos-huyen","enemigos-atacan","npcs-pueden-caer","vida-npc"])if(M.roles[k]!=null)W.roles[k]=M.roles[k];wd=true}
+  if(M.muerte){const r=M.muerte.reaparicion;Object.assign(W.muerte,M.muerte);if(r)W.muerte.reaparicion=Object.assign(W.muerte.reaparicion||{},r);wd=true}
   if(wd)st.yamlDirty.mundo=true;
 }
 // Lo que el editor tiene sin guardar, para que el verificador del servidor lo conozca

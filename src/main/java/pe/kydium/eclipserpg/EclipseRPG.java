@@ -117,6 +117,7 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(village, this);
         pm.registerEvents(npcEntities, this);
         pm.registerEvents(npcEntities.combat(), this);
+        pm.registerEvents(new pe.kydium.eclipserpg.npc.Deaths(this, npcEntities.combat()), this);
         pm.registerEvents(world, this);
         pm.registerEvents(structures, this);
         resourcePack = new pe.kydium.eclipserpg.npc.ResourcePack(this);

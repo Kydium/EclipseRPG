@@ -456,6 +456,7 @@ public final class VillageBuilder implements Listener {
                     if (e instanceof LivingEntity le) {
                         le.setRemoveWhenFarAway(false);
                         le.setPersistent(true);
+                        pe.kydium.eclipserpg.npc.Deaths.markRespawn(le, "aldea");
                     }
                     if (e instanceof Cat cat) cat.setInvulnerable(invul);
                 }

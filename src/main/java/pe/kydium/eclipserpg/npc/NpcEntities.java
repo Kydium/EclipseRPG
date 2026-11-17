@@ -124,6 +124,18 @@ public final class NpcEntities implements Listener {
     }
 
     /** ¿Este maniquí pelea como guardián? (guardias de la aldea o NPC con "combate: guardián") */
+    public boolean isNpcOrFiller(Entity e) {
+        return npcId(e) != null || fillerRole(e) != null;
+    }
+
+    /** Casa del NPC (donde vuelve al reaparecer). */
+    Location homeOf(LivingEntity le) {
+        Walk w = walks.get(le.getUniqueId());
+        if (w != null) return new Location(le.getWorld(), w.homeX, w.homeY, w.homeZ, (float) w.yaw, 0);
+        int[] h = le.getPersistentDataContainer().get(Keys.HOME, PersistentDataType.INTEGER_ARRAY);
+        return h != null && h.length == 3 ? new Location(le.getWorld(), h[0] / 10.0, h[1] / 10.0, h[2] / 10.0) : null;
+    }
+
     public boolean isGuard(Entity e) {
         if (!combat.guardsFight()) return false;
         if ("guardia".equals(fillerRole(e))) return true;
@@ -432,6 +444,11 @@ public final class NpcEntities implements Listener {
     @EventHandler
     public void onEntitiesLoad(org.bukkit.event.world.EntitiesLoadEvent e) {
         for (Entity en : e.getEntities()) {
+            if (en.getScoreboardTags().contains(Combat.CORPSE)) {
+                en.remove();
+                continue;
+            }
+            if (en.getScoreboardTags().contains(Combat.FALLEN) && en instanceof LivingEntity fl) combat.stand(fl);
             String id = npcId(en);
             if (id != null) {
                 UUID cur = npcs.get(id);
@@ -475,6 +492,10 @@ public final class NpcEntities implements Listener {
         String id = npcId(ent);
         String role = id == null ? fillerRole(ent) : null;
         if (id == null && role == null) return;
+        if (combat.isDown(ent)) {
+            p.sendActionBar(Txt.mm("<red>✚ Está herido. Vuelve en un rato."));
+            return;
+        }
         long now = System.currentTimeMillis();
         Long last = clickCd.get(p.getUniqueId());
         if (last != null && now - last < 400) return;
@@ -522,6 +543,9 @@ public final class NpcEntities implements Listener {
         if (e instanceof org.bukkit.event.entity.EntityDamageByEntityEvent by && e.getEntity() instanceof LivingEntity le && isGuard(le)) {
             Entity src = by.getDamager() instanceof org.bukkit.entity.Projectile pr && pr.getShooter() instanceof Entity sh ? sh : by.getDamager();
             if (!(src instanceof Player)) combat.hurt(le, e.getDamage());
+        } else if (e instanceof org.bukkit.event.entity.EntityDamageByEntityEvent by && e.getEntity() instanceof LivingEntity le && combat.npcsFall()) {
+            Entity src = by.getDamager() instanceof org.bukkit.entity.Projectile pr && pr.getShooter() instanceof Entity sh ? sh : by.getDamager();
+            if (!(src instanceof Player) && combat.hostile(src)) combat.hurt(le, e.getDamage());
         }
     }
 
@@ -602,6 +626,7 @@ public final class NpcEntities implements Listener {
         // nadie cerca: no gastar
         if (!TEST && nearest(le, 72) == null) return;
         ThreadLocalRandom r = ThreadLocalRandom.current();
+        if (combat.isDown(le) && !isGuard(le)) return;
         if (isGuard(le)) {
             String sid = npcId(le);
             NpcManager.NpcDef nd = sid == null ? null : plugin.npcs().def(sid);
@@ -720,7 +745,7 @@ public final class NpcEntities implements Listener {
             Map<Mark, UUID> m = ensureMarks(e.getKey(), v);
             for (Player p : v.getWorld().getPlayers()) {
                 if (p.getLocation().distanceSquared(v.getLocation()) > 64 * 64) continue;
-                QuestManager.State st = p.getGameMode() == GameMode.SPECTATOR ? QuestManager.State.NONE
+                QuestManager.State st = p.getGameMode() == GameMode.SPECTATOR || combat.isDown(v) ? QuestManager.State.NONE
                         : plugin.quests().stateFor(p, e.getKey());
                 for (Mark mk : Mark.values()) {
                     Entity disp = Bukkit.getEntity(m.get(mk));

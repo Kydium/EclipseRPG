@@ -114,7 +114,8 @@ ENEMIGO <id>             (o JEFE <id> para un jefe con barra de vida)
   velocidad: <0.3 normal>   regeneracion: <vida por segundo>
   xp: <N>     soles: <dinero que da>    barra: <rojo|azul|verde|amarillo|morado|rosa|blanco>
   arma: <material o id de tu ARMA>   casco / pecho / piernas / botas: <material>
-  rol: <enemigo|neutral|pacifico|guardian>
+  rol: <enemigo|neutral|pacifico|guardian>    (enemigo ataca a todos: guardianes, jugadores, aldeanos, animales)
+  cuerpo: no          (desaparece al morir en vez de quedar tendido)
   efectos: speed 2, fire_resistance
   esbirros: <ids de enemigos que invoca>
   habilidad: salto cada 8 potencia 12 radio 6     (onda, salto, teleporte, invocar, flechas, fuego, rayo, atraer)
@@ -178,6 +179,11 @@ REGLAS
 - Las armas especiales con poderes deben ser raras: rareza epico, legendario
   o mitico, precio alto, nivel alto y stock 1; o que las suelte un jefe.
 - El nivel del jugador no tiene límite: puedes pedir nivel 60, 80, 100…
+- Bloque MUNDO (opcional) para combate y muertes:
+  MUNDO
+    enemigos-atacan: <todos|guardianes>    npcs-pueden-caer: sí    vida-npc: 20
+    cuerpos: sí    cuerpos-criaturas: sí    cuerpo-segundos: 10
+    reaparicion-npcs: 120    reaparicion-animales: 300     (segundos)
 - No inventes campos que no estén en el formato.
 
 MI IDEA:

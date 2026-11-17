@@ -212,6 +212,7 @@ public final class SmokeTest {
                     checkStructuresBegin();
                     checkGeneratorsBegin();
                     checkPowers();
+                    checkDeaths();
                     plugin.dungeons().buildForTest(1);
                     stage = 3;
                 }
@@ -671,6 +672,33 @@ public final class SmokeTest {
                     }
             check(solid > 500, i.id + " tiene bloques (" + solid + ", " + chests + " cofres) en " + i.x + " " + i.y + " " + i.z);
         }
+    }
+
+    private void checkDeaths() {
+        var combat = plugin.npcEntities().combat();
+        org.bukkit.entity.LivingEntity npc = null;
+        for (java.util.UUID u : plugin.npcEntities().fillerIds())
+            if (Bukkit.getEntity(u) instanceof org.bukkit.entity.LivingEntity le && le.isValid() && !plugin.npcEntities().isGuard(le)) {
+                npc = le;
+                break;
+            }
+        if (npc == null) {
+            check(false, "hay un aldeano para probar las caídas");
+            return;
+        }
+        combat.hurt(npc, 999);
+        check(combat.isDown(npc) && npc.getScoreboardTags().contains(pe.kydium.eclipserpg.npc.Combat.FALLEN), "un NPC derribado cae al suelo");
+        combat.stand(npc);
+        check(!combat.isDown(npc) && !npc.isInvisible() && !npc.getScoreboardTags().contains(pe.kydium.eclipserpg.npc.Combat.FALLEN), "el NPC vuelve a levantarse en su casa");
+        org.bukkit.Location at = npc.getLocation().add(3, 0, 3);
+        var cow = at.getWorld().spawn(at, org.bukkit.entity.Cow.class);
+        cow.setHealth(0);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            int bodies = 0;
+            for (var e : at.getWorld().getNearbyEntities(at, 6, 6, 6))
+                if (e.getScoreboardTags().contains(pe.kydium.eclipserpg.npc.Combat.CORPSE)) bodies++;
+            check(bodies > 0, "al morir queda el cuerpo tendido (" + bodies + ")");
+        }, 3L);
     }
 
     private void checkPowers() {

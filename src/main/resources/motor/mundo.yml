@@ -63,5 +63,21 @@ eventos:
 roles:
   guardias: {pelean: true, vida: 40, danio: 6, vision: 14, persecucion: 24, recuperacion: 45}
   aldeanos-huyen: true
+  enemigos-atacan: todos     # todos = aldeanos, NPCs, animales, gólems y jugadores | guardianes = solo guardianes y jugadores
+  npcs-pueden-caer: true     # los enemigos pueden derribar a los NPCs y aldeanos (no mueren: caen y vuelven)
+  vida-npc: 20               # vida de los NPCs que no son guardias
   mobs:
     iron_golem: guardian
+
+# ---------------------------------------------------------------- MUERTES
+muerte:
+  cuerpos: true              # al caer, los NPCs quedan tendidos en el suelo (false = desaparecen al momento)
+  cuerpos-criaturas: true    # también los mobs y animales dejan su cuerpo un rato
+  cuerpo-segundos: 10        # cuánto se queda el cuerpo
+  reaparicion:
+    npcs: 120                # segundos hasta que un NPC o aldeano vuelve a su casa (los guardias usan "recuperacion")
+    animales-aldea: 300      # animales y gatos de la aldea y campamentos (0 = no vuelven)
+  # Enemigos de mazmorras: mazmorras.yml > general.reaparicion-minutos
+  # Enemigos de estructuras: estructuras.yml > reaparicion (minutos) en cada estructura
+  # Cada enemigo de mobs.yml puede llevar "cuerpo: false" para desaparecer al morir
+

@@ -79,6 +79,7 @@ public final class MobManager implements Listener {
         public final List<String> minions = new ArrayList<>();
         public int minionCount = 3;
         public double regen;          // vida que recupera por segundo
+        public Boolean corpse;        // cuerpo: false = desaparece al morir (null = lo de mundo.yml)
         public String role;           // enemigo | neutral | pacifico | guardian (null = lo normal del mob)
         public double armor;
         public double toughness;
@@ -170,6 +171,7 @@ public final class MobManager implements Listener {
                 d.minionCount = s.getInt("cantidad-esbirros", 3);
                 d.regen = s.getDouble("regeneracion", 0);
                 d.role = pe.kydium.eclipserpg.npc.Combat.normRole(s.getString("rol"));
+                if (s.contains("cuerpo")) d.corpse = s.getBoolean("cuerpo");
                 d.armor = s.getDouble("armadura", 0);
                 d.toughness = s.getDouble("dureza", 0);
                 d.knockbackResist = s.getDouble("resistencia-empuje", d.boss ? 0.8 : 0);

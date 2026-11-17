@@ -374,3 +374,23 @@ el juego te dice exactamente en qué línea.
  En botines y tiendas:  especial:<rareza>  = un objeto especial al azar
  de esa rareza o mayor (raro, epico, legendario, mitico).
 
+---------------------------------------------------------------------
+ 15. ENEMIGOS QUE ATACAN A TODOS, CUERPOS Y REAPARICIÓN
+---------------------------------------------------------------------
+ (mundo.yml o el editor: Mundo vivo → Roles)
+   roles.enemigos-atacan: todos     guardianes primero, luego jugadores,
+                                    aldeanos, NPCs, animales y gólems
+                         guardianes = solo guardianes y jugadores
+   roles.npcs-pueden-caer: true     los enemigos pueden derribar NPCs
+   roles.vida-npc: 20
+   muerte.cuerpos: true             el NPC queda tendido en el suelo
+   muerte.cuerpos-criaturas: true   los mobs y animales también
+   muerte.cuerpo-segundos: 10
+   muerte.reaparicion.npcs: 120     segundos hasta que vuelve a su casa
+   muerte.reaparicion.animales-aldea: 300   (0 = no vuelven)
+ Los NPCs de la historia nunca mueren de verdad: caen, desaparecen y
+ vuelven con toda su vida (mientras tanto no se puede hablar con ellos).
+ Los guardias usan roles.guardias.recuperacion.
+ Mazmorras: general.reaparicion-minutos.  Estructuras: reaparicion.
+ Un enemigo de mobs.yml con "cuerpo: false" desaparece al morir.
+

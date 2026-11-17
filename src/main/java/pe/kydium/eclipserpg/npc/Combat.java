@@ -43,7 +43,11 @@ public final class Combat implements Listener {
         UUID target;
         long downUntil;
         boolean panic;
+        int gen;
     }
+
+    public static final String CORPSE = "eclipse_cuerpo";
+    public static final String FALLEN = "eclipse_caido";
 
     private final EclipseRPG plugin;
     private final NpcEntities owner;
@@ -52,6 +56,10 @@ public final class Combat implements Listener {
     private double guardHp = 40, guardDmg = 6, vision = 14, leash = 24, speed = 0.24;
     private int recover = 45;
     private boolean flee = true, guardsFight = true;
+    // v6.4: los enemigos atacan a todos; muertes con cuerpo y reaparición
+    private boolean attackAll = true, npcsFall = true, corpses = true, mobCorpses = true;
+    private double npcHp = 20;
+    private int corpseSec = 10, npcBack = 120, villageBack = 300;
 
     Combat(EclipseRPG plugin, NpcEntities owner) {
         this.plugin = plugin;
@@ -69,6 +77,15 @@ public final class Combat implements Listener {
         leash = g == null ? 24 : Math.max(vision, g.getDouble("persecucion", 24));
         recover = g == null ? 45 : Math.max(5, g.getInt("recuperacion", 45));
         flee = r == null || r.getBoolean("aldeanos-huyen", true);
+        attackAll = r == null || !"guardianes".equalsIgnoreCase(r.getString("enemigos-atacan", "todos").trim());
+        npcsFall = r == null || r.getBoolean("npcs-pueden-caer", true);
+        npcHp = r == null ? 20 : Math.max(1, r.getDouble("vida-npc", 20));
+        ConfigurationSection d = plugin.story().yaml("mundo").getConfigurationSection("muerte");
+        corpses = d == null || d.getBoolean("cuerpos", true);
+        mobCorpses = d == null || d.getBoolean("cuerpos-criaturas", true);
+        corpseSec = d == null ? 10 : Math.max(0, Math.min(600, d.getInt("cuerpo-segundos", 10)));
+        npcBack = d == null ? 120 : Math.max(5, d.getInt("reaparicion.npcs", 120));
+        villageBack = d == null ? 300 : Math.max(0, d.getInt("reaparicion.animales-aldea", 300));
         ConfigurationSection m = r == null ? null : r.getConfigurationSection("mobs");
         if (m != null) for (String k : m.getKeys(false)) {
             EntityType t = Reg.entity(k);
@@ -95,6 +112,22 @@ public final class Combat implements Listener {
         return flee;
     }
 
+    public boolean npcsFall() {
+        return npcsFall;
+    }
+
+    public boolean mobCorpses() {
+        return corpses && mobCorpses;
+    }
+
+    public int corpseSeconds() {
+        return corpseSec;
+    }
+
+    public int villageBack() {
+        return villageBack;
+    }
+
     public boolean guardsFight() {
         return guardsFight;
     }
@@ -118,7 +151,8 @@ public final class Combat implements Listener {
     }
 
     public boolean hostile(Entity e) {
-        if (!(e instanceof LivingEntity le) || e instanceof Player || e instanceof Mannequin || !le.isValid() || le.isDead()) return false;
+        if (!(e instanceof LivingEntity le) || e instanceof Player || e instanceof Mannequin || !le.isValid() || le.isDead()
+                || e.getScoreboardTags().contains(CORPSE)) return false;
         String role = explicitRole(e);
         if (role != null) return role.equals("enemigo");
         return e instanceof Enemy;
@@ -154,11 +188,8 @@ public final class Combat implements Listener {
             le.setInvulnerable(false);
         }
         if (g.downUntil > 0) {
-            if (System.currentTimeMillis() < g.downUntil) return true;
-            g.downUntil = 0;
-            g.hp = maxHp;
-            le.setInvulnerable(false);
-            owner.restoreDescription(le);
+            if (System.currentTimeMillis() < g.downUntil + 3000) return true;
+            stand(le);
         }
         if (g.cd > 0) g.cd--;
         Location loc = le.getLocation();
@@ -217,18 +248,58 @@ public final class Combat implements Listener {
         return g.panic;
     }
 
-    /** Un enemigo golpeó a un guardia. */
-    void hurt(LivingEntity guard, double dmg) {
-        G g = g(guard);
-        if (g.downUntil > 0 || g.hp < 0) return;
+    /** Un enemigo golpeó a un NPC (guardia, aldeano o NPC de la historia). */
+    public void hurt(LivingEntity npc, double dmg) {
+        G g = g(npc);
+        if (g.downUntil > 0) return;
+        if (g.hp < 0) g.hp = owner.isGuard(npc) ? guardHp : npcHp;
         g.hp -= dmg;
-        guard.playHurtAnimation(0);
-        guard.getWorld().playSound(guard.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_HURT, 0.8f, 0.9f);
+        npc.playHurtAnimation(0);
+        npc.getWorld().playSound(npc.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_HURT, 0.8f, 0.9f);
         if (g.hp > 0) return;
-        g.downUntil = System.currentTimeMillis() + recover * 1000L;
+        down(npc, owner.isGuard(npc) ? recover : npcBack);
+    }
+
+    /** Cae al suelo (si hay cuerpos), luego desaparece y vuelve a su casa pasado un rato. */
+    void down(LivingEntity npc, int backSeconds) {
+        G g = g(npc);
+        int gen = ++g.gen;
+        g.downUntil = System.currentTimeMillis() + backSeconds * 1000L;
         g.target = null;
-        guard.setInvulnerable(true);
-        if (guard instanceof Mannequin m) m.setDescription(Txt.mm("<red>✚ Herido · se está recuperando"));
+        npc.setInvulnerable(true);
+        npc.addScoreboardTag(FALLEN);
+        npc.getWorld().playSound(npc.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_DEATH, 0.8f, 1f);
+        if (npc instanceof Mannequin m) m.setDescription(Txt.mm("<red>✚ Herido"));
+        int lie = corpses ? Math.min(corpseSec, backSeconds) : 0;
+        if (lie > 0) npc.setPose(org.bukkit.entity.Pose.SLEEPING, true);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (g.gen != gen || !npc.isValid()) return;
+            // desaparece hasta que reaparezca
+            npc.getWorld().spawnParticle(org.bukkit.Particle.POOF, npc.getLocation().add(0, 0.5, 0), 12, 0.3, 0.2, 0.3, 0.02);
+            npc.setPose(org.bukkit.entity.Pose.STANDING, false);
+            npc.setInvisible(true);
+            npc.setCustomNameVisible(false);
+            if (npc instanceof Mannequin m) m.setDescription(null);
+        }, Math.max(1, lie * 20L));
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (g.gen == gen && npc.isValid()) stand(npc);
+        }, backSeconds * 20L);
+    }
+
+    /** Vuelve a estar de pie, en su casa y con toda la vida. */
+    public void stand(LivingEntity npc) {
+        G g = g(npc);
+        g.gen++;
+        g.downUntil = 0;
+        g.hp = owner.isGuard(npc) ? guardHp : npcHp;
+        npc.setInvulnerable(false);
+        npc.setInvisible(false);
+        npc.setPose(org.bukkit.entity.Pose.STANDING, false);
+        npc.removeScoreboardTag(FALLEN);
+        Location home = owner.homeOf(npc);
+        if (home != null) npc.teleport(home, TeleportFlag.EntityState.RETAIN_PASSENGERS);
+        owner.restoreDescription(npc);
+        npc.getWorld().spawnParticle(org.bukkit.Particle.HAPPY_VILLAGER, npc.getLocation().add(0, 1, 0), 14, 0.3, 0.5, 0.3, 0);
     }
 
     public boolean isDown(Entity e) {
@@ -255,6 +326,7 @@ public final class Combat implements Listener {
                     if (t != null) m.setTarget(t);
                 } else if (hostile(m) && m.getType() != EntityType.CREEPER) {
                     LivingEntity t = nearest(m, 12, false);
+                    if (t == null && attackAll) t = anyone(m, 12);
                     if (t != null) m.setTarget(t);
                     else if ("enemigo".equals(role) && !(m instanceof Enemy)) {
                         Player near = null;
@@ -283,6 +355,25 @@ public final class Combat implements Listener {
                     : (e instanceof Mannequin && guardsFight && owner.isGuard(e) && !isDown(e) && st.containsKey(e.getUniqueId()))
                     || (e instanceof Mob && "guardian".equals(explicitRole(e)));
             if (!ok || !(e instanceof LivingEntity le) || le.isDead()) continue;
+            double d = e.getLocation().distanceSquared(from.getLocation());
+            if (d < bd && from.hasLineOfSight(e)) {
+                bd = d;
+                best = le;
+            }
+        }
+        return best;
+    }
+
+    /** Para "los enemigos atacan a todos": el ser vivo más cercano que no sea enemigo (aldeanos, NPCs, animales, gólems, jugadores). */
+    private LivingEntity anyone(Mob from, double radius) {
+        LivingEntity best = null;
+        double bd = radius * radius;
+        for (Entity e : from.getNearbyEntities(radius, 5, radius)) {
+            if (!(e instanceof LivingEntity le) || le.isDead() || !le.isValid() || hostile(e) || e.isInvulnerable() && !(e instanceof Mannequin)) continue;
+            if (e instanceof org.bukkit.entity.ArmorStand || e.getScoreboardTags().contains(CORPSE) || e.getScoreboardTags().contains(FALLEN)) continue;
+            if (e instanceof Player p && p.getGameMode() != GameMode.SURVIVAL && p.getGameMode() != GameMode.ADVENTURE) continue;
+            if (e instanceof Mannequin && (!npcsFall || !owner.isNpcOrFiller(e) || isDown(e))) continue;
+            if (from instanceof org.bukkit.entity.Creeper || e.getType() == from.getType()) continue;
             double d = e.getLocation().distanceSquared(from.getLocation());
             if (d < bd && from.hasLineOfSight(e)) {
                 bd = d;
