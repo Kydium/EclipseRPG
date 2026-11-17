@@ -127,6 +127,7 @@ public final class HotkeyMenu implements Listener {
             plugin.getLogger().warning("No se pudo instalar el paquete de datos de atajos: " + e.getMessage());
             return false;
         }
+        plugin.getLogger().info("Paquete de la tecla G en " + root.getPath());
         if (isNew) {
             plugin.getLogger().info("Paquete de datos de atajos instalado: recargando datos para activar la tecla G…");
             Bukkit.getScheduler().runTaskLater(plugin, Bukkit::reloadData, 20L);

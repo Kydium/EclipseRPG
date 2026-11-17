@@ -165,7 +165,7 @@ public final class SmokeTest {
             int skins = 0;
             try (var z = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(resp.body()))) {
                 java.util.zip.ZipEntry en;
-                while ((en = z.getNextEntry()) != null) if (en.getName().endsWith(".png")) skins++;
+                while ((en = z.getNextEntry()) != null) if (en.getName().startsWith("assets/eclipse/textures/npc/") && en.getName().endsWith(".png")) skins++;
             }
             check(skins == plugin.story().skins().size(), "el paquete trae todas las skins (" + skins + ")");
         } catch (Exception e) {
@@ -722,6 +722,13 @@ public final class SmokeTest {
         int before = sb.placedCount();
         sb.put(at.getBlock(), "mena_hierro_eterna");
         check(sb.placedCount() == before + 1 && at.getBlock().getType() == Material.IRON_ORE, "un bloque especial se coloca");
+        try {
+            for (var pk : Bukkit.getDatapackManager().getPacks())
+                if (pk.getName().contains("atajos") || pk.getName().startsWith("file/"))
+                    plugin.getLogger().info("[PRUEBA] datapack " + pk.getName() + " activo=" + pk.isEnabled() + " compat=" + pk.getCompatibility());
+        } catch (Throwable t) {
+            plugin.getLogger().info("[PRUEBA] datapacks: " + t);
+        }
         check(plugin.hotkeys().datapackActive(), "el paquete de la tecla G está activo");
     }
 
