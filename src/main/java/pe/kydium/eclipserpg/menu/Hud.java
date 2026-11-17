@@ -130,14 +130,14 @@ public final class Hud implements Listener {
                         }
                     }
                     case MAZMORRA -> {
-                        Location l = plugin.dungeons().entrance(q.dungeon > 0 ? q.dungeon : q.act);
+                        Location l = plugin.dungeons().entranceLocation(q.dungeon > 0 ? q.dungeon : q.act);
                         if (l != null) return l;
                     }
                     default -> { }
                 }
             }
             if (q.dungeon > 0) {
-                Location l = plugin.dungeons().entrance(q.dungeon);
+                Location l = plugin.dungeons().entranceLocation(q.dungeon);
                 if (l != null) return l;
             }
             if (q.structure != null) {
