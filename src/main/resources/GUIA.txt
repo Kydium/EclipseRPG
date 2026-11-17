@@ -361,7 +361,10 @@ el juego te dice exactamente en qué línea.
  RUNAS: cualquier arma, herramienta o armadura (aunque sea normal de
  Minecraft) puede ganar poderes. Compra una runa (Bruno: tienda "runas")
  o encuéntrala en tesoros, ponla en la otra mano (tecla F), agáchate y
- clic derecho. Máximo 3 runas distintas por objeto (poderes.max-runas);
+ haz clic derecho en un YUNQUE. Cuesta niveles de experiencia: 5, y 3 más
+ por cada runa que el objeto ya tenga (poderes.niveles-base y
+ poderes.niveles-por-runa; poderes.forjar-en-yunque: false = en cualquier
+ lugar). Máximo 3 runas distintas por objeto (poderes.max-runas);
  una runa igual a otra ya forjada la refuerza (suma su valor).
  En tiendas y botín:  runa:<poder>[:valor[:probabilidad]]   o  runa:azar
  En texto:            vende: 1 runa de robo de vida 5 por 900

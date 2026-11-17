@@ -253,9 +253,11 @@ public final class Powers implements Listener {
         lore.add("<gray>" + def[4]);
         lore.add("");
         lore.add("<yellow>Cómo forjarla:");
-        lore.add("<gray>Arma, herramienta o armadura en la mano, esta runa en");
-        lore.add("<gray>la otra mano (tecla F), agáchate y clic derecho.");
-        lore.add("<dark_gray>Máximo de runas por objeto: según config.");
+        lore.add("<gray>Arma, herramienta o armadura en la mano y esta");
+        lore.add("<gray>runa en la otra (tecla F). Agáchate y haz clic");
+        lore.add("<gray>derecho en un <white>yunque</white>.");
+        lore.add("<gray>Cuesta <green>5 niveles</green> de experiencia (+3 por");
+        lore.add("<gray>cada runa que el objeto ya tenga).");
         meta.lore(pe.kydium.eclipserpg.util.Txt.lore(lore));
         meta.setEnchantmentGlintOverride(true);
         meta.getPersistentDataContainer().set(RUNE, PersistentDataType.STRING, ser(List.of(p)));
@@ -275,6 +277,12 @@ public final class Powers implements Listener {
         if (e.getAction() != org.bukkit.event.block.Action.RIGHT_CLICK_AIR && e.getAction() != org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) return;
         Player p = e.getPlayer();
         ItemStack main = p.getInventory().getItemInMainHand(), off = p.getInventory().getItemInOffHand();
+        if (!isRune(main) && !isRune(off)) return;
+        boolean anvil = e.getClickedBlock() != null && org.bukkit.Tag.ANVIL.isTagged(e.getClickedBlock().getType());
+        if (plugin.getConfig().getBoolean("poderes.forjar-en-yunque", true) && !anvil) {
+            pe.kydium.eclipserpg.util.Txt.send(p, "<gray>Las runas se forjan en un <white>yunque</white>: agáchate y haz clic derecho en uno.");
+            return;
+        }
         ItemStack runeIt, target;
         if (isRune(off) && !isRune(main)) { runeIt = off; target = main; }
         else if (isRune(main) && !isRune(off)) { runeIt = main; target = off; }
@@ -302,6 +310,15 @@ public final class Powers implements Listener {
             pe.kydium.eclipserpg.util.Txt.send(p, "<red>Este objeto ya tiene " + max + " runas. Solo puedes reforzar una que ya tenga (misma runa).");
             return;
         } else rs.add(add);
+        // cuesta niveles de experiencia: más runas = más caro
+        int cost = plugin.getConfig().getInt("poderes.niveles-base", 5) + plugin.getConfig().getInt("poderes.niveles-por-runa", 3) * (rs.size() - 1);
+        boolean free = p.getGameMode() == org.bukkit.GameMode.CREATIVE;
+        if (!free && p.getLevel() < cost) {
+            pe.kydium.eclipserpg.util.Txt.send(p, "<red>Necesitas <white>" + cost + " niveles</white> de experiencia para forjar esta runa (tienes " + p.getLevel() + ").");
+            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.4f, 1.6f);
+            return;
+        }
+        if (!free) p.setLevel(p.getLevel() - cost);
         meta.getPersistentDataContainer().set(RUNES, PersistentDataType.STRING, ser(rs));
         // descripción: la original del objeto + las runas
         String id = plugin.items().idOf(target);
@@ -312,9 +329,9 @@ public final class Powers implements Listener {
         target.setItemMeta(meta);
         runeIt.setAmount(runeIt.getAmount() - 1);
         p.getWorld().spawnParticle(Particle.ENCHANT, p.getLocation().add(0, 1.2, 0), 60, 0.5, 0.6, 0.5, 0.6);
-        p.playSound(p.getLocation(), Sound.BLOCK_SMITHING_TABLE_USE, 1f, 1.1f);
+        p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, 1f, 1.1f);
         p.playSound(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.2f);
-        pe.kydium.eclipserpg.util.Txt.send(p, "<light_purple>¡Runa forjada! " + TYPES.get(add.type())[0]);
+        pe.kydium.eclipserpg.util.Txt.send(p, "<light_purple>¡Runa forjada! " + TYPES.get(add.type())[0] + (free ? "" : " <gray>(-" + cost + " niveles)"));
     }
 
     private static boolean isRune(ItemStack it) {

@@ -1608,8 +1608,8 @@ function unsavedCatalog(extra){
 
 // respuesta automática del jugador (igual que en el juego)
 const FUTURE={derrota:"Derrotaré",vence:"Venceré",elimina:"Eliminaré",entrega:"Te traeré",trae:"Te traeré",lleva:"Llevaré",consigue:"Conseguiré",ten:"Conseguiré",obten:"Conseguiré",junta:"Juntaré",recolecta:"Recolectaré",encuentra:"Encontraré",busca:"Buscaré",entra:"Iré",ve:"Iré",viaja:"Viajaré",domestica:"Domesticaré",encanta:"Encantaré",pesca:"Pescaré",mina:"Minaré",pica:"Picaré",tala:"Talaré",funde:"Fundiré",cocina:"Cocinaré",habla:"Hablaré",explora:"Exploraré",completa:"Completaré",supera:"Superaré",sobrevive:"Sobreviviré",cosecha:"Cosecharé",construye:"Construiré",visita:"Visitaré",caza:"Cazaré",protege:"Protegeré",defiende:"Defenderé",limpia:"Limpiaré",rescata:"Rescataré",investiga:"Investigaré",fabrica:"Fabricaré",crea:"Crearé"};
-function autoReply(m){const o=(m.objetivos||[])[0];if(!o)return "¡Cuenta conmigo!";let t=objPhrase(o);if(t.includes("|"))t=t.split("|")[1];t=t.replace(/<[^>]+>/g,"").trim();
-  const sp=t.indexOf(" "),verb=norm(sp<0?t:t.slice(0,sp));let rest=sp<0?"":t.slice(sp+1).trim();if(rest)rest=rest[0].toLowerCase()+rest.slice(1);
+function autoReply(m){const o=(m.jefe&&(m.objetivos||[]).find(x=>/^(matar|jefe|mob|derrota)/.test(x.tipo||"")))||(m.objetivos||[])[0];if(!o)return "¡Cuenta conmigo!";let t=objPhrase(o);if(t.includes("|"))t=t.split("|")[1];t=t.replace(/<[^>]+>/g,"").trim();
+  const sp=t.indexOf(" "),verb=norm(sp<0?t:t.slice(0,sp));let rest=sp<0?"":t.slice(sp+1).trim();
   let core;if(["mata","matar","acaba"].includes(verb)){const r2=rest.replace(/^\d+\s+/,"");core=/^1\s/.test(rest)?"Acabaré con "+r2:"Acabaré con esos "+r2}
   else core=FUTURE[verb]?FUTURE[verb]+(rest?" "+rest:""):"Me encargo de eso";
   const lead=m.jefe?["¡Que venga!","No le tengo miedo.","Es hora de acabar con esto."]:["¡Cuenta conmigo!","¡Hecho!","Déjamelo a mí.","Entendido.","Voy enseguida."];

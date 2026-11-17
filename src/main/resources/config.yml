@@ -181,3 +181,6 @@ estructuras:
 # Poderes de armas (robo de vida, rayo…) y runas que se forjan en cualquier arma o armadura
 poderes:
   max-runas: 3                  # cuántas runas distintas puede tener un objeto
+  forjar-en-yunque: true        # las runas se forjan haciendo clic en un yunque (false = en cualquier parte)
+  niveles-base: 5               # niveles de experiencia que cuesta forjar una runa
+  niveles-por-runa: 3           # niveles extra por cada runa que el objeto ya tenga

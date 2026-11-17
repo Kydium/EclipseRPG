@@ -81,11 +81,12 @@ public final class Quest {
     /** Respuesta del jugador según lo que pide la misión: "¡Cuenta conmigo! Te traeré 20 panes." */
     public String autoReply() {
         if (objectives.isEmpty()) return "¡Cuenta conmigo!";
-        String t = objectives.get(0).text == null ? "" : objectives.get(0).text.replaceAll("<[^>]+>", "").trim();
+        Objective main = objectives.get(0);
+        if (boss) for (Objective o : objectives) if (o.type == Type.MOB || o.type == Type.MATAR) { main = o; break; }
+        String t = main.text == null ? "" : main.text.replaceAll("<[^>]+>", "").trim();
         String[] w = t.split("\\s+", 2);
         String verb = w[0].toLowerCase(Locale.ROOT).replace("á", "a").replace("é", "e").replace("í", "i").replace("ó", "o").replace("ú", "u");
         String rest = w.length > 1 ? w[1] : "";
-        if (!rest.isEmpty()) rest = Character.toLowerCase(rest.charAt(0)) + rest.substring(1);
         String core;
         if (verb.equals("mata") || verb.equals("matar") || verb.equals("acaba")) {
             String r2 = rest.replaceFirst("^\\d+\\s+", "");
