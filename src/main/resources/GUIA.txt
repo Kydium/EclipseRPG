@@ -192,3 +192,40 @@ el juego te dice exactamente en qué línea.
  • Los NPCs se ven sin ropa: acepta el paquete de recursos al entrar.
    Si tus amigos no pueden descargarlo, abre el puerto 25580 (o cambia
    paquete-recursos.puerto en config.yml).
+
+---------------------------------------------------------------------
+ 10. MUNDO VIVO (clima, luna, eventos y roles)
+---------------------------------------------------------------------
+ Se edita en el editor web, en «Mundo vivo» (o a mano en
+ historias/<nombre>/avanzado/mundo.yml).
+
+ • Reglas de ambiente: "cuando pase X, al jugador le pasa Y".
+   Ejemplos: frío en la nieve sin ropa de cuero, tormenta que frena,
+   luna llena con más monstruos y más experiencia, la aldea cura.
+ • Apariciones: más o menos monstruos, prohibir algunos, o cambiar los
+   normales por enemigos de tu historia según bioma, clima, luna o acto.
+ • Eventos: Luna de Sangre, tormentas, bendiciones… con barra arriba,
+   oleadas de enemigos, efectos y premio al terminar.
+ • Roles: guardián (defiende), enemigo, neutral y pacífico. Los guardias
+   de la aldea pelean contra los monstruos y los aldeanos corren a casa.
+ • Tiempo: cuánto duran el día y la noche, y si se puede dormir.
+
+ En la historia:
+   NPC cabo
+     combate: guardián        (o cobarde, o neutral)
+     vida: 60
+     daño: 8
+   MISIÓN Noche roja
+     evento: luna_sangre      (empieza al aceptar la misión)
+     clima: tormenta          (despejado, lluvia o tormenta)
+
+ En el juego (administradores):
+   /evento                  clima, luna y qué reglas te afectan
+   /evento lista            eventos de la historia
+   /evento iniciar <id>     empezar un evento · /evento parar
+   /evento clima tormenta   cambiar el clima
+
+ Tiendas: en el editor cada tienda puede abrir solo de día o de noche,
+ solo durante un evento, pedir misiones completadas y variar precios
+ cada día. Cada producto puede tener stock que se repone, pagarse con
+ objetos (trueque) o desbloquearse al avanzar en la historia.

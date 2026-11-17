@@ -389,7 +389,6 @@ public final class WorldManager implements Listener {
     // ------------------------------------------------------------------ Carga
 
     public void load() {
-        for (String id : new ArrayList<>(active.keySet())) stop(id, false);
         rules.clear();
         spawnRules.clear();
         events.clear();
@@ -478,6 +477,12 @@ public final class WorldManager implements Listener {
             e.rewardXp = s.getLong("premio-xp", 0);
             e.rewardMoney = s.getLong("premio-dinero", 0);
             events.put(e.id, e);
+        }
+        // los eventos en curso siguen (con sus datos nuevos) si todavía existen
+        for (Active act : new ArrayList<>(active.values())) {
+            EventDef fresh = events.get(act.def.id);
+            if (fresh == null) stop(act.def.id, false);
+            else act.def = fresh;
         }
         plugin.getLogger().info("Mundo vivo: " + rules.size() + " reglas de ambiente, " + spawnRules.size()
                 + " apariciones, " + events.size() + " eventos");
