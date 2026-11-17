@@ -5,6 +5,9 @@
 #  (ej. espada de hierro = +5 de daño y -2.4 de velocidad de ataque + el extra).
 #  slot: mainhand | offhand | head | chest | legs | feet | armor | any
 #  operacion: add_number (suma) | add_scalar (porcentaje del valor base)
+#  rareza: comun | poco_comun | raro | epico | legendario | mitico  (pinta el nombre y añade la etiqueta)
+#  estilo-rpg: true  -> muestra las estadísticas en español con colores y oculta las de Minecraft
+#  nombre y lore aceptan colores: <red>, <#ff8800>, <gradient:#ff0000:#ffaa00>texto</gradient>, <rainbow>, <bold>
 # =========================================================
 items:
 

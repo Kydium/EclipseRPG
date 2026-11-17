@@ -8,7 +8,11 @@ LA FORMA MÁS FÁCIL: EL EDITOR VISUAL
     (con galería de skins, subir PNG o pegar un link), misiones,
     enemigos y jefes (vida, regeneración, habilidades, equipo), objetos
     y tiendas. El botón "Guardar y aplicar" lo pone en el juego al
-    instante. Lo que sigue explica el archivo que el editor escribe por
+    instante. En "Importar / exportar" pegas historias escritas por una
+    IA (o cargas un archivo) y descargas copias completas de la tuya.
+    En "Objetos especiales" haces armas estilo RPG: nombre en degradado,
+    descripción con colores, rareza (común → mítico) y estadísticas.
+    Lo que sigue explica el archivo que el editor escribe por
     ti, por si prefieres editarlo a mano.
 
 Todo se escribe en UN archivo de texto, en español:

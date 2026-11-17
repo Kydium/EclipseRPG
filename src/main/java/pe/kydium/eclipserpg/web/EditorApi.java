@@ -112,6 +112,13 @@ public final class EditorApi {
         StoryManager st = plugin.story();
         switch (path) {
             case "catalogo" -> json(ex, 200, sync(this::catalog));
+            case "prompt" -> {
+                try (InputStream in = plugin.getResource("PROMPT-IA.txt")) {
+                    JsonObject o = new JsonObject();
+                    o.addProperty("texto", in == null ? "" : new String(in.readAllBytes(), StandardCharsets.UTF_8));
+                    json(ex, 200, o);
+                }
+            }
             case "texto" -> {
                 File f = st.file();
                 if (method.equals("GET")) {

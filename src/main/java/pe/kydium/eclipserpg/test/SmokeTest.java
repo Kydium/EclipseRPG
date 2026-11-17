@@ -100,6 +100,18 @@ public final class SmokeTest {
         var rb = new pe.kydium.eclipserpg.story.StoryParser(st.dictionary(), st.catalog()).parse(bad);
         for (var pr : rb.problems()) plugin.getLogger().info("[PRUEBA] historia mala: " + pr);
         check(rb.errors() >= 7, "una historia con errores se detecta (" + rb.errors() + " errores)");
+        // armas estilo RPG: rareza y estadísticas en español
+        var ci = new pe.kydium.eclipserpg.items.ItemManager.CustomItem();
+        ci.id = "prueba";
+        ci.name = "Hoja";
+        ci.rarity = "legendario";
+        ci.rpgStyle = true;
+        ci.lore.add("<gray>Forjada con <gold>luz");
+        ci.attributes.add(new pe.kydium.eclipserpg.items.ItemManager.AttrDef("attack_damage", 11, null, "mainhand"));
+        ci.attributes.add(new pe.kydium.eclipserpg.items.ItemManager.AttrDef("movement_speed", 0.02, null, "mainhand"));
+        var lore = String.join("|", plugin.items().loreLines(ci, 2));
+        check(plugin.items().displayName(ci, 0).startsWith("<gold>") && lore.contains("LEGENDARIO") && lore.contains("Daño: <white>14")
+                && lore.contains("+0.02") && lore.contains("Mejorada +2"), "armas estilo RPG: rareza, estadísticas y mejora (" + lore + ")");
         // diccionario: todo lo que nombra existe en esta versión de Minecraft
         checkDictionary();
     }

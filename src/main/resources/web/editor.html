@@ -113,6 +113,16 @@ textarea{resize:vertical;min-height:38px}
 .seg button.on{background:#2f2619;color:var(--gold)}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.tip{background:#100010f0;border:2px solid #2d0a63;outline:2px solid #100010;border-radius:4px;padding:8px 10px;font-family:"Minecraftia","Courier New",ui-monospace,monospace;font-size:14px;line-height:1.45;color:#fff;max-width:420px;text-shadow:2px 2px 0 #00000088;min-height:40px}
+.tip div{min-height:1.45em;white-space:pre-wrap;word-break:break-word}
+.tb{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin-bottom:8px}
+.tb .sw{width:20px;height:20px;border-radius:4px;border:1px solid #0008;cursor:pointer}
+.tb .sw:hover{outline:2px solid var(--gold)}
+.tb .btn{padding:3px 8px;font-size:12px}
+.tb .sep{width:1px;height:20px;background:var(--line2);margin:0 4px}
+.tb input[type=color]{width:28px;height:24px;padding:0;border:1px solid var(--line2);border-radius:4px;background:none}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,420px);gap:18px;align-items:start}
+@media (max-width:1100px){.split{grid-template-columns:1fr}}
 .lock{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:14px;text-align:center;padding:20px}
 @media (max-width:900px){.main{grid-template-columns:1fr}.nav{flex-direction:row;overflow:auto}.nav hr,.nav .cnt{display:none}.view{grid-template-columns:1fr}.list{max-height:240px}}
 </style>
@@ -373,7 +383,7 @@ function datalists(){
 }
 
 // ------------------------------------------------------------------ vistas
-const VIEWS=[["inicio","☀","Historia"],["npcs","☺","Personajes"],["misiones","✎","Misiones"],["mobs","☠","Enemigos y jefes"],["objetos","⚔","Objetos especiales"],["tiendas","⛁","Tiendas"],null,["revisar","✓","Revisar y aplicar"],["ayuda","?","Ayuda"]];
+const VIEWS=[["inicio","☀","Historia"],["npcs","☺","Personajes"],["misiones","✎","Misiones"],["mobs","☠","Enemigos y jefes"],["objetos","⚔","Objetos especiales"],["tiendas","⛁","Tiendas"],null,["importar","⇅","Importar / exportar"],["revisar","✓","Revisar y aplicar"],["ayuda","?","Ayuda"]];
 function render(){
   const app=$("#app");
   if(!TOKEN){app.replaceChildren(lockScreen("Falta el código de acceso. Abre el editor con el comando /historia editor dentro del juego."));return}
@@ -402,7 +412,7 @@ function nav(){
   return h("div",{class:"nav"},VIEWS.map(v=>v?h("button",{class:st.view===v[0]?"on":"",onclick:()=>{st.view=v[0];renderView();$(".nav").replaceWith(nav())}},h("span",{class:"ic"},v[1]),v[2],c[v[0]]!=null?h("span",{class:"cnt"},c[v[0]]):null):h("hr")));
 }
 function renderView(){
-  const map={inicio:viewStory,npcs:viewNpcs,misiones:viewMissions,mobs:viewMobs,objetos:viewItems,tiendas:viewShops,revisar:viewCheck,ayuda:viewHelp};
+  const map={importar:viewImport,inicio:viewStory,npcs:viewNpcs,misiones:viewMissions,mobs:viewMobs,objetos:viewItems,tiendas:viewShops,revisar:viewCheck,ayuda:viewHelp};
   const v=$("#view"); if(!v) return; v.replaceChildren(map[st.view]());
 }
 function errorsFor(view,key){return st.probs.filter(p=>p.error&&p.where&&p.where.view===view&&p.where.key===key)}
@@ -699,32 +709,137 @@ function listOfMaps(obj,key,cols,blank,ch,addLabel){
 }
 function viewItems(){
   return yamlList("objetos",itemsRoot(),"Objetos especiales","Armas y objetos únicos con nombre, efectos y estadísticas.",{ejemplo:"espada_kraken",file:"objetos",make:()=>({material:"IRON_SWORD",nombre:"<gold>Nuevo objeto",lore:[]})},itemForm,
-    (id,d)=>{const p=mmSplit(d.nombre);return {t:p.text||id,s:id+" · "+String(d.material||"").toLowerCase(),color:COLORS[p.color]}});
+    (id,d)=>{const p=mmSplit(d.nombre);return {t:(d.nombre||id).replace(/<[^>]+>/g,"")||id,s:id+" · "+String(d.material||"").toLowerCase()+(d.rareza?" · "+d.rareza.replace("_"," "):""),color:COLORS[p.color]||(d.rareza&&MMHEX[(RAREZA_MM[d.rareza]||[""])[0].replace(/[<>]/g,"")])}});
+}
+// ---------- texto con colores (MiniMessage) -> HTML
+const MMHEX={black:"#000000",dark_blue:"#0000aa",dark_green:"#00aa00",dark_aqua:"#00aaaa",dark_red:"#aa0000",dark_purple:"#aa00aa",gold:"#ffaa00",gray:"#aaaaaa",dark_gray:"#555555",blue:"#5555ff",green:"#55ff55",aqua:"#55ffff",red:"#ff5555",light_purple:"#ff55ff",yellow:"#ffff55",white:"#ffffff"};
+function hex2rgb(h){h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16))}
+function lerp(a,b,t){const x=hex2rgb(a),y=hex2rgb(b);return "#"+x.map((v,i)=>Math.round(v+(y[i]-v)*t).toString(16).padStart(2,"0")).join("")}
+function mmToHtml(src, defColor){
+  const toks=[];const re=/<(\/?)([!a-z_#0-9:]+)>/gi;let last=0,m;src=String(src||"");
+  while((m=re.exec(src))){if(m.index>last)toks.push({t:src.slice(last,m.index)});toks.push({tag:m[2].toLowerCase(),close:!!m[1]});last=re.lastIndex}
+  if(last<src.length)toks.push({t:src.slice(last)});
+  const st_={color:defColor||"#ffffff",b:false,i:false,u:false,s:false,grad:null};const stack=[];const out=[];
+  const grads=[];
+  for(const k of toks){
+    if(k.t!=null){out.push({text:k.t,...st_,grad:st_.grad});if(st_.grad)st_.grad.len+=[...k.t].length;continue}
+    const tag=k.tag;
+    if(k.close){if(tag==="gradient"||tag==="rainbow"){st_.grad=null}else if(["bold","b"].includes(tag))st_.b=false;else if(["italic","i","em"].includes(tag))st_.i=false;else if(["underlined","u"].includes(tag))st_.u=false;else if(["strikethrough","st"].includes(tag))st_.s=false;else if(stack.length){const p=stack.pop();st_.color=p}continue}
+    if(MMHEX[tag]){stack.push(st_.color);st_.color=MMHEX[tag];st_.grad=null;continue}
+    if(/^#[0-9a-f]{6}$/.test(tag)){stack.push(st_.color);st_.color=tag;continue}
+    if(tag.startsWith("color:")){stack.push(st_.color);const c=tag.slice(6);st_.color=MMHEX[c]||c;continue}
+    if(["bold","b"].includes(tag))st_.b=true;else if(["italic","i","em"].includes(tag))st_.i=true;else if(["underlined","u"].includes(tag))st_.u=true;else if(["strikethrough","st"].includes(tag))st_.s=true;
+    else if(tag==="reset"){st_.color=defColor||"#ffffff";st_.b=st_.i=st_.u=st_.s=false;st_.grad=null}
+    else if(tag.startsWith("gradient")){const cs=tag.split(":").slice(1).map(c=>MMHEX[c]||c);st_.grad={cs:cs.length>1?cs:["#ffffff","#ffffff"],len:0};grads.push(st_.grad)}
+    else if(tag==="rainbow"){st_.grad={rainbow:true,len:0};grads.push(st_.grad)}
+  }
+  const frag=document.createDocumentFragment();const pos=new Map();
+  for(const seg of out){
+    const style=(c)=>"color:"+c+(seg.b?";font-weight:700":"")+(seg.i?";font-style:italic":"")+(seg.u||seg.s?";text-decoration:"+(seg.u?"underline ":"")+(seg.s?"line-through":""):"");
+    if(!seg.grad){frag.append(h("span",{style:style(seg.color)},seg.text));continue}
+    let p=pos.get(seg.grad)||0;
+    for(const ch of [...seg.text]){const t=seg.grad.len>1?p/(seg.grad.len-1):0;let c;
+      if(seg.grad.rainbow){const hue=Math.round(t*330);c="hsl("+hue+" 90% 62%)"}else{const cs=seg.grad.cs;const f=t*(cs.length-1);const i=Math.min(cs.length-2,Math.floor(f));c=lerp(cs[i],cs[i+1],f-i)}
+      frag.append(h("span",{style:style(c)},ch));p++}
+    pos.set(seg.grad,p);
+  }
+  return frag;
+}
+const RAREZAS=[["","Sin rareza"],["comun","Común"],["poco_comun","Poco común"],["raro","Raro"],["epico","Épico"],["legendario","Legendario"],["mitico","Mítico"]];
+const RAREZA_MM={comun:["<white>","<gray>","COMÚN"],poco_comun:["<green>","<green>","POCO COMÚN"],raro:["<aqua>","<aqua>","RARO"],epico:["<light_purple>","<light_purple>","ÉPICO"],legendario:["<gold>","<gold>","LEGENDARIO"],mitico:["<gradient:#ff5555:#ffaa00>","<gradient:#ff5555:#ffaa00>","MÍTICO"]};
+const STAT_ES={attack_damage:"<red>⚔ Daño",attack_speed:"<yellow>⚡ Velocidad de ataque",max_health:"<red>❤ Vida",armor:"<blue>⛨ Armadura",armor_toughness:"<blue>⛨ Dureza",movement_speed:"<aqua>➤ Velocidad",knockback_resistance:"<gray>⚓ Resistencia al empuje",luck:"<green>☘ Suerte",attack_knockback:"<gold>✊ Empuje",scale:"<light_purple>⬍ Tamaño",entity_interaction_range:"<gray>➹ Alcance",mining_efficiency:"<gold>⛏ Eficiencia al minar",jump_strength:"<green>⤒ Salto"};
+function fmt(v){return Number.isInteger(v)?String(v):String(+v.toFixed(Math.abs(v)<1?2:1))}
+function itemTooltip(d){
+  const lines=[];let name=d.nombre||"";const r=RAREZA_MM[d.rareza];if(r&&!name.trim().startsWith("<"))name=r[0]+name;lines.push(name);
+  if(!d["estilo-rpg"])for(const [k,v] of Object.entries(d.encantamientos||{}))lines.push("<gray>"+cap(k.replace(/_/g," "))+" "+["","I","II","III","IV","V","VI","VII","VIII","IX","X"][v]||v);
+  const lore=[...(d.lore||[])];
+  if(d["estilo-rpg"]){const sum={};for(const a of (d.atributos||[])){const k=String(a.atributo||"").replace("generic.","").replace("minecraft:","");sum[k]=(sum[k]||0)+(+a.valor||0)}
+    if(Object.keys(sum).length){if(lore.length)lore.push("");lore.push("<gray>Estadísticas:");for(const [k,v] of Object.entries(sum)){const lbl=STAT_ES[k]||"<gray>"+cap(k.replace(/_/g," "));const val=k==="attack_damage"?"<white>"+fmt(1+v):k==="attack_speed"?"<white>"+fmt(4+v):(v>=0?"<green>+":"<red>")+fmt(v);lore.push(" "+lbl+": "+val)}}}
+  if(r){lore.push("");lore.push(r[1]+"<bold>✦ "+r[2])}
+  const box=h("div",{class:"tip"});box.append(h("div",null,mmToHtml(lines[0],"#ffffff")));
+  for(const l of lines.slice(1))box.append(h("div",null,mmToHtml(l,"#aaaaaa")));
+  for(const l of lore)box.append(h("div",null,mmToHtml(l,"#aa00aa")));
+  if(!d["estilo-rpg"]&&(d.atributos||[]).length){box.append(h("div",null," "));box.append(h("div",null,mmToHtml("<gray>(Minecraft muestra aquí los atributos en inglés)","#aaaaaa")))}
+  return box;
+}
+// ---------- editor de nombre con modos
+function parseName(n){n=n||"";let m;
+  if((m=n.match(/^((?:<(?:bold|b|italic|i)>)*)<gradient:([^:>]+):([^>]+)>(.*?)(?:<\/gradient>)?$/))) return {modo:"degradado",c1:MMHEX[m[2]]||m[2],c2:MMHEX[m[3]]||m[3],bold:/<b(old)?>/.test(m[1]),italic:/<i(talic)?>/.test(m[1]),text:m[4],color:"blanco"};
+  if((m=n.match(/^((?:<(?:bold|b|italic|i)>)*)<rainbow>(.*?)(?:<\/rainbow>)?$/))) return {modo:"arcoiris",bold:/<b(old)?>/.test(m[1]),italic:/<i(talic)?>/.test(m[1]),text:m[2],c1:"#ff5555",c2:"#ffaa00",color:"blanco"};
+  const strip=n.replace(/<(bold|b|italic|i)>/g,"");if(/^(<[a-z_]+>)?[^<]*$/.test(strip)){const p=mmSplit(n);return {modo:"color",color:p.color,bold:p.bold,italic:/<i(talic)?>/.test(n),text:p.text,c1:"#ff5555",c2:"#ffaa00"}}
+  return {modo:"avanzado",raw:n,text:n.replace(/<[^>]+>/g,""),color:"blanco",c1:"#ff5555",c2:"#ffaa00"};
+}
+function buildName(o){const fx=(o.bold?"<bold>":"")+(o.italic?"<italic>":"");
+  if(o.modo==="degradado")return fx+"<gradient:"+o.c1+":"+o.c2+">"+o.text+"</gradient>";
+  if(o.modo==="arcoiris")return fx+"<rainbow>"+o.text+"</rainbow>";
+  if(o.modo==="avanzado")return o.raw||"";
+  return "<"+(ES_TO_MM[o.color]||"white")+">"+fx+o.text}
+// ---------- barra de formato para líneas de texto
+let lastField=null;
+function fmtToolbar(onch){
+  const wrap=(open,close)=>{const f=lastField;if(!f){toast("Primero haz clic en la línea que quieres pintar");return}
+    const a=f.selectionStart,b=f.selectionEnd,v=f.value;f.value=v.slice(0,a)+open+v.slice(a,b)+(b>a?close:"")+v.slice(b);f.dispatchEvent(new Event("input"));f.focus();const c=a+open.length+(b-a);f.setSelectionRange(c,c)};
+  const g={c1:"#ff5555",c2:"#55ffff",free:"#ffaa00"};
+  return h("div",{class:"tb"},Object.entries(MMHEX).map(([k,v])=>h("span",{class:"sw",title:MM_COLORS[k]||k,style:"background:"+v,onmousedown:e=>{e.preventDefault();wrap("<"+k+">","</"+k+">")}})),
+    h("span",{class:"sep"}),h("input",{type:"color",value:g.free,title:"Color libre",oninput:e=>g.free=e.target.value}),h("button",{class:"btn",onmousedown:e=>{e.preventDefault();wrap("<"+g.free+">","</"+g.free+">")}},"Color libre"),
+    h("span",{class:"sep"}),h("button",{class:"btn",style:"font-weight:700",onmousedown:e=>{e.preventDefault();wrap("<bold>","</bold>")}},"N"),h("button",{class:"btn",style:"font-style:italic",onmousedown:e=>{e.preventDefault();wrap("<italic>","</italic>")}},"K"),
+    h("button",{class:"btn",style:"text-decoration:underline",onmousedown:e=>{e.preventDefault();wrap("<u>","</u>")}},"S"),h("button",{class:"btn",style:"text-decoration:line-through",onmousedown:e=>{e.preventDefault();wrap("<st>","</st>")}},"T"),
+    h("span",{class:"sep"}),h("input",{type:"color",value:g.c1,oninput:e=>g.c1=e.target.value}),h("input",{type:"color",value:g.c2,oninput:e=>g.c2=e.target.value}),
+    h("button",{class:"btn",onmousedown:e=>{e.preventDefault();wrap("<gradient:"+g.c1+":"+g.c2+">","</gradient>")}},"Degradado"),h("button",{class:"btn",onmousedown:e=>{e.preventDefault();wrap("<rainbow>","</rainbow>")}},"Arcoíris"),
+    h("span",{class:"sep"}),...["⚔","✦","★","❤","☠","⚡","❄","☀","⛨","➤","•","♦","✪","☄","♆","⚚"].map(sy=>h("button",{class:"btn",onmousedown:e=>{e.preventDefault();wrap(sy,"")}},sy)));
+}
+function richLines(arr,ph,onch){
+  const box=h("div",{class:"lines"});
+  const draw=()=>{box.replaceChildren(...arr.map((v,i)=>h("div",{class:"ln"},
+    h("input",{value:v,placeholder:ph,onfocus:e=>lastField=e.target,onclick:e=>lastField=e.target,onkeyup:e=>lastField=e.target,oninput:e=>{arr[i]=e.target.value;onch()}}),
+    h("button",{class:"btn ghost",title:"Subir",onclick:()=>{if(i>0){[arr[i-1],arr[i]]=[arr[i],arr[i-1]];draw();onch()}}},"↑"),
+    h("button",{class:"btn ghost danger",title:"Quitar",onclick:()=>{arr.splice(i,1);draw();onch()}},"✕"))),
+    h("div",null,h("button",{class:"btn sm",onclick:()=>{arr.push("");draw();onch();const ins=box.querySelectorAll("input");ins[ins.length-1].focus();lastField=ins[ins.length-1]}},"+ Añadir línea")))};
+  draw();return box;
 }
 function itemForm(id,d){
-  const ch=()=>markYaml("objetos"); const name=mmSplit(d.nombre); const setName=()=>{d.nombre=mmJoin(name);ch()};
-  d.lore=d.lore||[]; d.encantamientos=d.encantamientos||{};
+  d.lore=d.lore||[]; d.encantamientos=d.encantamientos||{}; d.atributos=d.atributos||[];
+  const tipBox=h("div");const refreshTip=()=>tipBox.replaceChildren(itemTooltip(d));
+  const ch=()=>{markYaml("objetos");refreshTip()};
+  const nm=parseName(d.nombre);
+  const nameBox=h("div");
+  const setName=()=>{d.nombre=buildName(nm);ch();const t=$(".form h2");if(t)t.replaceChildren(mmToHtml(d.nombre,"#ffffff"))};
+  const drawName=()=>{nameBox.replaceChildren(
+    h("div",{class:"row"},field("Estilo del nombre",sel(nm,"modo",[["color","Un color"],["degradado","Degradado de 2 colores"],["arcoiris","Arcoíris"],["avanzado","Avanzado (código)"]],()=>{if(nm.modo==="avanzado")nm.raw=d.nombre;setName();drawName()})),
+      nm.modo==="avanzado"?field("Código del nombre",inp(nm,"raw",setName,{ph:"<gradient:#ff0000:#ffaa00>Espada</gradient>"})):field("Nombre",inp(nm,"text",setName,{ph:"Espada del Amanecer"}))),
+    nm.modo==="avanzado"?null:h("div",{class:"row"},
+      nm.modo==="color"?field("Color",colorSel(nm,"color",setName)):null,
+      nm.modo==="degradado"?field("Color inicial",h("input",{type:"color",value:nm.c1,oninput:e=>{nm.c1=e.target.value;setName()}})):null,
+      nm.modo==="degradado"?field("Color final",h("input",{type:"color",value:nm.c2,oninput:e=>{nm.c2=e.target.value;setName()}})):null,
+      h("div",{style:"display:flex;gap:16px;align-items:end;padding-bottom:6px"},chk(nm,"bold","Negrita",setName),chk(nm,"italic","Cursiva",setName))))};
+  drawName();
   const ench=h("div",{class:"rows"});
-  const drawEn=()=>ench.replaceChildren(...Object.entries(d.encantamientos).map(([k,v])=>{const o={k,v};return h("div",{class:"rw",style:"grid-template-columns:1fr 100px auto"},
-    field("Encantamiento (id en inglés)",h("input",{value:k,onchange:e=>{delete d.encantamientos[k];d.encantamientos[e.target.value.trim().toLowerCase()]=o.v;ch();drawEn()}})),field("Nivel",h("input",{type:"number",min:1,value:v,oninput:e=>{d.encantamientos[k]=+e.target.value;ch()}})),
-    h("button",{class:"btn ghost danger",onclick:()=>{delete d.encantamientos[k];drawEn();ch()}},"✕"))}),h("div",null,h("button",{class:"btn sm",onclick:()=>{let k="sharpness";while(d.encantamientos[k]!=null)k+="_";d.encantamientos[k]=1;drawEn();ch()}},"+ Añadir encantamiento")));
+  const drawEn=()=>ench.replaceChildren(...Object.entries(d.encantamientos).map(([k,v])=>h("div",{class:"rw",style:"grid-template-columns:1fr 100px auto"},
+    field("Encantamiento (id en inglés)",h("input",{value:k,onchange:e=>{delete d.encantamientos[k];d.encantamientos[e.target.value.trim().toLowerCase()]=v;ch();drawEn()}})),field("Nivel",h("input",{type:"number",min:1,value:v,oninput:e=>{d.encantamientos[k]=+e.target.value;ch()}})),
+    h("button",{class:"btn ghost danger",onclick:()=>{delete d.encantamientos[k];drawEn();ch()}},"✕"))),h("div",null,h("button",{class:"btn sm",onclick:()=>{let k="sharpness";while(d.encantamientos[k]!=null)k+="_";d.encantamientos[k]=1;drawEn();ch()}},"+ Añadir encantamiento")));
   drawEn();
   const attrs=listOfMaps(d,"atributos",[["atributo","Atributo","dl-atributos"],["valor","Valor","num"],["slot","Dónde (mainhand, head…)",null]],{atributo:"attack_damage",valor:1,slot:"mainhand"},ch,"+ Añadir atributo");
   const act={v:(d.accion||"").startsWith("invocar:")?"invocar":(d.accion||""),mob:(d.accion||"").startsWith("invocar:")?d.accion.slice(8):""};
   const setAct=()=>{if(!act.v)delete d.accion;else d.accion=act.v==="invocar"?"invocar:"+act.mob:act.v;ch()};
-  return h("div",{class:"form"},
-    h("h2",{style:"color:"+(COLORS[name.color]||"var(--text)")},name.text||id),h("p",{class:"sub"},"id: "+id+" · en premios: «objeto "+id+"»"),
-    h("div",{class:"card"},h("h3",null,"Identidad"),
-      h("div",{class:"row"},field("Nombre",inp(name,"text",setName)),field("Color",colorSel(name,"color",setName)),h("div",{style:"display:flex;align-items:end;padding-bottom:6px"},chk(name,"bold","Negrita",setName))),
-      h("div",{class:"row"},field("Material base",inp(d,"material",ch,{list:"dl-materiales",ph:"iron_sword"})),field("Color (cuero/pociones)",inp(d,"color",ch,{ph:"#ff8800"}))),
-      h("div",{class:"row"},chk(d,"brillo","Brillo encantado",ch),chk(d,"irrompible","Irrompible",ch),chk(d,"mejorable","Se puede mejorar (+1)",ch))),
-    h("div",{class:"card"},h("h3",null,"Descripción ",h("span",{class:"hint"},"líneas bajo el nombre")),lineList(d.lore,"<gray>Forjada en…",ch)),
-    h("div",{class:"card"},h("h3",null,"Poderes"),
-      h("div",{class:"row"},field("Efecto mientras se sostiene",inp(d,"efecto-en-mano",ch,{list:"dl-efectos",ph:"strength"})),field("Nivel del efecto (0 = I)",inp(d,"efecto-nivel",ch,{type:"number",min:0}))),
-      h("div",{class:"row"},field("Al usarlo (clic derecho)",sel(act,"v",[["","Nada"],["campamento","Volver a la aldea"],["invocar","Invocar un enemigo/jefe"]],()=>{setAct();renderView()})),act.v==="invocar"?field("Qué invoca",inp(act,"mob",setAct,{list:"dl-mobsprop"})):null)),
-    h("div",{class:"card"},h("h3",null,"Encantamientos"),ench),
-    h("div",{class:"card"},h("h3",null,"Atributos ",h("span",{class:"hint"},"daño, velocidad, vida… (reemplazan los del material)")),attrs),
-    h("div",{style:"display:flex;gap:8px"},h("button",{class:"btn danger",onclick:()=>{if(!confirm("¿Eliminar "+id+"?"))return;delete itemsRoot()[id];ch();renderView()}},"Eliminar")));
+  const rz={v:d.rareza||""};
+  refreshTip();
+  const title=h("h2",null,mmToHtml(d.nombre||id,"#ffffff"));
+  return h("div",{class:"form"},title,h("p",{class:"sub"},"id: "+id+" · en premios: «objeto "+id+"»"),
+    h("div",{class:"split"},h("div",null,
+      h("div",{class:"card"},h("h3",null,"Nombre"),nameBox,
+        h("div",{class:"row",style:"margin-top:12px"},field("Rareza",sel(rz,"v",RAREZAS,()=>{if(rz.v)d.rareza=rz.v;else delete d.rareza;ch()}),"pinta el nombre y añade la etiqueta"),field("Material base",inp(d,"material",ch,{list:"dl-materiales",ph:"iron_sword"})))),
+      h("div",{class:"card"},h("h3",null,"Descripción ",h("span",{class:"hint"},"elige una línea y usa los botones para pintarla")),fmtToolbar(ch),richLines(d.lore,"Forjada con la luz del último amanecer…",ch)),
+      h("div",{class:"card"},h("h3",null,"Estadísticas ",h("span",{class:"hint"},"daño, velocidad, vida… (reemplazan las del material)")),
+        h("div",{style:"margin-bottom:10px"},chk(d,"estilo-rpg","Estilo RPG: mostrar las estadísticas en español con colores (oculta las de Minecraft)",ch)),attrs),
+      h("div",{class:"card"},h("h3",null,"Poderes"),
+        h("div",{class:"row"},field("Efecto mientras se sostiene",inp(d,"efecto-en-mano",ch,{list:"dl-efectos",ph:"strength"})),field("Nivel del efecto (0 = I)",inp(d,"efecto-nivel",ch,{type:"number",min:0}))),
+        h("div",{class:"row"},field("Al usarlo (clic derecho)",sel(act,"v",[["","Nada"],["campamento","Volver a la aldea"],["invocar","Invocar un enemigo/jefe"]],()=>{setAct();renderView()})),act.v==="invocar"?field("Qué invoca",inp(act,"mob",setAct,{list:"dl-mobsprop"})):null),
+        h("div",{class:"row"},chk(d,"brillo","Brillo encantado",ch),chk(d,"irrompible","Irrompible",ch),chk(d,"mejorable","Se puede mejorar (+1)",ch)),
+        h("div",{class:"row"},field("Color (cuero/pociones)",inp(d,"color",ch,{ph:"#ff8800"})))),
+      h("div",{class:"card"},h("h3",null,"Encantamientos"),ench),
+      h("div",{style:"display:flex;gap:8px"},h("button",{class:"btn",onclick:()=>{const k=prompt("Id para la copia",id+"_2");if(!k)return;const s2=slug(k);if(itemsRoot()[s2]){toast("Ya existe","bad");return}itemsRoot()[s2]=JSON.parse(JSON.stringify(d));st.sel.objetos=s2;markYaml("objetos");renderView()}},"Duplicar"),
+        h("button",{class:"btn danger",onclick:()=>{if(!confirm("¿Eliminar "+id+"?"))return;delete itemsRoot()[id];markYaml("objetos");renderView()}},"Eliminar"))),
+      h("div",{style:"position:sticky;top:0"},h("div",{class:"card"},h("h3",null,"Así se ve en el juego"),tipBox,h("p",{style:"color:var(--dim);font-size:12px;margin:10px 0 0"},"Vista aproximada del recuadro al pasar el mouse sobre el objeto.")))));
 }
 function viewShops(){
   return yamlList("tiendas",shopsRoot(),"Tiendas","Lo que compran y venden los NPCs con servicio de tienda.",{ejemplo:"taberna",file:"tiendas",make:()=>({titulo:"<dark_gray>Nueva tienda",filas:6,objetos:[]})},shopForm,
@@ -792,6 +907,78 @@ function shopForm(id,d){
       h("div",{class:"legend"},h("span",null,h("i",{style:"background:#3f7a2e"}),"El jugador compra"),h("span",null,h("i",{style:"background:#8a6a1f"}),"El jugador vende"),h("span",null,h("i",{style:"background:#6a3fa0"}),"Mejora de arma"))),
     edit,
     h("div",{style:"margin-top:4px"},h("button",{class:"btn danger",onclick:()=>{if(!confirm("¿Eliminar la tienda "+id+"?"))return;delete shopsRoot()[id];markYaml("tiendas");renderView()}},"Eliminar tienda")));
+}
+
+// ---------------- Importar / exportar
+const imp={text:"",res:null,doc:null,bundle:null};
+function download(name,content,type){const a=h("a",{href:URL.createObjectURL(new Blob([content],{type})),download:name});document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+async function blobToB64(b){return await new Promise(r=>{const f=new FileReader();f.onload=()=>r(String(f.result).split(",")[1]);f.readAsDataURL(b)})}
+async function exportAll(){
+  const skins={};for(const sk of st.cat.skins.filter(x=>x.propia)){try{const r=await fetch("/skins/"+sk.nombre+".png");skins[sk.nombre]=await blobToB64(await r.blob())}catch(e){}}
+  const pack={formato:"aventura-maker",version:1,carpeta:st.cat.historia,fecha:new Date().toISOString(),historia:serialize(st.story),avanzado:{mobs:st.yaml.mobs,objetos:st.yaml.objetos,tiendas:st.yaml.tiendas},skins};
+  download((st.cat.historia||"historia")+".aventura.json",JSON.stringify(pack,null,1),"application/json");toast("Copia completa descargada","good");
+}
+function viewImport(){
+  const S=st.story;
+  const ta=h("textarea",{rows:14,placeholder:"Pega aquí una historia en el formato de Aventura Maker (la que te dio una IA, la de un amigo o una copia tuya)…",value:imp.text,oninput:e=>{imp.text=e.target.value;imp.res=null;imp.bundle=null;drawRes()},style:"font-family:ui-monospace,monospace;font-size:13px"});
+  const fileIn=h("input",{type:"file",accept:".txt,.json",style:"display:none",onchange:async e=>{const f=e.target.files[0];if(!f)return;const t=await f.text();
+    if(f.name.endsWith(".json")){try{const b=JSON.parse(t);if(b.formato!=="aventura-maker")throw new Error();imp.bundle=b;imp.text=b.historia;ta.value=b.historia;toast("Copia completa cargada: "+(b.carpeta||""),"good")}catch(err){toast("Ese archivo no es una copia de Aventura Maker","bad");return}}
+    else{imp.bundle=null;imp.text=t;ta.value=t}analyze()}});
+  const res=h("div");
+  async function analyze(){if(!imp.text.trim()){toast("Pega o carga un texto primero","bad");return}
+    imp.doc=parseStory(imp.text);try{imp.res=await api("revisar",{method:"POST",body:imp.text})}catch(e){toast(e.message,"bad");return}drawRes()}
+  function drawRes(){
+    if(!imp.res||!imp.doc){res.replaceChildren();return}
+    const D=imp.doc,R=imp.res; const errs=R.problemas.filter(p=>p.error);
+    const acts={};D.missions.forEach(m=>(acts[m.acto]=acts[m.acto]||[]).push(m));
+    res.replaceChildren(h("div",{class:"card"},h("h3",null,"Lo que trae este texto"),
+      h("div",{class:"stat"},h("div",null,h("b",null,D.title||"(sin título)"),h("span",null,"título")),h("div",null,h("b",null,D.npcs.length),h("span",null,"personajes")),h("div",null,h("b",null,D.missions.length),h("span",null,"misiones")),h("div",null,h("b",{style:"color:"+(errs.length?"var(--red)":"var(--green)")},errs.length),h("span",null,"errores"))),
+      imp.bundle?h("p",{style:"color:var(--muted);margin:0 0 10px"},"Copia completa: también trae enemigos, objetos, tiendas y "+Object.keys(imp.bundle.skins||{}).length+" skin(s) propias."):null,
+      D.npcs.length?h("div",{style:"display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"},D.npcs.map(n=>h("span",{class:"pill",style:"color:"+(COLORS[n.color]||"var(--text)")},n.nombre+(n.oficio?" · "+n.oficio:"")))):null,
+      h("div",{style:"max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-bottom:12px"},Object.entries(acts).map(([a,ms])=>h("div",null,h("div",{class:"grp"},"Acto "+a),ms.map(m=>h("div",{style:"padding:2px 0;color:var(--muted)"},(m.jefe?"☠ ":"• ")+m.titulo+" ",h("span",{style:"color:var(--dim)"},"— "+(m.npc||"sin NPC"))))))),
+      R.problemas.length?h("div",{class:"probs",style:"margin-bottom:12px"},R.problemas.slice(0,30).map(p=>h("div",{class:"prob "+(p.error?"e":"w")},h("span",{class:"k"},p.error?"Error":"Aviso"),h("span",null,(p.linea?"línea "+p.linea+": ":"")+p.mensaje)))):null,
+      h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},
+        h("button",{class:"btn pri",onclick:()=>importApply("reemplazar")},"Usar esta historia (reemplaza la actual)"),
+        h("button",{class:"btn",onclick:()=>importApply("añadir")},"Añadir sus personajes y misiones a la mía")),
+      errs.length?h("p",{style:"color:var(--dim);font-size:12px;margin:10px 0 0"},"Puedes importarla igual y corregir los errores en el editor: se marcan en rojo."):null));
+  }
+  drawRes();
+  return h("div",{class:"form"},h("h2",null,"Importar y exportar"),h("p",{class:"sub"},"Trae historias escritas por una IA o por otra persona, y guarda copias de la tuya."),
+    h("div",{class:"card"},h("h3",null,"1. ¿La vas a pedir a una IA?"),h("p",{style:"margin:0 0 10px;color:var(--muted)"},"Copia las instrucciones, pégalas en ChatGPT, Gemini o Claude (sirven las versiones gratis) y al final escribe tu idea. Lo que te responda, pégalo abajo."),
+      h("button",{class:"btn",onclick:async()=>{try{const r=await api("prompt");await navigator.clipboard.writeText(r.texto);toast("Instrucciones copiadas: pégalas en la IA","good")}catch(e){toast("No se pudo copiar: "+e.message,"bad")}}},"Copiar instrucciones para la IA")),
+    h("div",{class:"card"},h("h3",null,"2. Pega el texto o carga un archivo"),ta,
+      h("div",{style:"display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"},h("button",{class:"btn pri",onclick:analyze},"Analizar"),h("button",{class:"btn",onclick:()=>fileIn.click()},"Cargar archivo (.txt o copia .json)…"),fileIn,
+        h("button",{class:"btn ghost",onclick:()=>{imp.text="";imp.res=null;imp.bundle=null;ta.value="";drawRes()}},"Limpiar"))),
+    res,
+    h("div",{class:"card"},h("h3",null,"Exportar tu historia ",h("span",{class:"hint"},"por si acaso, o para compartirla")),
+      h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},
+        h("button",{class:"btn",onclick:()=>{download("historia.txt",serialize(S),"text/plain;charset=utf-8");toast("historia.txt descargado","good")}},"Descargar historia.txt"),
+        h("button",{class:"btn",onclick:async()=>{await navigator.clipboard.writeText(serialize(S));toast("Historia copiada al portapapeles","good")}},"Copiar texto"),
+        h("button",{class:"btn pri",onclick:exportAll},"Descargar copia completa (.json)")),
+      h("p",{style:"color:var(--dim);font-size:12px;margin:10px 0 0"},"La copia completa incluye la historia, enemigos, objetos, tiendas y tus skins propias. Se restaura aquí mismo con «Cargar archivo».")));
+}
+async function importApply(mode){
+  const D=imp.doc; if(!D) return;
+  if(mode==="reemplazar"){
+    if(!confirm("Esto reemplaza la historia que tienes abierta en el editor (no se guarda hasta que pulses Guardar). ¿Continuar?"))return;
+    st.story=D; if(!st.story.currency)st.story.currency=st.cat.moneda||"";
+  } else {
+    const S=st.story; let n=0,m=0;
+    for(const x of D.npcs){if(S.npcs.find(y=>y.id===x.id)){let k=2;while(S.npcs.find(y=>y.id===x.id+"_"+k))k++;const old=x.id;x.id=x.id+"_"+k;D.missions.forEach(q=>{if(slug(q.npc)===old)q.npc=x.id})}S.npcs.push(x);n++}
+    for(const a of D.acts)if(!S.acts.find(y=>y.n===a.n))S.acts.push(a);
+    for(const q of D.missions){S.missions.push(q);m++}
+    toast("Añadidos "+n+" personajes y "+m+" misiones","good");
+  }
+  if(imp.bundle){
+    for(const k of ["mobs","objetos","tiendas"]){const src=imp.bundle.avanzado&&imp.bundle.avanzado[k];if(!src)continue;
+      if(mode==="reemplazar")st.yaml[k]=src;else{const root={mobs:"mobs",objetos:"items",tiendas:"tiendas"}[k];st.yaml[k][root]=Object.assign({},src[root]||{},st.yaml[k][root]||{})}
+      st.yamlDirty[k]=true}
+    for(const [name,b64] of Object.entries(imp.bundle.skins||{})){try{const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));await api("skin?nombre="+encodeURIComponent(name),{method:"POST",body:bin})}catch(e){toast("Skin "+name+": "+e.message,"bad")}}
+    st.cat=await api("catalogo"); st.skinVer=Date.now(); Object.keys(skinCache).forEach(k=>delete skinCache[k]);
+  }
+  imp.text="";imp.res=null;imp.doc=null;imp.bundle=null;
+  st.txtDirty=true; st.view="npcs"; render(); check(false);
+  toast("Listo. Revisa y pulsa «Guardar y aplicar en el juego»","good");
 }
 
 // ---------------- Revisar y ayuda

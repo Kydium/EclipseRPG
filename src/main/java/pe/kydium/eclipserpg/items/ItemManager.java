@@ -58,6 +58,78 @@ public final class ItemManager implements Listener {
         public int heldEffectLevel;
         public final Map<String, Integer> enchants = new LinkedHashMap<>();
         public final List<AttrDef> attributes = new ArrayList<>();
+        public String rarity;        // comun, poco_comun, raro, epico, legendario, mitico
+        public boolean rpgStyle;     // ocultar los atributos de Minecraft y mostrarlos en español
+    }
+
+    /** Rarezas: color del nombre y etiqueta al final de la descripción. */
+    private static final Map<String, String[]> RARITIES = Map.of(
+            "comun", new String[]{"<white>", "<gray>", "COMÚN"},
+            "poco_comun", new String[]{"<green>", "<green>", "POCO COMÚN"},
+            "raro", new String[]{"<aqua>", "<aqua>", "RARO"},
+            "epico", new String[]{"<light_purple>", "<light_purple>", "ÉPICO"},
+            "legendario", new String[]{"<gold>", "<gold>", "LEGENDARIO"},
+            "mitico", new String[]{"<gradient:#ff5555:#ffaa00>", "<gradient:#ff5555:#ffaa00>", "MÍTICO"});
+
+    private static final Map<String, String> STAT_NAMES = Map.ofEntries(
+            Map.entry("attack_damage", "<red>⚔ Daño"), Map.entry("attack_speed", "<yellow>⚡ Velocidad de ataque"),
+            Map.entry("max_health", "<red>❤ Vida"), Map.entry("armor", "<blue>⛨ Armadura"),
+            Map.entry("armor_toughness", "<blue>⛨ Dureza"), Map.entry("movement_speed", "<aqua>➤ Velocidad"),
+            Map.entry("knockback_resistance", "<gray>⚓ Resistencia al empuje"), Map.entry("luck", "<green>☘ Suerte"),
+            Map.entry("attack_knockback", "<gold>✊ Empuje"), Map.entry("scale", "<light_purple>⬍ Tamaño"),
+            Map.entry("entity_interaction_range", "<gray>➹ Alcance"), Map.entry("block_interaction_range", "<gray>➹ Alcance de bloques"),
+            Map.entry("mining_efficiency", "<gold>⛏ Eficiencia al minar"), Map.entry("jump_strength", "<green>⤒ Salto"),
+            Map.entry("safe_fall_distance", "<green>☁ Caída segura"), Map.entry("oxygen_bonus", "<aqua>≈ Aire bajo el agua"));
+
+    private static String rarityKey(CustomItem ci) {
+        return ci.rarity == null ? null : ci.rarity.toLowerCase(java.util.Locale.ROOT).replace(" ", "_").replace("ú", "u").replace("é", "e").replace("í", "i");
+    }
+
+    private static String stat(double v) {
+        if (v == Math.rint(v)) return String.valueOf((long) v);
+        java.math.BigDecimal b = java.math.BigDecimal.valueOf(v).setScale(Math.abs(v) < 1 ? 2 : 1, java.math.RoundingMode.HALF_UP).stripTrailingZeros();
+        return b.toPlainString();
+    }
+
+    /** Nombre con el color de su rareza (si el nombre no trae color propio) y el nivel de mejora. */
+    public String displayName(CustomItem ci, int lvl) {
+        String n = ci.name == null ? ci.id : ci.name;
+        String[] r = RARITIES.get(rarityKey(ci));
+        if (r != null && !n.trim().startsWith("<")) n = r[0] + n;
+        return lvl > 0 ? n + " <yellow>+" + lvl : n;
+    }
+
+    /** Descripción completa: líneas propias, estadísticas en español (estilo RPG) y la rareza. */
+    public List<String> loreLines(CustomItem ci, int lvl) {
+        List<String> out = new ArrayList<>(ci.lore);
+        if (ci.rpgStyle) {
+            Map<String, Double> sum = new LinkedHashMap<>();
+            for (AttrDef a : ci.attributes) {
+                String k = a.attribute().toLowerCase(java.util.Locale.ROOT).replace("generic.", "").replace("minecraft:", "");
+                sum.merge(k, a.value(), Double::sum);
+            }
+            if (lvl > 0) sum.merge("attack_damage", (double) lvl, Double::sum);
+            if (!sum.isEmpty()) {
+                if (!out.isEmpty()) out.add("");
+                out.add("<gray>Estadísticas:");
+                for (Map.Entry<String, Double> e : sum.entrySet()) {
+                    double v = e.getValue();
+                    String label = STAT_NAMES.getOrDefault(e.getKey(), "<gray>" + Txt.pretty(e.getKey().toUpperCase(java.util.Locale.ROOT)));
+                    String val;
+                    if (e.getKey().equals("attack_damage")) val = "<white>" + stat(1 + v);
+                    else if (e.getKey().equals("attack_speed")) val = "<white>" + stat(4 + v);
+                    else val = (v >= 0 ? "<green>+" : "<red>") + stat(v);
+                    out.add(" " + label + ": " + val);
+                }
+            }
+        }
+        if (lvl > 0) out.add("<yellow>✦ Mejorada +" + lvl);
+        String[] r = RARITIES.get(rarityKey(ci));
+        if (r != null) {
+            out.add("");
+            out.add(r[1] + "<bold>✦ " + r[2]);
+        }
+        return out;
     }
 
     private final EclipseRPG plugin;
@@ -89,6 +161,8 @@ public final class ItemManager implements Listener {
             ci.glint = s.getBoolean("brillo", false);
             ci.upgradable = s.getBoolean("mejorable", false);
             ci.color = s.getString("color");
+            ci.rarity = s.getString("rareza");
+            ci.rpgStyle = s.getBoolean("estilo-rpg", false);
             ci.action = s.getString("accion");
             ci.heldEffect = s.getString("efecto-en-mano");
             ci.heldEffectLevel = s.getInt("efecto-nivel", 0);
@@ -122,8 +196,9 @@ public final class ItemManager implements Listener {
         ItemStack it = new ItemStack(ci.material, Math.max(1, amount));
         ItemMeta meta = it.getItemMeta();
         if (meta == null) return it;
-        meta.displayName(Txt.item(ci.name));
-        meta.lore(Txt.lore(ci.lore));
+        meta.displayName(Txt.item(displayName(ci, 0)));
+        meta.lore(Txt.lore(loreLines(ci, 0)));
+        if (ci.rpgStyle) meta.addItemFlags(org.bukkit.inventory.ItemFlag.HIDE_ATTRIBUTES);
         for (Map.Entry<String, Integer> e : ci.enchants.entrySet()) {
             Enchantment ench = Reg.enchant(e.getKey());
             if (ench == null) {
@@ -192,7 +267,8 @@ public final class ItemManager implements Listener {
         }
         meta.addAttributeModifier(Attribute.ATTACK_DAMAGE,
                 new AttributeModifier(key, lvl, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
-        meta.displayName(Txt.item(ci.name + " <yellow>+" + lvl));
+        meta.displayName(Txt.item(displayName(ci, lvl)));
+        meta.lore(Txt.lore(loreLines(ci, lvl)));
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         pdc.set(Keys.UPGRADE, PersistentDataType.INTEGER, lvl);
         it.setItemMeta(meta);
