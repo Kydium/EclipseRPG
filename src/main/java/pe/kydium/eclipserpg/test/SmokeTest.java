@@ -736,6 +736,13 @@ public final class SmokeTest {
         } catch (Throwable t) {
             plugin.getLogger().info("[PRUEBA] registro de diálogos: " + t);
         }
+        if (!dlg) try {
+            for (String ln : java.nio.file.Files.readAllLines(new java.io.File("logs/latest.log").toPath()))
+                if (ln.toLowerCase().contains("dialog") || ln.contains("eclipse:menu") || ln.contains("eclipse_atajos"))
+                    plugin.getLogger().info("[PRUEBA] log: " + (ln.length() > 400 ? ln.substring(0, 400) : ln));
+        } catch (Exception ignored) {
+            // sin log
+        }
         check(dlg, "el menú de la tecla G (diálogo eclipse:menu) está cargado");
     }
 
