@@ -49,9 +49,17 @@ tiendas:
   herreria:                         # Bruno el Herrero
     titulo: "<dark_gray>Bruno · Herrería"
     boton: "⚔ Armas y armaduras"
-    descripcion: "Espadas, hachas, armaduras y escudos forjados por Bruno"
+    descripcion: "Armas y armaduras de Bruno; también te compra minerales"
     filas: 6
     objetos:
+      # --- lo que compra (tú le vendes) ---
+      - {tipo: vender, slot: 37, item: "material:RAW_IRON", cantidad: 16, precio: 24}
+      - {tipo: vender, slot: 38, item: "material:RAW_GOLD", cantidad: 16, precio: 36}
+      - {tipo: vender, slot: 39, item: "material:RAW_COPPER", cantidad: 32, precio: 14}
+      - {tipo: vender, slot: 40, item: "material:DIAMOND", cantidad: 1, precio: 60}
+      - {tipo: vender, slot: 41, item: "material:EMERALD", cantidad: 4, precio: 40}
+      - {tipo: vender, slot: 42, item: "material:IRON_SWORD", cantidad: 1, precio: 12}
+      - {tipo: vender, slot: 43, item: "material:IRON_CHESTPLATE", cantidad: 1, precio: 25}
       - {tipo: comprar, slot: 10, item: "material:IRON_SWORD", precio: 60}
       - {tipo: comprar, slot: 11, item: "material:IRON_HELMET", precio: 50}
       - {tipo: comprar, slot: 12, item: "material:IRON_CHESTPLATE", precio: 80}
@@ -76,9 +84,16 @@ tiendas:
   alquimia:                         # Fray Odón
     titulo: "<dark_gray>Fray Odón · Alquimia"
     boton: "⚗ Pociones y alquimia"
-    descripcion: "Pociones, ingredientes y libros encantados"
+    descripcion: "Pociones y libros; también te compra huesos, pólvora y más"
     filas: 6
     objetos:
+      # --- lo que compra (tú le vendes) ---
+      - {tipo: vender, slot: 37, item: "material:BONE", cantidad: 16, precio: 10}
+      - {tipo: vender, slot: 38, item: "material:STRING", cantidad: 16, precio: 12}
+      - {tipo: vender, slot: 39, item: "material:GUNPOWDER", cantidad: 8, precio: 18}
+      - {tipo: vender, slot: 41, item: "material:SPIDER_EYE", cantidad: 8, precio: 14}
+      - {tipo: vender, slot: 42, item: "material:BLAZE_ROD", cantidad: 4, precio: 40}
+      - {tipo: vender, slot: 43, item: "material:ENDER_PEARL", cantidad: 4, precio: 45}
       - {tipo: comprar, slot: 10, item: "pocion:healing", precio: 25}
       - {tipo: comprar, slot: 11, item: "pocion:strong_healing", precio: 60}
       - {tipo: comprar, slot: 12, item: "pocion:regeneration", precio: 50}
