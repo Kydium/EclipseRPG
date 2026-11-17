@@ -96,7 +96,6 @@ dificultad:
   vida-extra-por-jugador: 0.5   # cada jugador extra cerca del jefe le da +50% de vida
 
 atajos:
-  shift-f: true                 # agachado + F abre el menú del Guardián
   tecla-g: true                 # la tecla "Acciones rápidas" (G) abre el menú (instala un paquete de datos)
 
 dialogos:

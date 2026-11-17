@@ -5,7 +5,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import pe.kydium.eclipserpg.EclipseRPG;
 import pe.kydium.eclipserpg.data.PlayerData;
 import pe.kydium.eclipserpg.quests.DialogUI;
@@ -23,7 +22,6 @@ import java.util.List;
 
 /**
  * Atajos para abrir los menús:
- * - Shift + F (cambiar de mano agachado) abre el menú del Guardián.
  * - La tecla de "Acciones rápidas" de Minecraft (G por defecto) abre el mismo menú
  *   gracias a un pequeño paquete de datos que el plugin instala en el mundo.
  */
@@ -34,13 +32,6 @@ public final class HotkeyMenu implements Listener {
     public HotkeyMenu(EclipseRPG plugin) {
         this.plugin = plugin;
         this.ui = new DialogUI(plugin);
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onSwap(PlayerSwapHandItemsEvent e) {
-        if (!e.getPlayer().isSneaking() || !plugin.getConfig().getBoolean("atajos.shift-f", true)) return;
-        e.setCancelled(true);
-        open(e.getPlayer());
     }
 
     /** Menú principal del Guardián. */

@@ -26,10 +26,10 @@ tiendas:
       - {tipo: comprar, slot: 15, item: "material:WHITE_BED", cantidad: 1, precio: 30}
       - {tipo: comprar, slot: 16, item: "material:WATER_BUCKET", cantidad: 1, precio: 25}
       - {tipo: comprar, slot: 19, item: "material:ARROW", cantidad: 32, precio: 30}
-      - {tipo: comprar, slot: 20, item: "material:GOLDEN_CARROT", cantidad: 8, precio: 60, nivel: 5}
+      - {tipo: comprar, slot: 20, item: "material:GOLDEN_CARROT", cantidad: 8, precio: 60}
       - {tipo: comprar, slot: 21, item: "custom:pergamino_campamento", cantidad: 1, precio: 50}
-      - {tipo: comprar, slot: 22, item: "material:ENDER_PEARL", cantidad: 4, precio: 120, nivel: 20}
-      - {tipo: comprar, slot: 23, item: "material:FIREWORK_ROCKET", cantidad: 16, precio: 80, nivel: 40}
+      - {tipo: comprar, slot: 22, item: "material:ENDER_PEARL", cantidad: 4, precio: 120}
+      - {tipo: comprar, slot: 23, item: "material:FIREWORK_ROCKET", cantidad: 16, precio: 80}
       # --- Vender ---
       - {tipo: vender, slot: 28, item: "material:COAL", cantidad: 16, precio: 8}
       - {tipo: vender, slot: 29, item: "material:IRON_INGOT", cantidad: 8, precio: 20}
@@ -58,19 +58,19 @@ tiendas:
       - {tipo: comprar, slot: 13, item: "material:IRON_LEGGINGS", precio: 70}
       - {tipo: comprar, slot: 14, item: "material:IRON_BOOTS", precio: 45}
       - {tipo: comprar, slot: 15, item: "material:SHIELD", precio: 40}
-      - {tipo: comprar, slot: 16, item: "material:BOW", precio: 180, nivel: 8, encantamientos: {power: 3}}
-      - {tipo: comprar, slot: 19, item: "material:DIAMOND_SWORD", precio: 250, nivel: 10, encantamientos: {sharpness: 2}}
-      - {tipo: comprar, slot: 20, item: "material:DIAMOND_PICKAXE", precio: 250, nivel: 10, encantamientos: {efficiency: 3}}
-      - {tipo: comprar, slot: 21, item: "material:DIAMOND_HELMET", precio: 220, nivel: 15}
-      - {tipo: comprar, slot: 22, item: "material:DIAMOND_CHESTPLATE", precio: 400, nivel: 15}
-      - {tipo: comprar, slot: 23, item: "material:DIAMOND_LEGGINGS", precio: 350, nivel: 15}
-      - {tipo: comprar, slot: 24, item: "material:DIAMOND_BOOTS", precio: 200, nivel: 15}
-      - {tipo: comprar, slot: 25, item: "material:CROSSBOW", precio: 120, nivel: 10, encantamientos: {quick_charge: 2}}
-      - {tipo: comprar, slot: 28, item: "material:NETHERITE_UPGRADE_SMITHING_TEMPLATE", precio: 800, nivel: 30}
-      - {tipo: comprar, slot: 29, item: "material:NETHERITE_INGOT", precio: 1200, nivel: 30}
-      - {tipo: comprar, slot: 30, item: "material:SPECTRAL_ARROW", cantidad: 32, precio: 90, nivel: 20}
-      - {tipo: comprar, slot: 31, item: "material:TRIDENT", precio: 900, nivel: 20}
-      - {tipo: comprar, slot: 32, item: "material:MACE", precio: 1500, nivel: 35}
+      - {tipo: comprar, slot: 16, item: "material:BOW", precio: 180, encantamientos: {power: 3}}
+      - {tipo: comprar, slot: 19, item: "material:DIAMOND_SWORD", precio: 250, encantamientos: {sharpness: 2}}
+      - {tipo: comprar, slot: 20, item: "material:DIAMOND_PICKAXE", precio: 250, encantamientos: {efficiency: 3}}
+      - {tipo: comprar, slot: 21, item: "material:DIAMOND_HELMET", precio: 220}
+      - {tipo: comprar, slot: 22, item: "material:DIAMOND_CHESTPLATE", precio: 400}
+      - {tipo: comprar, slot: 23, item: "material:DIAMOND_LEGGINGS", precio: 350}
+      - {tipo: comprar, slot: 24, item: "material:DIAMOND_BOOTS", precio: 200}
+      - {tipo: comprar, slot: 25, item: "material:CROSSBOW", precio: 120, encantamientos: {quick_charge: 2}}
+      - {tipo: comprar, slot: 28, item: "material:NETHERITE_UPGRADE_SMITHING_TEMPLATE", precio: 800}
+      - {tipo: comprar, slot: 29, item: "material:NETHERITE_INGOT", precio: 1200}
+      - {tipo: comprar, slot: 30, item: "material:SPECTRAL_ARROW", cantidad: 32, precio: 90}
+      - {tipo: comprar, slot: 31, item: "material:TRIDENT", precio: 900}
+      - {tipo: comprar, slot: 32, item: "material:MACE", precio: 1500}
       - {tipo: mejora, slot: 49, precio: 300}
 
   alquimia:                         # Fray Odón
@@ -80,27 +80,27 @@ tiendas:
     filas: 6
     objetos:
       - {tipo: comprar, slot: 10, item: "pocion:healing", precio: 25}
-      - {tipo: comprar, slot: 11, item: "pocion:strong_healing", precio: 60, nivel: 15}
-      - {tipo: comprar, slot: 12, item: "pocion:regeneration", precio: 50, nivel: 5}
-      - {tipo: comprar, slot: 13, item: "pocion:fire_resistance", precio: 60, nivel: 10}
-      - {tipo: comprar, slot: 14, item: "pocion:water_breathing", precio: 50, nivel: 10}
+      - {tipo: comprar, slot: 11, item: "pocion:strong_healing", precio: 60}
+      - {tipo: comprar, slot: 12, item: "pocion:regeneration", precio: 50}
+      - {tipo: comprar, slot: 13, item: "pocion:fire_resistance", precio: 60}
+      - {tipo: comprar, slot: 14, item: "pocion:water_breathing", precio: 50}
       - {tipo: comprar, slot: 15, item: "pocion:night_vision", precio: 40}
       - {tipo: comprar, slot: 16, item: "pocion:swiftness", precio: 45}
-      - {tipo: comprar, slot: 19, item: "pocion:strength", precio: 70, nivel: 12}
-      - {tipo: comprar, slot: 20, item: "pocion:invisibility", precio: 80, nivel: 20}
-      - {tipo: comprar, slot: 21, item: "pocion-arrojadiza:healing", precio: 40, nivel: 5}
-      - {tipo: comprar, slot: 22, item: "pocion:slow_falling", precio: 50, nivel: 25}
-      - {tipo: comprar, slot: 23, item: "material:GOLDEN_APPLE", precio: 150, nivel: 10}
+      - {tipo: comprar, slot: 19, item: "pocion:strength", precio: 70}
+      - {tipo: comprar, slot: 20, item: "pocion:invisibility", precio: 80}
+      - {tipo: comprar, slot: 21, item: "pocion-arrojadiza:healing", precio: 40}
+      - {tipo: comprar, slot: 22, item: "pocion:slow_falling", precio: 50}
+      - {tipo: comprar, slot: 23, item: "material:GOLDEN_APPLE", precio: 150}
       - {tipo: comprar, slot: 24, item: "material:EXPERIENCE_BOTTLE", cantidad: 8, precio: 100}
       - {tipo: comprar, slot: 25, item: "custom:pergamino_campamento", precio: 50}
-      - {tipo: comprar, slot: 28, item: "libro:protection:3", precio: 300, nivel: 10}
-      - {tipo: comprar, slot: 29, item: "libro:sharpness:4", precio: 400, nivel: 15}
-      - {tipo: comprar, slot: 30, item: "libro:efficiency:4", precio: 300, nivel: 10}
-      - {tipo: comprar, slot: 31, item: "libro:unbreaking:3", precio: 350, nivel: 12}
-      - {tipo: comprar, slot: 32, item: "libro:feather_falling:4", precio: 250, nivel: 10}
-      - {tipo: comprar, slot: 33, item: "libro:looting:3", precio: 600, nivel: 20}
-      - {tipo: comprar, slot: 34, item: "libro:fortune:3", precio: 700, nivel: 20}
-      - {tipo: comprar, slot: 40, item: "libro:mending:1", precio: 1500, nivel: 25}
+      - {tipo: comprar, slot: 28, item: "libro:protection:3", precio: 300}
+      - {tipo: comprar, slot: 29, item: "libro:sharpness:4", precio: 400}
+      - {tipo: comprar, slot: 30, item: "libro:efficiency:4", precio: 300}
+      - {tipo: comprar, slot: 31, item: "libro:unbreaking:3", precio: 350}
+      - {tipo: comprar, slot: 32, item: "libro:feather_falling:4", precio: 250}
+      - {tipo: comprar, slot: 33, item: "libro:looting:3", precio: 600}
+      - {tipo: comprar, slot: 34, item: "libro:fortune:3", precio: 700}
+      - {tipo: comprar, slot: 40, item: "libro:mending:1", precio: 1500}
 
   mercado:                          # El Errante — 3 objetos que cambian cada día
     titulo: "<dark_gray>El Errante · Mercado oscuro"
@@ -117,8 +117,8 @@ tiendas:
       - {tipo: comprar, item: "custom:pico_terremoto", precio: 6000, nivel: 40}
       - {tipo: comprar, item: "custom:botas_saltarinas", precio: 5500, nivel: 40}
       - {tipo: comprar, item: "custom:fragmento_mejora", cantidad: 2, precio: 2500, nivel: 40}
-      - {tipo: comprar, item: "material:ENCHANTED_GOLDEN_APPLE", precio: 3000, nivel: 40}
-      - {tipo: comprar, item: "material:TOTEM_OF_UNDYING", precio: 3500, nivel: 40}
+      - {tipo: comprar, item: "material:ENCHANTED_GOLDEN_APPLE", precio: 3000}
+      - {tipo: comprar, item: "material:TOTEM_OF_UNDYING", precio: 3500}
 
   legendaria:                       # El Errante — Armería legendaria (armas con poderes)
     titulo: "<gold><bold>Armería Legendaria"

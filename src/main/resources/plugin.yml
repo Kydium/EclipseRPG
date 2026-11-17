@@ -16,7 +16,7 @@ commands:
     description: Pagar Soles a otro jugador
     usage: /pagar <jugador> <cantidad>
   guardian:
-    description: Menú del Guardián (también con Shift + F o la tecla G)
+    description: Menú del Guardián (también con la tecla G)
     aliases: [menu, g]
   misiones:
     description: Diario de misiones de Crónicas del Eclipse

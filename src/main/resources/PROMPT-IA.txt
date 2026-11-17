@@ -204,6 +204,8 @@ REGLAS
     produce: <material cantidad>         (maquina; varias líneas)
     combustible: <material cantidad>     (maquina, opcional)
   y se venden en tiendas con "bloque:<id>".
+- En tiendas, "nivel" solo para cosas especiales (objetos custom:, runas,
+  bloques especiales). Lo normal de Minecraft no pide nivel.
 - No inventes campos que no estén en el formato.
 
 MI IDEA:
