@@ -401,6 +401,12 @@ public final class QuestManager implements Listener {
     }
 
     public void showObjectives(Player p, Quest q) {
+        if (!plugin.data().get(p).questAccepted) {
+            // la misión no se ve hasta aceptarla
+            Txt.send(p, "<gray>No tienes una misión activa. Busca a " + plugin.npcs().name(q.npc)
+                    + " <gray>(tiene un <yellow>❗<gray> encima) para recibir la siguiente.");
+            return;
+        }
         p.sendMessage(Txt.mm("<gold>▶ " + q.name));
         for (int i = 0; i < q.objectives.size(); i++) {
             Quest.Objective o = q.objectives.get(i);

@@ -76,7 +76,7 @@ public final class QuestBook {
             pg.add("<black>El sol volvió a brillar gracias a ti.");
         } else {
             pg.add("<dark_purple>" + qm.actName(cur.act));
-            pg.add("<black><bold>" + cur.name);
+            pg.add("<black><bold>" + (d.questAccepted ? cur.name : "❗ Nueva misión"));
             pg.add("");
             if (!d.questAccepted) {
                 pg.add("<dark_gray>Habla con " + strip(plugin.npcs().name(cur.npc)) + " para empezarla.");
@@ -128,10 +128,11 @@ public final class QuestBook {
                 pg.add("");
                 pg.add(Txt.mm("<dark_purple><bold>" + qm.actName(cur.act)), lines(qm.actName(cur.act)));
             }
-            Component line = Txt.mm("<gold>➤ <dark_blue><underlined>" + cur.name)
+            String shown = d.questAccepted ? cur.name : "❗ Nueva misión";
+            Component line = Txt.mm("<gold>➤ <dark_blue><underlined>" + shown)
                     .hoverEvent(HoverEvent.showText(Txt.mm("<yellow>Misión actual\n<gray>Clic para ver los objetivos")))
                     .clickEvent(ClickEvent.changePage(1));
-            pg.add(line, lines("➤ " + cur.name));
+            pg.add(line, lines("➤ " + shown));
         }
 
         Book book = Book.book(Txt.mm("Diario del Guardián"), Txt.mm(p.getName()), pg.done());

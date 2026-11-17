@@ -50,7 +50,8 @@ public final class HotkeyMenu implements Listener {
         List<String> body = new ArrayList<>();
         body.add("<gold>Nivel " + d.level + " <gray>· <yellow>" + Txt.num(d.soles) + " ☀ Soles");
         if (d.points > 0) body.add("<green>Tienes " + d.points + " punto(s) de habilidad sin usar");
-        if (q != null) body.add("<gray>Misión actual: <white>" + q.name);
+        if (q != null && d.questAccepted) body.add("<gray>Misión actual: <white>" + q.name);
+        else if (q != null) body.add("<gray>Sin misión activa · te busca " + plugin.npcs().name(q.npc));
         else body.add("<gold>¡Historia completada!");
         List<DialogUI.Button> buttons = new ArrayList<>();
         buttons.add(new DialogUI.Button("<gold>⚔ Nivel y habilidades", "Reparte tus puntos", () -> new StatsMenu(plugin, p).open()));

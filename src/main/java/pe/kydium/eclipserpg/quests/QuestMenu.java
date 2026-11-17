@@ -61,7 +61,8 @@ public final class QuestMenu extends Menu {
                 }
             }
             Material m = q.boss ? Material.WITHER_SKELETON_SKULL : Material.WRITABLE_BOOK;
-            inventory.setItem(13, icon(m, "<yellow><bold>" + q.name + " <gray>(" + q.number + ")", lore));
+            inventory.setItem(13, icon(m, d.questAccepted ? "<yellow><bold>" + q.name + " <gray>(" + q.number + ")"
+                    : "<yellow><bold>❗ Nueva misión disponible", lore));
         }
         inventory.setItem(15, icon(Material.EXPERIENCE_BOTTLE, "<aqua>Nivel " + d.level,
                 List.of("<gray>Abre /nivel para repartir puntos")));
