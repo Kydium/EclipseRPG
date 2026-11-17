@@ -27,7 +27,7 @@ NPC bruno
   oficio: Herrero
   lugar: herreria
   objeto: maza
-  servicio: tienda herreria
+  servicio: tienda herreria, tienda runas
   charla: Hmpf. Mi forja estará encendida hasta el final. Ve y gana.
 
 NPC ines
@@ -87,7 +87,7 @@ NPC errante
   skin: encapuchado
   oficio: ???
   lugar: tienda_negra
-  servicio: tienda mercado
+  servicio: tienda mercado, tienda legendaria
   charla: El Fin no es un lugar. Es una puerta. Y tú tienes la llave.
 
 # ---------------------------------------------------------------- MISIONES

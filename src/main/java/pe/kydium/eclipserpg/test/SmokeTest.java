@@ -211,6 +211,7 @@ public final class SmokeTest {
                     checkWorldBegin();
                     checkStructuresBegin();
                     checkGeneratorsBegin();
+                    checkPowers();
                     plugin.dungeons().buildForTest(1);
                     stage = 3;
                 }
@@ -228,7 +229,7 @@ public final class SmokeTest {
                     }
                 }
                 case 5 -> {
-                    if ((generatedDone < 5 || !structureDone) && genWait++ < 80) return;
+                    if ((generatedDone < 6 || !structureDone) && genWait++ < 80) return;
                     checkWorldEnd();
                     checkStructuresEnd();
                     checkGeneratorsEnd();
@@ -615,7 +616,7 @@ public final class SmokeTest {
         var sm = plugin.structures();
         Location c = plugin.village().center();
         int k = 0;
-        for (String id : List.of("torre_mago", "fortaleza", "base_inicial", "galeon_volador", "piramide")) {
+        for (String id : List.of("torre_mago", "fortaleza", "base_inicial", "galeon_volador", "piramide", "forja_legendaria")) {
             var d = sm.catalogDef(id, null);
             int x = c.getBlockX() - 260 + k * 90, z = c.getBlockZ() - 260;
             k++;
@@ -627,8 +628,8 @@ public final class SmokeTest {
     }
 
     private void checkGeneratorsEnd() {
-        check(generatedDone == 5 && generated.size() == 5, "se construyeron 5 estructuras generadas (" + generated.size() + "/" + generatedDone + ")");
-        int emptyChests = 0, totalChests = 0, rich = 0, spawners = 0, typed = 0;
+        check(generatedDone == 6 && generated.size() == 6, "se construyeron 6 estructuras generadas (" + generated.size() + "/" + generatedDone + ")");
+        int emptyChests = 0, totalChests = 0, rich = 0, spawners = 0, typed = 0, legendary = 0;
         for (var i : generated) {
             World w = Bukkit.getWorld(i.world);
             for (int x = i.x - i.rx - 2; x <= i.x + i.rx + 2; x++)
@@ -642,6 +643,11 @@ public final class SmokeTest {
                             for (ItemStack it : ct.getInventory().getContents())
                                 if (it != null && (it.getType() == Material.DIAMOND || it.getType().name().startsWith("NETHERITE") || it.getType() == Material.ENCHANTED_GOLDEN_APPLE
                                         || it.getType() == Material.TOTEM_OF_UNDYING || it.getType() == Material.ENCHANTED_BOOK)) rich++;
+                            for (ItemStack it : ct.getInventory().getContents()) {
+                                String cid = it == null ? null : plugin.items().idOf(it);
+                                var cd = cid == null ? null : plugin.items().def(cid);
+                                if (i.id.equals("forja_legendaria") && cd != null && !cd.powers.isEmpty()) legendary++;
+                            }
                         }
                         if (b.getState() instanceof org.bukkit.block.CreatureSpawner sp) {
                             spawners++;
@@ -650,6 +656,7 @@ public final class SmokeTest {
                     }
         }
         check(totalChests > 5 && emptyChests == 0, "ningún cofre de las estructuras está vacío (" + emptyChests + " vacíos de " + totalChests + ")");
+        check(legendary > 0, "la forja legendaria trae un arma con poderes en el altar (" + legendary + ")");
         check(rich > 0, "hay botín valioso en los tesoros escondidos (" + rich + " objetos)");
         check(spawners > 0 && typed == spawners, "los generadores de monstruos tienen su criatura (" + typed + "/" + spawners + ")");
         for (var i : generated) {
@@ -664,6 +671,31 @@ public final class SmokeTest {
                     }
             check(solid > 500, i.id + " tiene bloques (" + solid + ", " + chests + " cofres) en " + i.x + " " + i.y + " " + i.z);
         }
+    }
+
+    private void checkPowers() {
+        check(plugin.levels().maxLevel() == Integer.MAX_VALUE, "el nivel no tiene límite");
+        var cv = plugin.items().def("colmillo_vampirico");
+        check(cv != null && cv.powers.size() == 2 && cv.powers.get(0).type().equals("robo_de_vida"), "las armas especiales cargan sus poderes");
+        int withPowers = 0;
+        for (String id : plugin.items().ids()) if (!plugin.items().def(id).powers.isEmpty()) withPowers++;
+        check(withPowers >= 8, "hay " + withPowers + " armas con poderes");
+        ItemStack sp = plugin.shops().buildSpec("especial:legendario", 1);
+        String sid = sp == null ? null : plugin.items().idOf(sp);
+        check(sid != null && plugin.items().ofRarity("legendario").contains(sid), "el botín «especial:legendario» da un arma especial (" + sid + ")");
+        ItemStack rune = plugin.shops().buildSpec("runa:robo_de_vida:5", 1);
+        check(rune != null && rune.getItemMeta().getPersistentDataContainer().has(pe.kydium.eclipserpg.items.Powers.RUNE), "las runas se crean desde la tienda");
+        ItemStack rnd = plugin.shops().buildSpec("runa:azar", 1);
+        check(rnd != null && rnd.getItemMeta().getPersistentDataContainer().has(pe.kydium.eclipserpg.items.Powers.RUNE), "las runas al azar funcionan");
+        check(pe.kydium.eclipserpg.items.Powers.TYPES.size() >= 30, "hay " + pe.kydium.eclipserpg.items.Powers.TYPES.size() + " poderes");
+        java.util.List<String> lore = plugin.items().loreLines(cv, 0);
+        check(lore.stream().anyMatch(l -> l.contains("Robo de vida")), "la descripción muestra los poderes");
+        // forjar a mano una runa en una espada normal (como lo hace el evento)
+        ItemStack sword = new ItemStack(Material.IRON_SWORD);
+        var meta = sword.getItemMeta();
+        meta.getPersistentDataContainer().set(pe.kydium.eclipserpg.items.Powers.RUNES, org.bukkit.persistence.PersistentDataType.STRING, "rayo:4.0:0.1;fuego:3.0:0.25");
+        check(pe.kydium.eclipserpg.items.Powers.runesOf(meta).size() == 2 && pe.kydium.eclipserpg.items.Powers.runeLore(meta).size() >= 3, "las runas forjadas se leen y se muestran");
+        check(plugin.shops().ids().contains("legendaria") && plugin.shops().ids().contains("runas"), "existen las tiendas legendaria y runas");
     }
 
     private void checkReload() {

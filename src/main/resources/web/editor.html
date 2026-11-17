@@ -401,7 +401,7 @@ function datalists(){
     dl("dl-entidades",c.entidades),
     dl("dl-itemspec",[...c.materiales.map(m=>"material:"+m),...Object.keys(c.objetosPropios).map(m=>"custom:"+m)]),
     dl("dl-equipo",[...c.materiales.map(m=>m.toUpperCase()),...Object.keys(c.objetosPropios).map(m=>"custom:"+m)]),
-    dl("dl-biomas",c.biomas||[]),dl("dl-mobsall",[...Object.keys(c.mobsPropios),...c.entidades]),dl("dl-efectos",c.efectos),dl("dl-particulas",c.particulas),dl("dl-atributos",c.atributos));
+    dl("dl-biomas",c.biomas||[]),dl("dl-mobsall",[...Object.keys(c.mobsPropios),...c.entidades]),dl("dl-efectos",c.efectos),dl("dl-poderes",Object.keys(POWERS)),dl("dl-particulas",c.particulas),dl("dl-atributos",c.atributos));
 }
 
 // ------------------------------------------------------------------ vistas
@@ -804,12 +804,27 @@ const RAREZAS=[["","Sin rareza"],["comun","Común"],["poco_comun","Poco común"]
 const RAREZA_MM={comun:["<white>","<gray>","COMÚN"],poco_comun:["<green>","<green>","POCO COMÚN"],raro:["<aqua>","<aqua>","RARO"],epico:["<light_purple>","<light_purple>","ÉPICO"],legendario:["<gold>","<gold>","LEGENDARIO"],mitico:["<gradient:#ff5555:#ffaa00>","<gradient:#ff5555:#ffaa00>","MÍTICO"]};
 const STAT_ES={attack_damage:"<red>⚔ Daño",attack_speed:"<yellow>⚡ Velocidad de ataque",max_health:"<red>❤ Vida",armor:"<blue>⛨ Armadura",armor_toughness:"<blue>⛨ Dureza",movement_speed:"<aqua>➤ Velocidad",knockback_resistance:"<gray>⚓ Resistencia al empuje",luck:"<green>☘ Suerte",attack_knockback:"<gold>✊ Empuje",scale:"<light_purple>⬍ Tamaño",entity_interaction_range:"<gray>➹ Alcance",mining_efficiency:"<gold>⛏ Eficiencia al minar",jump_strength:"<green>⤒ Salto"};
 function fmt(v){return Number.isInteger(v)?String(v):String(+v.toFixed(Math.abs(v)<1?2:1))}
+// ---------- poderes de armas (iguales a Powers.java)
+const POWERS={robo_de_vida:["<red>❤ Robo de vida","%",15,1],critico:["<yellow>✦ Golpe crítico","% más daño",75,0.2],fuego:["<gold>🔥 Quemar"," s",4,0.3],congelar:["<aqua>❄ Congelar"," s",3,0.3],veneno:["<dark_green>☠ Veneno"," s",4,0.3],marchitar:["<dark_gray>☠ Marchitar"," s",3,0.25],sangrado:["<dark_red>🩸 Sangrado"," por segundo",1.5,0.35],rayo:["<white>⚡ Rayo"," de daño",6,0.15],explosion:["<red>💥 Explosión"," de potencia",2,0.12],cadena:["<blue>⛓ Daño en cadena","% a los cercanos",50,0.3],ejecutar:["<dark_purple>☠ Ejecutar","% de vida o menos",25,1],empuje:["<gray>➹ Empuje","",1.5,1],ceguera:["<dark_gray>◉ Ceguera"," s",3,0.25],levitar:["<light_purple>⇡ Levitar"," s",2,0.2],al_matar_curar:["<green>✚ Al matar: cura"," de vida",4,1],al_matar_velocidad:["<aqua>➜ Al matar: velocidad"," s",5,1],aturdir:["<yellow>✷ Aturdir"," s",1.5,0.15],debilitar:["<gray>↓ Debilitar"," s",4,0.3],hambre:["<gold>🍖 Hambre"," s",6,0.3],marcar:["<white>◎ Marcar"," s",8,0.5],atraer:["<dark_aqua>⇠ Atraer","",1,0.25],perforar:["<red>➶ Perforar","% de daño directo",20,1],golpe_doble:["<yellow>⚔ Golpe doble","",0,0.15],furia:["<red>⚡ Furia"," s",4,0.2],al_matar_soles:["<yellow>☀ Al matar: soles"," soles",5,1],al_matar_xp:["<aqua>✦ Al matar: XP"," XP",10,1],al_matar_escudo:["<gold>♦ Al matar: escudo"," s",6,1],duplicar_botin:["<green>✚ Botín doble","",0,0.2],espinas:["<dark_green>✹ Espinas","% devuelto",25,1],esquivar:["<white>↷ Esquivar","",0,0.1],regenerar:["<light_purple>❤ Regenerar"," s",3,0.2],resistencia:["<blue>⛨ Resistencia","% menos daño",15,1]};
+const POWER_ALIAS={robo_vida:"robo_de_vida",vampirismo:"robo_de_vida",lifesteal:"robo_de_vida",life_steal:"robo_de_vida",vampiro:"robo_de_vida",drenar:"robo_de_vida",crit:"critico",critical:"critico",criticos:"critico",quemar:"fuego",fire:"fuego",llamas:"fuego",incendiar:"fuego",hielo:"congelar",frost:"congelar",freeze:"congelar",escarcha:"congelar",ralentizar:"congelar",poison:"veneno",envenenar:"veneno",wither:"marchitar",sangrar:"sangrado",bleed:"sangrado",hemorragia:"sangrado",trueno:"rayo",lightning:"rayo",relampago:"rayo",explotar:"explosion",explosivo:"explosion",rebote:"cadena",chain:"cadena",encadenar:"cadena",ejecucion:"ejecutar",execute:"ejecutar",rematar:"ejecutar",knockback:"empuje",retroceso:"empuje",empujar:"empuje",cegar:"ceguera",blind:"ceguera",blindness:"ceguera",levitacion:"levitar",levitation:"levitar",flotar:"levitar",curar_al_matar:"al_matar_curar",matar_curar:"al_matar_curar",al_matar_cura:"al_matar_curar",velocidad_al_matar:"al_matar_velocidad",matar_velocidad:"al_matar_velocidad",thorns:"espinas",reflejar:"espinas",dodge:"esquivar",evadir:"esquivar",evasion:"esquivar",stun:"aturdir",aturdimiento:"aturdir",paralizar:"aturdir",weakness:"debilitar",debilidad:"debilitar",hunger:"hambre",glowing:"marcar",brillar:"marcar",pull:"atraer",jalar:"atraer",gancho:"atraer",pierce:"perforar",armor_pierce:"perforar",penetracion:"perforar",double_hit:"golpe_doble",doble_golpe:"golpe_doble",rage:"furia",fury:"furia",ira:"furia",al_matar_dinero:"al_matar_soles",soles_al_matar:"al_matar_soles",xp_al_matar:"al_matar_xp",escudo_al_matar:"al_matar_escudo",absorcion:"al_matar_escudo",botin_doble:"duplicar_botin",double_loot:"duplicar_botin",regen:"regenerar",regeneracion:"regenerar",resistance:"resistencia",proteccion:"resistencia"};
+function powerId(s){const k=norm(String(s||"")).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[ -]+/g,"_");return POWERS[k]?k:POWER_ALIAS[k]||null}
+// "robo de vida 20", "rayo 6 25%", "sangrado 1.5 al 30%", "esquivar 10%"
+function parsePower(txt){const t=String(txt).replace(/,(\d)/g,".$1").trim();const nums=[...t.matchAll(/(\d+(?:\.\d+)?)\s*(%)?/g)];
+  const name=t.replace(/(\d+(?:\.\d+)?)\s*%?/g," ").replace(/\b(de probabilidad|probabilidad|prob|chance|al|con|valor)\b/gi," ").replace(/\s+/g," ").trim();
+  const id=powerId(name);if(!id)return null;const o={tipo:id};
+  if(nums.length>=2){o.valor=+nums[0][1];o.probabilidad=+nums[1][1]/(nums[1][2]||+nums[1][1]>1?100:1)}
+  else if(nums.length===1){if(["esquivar","golpe_doble","duplicar_botin"].includes(id)||/probab|chance|prob/i.test(t))o.probabilidad=+nums[0][1]/(nums[0][2]||+nums[0][1]>1?100:1);else o.valor=+nums[0][1]}
+  return o}
+function powerLore(list){const out=[];if(!(list||[]).length)return out;out.push("<gray>Poderes:");
+  for(const p of list){const id=powerId(p.tipo)||p.tipo;const t=POWERS[id];if(!t)continue;const v=p.valor??t[2];let ch=p.probabilidad??t[3];if(ch>1)ch/=100;
+    out.push(" "+t[0]+(["esquivar","golpe_doble","duplicar_botin"].includes(id)?"":" <white>"+v+"<gray>"+t[1])+(ch<1?" <dark_gray>("+Math.round(ch*100)+"%)":""))}return out}
 function itemTooltip(d){
   const lines=[];let name=d.nombre||"";const r=RAREZA_MM[d.rareza];if(r&&!name.trim().startsWith("<"))name=r[0]+name;lines.push(name);
   if(!d["estilo-rpg"])for(const [k,v] of Object.entries(d.encantamientos||{}))lines.push("<gray>"+cap(k.replace(/_/g," "))+" "+["","I","II","III","IV","V","VI","VII","VIII","IX","X"][v]||v);
   const lore=[...(d.lore||[])];
   if(d["estilo-rpg"]){const sum={};for(const a of (d.atributos||[])){const k=String(a.atributo||"").replace("generic.","").replace("minecraft:","");sum[k]=(sum[k]||0)+(+a.valor||0)}
     if(Object.keys(sum).length){if(lore.length)lore.push("");lore.push("<gray>Estadísticas:");for(const [k,v] of Object.entries(sum)){const lbl=STAT_ES[k]||"<gray>"+cap(k.replace(/_/g," "));const val=k==="attack_damage"?"<white>"+fmt(1+v):k==="attack_speed"?"<white>"+fmt(4+v):(v>=0?"<green>+":"<red>")+fmt(v);lore.push(" "+lbl+": "+val)}}}
+  const pw=powerLore(d.poderes);if(pw.length){if(lore.length)lore.push("");lore.push(...pw)}
   if(r){lore.push("");lore.push(r[1]+"<bold>✦ "+r[2])}
   const box=h("div",{class:"tip"});box.append(h("div",null,mmToHtml(lines[0],"#ffffff")));
   for(const l of lines.slice(1))box.append(h("div",null,mmToHtml(l,"#aaaaaa")));
@@ -886,7 +901,10 @@ function itemForm(id,d){
       h("div",{class:"card"},h("h3",null,"Descripción ",h("span",{class:"hint"},"elige una línea y usa los botones para pintarla")),fmtToolbar(ch),richLines(d.lore,"Forjada con la luz del último amanecer…",ch)),
       h("div",{class:"card"},h("h3",null,"Estadísticas ",h("span",{class:"hint"},"daño, velocidad, vida… (reemplazan las del material)")),
         h("div",{style:"margin-bottom:10px"},chk(d,"estilo-rpg","Estilo RPG: mostrar las estadísticas en español con colores (oculta las de Minecraft)",ch)),attrs),
-      h("div",{class:"card"},h("h3",null,"Poderes"),
+      h("div",{class:"card"},h("h3",null,"Poderes especiales ",h("span",{class:"hint"},"robo de vida, rayo, congelar… (probabilidad 0.25 = 25 % de los golpes)")),
+        listOfMaps(d,"poderes",[["tipo","Poder","dl-poderes"],["valor","Valor","num"],["probabilidad","Probabilidad (0-1)","num"]],{tipo:"robo_de_vida",valor:15},()=>{if(!d.poderes.length)delete d.poderes;ch()},"+ Añadir poder"),
+        h("p",{style:"color:var(--dim);font-size:12px;margin:8px 0 0"},Object.keys(POWERS).join(" · "))),
+      h("div",{class:"card"},h("h3",null,"Efectos y uso"),
         h("div",{class:"row"},field("Efecto mientras se sostiene",inp(d,"efecto-en-mano",ch,{list:"dl-efectos",ph:"strength"})),field("Nivel del efecto (0 = I)",inp(d,"efecto-nivel",ch,{type:"number",min:0}))),
         h("div",{class:"row"},field("Al usarlo (clic derecho)",sel(act,"v",[["","Nada"],["campamento","Volver a la aldea"],["invocar","Invocar un enemigo/jefe"]],()=>{setAct();renderView()})),act.v==="invocar"?field("Qué invoca",inp(act,"mob",setAct,{list:"dl-mobsprop"})):null),
         h("div",{class:"row"},chk(d,"brillo","Brillo encantado",ch),chk(d,"irrompible","Irrompible",ch),chk(d,"mejorable","Se puede mejorar (+1)",ch)),
@@ -1318,6 +1336,7 @@ function blocksToData(blocks,R,W){
           case "alcance":attrs.entity_interaction_range=nb(v);break;
           case "atributo":raw.push(v);break;
           case "slot":case "ranura":d._slot=norm(v);break;
+          case "poder":case "poderes":case "habilidad":case "power":for(const x of vals(f).flatMap(y=>y.split(/\s*[,;]\s*(?=[a-záéíóúñ])/i))){const pw=parsePower(x);if(!pw)warn(b,f,"OBJETO "+id+": no conozco el poder «"+x+"». Poderes: "+Object.keys(POWERS).join(", "));else(d.poderes=d.poderes||[]).push(pw)}break;
           case "tienda":case "se-vende-en":case "vender-en":for(const x of vals(f)){const p=norm(x).replace(/ por /," ").replace(/ soles?\b| monedas?\b/g,"").split(" ");const shop=slug(p.shift());const e={tipo:"comprar",item:"custom:"+id,cantidad:1,precio:nb(p[0])||100};const li=p.indexOf("nivel");if(li>=0&&nb(p[li+1])!=null)e.nivel=nb(p[li+1]);(d._shops=d._shops||[]).push([shop,e,f])}break;
           default:warn(b,f,"OBJETO "+id+": no conozco el campo «"+f.k+"» (se ignora)");
         }}
@@ -1437,6 +1456,8 @@ function blocksToData(blocks,R,W){
         switch(f.k){
           case "nombre":case "anuncio":case "subtitulo":d[f.k]=v;break;
           case "plano":d.plano=slug(v);break;
+          case "generador":case "tipo":case "forma":{const g=slug(v);const gens=(st.cat&&st.cat.generadores)||[];if(gens.length&&!gens.some(x=>x.id===g))warn(b,f,"ESTRUCTURA "+id+": no existe el generador «"+v+"». Hay: "+gens.map(x=>x.id).join(", "));else{d.generador=g;delete d.plano}break}
+          case "estilo":d.estilo=norm(v)==="auto"?"auto":slug(v);break;
           case "aparece":{const n=norm(v);d.aparece=n.startsWith("mis")?"mision":n.startsWith("man")||n.includes("mano")?"manual":"azar";break}
           case "probabilidad":case "maximo":case "distancia-min":case "distancia-max":case "hundir":case "desnivel-max":case "reaparicion":case "botin-tiradas":case "premio-xp":case "premio-dinero":d[f.k]=nb(v);break;
           case "despejar":d.despejar=bl(v);break;
@@ -1446,6 +1467,7 @@ function blocksToData(blocks,R,W){
           case "botin":for(const x of vals(f))(d.botin=d.botin||[]).push(R.lootLine(x,b,f));break;
           default:warn(b,f,"ESTRUCTURA "+id+": no conozco el campo «"+f.k+"» (se ignora)");
         }}
+      if(d.generador)delete d.plano;
       if(!d.nombre)d.nombre="<yellow>"+cap(id.replace(/_/g," "));if(!d.aparece)d.aparece="manual";
       out.estructuras[id]=d;
     }
@@ -1498,7 +1520,9 @@ function makeResolver(known,tr,W){
     mobOrCustom(p,b,f){const id=slug(p);if(isCustomMob(id))return id;return R.mob(p,b,f)},
     // forShopless=true: devuelve "custom:id" o el material en mayúsculas (equipo, botín de enemigos)
     item(p,b,f,plain){let s=String(p||"").trim();const n=norm(s);
-      if(/^(material|custom|pocion|pocion-arrojadiza|libro):/.test(n))return plain&&n.startsWith("material:")?n.slice(9).toUpperCase():n;
+      if(/^(material|custom|pocion|pocion-arrojadiza|libro|runa|especial):/.test(n))return plain&&n.startsWith("material:")?n.slice(9).toUpperCase():n;
+      {let m=n.match(/^(?:runa|rune|gema)(?: de| del| of)? (.+)$/);if(m){if(/^(azar|aleatoria|random)$/.test(m[1]))return "runa:azar";const pw=parsePower(m[1]);if(pw)return "runa:"+pw.tipo+(pw.valor!=null||pw.probabilidad!=null?":"+(pw.valor??POWERS[pw.tipo][2])+(pw.probabilidad!=null?":"+pw.probabilidad:""):"")}
+       m=n.match(/^(?:arma|objeto) (?:especial|legendari[oa])(?: (raro|rara|epico|epica|legendario|legendaria|mitico|mitica))?$/);if(m)return "especial:"+(RARITY[m[1]]||"epico")}
       const id=slug(s);if(isCustomItem(id))return "custom:"+id;
       let m=n.match(/^libro (?:de |encantado (?:de |con )?)?(.+?) (\d+|i{1,3}|iv|v)$/);if(m){const lv={i:1,ii:2,iii:3,iv:4,v:5}[m[2]]||+m[2];return "libro:"+R.ench(m[1],b,f)+":"+lv}
       // también en inglés, como en los comandos: potion of healing, splash potion of harming, enchanted book sharpness 3

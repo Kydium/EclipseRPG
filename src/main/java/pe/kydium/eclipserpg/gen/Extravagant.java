@@ -22,6 +22,7 @@ public final class Extravagant {
         Catalog.register("calavera_gigante", "Calavera gigante", "mazmorra", "Cueva con forma de calavera: se entra por la boca, generadores adentro y tesoro detrás de un ojo.", 16, Extravagant::giantSkull);
         Catalog.register("laberinto", "Laberinto", "mazmorra", "Laberinto de setos distinto cada vez, con generadores en los callejones y el tesoro en el centro.", 22, Extravagant::maze);
         Catalog.register("coloso", "Coloso", "estructura", "Estatua gigante de un guerrero con espada; bajo el pedestal hay una bóveda secreta.", 14, Extravagant::colossus);
+        Catalog.register("forja_legendaria", "Forja legendaria", "mazmorra", "Forja de piedra negra con cúpula, chimeneas y ríos de lava; en el altar del centro descansa un arma especial y bajo el suelo hay un tesoro.", 13, Extravagant::legendaryForge);
     }
 
     /** Da vuelta una construcción de norte a sur (la cara mira hacia el otro lado). */
@@ -693,5 +694,129 @@ public final class Extravagant {
         out.set(x, g + 4, z - 6, "stone_brick_slab[type=bottom]");
         out.mark("entrada", x, g + 1, z - 8);
         return mirrorZ(out, z);
+    }
+
+    /** Forja legendaria: sala redonda con cúpula, lava, yunques y un altar con un arma especial garantizada. */
+    static Build legendaryForge(Terrain t, Random r, Style s, int x, int z) {
+        Build out = new Build();
+        int g = Integer.MIN_VALUE;
+        for (int dx = -9; dx <= 9; dx += 3) for (int dz = -9; dz <= 9; dz += 3) g = Math.max(g, out.ground(t, x + dx, z + dz));
+        g = Math.min(g, out.ground(t, x, z) + 3) + 1;
+        String wall = r.nextBoolean() ? "polished_blackstone_bricks" : "deepslate_bricks";
+        String alt = wall.startsWith("deep") ? "cracked_deepslate_bricks" : "cracked_polished_blackstone_bricks";
+        String roof = r.nextBoolean() ? "deepslate_tiles" : "blackstone";
+        String gold = r.nextInt(3) == 0 ? "copper_block" : "gilded_blackstone";
+        int R = 9, H = 7;
+        // plataforma y cimientos
+        for (int dx = -R - 2; dx <= R + 2; dx++)
+            for (int dz = -R - 2; dz <= R + 2; dz++) {
+                double d = Math.sqrt(dx * dx + dz * dz);
+                if (d > R + 2.4) continue;
+                int gg = out.ground(t, x + dx, z + dz);
+                for (int y = gg + 1; y < g; y++) out.set(x + dx, y, z + dz, y < g - 1 ? "cobbled_deepslate" : wall);
+                out.set(x + dx, g, z + dz, d > R + 1.2 ? "polished_blackstone" : d <= 2.5 ? gold : r.nextInt(7) == 0 ? "cracked_polished_blackstone_bricks" : "polished_blackstone");
+                for (int y = g + 1; y <= g + H + 8; y++) out.set(x + dx, y, z + dz, "air");
+            }
+        // muros redondos con ventanas
+        for (int dx = -R; dx <= R; dx++)
+            for (int dz = -R; dz <= R; dz++) {
+                double d = Math.sqrt(dx * dx + dz * dz);
+                if (d < R - 0.5 || d > R + 0.5) continue;
+                for (int y = g + 1; y <= g + H; y++) {
+                    boolean window = (y == g + 3 || y == g + 4) && (Math.abs(dx) <= 1 || Math.abs(dz) <= 1) && dz > -R + 1;
+                    out.set(x + dx, y, z + dz, window ? "iron_bars" : y == g + 1 || y == g + H ? gold.equals("copper_block") ? "cut_copper" : "chiseled_polished_blackstone" : r.nextInt(6) == 0 ? alt : wall);
+                }
+            }
+        // cúpula
+        for (int k = 0; k <= 5; k++) {
+            double rr = R + 0.5 - k * 1.6;
+            int y = g + H + 1 + k;
+            for (int dx = -R - 1; dx <= R + 1; dx++)
+                for (int dz = -R - 1; dz <= R + 1; dz++) {
+                    double d = Math.sqrt(dx * dx + dz * dz);
+                    if (d <= rr && d > rr - 1.8) out.set(x + dx, y, z + dz, roof);
+                    if (k == 5 && d <= rr) out.set(x + dx, y, z + dz, d < 1 ? "glass" : roof);
+                }
+        }
+        // chimeneas
+        int chim = 2 + r.nextInt(2);
+        double a0 = r.nextDouble() * Math.PI * 2;
+        for (int i = 0; i < chim; i++) {
+            double a = a0 + i * Math.PI * 2 / chim;
+            int cx = x + (int) Math.round(Math.cos(a) * 6), cz = z + (int) Math.round(Math.sin(a) * 6);
+            if (cz < z - 4 && Math.abs(cx - x) <= 2) cz = z - 3;
+            for (int y = g + 1; y <= g + H + 9; y++) {
+                for (int ox = -1; ox <= 1; ox++) for (int oz = -1; oz <= 1; oz++) if (ox != 0 || oz != 0) out.set(cx + ox, y, cz + oz, y <= g + 2 ? "blast_furnace[facing=" + (ox < 0 ? "west" : ox > 0 ? "east" : oz < 0 ? "north" : "south") + "]" : "bricks");
+                out.set(cx, y, cz, y == g + 1 ? "lava" : y == g + H + 9 ? "campfire" : "air");
+            }
+            out.set(cx, g, cz, wall);
+            out.set(cx + 1, g + 2, cz, "iron_bars");
+        }
+        // ríos de lava en canales cruzados (con rejas encima para no caerse)
+        for (int k = -6; k <= 6; k++) {
+            if (Math.abs(k) <= 3) continue;
+            for (int[] c : new int[][]{{k, 0}, {0, k}}) {
+                if (c[1] < -3 && c[0] == 0) continue; // el paso de la entrada queda libre
+                out.set(x + c[0], g - 1, z + c[1], wall);
+                out.set(x + c[0], g, z + c[1], "lava");
+                out.set(x + c[0], g + 1, z + c[1], "iron_bars");
+            }
+        }
+        // estaciones de herrero junto al muro
+        String[] stations = {"anvil[facing=north]", "chipped_anvil[facing=east]", "smithing_table", "grindstone[face=floor,facing=north]", "blast_furnace[facing=south]", "smoker[facing=south]", "barrel[facing=up]", "lava_cauldron", "anvil[facing=west]"};
+        for (int i = 0; i < 12; i++) {
+            double a = i * Math.PI * 2 / 12 + 0.26;
+            int sx = x + (int) Math.round(Math.cos(a) * (R - 1.5)), sz = z + (int) Math.round(Math.sin(a) * (R - 1.5));
+            if (sz < z - R + 3 && Math.abs(sx - x) <= 2) continue;
+            out.set(sx, g + 1, sz, stations[r.nextInt(stations.length)]);
+            if (r.nextInt(3) == 0) out.set(sx, g + 3, sz, "soul_lantern[hanging=false]");
+        }
+        // altar con el arma especial
+        for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) out.set(x + dx, g + 1, z + dz, "polished_blackstone_bricks");
+        out.set(x, g + 2, z, "chest[facing=north]");
+        out.mark("arma_especial", x, g + 2, z, r.nextInt(3) == 0 ? "mitico" : "legendario", 0);
+        for (int[] c : new int[][]{{-2, -2}, {2, -2}, {-2, 2}, {2, 2}}) {
+            out.set(x + c[0], g + 1, z + c[1], "polished_blackstone_wall");
+            out.set(x + c[0], g + 2, z + c[1], "polished_blackstone_wall");
+            out.set(x + c[0], g + 3, z + c[1], "soul_lantern[hanging=false]");
+        }
+        for (int y = g + H + 1; y >= g + 4; y--) out.set(x, y, z, y == g + 4 ? "lantern[hanging=true]" : "iron_chain[axis=y]");
+        // entrada con arco
+        for (int y = g + 1; y <= g + 4; y++) for (int dx = -1; dx <= 1; dx++) out.set(x + dx, y, z - R, "air");
+        out.set(x - 1, g + 4, z - R, "polished_blackstone_brick_stairs[facing=east,half=top]");
+        out.set(x + 1, g + 4, z - R, "polished_blackstone_brick_stairs[facing=west,half=top]");
+        out.set(x - 2, g + 5, z - R - 1, "lantern");
+        out.set(x + 2, g + 5, z - R - 1, "lantern");
+        for (int y = g + 1; y <= g + 4; y++) { out.set(x - 2, y, z - R - 1, wall); out.set(x + 2, y, z - R - 1, wall); }
+        out.mark("entrada", x, g + 1, z - R - 3);
+        // generadores y enemigos
+        int sp = 2 + r.nextInt(2);
+        String[] mobs = {"blaze", "wither_skeleton", "magma_cube", "skeleton"};
+        for (int i = 0; i < sp; i++) {
+            double a = a0 + Math.PI / chim + i * Math.PI * 2 / sp;
+            int sx = x + (int) Math.round(Math.cos(a) * 5), sz = z + (int) Math.round(Math.sin(a) * 5);
+            if (sz < z - 3 && Math.abs(sx - x) <= 1) sx += 3;
+            spawner(out, sx, g + 1, sz, mobs[r.nextInt(mobs.length)]);
+        }
+        for (int i = 0; i < 5; i++) {
+            double a = r.nextDouble() * Math.PI * 2;
+            out.mark("enemigo", x + (int) Math.round(Math.cos(a) * 4), g + 1, z + (int) Math.round(Math.sin(a) * 4));
+        }
+        out.mark("jefe", x, g + 1, z + 3);
+        // tesoro escondido bajo el suelo: trampilla junto a un yunque, escalera hacia abajo
+        int hx = x + (r.nextBoolean() ? 5 : -5), hz = z + 4;
+        for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++) {
+            for (int y = g - 4; y <= g - 2; y++) out.set(hx + dx, y, hz + dz, Math.abs(dx) == 2 || Math.abs(dz) == 2 ? "cobbled_deepslate" : "air");
+            out.set(hx + dx, g - 5, hz + dz, "gold_block");
+            out.set(hx + dx, g - 1, hz + dz, "cobbled_deepslate");
+        }
+        out.set(hx, g, hz - 2, "spruce_trapdoor[facing=south,half=top]");
+        out.set(hx, g - 1, hz - 2, "air");
+        for (int y = g - 4; y <= g - 1; y++) out.set(hx, y, hz - 3, "cobbled_deepslate");
+        for (int y = g - 4; y <= g - 1; y++) out.set(hx, y, hz - 2, "ladder[facing=south]");
+        treasure(out, hx, g - 4, hz + 1, "north");
+        treasure(out, hx - 1, g - 4, hz + 1, "north");
+        out.set(hx + 1, g - 4, hz, "lantern");
+        return out;
     }
 }

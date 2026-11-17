@@ -10,7 +10,7 @@ zona-horaria: America/Lima      # para contratos diarios y mercado oscuro
 autoguardado-minutos: 5
 
 niveles:
-  nivel-maximo: 50
+  nivel-maximo: 0               # 0 = sin límite de nivel (pon un número si quieres un tope)
   xp-por-nivel: 150             # XP para pasar del nivel N al N+1 = 150 x N
   puntos-por-nivel: 1
   niveles-por-tier: 5           # niveles 1-5 = tier 1 (Acto 1), 6-10 = tier 2...
@@ -177,3 +177,7 @@ mundo:
 # Estructuras propias (se definen en historias/<id>/avanzado/estructuras.yml o en el editor web)
 estructuras:
   bloques-por-tick: 6000        # velocidad de construcción
+
+# Poderes de armas (robo de vida, rayo…) y runas que se forjan en cualquier arma o armadura
+poderes:
+  max-runas: 3                  # cuántas runas distintas puede tener un objeto

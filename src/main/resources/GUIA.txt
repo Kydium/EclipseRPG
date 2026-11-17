@@ -319,3 +319,47 @@ el juego te dice exactamente en qué línea.
 
  Trazados de las aldeas (config.yml: aldea.trazado): radial, cuadricula,
  lineal, anillo, ramificado o auto.
+
+---------------------------------------------------------------------
+ 14. ARMAS ESPECIALES CON PODERES Y NIVEL SIN LÍMITE
+---------------------------------------------------------------------
+ El nivel ya no tiene tope (config.yml: niveles.nivel-maximo: 0).
+ Si quieres un tope, pon un número.
+
+ Las armas y armaduras pueden tener PODERES (objetos.yml o texto):
+   poderes:
+     - {tipo: robo_de_vida, valor: 20}
+     - {tipo: rayo, valor: 6, probabilidad: 0.25}
+ En texto:   poder: robo de vida 20      poder: rayo 6 25%
+ También en inglés: lifesteal, crit, fire, freeze, poison, bleed,
+ lightning, chain, execute, knockback, thorns, dodge…
+
+   robo_de_vida  te curas un % del daño       critico   % más daño
+   fuego / congelar / veneno / marchitar / ceguera / levitar  (segundos)
+   sangrado      daño por segundo durante 4 s
+   rayo          cae un rayo (daño)           explosion  no rompe bloques
+   cadena        el golpe salta a 3 enemigos  ejecutar   doble daño a los
+                 cercanos (%)                            casi muertos
+   empuje        los lanza lejos              al_matar_curar / al_matar_velocidad
+   espinas       (armadura) devuelve daño     esquivar   (armadura) evita golpes
+   aturdir, debilitar, hambre, marcar (brilla), atraer, perforar (daño que
+   ignora armadura), golpe_doble, furia (te da fuerza), al_matar_soles,
+   al_matar_xp, al_matar_escudo, duplicar_botin, regenerar y resistencia
+   (armadura).
+
+ RUNAS: cualquier arma, herramienta o armadura (aunque sea normal de
+ Minecraft) puede ganar poderes. Compra una runa (Bruno: tienda "runas")
+ o encuéntrala en tesoros, ponla en la otra mano (tecla F), agáchate y
+ clic derecho. Máximo 3 runas distintas por objeto (poderes.max-runas);
+ una runa igual a otra ya forjada la refuerza (suma su valor).
+ En tiendas y botín:  runa:<poder>[:valor[:probabilidad]]   o  runa:azar
+ En texto:            vende: 1 runa de robo de vida 5 por 900
+
+ Dónde salen:
+   - Armería Legendaria del Errante (tienda "legendaria"): 8 armas únicas.
+   - Forja Legendaria (estructura generada): el cofre del altar SIEMPRE
+     trae un arma especial legendaria o mítica.
+   - Tesoros escondidos y mazmorras: a veces (botín "especial:epico").
+ En botines y tiendas:  especial:<rareza>  = un objeto especial al azar
+ de esa rareza o mayor (raro, epico, legendario, mitico).
+

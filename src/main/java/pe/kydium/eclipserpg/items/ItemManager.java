@@ -60,6 +60,7 @@ public final class ItemManager implements Listener {
         public final List<AttrDef> attributes = new ArrayList<>();
         public String rarity;        // comun, poco_comun, raro, epico, legendario, mitico
         public boolean rpgStyle;     // ocultar los atributos de Minecraft y mostrarlos en español
+        public final List<Powers.Power> powers = new ArrayList<>();
     }
 
     /** Rarezas: color del nombre y etiqueta al final de la descripción. */
@@ -124,6 +125,10 @@ public final class ItemManager implements Listener {
                 }
             }
         }
+        if (!ci.powers.isEmpty()) {
+            if (!out.isEmpty()) out.add("");
+            out.addAll(Powers.lore(ci.powers));
+        }
         if (lvl > 0) out.add("<yellow>✦ Mejorada +" + lvl);
         String rk = rarityKey(ci);
         String[] r = rk == null ? null : RARITIES.get(rk);
@@ -179,9 +184,43 @@ public final class ItemManager implements Listener {
                 ci.attributes.add(new AttrDef(attr.toString(), Double.parseDouble(val.toString()),
                         op == null ? null : op.toString(), slot == null ? null : slot.toString()));
             }
+            for (Map<?, ?> a : s.getMapList("poderes")) {
+                Object t = a.get("tipo");
+                String type = t == null ? null : Powers.normType(t.toString());
+                if (type == null) {
+                    plugin.getLogger().warning("objetos.yml: poder desconocido en " + id + ": " + t);
+                    continue;
+                }
+                String[] def = Powers.TYPES.get(type);
+                double val = num(a.get("valor"), Double.parseDouble(def[2]));
+                double ch = num(a.get("probabilidad"), Double.parseDouble(def[3]));
+                if (ch > 1) ch /= 100.0;
+                ci.powers.add(new Powers.Power(type, val, Math.max(0, Math.min(1, ch))));
+            }
             items.put(id, ci);
         }
         plugin.getLogger().info("Objetos cargados: " + items.size());
+    }
+
+    private static double num(Object o, double def) {
+        if (o == null) return def;
+        try {
+            return Double.parseDouble(o.toString().replace("%", "").replace(",", ".").trim());
+        } catch (NumberFormatException e) {
+            return def;
+        }
+    }
+
+    /** Objetos de cierta rareza o mayor (para tiendas y botín "especial:"). */
+    public List<String> ofRarity(String min) {
+        List<String> order = List.of("comun", "poco_comun", "raro", "epico", "legendario", "mitico");
+        int m = Math.max(0, order.indexOf(min == null ? "epico" : min.toLowerCase(java.util.Locale.ROOT)));
+        List<String> out = new ArrayList<>();
+        for (CustomItem ci : items.values()) {
+            String rk = rarityKey(ci);
+            if (rk != null && order.indexOf(rk) >= m && ci.action == null) out.add(ci.id);
+        }
+        return out;
     }
 
     public Set<String> ids() {
@@ -270,7 +309,9 @@ public final class ItemManager implements Listener {
         meta.addAttributeModifier(Attribute.ATTACK_DAMAGE,
                 new AttributeModifier(key, lvl, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
         meta.displayName(Txt.item(displayName(ci, lvl)));
-        meta.lore(Txt.lore(loreLines(ci, lvl)));
+        List<String> ll = loreLines(ci, lvl);
+        ll.addAll(Powers.runeLore(meta));
+        meta.lore(Txt.lore(ll));
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         pdc.set(Keys.UPGRADE, PersistentDataType.INTEGER, lvl);
         it.setItemMeta(meta);

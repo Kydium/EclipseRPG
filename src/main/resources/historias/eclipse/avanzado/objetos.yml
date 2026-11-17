@@ -347,3 +347,127 @@ items:
     lore: ["<gray>Clic derecho donde quieras pelear.", "<dark_red>Invoca al jefe final."]
     brillo: true
     accion: "invocar:guardian_eclipse"
+
+  # ================= ARMAS ESPECIALES CON PODERES (v6.2) =================
+  # poderes: lista de {tipo, valor, probabilidad}. probabilidad 0.25 = 25 % de los golpes (o 25).
+  # Tipos: robo_de_vida, critico, fuego, congelar, veneno, marchitar, sangrado, rayo, explosion, cadena,
+  #        ejecutar, empuje, ceguera, levitar, al_matar_curar, al_matar_velocidad, espinas, esquivar
+  colmillo_vampirico:
+    material: NETHERITE_SWORD
+    nombre: "Colmillo Vampírico"
+    rareza: legendario
+    estilo-rpg: true
+    irrompible: true
+    lore: ["<dark_red><i>Tiene sed. Siempre tiene sed."]
+    encantamientos: {sharpness: 4}
+    atributos:
+      - {atributo: attack_damage, valor: 8, slot: mainhand}
+      - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+      - {tipo: robo_de_vida, valor: 20}
+      - {tipo: sangrado, valor: 1.5, probabilidad: 0.3}
+
+  hoja_escarcha:
+    material: DIAMOND_SWORD
+    nombre: "Hoja de Escarcha"
+    rareza: epico
+    estilo-rpg: true
+    irrompible: true
+    lore: ["<aqua><i>Forjada en el corazón de un glaciar."]
+    atributos:
+      - {atributo: attack_damage, valor: 7, slot: mainhand}
+      - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+      - {tipo: congelar, valor: 3, probabilidad: 0.35}
+      - {tipo: critico, valor: 50, probabilidad: 0.2}
+
+  martillo_tormenta:
+    material: MACE
+    nombre: "Martillo de la Tormenta"
+    rareza: mitico
+    estilo-rpg: true
+    irrompible: true
+    lore: ["<yellow><i>Cada golpe llama al cielo."]
+    encantamientos: {density: 3}
+    atributos:
+      - {atributo: attack_damage, valor: 9, slot: mainhand}
+      - {atributo: attack_speed, valor: -3.0, slot: mainhand}
+    poderes:
+      - {tipo: rayo, valor: 6, probabilidad: 0.25}
+      - {tipo: empuje, valor: 2}
+      - {tipo: cadena, valor: 40, probabilidad: 0.3}
+
+  daga_sangrienta:
+    material: IRON_SWORD
+    nombre: "Daga Sangrienta"
+    rareza: raro
+    estilo-rpg: true
+    lore: ["<red><i>Rápida, silenciosa y cruel."]
+    atributos:
+      - {atributo: attack_damage, valor: 4, slot: mainhand}
+      - {atributo: attack_speed, valor: -1.2, slot: mainhand}
+      - {atributo: movement_speed, valor: 0.1, operacion: add_scalar, slot: mainhand}
+    poderes:
+      - {tipo: sangrado, valor: 1, probabilidad: 0.5}
+      - {tipo: critico, valor: 60, probabilidad: 0.25}
+      - {tipo: al_matar_velocidad, valor: 4}
+
+  arco_fenix:
+    material: BOW
+    nombre: "Arco del Fénix"
+    rareza: legendario
+    estilo-rpg: true
+    irrompible: true
+    lore: ["<gold><i>Sus flechas nunca se apagan."]
+    encantamientos: {power: 5, infinity: 1}
+    poderes:
+      - {tipo: fuego, valor: 6}
+      - {tipo: explosion, valor: 2, probabilidad: 0.15}
+      - {tipo: al_matar_curar, valor: 3}
+
+  guadana_almas:
+    material: NETHERITE_HOE
+    nombre: "Guadaña de Almas"
+    rareza: mitico
+    estilo-rpg: true
+    irrompible: true
+    lore: ["<dark_purple><i>Cosecha lo que queda de los vivos."]
+    atributos:
+      - {atributo: attack_damage, valor: 11, slot: mainhand}
+      - {atributo: attack_speed, valor: -2.8, slot: mainhand}
+      - {atributo: entity_interaction_range, valor: 1, slot: mainhand}
+    poderes:
+      - {tipo: ejecutar, valor: 30}
+      - {tipo: marchitar, valor: 3, probabilidad: 0.3}
+      - {tipo: robo_de_vida, valor: 10}
+      - {tipo: al_matar_curar, valor: 4}
+
+  peto_espinas:
+    material: NETHERITE_CHESTPLATE
+    nombre: "Peto de Espinas"
+    rareza: legendario
+    estilo-rpg: true
+    irrompible: true
+    lore: ["<dark_green><i>Quien te toca, sangra."]
+    atributos:
+      - {atributo: armor, valor: 8, slot: chest}
+      - {atributo: armor_toughness, valor: 3, slot: chest}
+    poderes:
+      - {tipo: espinas, valor: 35}
+      - {tipo: esquivar, probabilidad: 0.1}
+
+  tridente_abismo:
+    material: TRIDENT
+    nombre: "Tridente del Abismo"
+    rareza: legendario
+    estilo-rpg: true
+    irrompible: true
+    lore: ["<dark_aqua><i>Arrastra a sus presas al fondo."]
+    encantamientos: {loyalty: 3, impaling: 5}
+    atributos:
+      - {atributo: attack_damage, valor: 8, slot: mainhand}
+      - {atributo: attack_speed, valor: -2.9, slot: mainhand}
+    poderes:
+      - {tipo: veneno, valor: 4, probabilidad: 0.35}
+      - {tipo: levitar, valor: 2, probabilidad: 0.2}
+      - {tipo: ceguera, valor: 2, probabilidad: 0.2}

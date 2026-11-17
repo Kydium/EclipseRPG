@@ -514,13 +514,13 @@ public final class StructureManager implements Listener {
             "ENCHANTED_GOLDEN_APPLE 2 0.3", "TOTEM_OF_UNDYING 1 0.25", "ELYTRA 1 0.06", "EMERALD_BLOCK 3 0.45", "GOLD_BLOCK 3 0.5",
             "DIAMOND_BLOCK 1 0.2", "HEART_OF_THE_SEA 1 0.1", "TRIDENT 1 0.06", "libro:mending:1 1 0.35", "libro:sharpness:5 1 0.3",
             "libro:protection:4 1 0.3", "libro:efficiency:5 1 0.25", "libro:fortune:3 1 0.25", "libro:looting:3 1 0.2", "libro:unbreaking:3 1 0.3",
-            "custom:fragmento_mejora 3 0.5", "EXPERIENCE_BOTTLE 16 0.7", "SHULKER_SHELL 2 0.12", "NETHER_STAR 1 0.03");
+            "custom:fragmento_mejora 3 0.5", "especial:epico 1 0.35", "especial:legendario 1 0.12", "runa:azar 2 0.5", "EXPERIENCE_BOTTLE 16 0.7", "SHULKER_SHELL 2 0.12", "NETHER_STAR 1 0.03");
     /** Lo de los cofres comunes de las casas de una aldea. */
     public static final List<String> LOOT_VILLAGE = List.of("BREAD 6 0.8", "APPLE 4 0.5", "COAL 8 0.5", "TORCH 8 0.4", "WHEAT 10 0.4",
             "IRON_INGOT 2 0.25", "EMERALD 2 0.2", "STRING 4 0.3", "LEATHER 3 0.3", "BOOK 2 0.2", "COOKED_PORKCHOP 3 0.3");
     private static final List<String> LOOT_DUNGEON = List.of("GOLD_INGOT 4 0.6", "DIAMOND 2 0.25", "EMERALD 5 0.5", "IRON_INGOT 6 0.6",
             "GOLDEN_APPLE 1 0.25", "ENCHANTED_GOLDEN_APPLE 1 0.02", "EXPERIENCE_BOTTLE 6 0.5", "pocion:strength 1 0.3", "pocion:healing 2 0.4",
-            "libro:sharpness:3 1 0.15", "libro:protection:3 1 0.15", "NAME_TAG 1 0.1", "DIAMOND_SWORD 1 0.06");
+            "libro:sharpness:3 1 0.15", "libro:protection:3 1 0.15", "NAME_TAG 1 0.1", "DIAMOND_SWORD 1 0.06", "especial:raro 1 0.08", "runa:azar 1 0.15");
 
     /** Construye una estructura generada centrada en (x, z): cada vez sale distinta y se adapta al terreno. */
     public void placeGenerated(Def d, World w, int x, int z, Player who, Consumer<Inst> done) {
@@ -553,6 +553,12 @@ public final class StructureManager implements Listener {
                 for (var mk : b.markers) {
                     if (mk.type().equals("tesoro") && w.getBlockAt(mk.x(), mk.y(), mk.z()).getState() instanceof Container cont)
                         fillTable(cont.getInventory(), LOOT_TREASURE, 3, 4);
+                    if (mk.type().equals("arma_especial") && w.getBlockAt(mk.x(), mk.y(), mk.z()).getState() instanceof Container cont) {
+                        ItemStack sp = plugin.shops().buildSpec("especial:" + (mk.arg() == null || mk.arg().isBlank() ? "legendario" : mk.arg()), 1);
+                        if (sp == null) sp = plugin.shops().buildSpec("especial:epico", 1);
+                        if (sp != null) cont.getInventory().setItem(13, sp);
+                        fillTable(cont.getInventory(), LOOT_TREASURE, 2, 3);
+                    }
                     if (mk.type().equals("spawner") && w.getBlockAt(mk.x(), mk.y(), mk.z()).getState() instanceof org.bukkit.block.CreatureSpawner sp) {
                         org.bukkit.entity.EntityType et = pe.kydium.eclipserpg.util.Reg.entity(mk.arg());
                         if (et != null && et.isAlive()) {

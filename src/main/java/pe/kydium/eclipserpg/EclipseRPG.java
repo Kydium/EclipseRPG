@@ -71,6 +71,12 @@ public final class EclipseRPG extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        // v6.2: el nivel ya no tiene límite (0 = sin límite). Se migra una sola vez el 50 antiguo.
+        if (!getConfig().getBoolean("niveles.migrado-sin-limite", false)) {
+            if (getConfig().getInt("niveles.nivel-maximo", 0) == 50) getConfig().set("niveles.nivel-maximo", 0);
+            getConfig().set("niveles.migrado-sin-limite", true);
+            saveConfig();
+        }
         Keys.init(this);
         checkNewWorld();
         story = new pe.kydium.eclipserpg.story.StoryManager(this);
@@ -99,6 +105,7 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(new MenuListener(), this);
         pm.registerEvents(levels, this);
         pm.registerEvents(items, this);
+        pm.registerEvents(new pe.kydium.eclipserpg.items.Powers(this), this);
         pm.registerEvents(mobs, this);
         pm.registerEvents(contracts, this);
         pm.registerEvents(rifts, this);

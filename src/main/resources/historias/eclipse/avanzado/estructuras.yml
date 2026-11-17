@@ -364,6 +364,20 @@ estructuras:
     anuncio: "<gold>Coloso"
     subtitulo: "<gray>La losa a sus pies suena hueca"
     premio-xp: 200
+  forja_legendaria:
+    nombre: "<gold><bold>Forja Legendaria"
+    generador: forja_legendaria
+    aparece: azar
+    probabilidad: 0.0005
+    maximo: 3
+    distancia-min: 600
+    enemigos: [{mob: wither_skeleton, cantidad: 4}, {mob: blaze, cantidad: 2}]
+    jefe: senor_brasas
+    reaparicion: 60
+    anuncio: "<gold><bold>Forja Legendaria"
+    subtitulo: "<gray>En el altar descansa un arma con poderes"
+    premio-xp: 800
+    premio-dinero: 300
   base_inicial:
     nombre: "<aqua>Base inicial"
     generador: base_inicial

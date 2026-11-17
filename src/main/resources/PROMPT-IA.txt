@@ -89,7 +89,20 @@ ARMA <id>                (o OBJETO, HERRAMIENTA, ARMADURA)
   encantamientos: sharpness 5, unbreaking 3   (o en español: filo 5, irrompibilidad 3)
   efecto en mano: <speed 1, night_vision, strength 2…>
   irrompible: sí      brillo: sí      mejorable: sí
-  tienda: <id de una TIENDA> <precio> [nivel N]      (para que se venda ahí)
+  poder: <poder> <valor> [probabilidad %]            (varias líneas; ej. "poder: robo de vida 20",
+         "poder: rayo 6 25%", "poder: sangrado 1.5 30%", "poder: esquivar 10%")
+         Poderes: robo_de_vida (% del daño), critico (% más daño), fuego, congelar, veneno,
+         marchitar, ceguera, levitar (segundos), sangrado (daño por segundo), rayo (daño),
+         explosion (potencia, no rompe bloques), cadena (% que salta a otros enemigos),
+         ejecutar (doble daño si le queda menos de N% de vida), empuje (fuerza),
+         al_matar_curar (vida), al_matar_velocidad (segundos),
+         aturdir, debilitar, hambre, marcar, furia (segundos), atraer (fuerza),
+         perforar (% de daño directo), golpe_doble y duplicar_botin (probabilidad),
+         al_matar_soles, al_matar_xp, al_matar_escudo,
+         espinas (% devuelto; armadura), esquivar (probabilidad; armadura),
+         regenerar (segundos; armadura), resistencia (% menos daño; armadura)
+  tienda: <id de una TIENDA> <precio> [nivel N]      (para que se venda ahí;
+         "legendaria" es la armería del Errante para armas especiales)
 
 ENEMIGO <id>             (o JEFE <id> para un jefe con barra de vida)
   tipo: <criatura de Minecraft: zombie, skeleton, wither_skeleton, pillager, spider…>
@@ -109,6 +122,8 @@ ENEMIGO <id>             (o JEFE <id> para un jefe con barra de vida)
 TIENDA <id>
   titulo: <nombre de la ventana>
   vende: <cantidad> <objeto> por <precio> [nivel N] [stock N]   (el jugador compra)
+         objeto puede ser "runa de <poder> [valor] [prob%]" (se forja en cualquier arma),
+         "runa al azar" o "arma especial legendaria" (una al azar de esa rareza)
   compra: <cantidad> <objeto> por <precio>                       (el jugador vende)
   mejora: <precio>          (botón para mejorar armas "mejorable")
   abre: <siempre|dia|noche>
@@ -129,9 +144,16 @@ REGLA <id>                (el clima o el lugar afecta al jugador)
   efecto: <slowness 1, blindness 1…>   daño: <N>   cada: <segundos>
   mensaje: <texto>
 
-ESTRUCTURA <id>           (lugares; la construcción se hace en el juego, o usa
-  nombre: <nombre>         uno de estos planos: torre_vigia, campamento_bandidos, santuario_alba)
-  plano: <id del plano>
+ESTRUCTURA <id>           (lugares que aparecen en el mundo)
+  nombre: <nombre>
+  generador: <tipo generado, sale distinto cada vez: aldea_chica, aldea_mediana, aldea_grande,
+             torre_mago, molino, faro, ruinas_castillo, templo, cabana, granja_aislada,
+             cementerio, campamento, posada_camino, fortaleza, torre_oscura, cripta_profunda,
+             isla_flotante, ciudadela_celeste, galeon_volador, arbol_gigante, piramide, volcan,
+             calavera_gigante, laberinto, coloso, forja_legendaria, base_inicial,
+             base_fortificada, bunker, base_granja>
+  estilo: <auto|llanura|taiga|nieve|desierto|sabana|cerezo|pantano|selva|oscuro>
+  plano: <id de una construcción guardada en el juego>   (en vez de generador)
   aparece: <azar|mision|manual>
   enemigos: <enemigo> <cantidad>     jefe: <id>
   botin: <objeto> <cantidad> <probabilidad>
@@ -150,6 +172,9 @@ REGLAS
 - Usa "habla con" para que el jugador visite a otros NPCs.
 - Si inventas armas o jefes, úsalos: que un jefe suelte el arma, que una
   tienda la venda, que una misión pida derrotarlo.
+- Las armas especiales con poderes deben ser raras: rareza epico, legendario
+  o mitico, precio alto, nivel alto y stock 1; o que las suelte un jefe.
+- El nivel del jugador no tiene límite: puedes pedir nivel 60, 80, 100…
 - No inventes campos que no estén en el formato.
 
 MI IDEA:

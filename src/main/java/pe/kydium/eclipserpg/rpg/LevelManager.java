@@ -43,7 +43,8 @@ public final class LevelManager implements Listener {
     // ---------- Configuración ----------
 
     public int maxLevel() {
-        return cfg().getInt("niveles.nivel-maximo", 50);
+        int m = cfg().getInt("niveles.nivel-maximo", 0);
+        return m <= 0 ? Integer.MAX_VALUE : m;
     }
 
     public long xpNeeded(int level) {

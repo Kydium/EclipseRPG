@@ -107,3 +107,40 @@ tiendas:
       - {tipo: comprar, item: "custom:fragmento_mejora", cantidad: 2, precio: 2500, nivel: 40}
       - {tipo: comprar, item: "material:ENCHANTED_GOLDEN_APPLE", precio: 3000, nivel: 40}
       - {tipo: comprar, item: "material:TOTEM_OF_UNDYING", precio: 3500, nivel: 40}
+
+  legendaria:                       # El Errante — Armería legendaria (armas con poderes)
+    titulo: "<gold><bold>Armería Legendaria"
+    filas: 3
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:daga_sangrienta", precio: 2500, nivel: 15, stock: 1}
+      - {tipo: comprar, slot: 11, item: "custom:hoja_escarcha", precio: 6000, nivel: 25, stock: 1}
+      - {tipo: comprar, slot: 12, item: "custom:colmillo_vampirico", precio: 12000, nivel: 40, stock: 1}
+      - {tipo: comprar, slot: 13, item: "custom:arco_fenix", precio: 11000, nivel: 40, stock: 1}
+      - {tipo: comprar, slot: 14, item: "custom:tridente_abismo", precio: 12000, nivel: 45, stock: 1}
+      - {tipo: comprar, slot: 15, item: "custom:peto_espinas", precio: 14000, nivel: 50, stock: 1}
+      - {tipo: comprar, slot: 16, item: "custom:martillo_tormenta", precio: 25000, nivel: 60, stock: 1}
+      - {tipo: comprar, slot: 22, item: "custom:guadana_almas", precio: 30000, nivel: 70, stock: 1}
+
+  runas:                            # Bruno el Herrero — Runas para forjar poderes en tus armas
+    titulo: "<light_purple><bold>Runas de Forja"
+    filas: 4
+    objetos:
+      - {tipo: comprar, slot: 10, item: "runa:robo_de_vida:5", precio: 900, nivel: 10}
+      - {tipo: comprar, slot: 11, item: "runa:critico:40:0.15", precio: 700, nivel: 8}
+      - {tipo: comprar, slot: 12, item: "runa:fuego:3:0.25", precio: 500, nivel: 5}
+      - {tipo: comprar, slot: 13, item: "runa:congelar:2:0.25", precio: 600, nivel: 8}
+      - {tipo: comprar, slot: 14, item: "runa:veneno:3:0.25", precio: 600, nivel: 8}
+      - {tipo: comprar, slot: 15, item: "runa:sangrado:1:0.3", precio: 800, nivel: 12}
+      - {tipo: comprar, slot: 16, item: "runa:empuje:1", precio: 400, nivel: 3}
+      - {tipo: comprar, slot: 19, item: "runa:al_matar_curar:2", precio: 650, nivel: 10}
+      - {tipo: comprar, slot: 20, item: "runa:al_matar_soles:3", precio: 1200, nivel: 15}
+      - {tipo: comprar, slot: 21, item: "runa:al_matar_xp:8", precio: 1200, nivel: 15}
+      - {tipo: comprar, slot: 22, item: "runa:rayo:4:0.1", precio: 2500, nivel: 25}
+      - {tipo: comprar, slot: 23, item: "runa:cadena:30:0.2", precio: 2200, nivel: 25}
+      - {tipo: comprar, slot: 24, item: "runa:golpe_doble:0:0.1", precio: 3000, nivel: 30}
+      - {tipo: comprar, slot: 25, item: "runa:ejecutar:15", precio: 3500, nivel: 35}
+      - {tipo: comprar, slot: 28, item: "runa:espinas:15", precio: 900, nivel: 10}
+      - {tipo: comprar, slot: 29, item: "runa:resistencia:8", precio: 1500, nivel: 15}
+      - {tipo: comprar, slot: 30, item: "runa:regenerar:2:0.2", precio: 1400, nivel: 15}
+      - {tipo: comprar, slot: 31, item: "runa:esquivar:0:0.06", precio: 2500, nivel: 25}
+      - {tipo: comprar, slot: 34, item: "runa:azar", precio: 1000, nivel: 10}

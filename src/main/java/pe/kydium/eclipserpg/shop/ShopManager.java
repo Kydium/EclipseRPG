@@ -239,6 +239,11 @@ public final class ShopManager {
             var d = plugin.items().def(rest.substring(7));
             return d == null ? rest.substring(7) : pe.kydium.eclipserpg.story.StoryManager.plain(d.name);
         }
+        if (rest.startsWith("runa:")) {
+            String t = pe.kydium.eclipserpg.items.Powers.normType(rest.substring(5).split(":")[0]);
+            return t == null ? "Runa al azar" : "Runa de " + pe.kydium.eclipserpg.story.StoryManager.plain(pe.kydium.eclipserpg.items.Powers.TYPES.get(t)[0]).replaceAll("^[^A-Za-zÁÉÍÓÚáéíóúñ]+", "");
+        }
+        if (rest.startsWith("especial:")) return "Arma especial " + rest.substring(9);
         return Txt.pretty(rest);
     }
 
@@ -280,6 +285,15 @@ public final class ShopManager {
         ItemStack it = null;
         switch (type) {
             case "custom" -> it = plugin.items().create(rest, e.amount);
+            case "runa" -> {
+                it = pe.kydium.eclipserpg.items.Powers.rune(rest);
+                it.setAmount(Math.max(1, e.amount));
+            }
+            case "especial" -> {
+                // un arma/armadura especial al azar de esa rareza o mayor (por defecto épica)
+                List<String> ids = plugin.items().ofRarity(rest.isBlank() ? "epico" : rest);
+                if (!ids.isEmpty()) it = plugin.items().create(ids.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(ids.size())), 1);
+            }
             case "material" -> {
                 Material m = Material.matchMaterial(rest);
                 if (m != null) it = new ItemStack(m, e.amount);
@@ -329,7 +343,7 @@ public final class ShopManager {
         e.item = spec;
         e.amount = Math.max(1, amount);
         ItemStack it = build(e);
-        if (it != null && !spec.startsWith("custom:")) it.setAmount(Math.min(it.getMaxStackSize(), e.amount));
+        if (it != null && !spec.startsWith("custom:") && !spec.startsWith("especial:")) it.setAmount(Math.min(it.getMaxStackSize(), e.amount));
         return it;
     }
 
