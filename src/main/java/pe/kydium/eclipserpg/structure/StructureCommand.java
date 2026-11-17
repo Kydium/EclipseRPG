@@ -28,6 +28,7 @@ public final class StructureCommand implements TabExecutor {
         Txt.send(s, " <white>4. <gray>En el editor (Estructuras) eliges dónde aparece, enemigos, jefe y botín.");
         Txt.send(s, " <gray>Carteles especiales (1ª línea): <white>[enemigo] [jefe] [entrada] [npc]<gray> (en [npc], el id en la 2ª línea)");
         Txt.send(s, " <gray>Otros: <white>/estructura colocar <id> · lista · ir <id> · brujula <id>");
+        Txt.send(s, "<yellow>Catálogo (salen distintas cada vez): <white>/estructura catalogo <gray>· <white>/estructura generar <tipo> [estilo]");
     }
 
     @Override
@@ -38,12 +39,29 @@ public final class StructureCommand implements TabExecutor {
             return true;
         }
         String sub = a[0].toLowerCase();
+        if (sub.equals("catalogo") || sub.equals("catálogo")) {
+            String last = "";
+            for (var e : pe.kydium.eclipserpg.gen.Catalog.ALL.values()) {
+                if (!e.category().equals(last)) {
+                    last = e.category();
+                    Txt.send(s, "<yellow>" + switch (last) {
+                        case "aldea" -> "Aldeas";
+                        case "mazmorra" -> "Mazmorras grandes";
+                        case "base" -> "Bases";
+                        default -> "Estructuras";
+                    } + ":");
+                }
+                Txt.send(s, " <gray>• <white>" + e.id() + " <gray>— " + e.description());
+            }
+            Txt.send(s, "<gray>Estilos: <white>" + String.join(", ", pe.kydium.eclipserpg.gen.Style.ids()) + " <gray>(o auto, según el bioma)");
+            return true;
+        }
         if (sub.equals("lista")) {
             Txt.send(s, "<yellow>Estructuras de la historia:");
             for (String id : sm.ids()) {
                 StructureManager.Def d = sm.def(id);
                 Txt.send(s, " <gray>• <white>" + id + " <gray>— <reset>" + d.name + " <gray>(" + d.appears + ", en el mundo: " + sm.count(id) + ")"
-                        + (sm.plan(d.plan) == null ? " <red>falta el plano" : ""));
+                        + (sm.shape(d) == null ? " <red>falta el plano" : d.gen != null ? " <aqua>(generada)" : ""));
             }
             Txt.send(s, "<yellow>Planos guardados: <white>" + String.join(", ", sm.planNames()));
             return true;
@@ -81,6 +99,28 @@ public final class StructureCommand implements TabExecutor {
                 sm.placeAt(d, p.getWorld(), l.getBlockX(), l.getBlockY() - 1, l.getBlockZ(), p,
                         inst -> Txt.send(p, inst == null ? "<red>No se pudo construir." : "<green>Listo: " + d.name));
             }
+            case "generar", "crear" -> {
+                if (a.length < 2) {
+                    Txt.send(p, "<red>Uso: /estructura generar <tipo> [estilo]   (mira /estructura catalogo)");
+                    return true;
+                }
+                String type = StructureManager.slug(a[1]);
+                String style = a.length > 2 ? a[2].toLowerCase() : null;
+                var ce = pe.kydium.eclipserpg.gen.Catalog.ALL.get(type);
+                if (ce == null) {
+                    Txt.send(p, "<red>No existe «" + a[1] + "». Mira /estructura catalogo");
+                    return true;
+                }
+                Location l = p.getLocation();
+                StructureManager.Def d = sm.catalogDef(type, style);
+                // al lado del jugador, para que no le caiga encima
+                double yaw = Math.toRadians(l.getYaw());
+                int dist = ce.radius() + 4;
+                int x = l.getBlockX() + (int) Math.round(-Math.sin(yaw) * dist), z = l.getBlockZ() + (int) Math.round(Math.cos(yaw) * dist);
+                Txt.send(p, "<gray>Generando " + ce.name() + " delante de ti (a " + dist + " bloques)…");
+                sm.placeGenerated(d, p.getWorld(), x, z, p, inst -> Txt.send(p, inst == null ? "<red>No se pudo generar." : "<green>Listo: " + ce.name()
+                        + " <gray>(cada vez sale distinta)"));
+            }
             case "ir", "brujula" -> {
                 StructureManager.Inst i = a.length < 2 ? null : sm.nearest(StructureManager.slug(a[1]), p.getLocation());
                 if (i == null) Txt.send(p, "<red>Todavía no hay ninguna de esas en este mundo.");
@@ -98,7 +138,9 @@ public final class StructureCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender s, Command c, String label, String[] a) {
         List<String> out = new ArrayList<>();
-        if (a.length == 1) out.addAll(List.of("pos1", "pos2", "guardar", "colocar", "lista", "ir", "brujula"));
+        if (a.length == 1) out.addAll(List.of("pos1", "pos2", "guardar", "colocar", "lista", "ir", "brujula", "catalogo", "generar"));
+        else if (a.length == 2 && (a[0].equalsIgnoreCase("generar") || a[0].equalsIgnoreCase("crear"))) out.addAll(pe.kydium.eclipserpg.gen.Catalog.ALL.keySet());
+        else if (a.length == 3 && a[0].equalsIgnoreCase("generar")) { out.add("auto"); out.addAll(pe.kydium.eclipserpg.gen.Style.ids()); }
         else if (a.length == 2 && !a[0].equalsIgnoreCase("guardar")) out.addAll(plugin.structures().ids());
         String last = a[a.length - 1].toLowerCase();
         out.removeIf(x -> !x.startsWith(last));

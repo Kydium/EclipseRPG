@@ -78,6 +78,9 @@ public final class StructureManager implements Listener {
 
     public static final class Def {
         public String id, name, plan;
+        public String gen;                       // estructura generada (sale distinta cada vez)
+        public String style = "auto";
+        public String category = "estructura";
         public String appears = "manual";      // azar | mision | manual
         public double chance = 0.002;
         public int max = 4;
@@ -146,7 +149,20 @@ public final class StructureManager implements Listener {
             Def d = new Def();
             d.id = slug(id);
             d.name = s.getString("nombre", id);
-            d.plan = slug(s.getString("plano", id));
+            String planRaw = s.getString("plano", id);
+            String genRaw = s.getString("generador");
+            if (genRaw == null && planRaw != null && planRaw.startsWith("gen:")) genRaw = planRaw.substring(4);
+            d.plan = slug(planRaw);
+            if (genRaw != null && !genRaw.isBlank()) {
+                d.gen = slug(genRaw);
+                var ce = pe.kydium.eclipserpg.gen.Catalog.ALL.get(d.gen);
+                if (ce == null) {
+                    plugin.getLogger().warning("estructuras.yml: '" + id + "' usa el generador '" + d.gen + "', que no existe. Generadores: "
+                            + pe.kydium.eclipserpg.gen.Catalog.ALL.keySet());
+                    d.gen = null;
+                } else d.category = ce.category();
+            }
+            d.style = s.getString("estilo", "auto");
             d.appears = s.getString("aparece", "manual").toLowerCase(Locale.ROOT);
             d.chance = s.getDouble("probabilidad", 0.002);
             d.max = Math.max(1, s.getInt("maximo", 4));
@@ -177,7 +193,7 @@ public final class StructureManager implements Listener {
             d.xp = s.getLong("premio-xp", 0);
             d.money = s.getLong("premio-dinero", 0);
             defs.put(d.id, d);
-            if (plan(d.plan) == null) plugin.getLogger().warning("estructuras.yml: '" + id + "' usa el plano '" + d.plan
+            if (d.gen == null && plan(d.plan) == null) plugin.getLogger().warning("estructuras.yml: '" + id + "' usa el plano '" + d.plan
                     + "', que no existe. Constrúyelo en el juego y guárdalo con /estructura guardar " + d.plan);
         }
         loadInstances();
@@ -453,7 +469,7 @@ public final class StructureManager implements Listener {
             min = Math.min(min, g);
             max = Math.max(max, g);
         }
-        if (max - min > d.slope) return Integer.MIN_VALUE;
+        if (max - min > (d.gen != null ? Math.max(d.slope, 14) : d.slope)) return Integer.MIN_VALUE;
         if (!d.biomes.isEmpty()) {
             String biome = w.getBiome(x, center, z).getKey().getKey();
             if (!WorldManager.biomeIn(d.biomes, biome)) return Integer.MIN_VALUE;
@@ -466,12 +482,141 @@ public final class StructureManager implements Listener {
         return center;
     }
 
+    /** El plano, o un "contorno" del tamaño del generador si es generada. null si no hay ninguno. */
+    public Plan shape(Def d) {
+        if (d.gen != null) {
+            var ce = pe.kydium.eclipserpg.gen.Catalog.ALL.get(d.gen);
+            if (ce == null) return null;
+            Plan p = new Plan();
+            p.name = "gen:" + d.gen;
+            p.minX = -ce.radius();
+            p.maxX = ce.radius();
+            p.minZ = -ce.radius();
+            p.maxZ = ce.radius();
+            p.maxY = 24;
+            return p;
+        }
+        return plan(d.plan);
+    }
+
+    private static final List<String> LOOT_STRUCTURE = List.of("BREAD 4 0.7", "COOKED_BEEF 3 0.4", "IRON_INGOT 3 0.5", "GOLD_INGOT 2 0.3",
+            "EMERALD 3 0.3", "ARROW 12 0.4", "EXPERIENCE_BOTTLE 3 0.3", "DIAMOND 1 0.06", "pocion:healing 1 0.25", "libro:mending:1 1 0.03");
+    private static final List<String> LOOT_DUNGEON = List.of("GOLD_INGOT 4 0.6", "DIAMOND 2 0.25", "EMERALD 5 0.5", "IRON_INGOT 6 0.6",
+            "GOLDEN_APPLE 1 0.25", "ENCHANTED_GOLDEN_APPLE 1 0.02", "EXPERIENCE_BOTTLE 6 0.5", "pocion:strength 1 0.3", "pocion:healing 2 0.4",
+            "libro:sharpness:3 1 0.15", "libro:protection:3 1 0.15", "NAME_TAG 1 0.1", "DIAMOND_SWORD 1 0.06");
+
+    /** Construye una estructura generada centrada en (x, z): cada vez sale distinta y se adapta al terreno. */
+    public void placeGenerated(Def d, World w, int x, int z, Player who, Consumer<Inst> done) {
+        var ce = pe.kydium.eclipserpg.gen.Catalog.ALL.get(d.gen);
+        if (ce == null) {
+            if (done != null) done.accept(null);
+            return;
+        }
+        int R = ce.radius() + 10;
+        Set<Long> area = AsyncChunks.area(x - R, z - R, x + R, z + R);
+        AsyncChunks.load(w, area).whenComplete((v, ex) -> Bukkit.getScheduler().runTask(plugin, () -> {
+            for (long k : area) w.addPluginChunkTicket((int) (k >> 32), (int) k, plugin);
+            WorldTerrain t = new WorldTerrain(w);
+            String st = d.style == null || d.style.equalsIgnoreCase("auto") ? pe.kydium.eclipserpg.gen.Style.forBiome(t.biome(x, z)) : d.style;
+            java.util.Random rnd = new java.util.Random(w.getSeed() ^ ((long) x * 341873128712L) ^ ((long) z * 132897987541L) ^ d.id.hashCode());
+            pe.kydium.eclipserpg.gen.Build b;
+            try {
+                b = pe.kydium.eclipserpg.gen.Catalog.generate(d.gen, t, rnd, pe.kydium.eclipserpg.gen.Style.get(st), x, z);
+            } catch (RuntimeException e) {
+                plugin.getLogger().log(java.util.logging.Level.WARNING, "No se pudo generar " + d.gen, e);
+                for (long k : area) w.removePluginChunkTicket((int) (k >> 32), (int) k, plugin);
+                if (done != null) done.accept(null);
+                return;
+            }
+            BuildPlacer.place(plugin, w, b, Math.max(500, plugin.getConfig().getInt("estructuras.bloques-por-tick", 6000)), null, containers -> {
+                boolean base = "base".equals(d.category);
+                List<String> table = !d.loot.isEmpty() ? d.loot : base ? List.of() : "mazmorra".equals(d.category) ? LOOT_DUNGEON : LOOT_STRUCTURE;
+                for (int[] c : containers) {
+                    if (table.isEmpty()) break;
+                    if (w.getBlockAt(c[0], c[1], c[2]).getState() instanceof Container cont && cont.getInventory().isEmpty()) {
+                        if (!d.loot.isEmpty()) fillLoot(cont.getInventory(), d);
+                        else {
+                            Def tmp = new Def();
+                            tmp.loot.addAll(table);
+                            tmp.rolls = d.rolls;
+                            fillLoot(cont.getInventory(), tmp);
+                        }
+                    }
+                }
+                Inst inst = new Inst();
+                inst.id = d.id;
+                inst.world = w.getName();
+                inst.x = x;
+                inst.z = z;
+                inst.y = b.minY == Integer.MAX_VALUE ? t.ground(x, z) : b.minY;
+                inst.rx = Math.max(Math.abs(b.minX - x), Math.abs(b.maxX - x));
+                inst.rz = Math.max(Math.abs(b.minZ - z), Math.abs(b.maxZ - z));
+                inst.h = Math.max(6, b.maxY - inst.y);
+                for (var mk : b.markers) {
+                    int[] at = {mk.x(), mk.y(), mk.z()};
+                    switch (mk.type()) {
+                        case "enemigo" -> inst.enemySpots.add(at);
+                        case "jefe" -> inst.bossSpot = at;
+                        case "entrada" -> inst.entrance = at;
+                        case "villager" -> {
+                            if ("aldea".equals(d.category))
+                                plugin.npcEntities().spawnFiller(pe.kydium.eclipserpg.npc.NpcEntities.roleFor(mk.arg() == null || mk.arg().isEmpty() ? null : mk.arg()),
+                                        new Location(w, at[0] + 0.5, at[1], at[2] + 0.5));
+                        }
+                        case "animal" -> {
+                            org.bukkit.entity.EntityType et = pe.kydium.eclipserpg.util.Reg.entity(mk.arg());
+                            if (et != null) {
+                                var ent = w.spawnEntity(new Location(w, at[0] + 0.5, at[1], at[2] + 0.5), et);
+                                ent.setPersistent(true);
+                            }
+                        }
+                        default -> { }
+                    }
+                }
+                instances.add(inst);
+                save();
+                if (!Boolean.getBoolean("eclipse.prueba")) Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    for (long k : area) w.removePluginChunkTicket((int) (k >> 32), (int) k, plugin);
+                }, 100L);
+                plugin.getLogger().info("Estructura " + d.id + " (" + d.gen + ", " + st + ") construida en " + x + " " + inst.y + " " + z + ": " + b.blocks.size() + " bloques");
+                if (done != null) done.accept(inst);
+            });
+        }));
+    }
+
+    /** Una definición de paso para construir algo del catálogo con /estructura generar. */
+    public Def catalogDef(String gen, String style) {
+        var ce = pe.kydium.eclipserpg.gen.Catalog.ALL.get(slug(gen));
+        if (ce == null) return null;
+        Def d = defs.values().stream().filter(x -> ce.id().equals(x.gen)).findFirst().orElse(null);
+        if (d != null && style == null) return d;
+        Def n = new Def();
+        n.id = d != null ? d.id : ce.id();
+        n.name = d != null ? d.name : "<yellow>" + ce.name();
+        n.gen = ce.id();
+        n.category = ce.category();
+        n.style = style == null ? "auto" : style;
+        if (d != null) {
+            n.enemies.addAll(d.enemies);
+            n.boss = d.boss;
+            n.loot.addAll(d.loot);
+            n.title = d.title;
+            n.subtitle = d.subtitle;
+            n.respawn = d.respawn;
+        }
+        return n;
+    }
+
     private Set<Long> chunksFor(Plan p, int x, int z) {
         return AsyncChunks.area(x + p.minX - 2, z + p.minZ - 2, x + p.maxX + 2, z + p.maxZ + 2);
     }
 
     /** Coloca la estructura con su suelo en la altura y (el piso del plano reemplaza al suelo). */
     public void placeAt(Def d, World w, int x, int y, int z, Player who, Consumer<Inst> done) {
+        if (d.gen != null) {
+            placeGenerated(d, w, x, z, who, done);
+            return;
+        }
         Plan p = plan(d.plan);
         if (p == null || p.ops.isEmpty()) {
             if (who != null) Txt.send(who, "<red>No existe el plano «" + d.plan + "». Constrúyelo y guárdalo con /estructura guardar " + d.plan);
@@ -618,7 +763,7 @@ public final class StructureManager implements Listener {
             giveCompass(p, have);
             return true;
         }
-        Plan plan = plan(d.plan);
+        Plan plan = shape(d);
         if (plan == null) {
             Txt.send(p, "<red>Falta el plano «" + d.plan + "» de " + d.name);
             return true;
@@ -640,7 +785,7 @@ public final class StructureManager implements Listener {
     /** Construye sin jugador (prueba automática). */
     public void buildForTest(String id, Consumer<Inst> done) {
         Def d = def(id);
-        Plan plan = d == null ? null : plan(d.plan);
+        Plan plan = d == null ? null : shape(d);
         if (plan == null) {
             done.accept(null);
             return;
@@ -676,7 +821,7 @@ public final class StructureManager implements Listener {
         for (Def d : defs.values()) {
             if (!d.appears.equals("azar") || r.nextDouble() >= d.chance) continue;
             if (count(d.id) >= d.max || building.contains(d.id)) continue;
-            Plan p = plan(d.plan);
+            Plan p = shape(d);
             if (p == null) continue;
             int x = (e.getChunk().getX() << 4) + 8, z = (e.getChunk().getZ() << 4) + 8;
             Location spawn = w.getSpawnLocation();

@@ -78,7 +78,8 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 Location here = p.getLocation().getBlock().getLocation().add(0, -1, 0);
-                plugin.village().build(here, p);
+                // /eclipse construiraldea [chica|mediana|grande|clasica|auto] [estilo]
+                plugin.village().build(here, p, a.length > 1 ? a[1] : null, a.length > 2 ? a[2] : null);
             }
             case "brujula" -> {
                 Player p = a.length > 1 ? player(s, a[1]) : (s instanceof Player pl ? pl : null);
@@ -222,7 +223,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 "/eclipse nivel <jugador> <n>", "/eclipse item <jugador> <id> [n]",
                 "/eclipse spawn <mob> <jugador> [n]", "/eclipse info <jugador>",
                 "/eclipse npc <id> <jugador>", "/eclipse crearnpcs", "/eclipse mision <jugador> <n>",
-                "/eclipse construiraldea", "/eclipse aldeanos", "/eclipse brujula [jugador]", "/eclipse reiniciar <jugador|todos>", "/eclipse mazmorra <acto> [jugador]", "/eclipse mazmorras",
+                "/eclipse construiraldea [chica|mediana|grande|clasica] [estilo]", "/eclipse aldeanos", "/eclipse brujula [jugador]", "/eclipse reiniciar <jugador|todos>", "/eclipse mazmorra <acto> [jugador]", "/eclipse mazmorras",
                 "/eclipse setcampamento", "/eclipse recargar"};
         for (String l : lines) s.sendMessage(Txt.mm("<gray>" + l));
     }
@@ -261,6 +262,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                     case "spawn" -> opts.addAll(plugin.mobs().ids());
                     case "contratos", "grieta", "xp", "soles", "nivel", "item", "info", "brujula" -> opts.addAll(names());
                     case "reiniciar" -> { opts.add("todos"); opts.addAll(names()); }
+                    case "construiraldea" -> opts.addAll(List.of("auto", "chica", "mediana", "grande", "clasica"));
                     default -> { }
                 }
             } else if (a.length == 3) {
@@ -268,6 +270,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                     case "tienda", "spawn", "npc" -> opts.addAll(names());
                     case "item" -> opts.addAll(plugin.items().ids());
                     case "soles" -> opts.addAll(List.of("dar", "quitar", "poner"));
+                    case "construiraldea" -> { opts.add("auto"); opts.addAll(pe.kydium.eclipserpg.gen.Style.ids()); }
                     default -> { }
                 }
             }

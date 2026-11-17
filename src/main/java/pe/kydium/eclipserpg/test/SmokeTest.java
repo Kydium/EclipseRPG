@@ -210,6 +210,7 @@ public final class SmokeTest {
                     checkRuin();
                     checkWorldBegin();
                     checkStructuresBegin();
+                    checkGeneratorsBegin();
                     plugin.dungeons().buildForTest(1);
                     stage = 3;
                 }
@@ -227,8 +228,10 @@ public final class SmokeTest {
                     }
                 }
                 case 5 -> {
+                    if ((generatedDone < 3 || !structureDone) && genWait++ < 60) return;
                     checkWorldEnd();
                     checkStructuresEnd();
+                    checkGeneratorsEnd();
                     finish();
                 }
                 default -> { }
@@ -282,7 +285,7 @@ public final class SmokeTest {
                 start.put(u, en.getLocation());
             }
         }
-        check(fill >= 25, "hay aldeanos de relleno (" + fill + ")");
+        check(fill >= 12, "hay aldeanos de relleno (" + fill + ")");
         check(plugin.getConfig().contains("campamento.x"), "el campamento quedó guardado");
     }
 
@@ -564,6 +567,79 @@ public final class SmokeTest {
         var copy = plugin.structures().plan("prueba_copia");
         check(copy != null && copy.ops.size() > 300 && copy.bad == 0 && plugin.structures().def("prueba_copia") != null,
                 "/estructura guardar crea el plano y lo registra (" + (copy == null ? msg : copy.ops.size() + " bloques") + ")");
+    }
+
+    // ---------------------------------------------------------------- generador procedural
+
+    private final List<pe.kydium.eclipserpg.structure.StructureManager.Inst> generated = new ArrayList<>();
+    private int generatedDone, genWait;
+
+    private void checkGeneratorsBegin() {
+        // 1) todos los bloques de todas las estructuras del catálogo existen en esta versión de Minecraft
+        pe.kydium.eclipserpg.gen.Terrain flat = new pe.kydium.eclipserpg.gen.Terrain() {
+            public int ground(int x, int z) {
+                return 64 + (int) Math.round(Math.sin(x / 9.0) * 3 + Math.cos(z / 11.0) * 3);
+            }
+
+            public boolean water(int x, int z) {
+                return x > 40 && z > 40;
+            }
+
+            public String surface(int x, int z) {
+                return "grass_block";
+            }
+        };
+        java.util.Set<String> bad = new java.util.TreeSet<>();
+        int total = 0;
+        for (String id : pe.kydium.eclipserpg.gen.Catalog.ALL.keySet()) {
+            for (String st : pe.kydium.eclipserpg.gen.Style.ids()) {
+                if (!id.startsWith("aldea") && !st.equals("llanura") && !st.equals("desierto") && !st.equals("cerezo")) continue;
+                try {
+                    var b = pe.kydium.eclipserpg.gen.Catalog.generate(id, flat, new java.util.Random(id.hashCode() + st.hashCode()), pe.kydium.eclipserpg.gen.Style.get(st), 0, 0);
+                    total += b.blocks.size();
+                    for (String s : new java.util.HashSet<>(b.blocks.values())) {
+                        try {
+                            Bukkit.createBlockData(s.contains(":") ? s : "minecraft:" + s);
+                        } catch (IllegalArgumentException e) {
+                            bad.add(s);
+                        }
+                    }
+                } catch (RuntimeException e) {
+                    fail("el generador " + id + " (" + st + ") falló: " + e);
+                }
+            }
+        }
+        if (!bad.isEmpty()) plugin.getLogger().info("[PRUEBA] bloques que no existen: " + bad);
+        check(bad.isEmpty(), "todos los bloques del catálogo existen (" + total + " bloques generados, " + bad.size() + " malos)");
+        // 2) construir dos generadas de verdad junto a la aldea
+        var sm = plugin.structures();
+        Location c = plugin.village().center();
+        int k = 0;
+        for (String id : List.of("torre_mago", "fortaleza", "base_inicial")) {
+            var d = sm.catalogDef(id, null);
+            int x = c.getBlockX() - 260 + k * 90, z = c.getBlockZ() - 260;
+            k++;
+            sm.placeGenerated(d, c.getWorld(), x, z, null, inst -> {
+                if (inst != null) generated.add(inst);
+                generatedDone++;
+            });
+        }
+    }
+
+    private void checkGeneratorsEnd() {
+        check(generatedDone == 3 && generated.size() == 3, "se construyeron 3 estructuras generadas (" + generated.size() + "/" + generatedDone + ")");
+        for (var i : generated) {
+            World w = Bukkit.getWorld(i.world);
+            int solid = 0, chests = 0;
+            for (int x = i.x - i.rx; x <= i.x + i.rx; x += 1)
+                for (int z = i.z - i.rz; z <= i.z + i.rz; z += 1)
+                    for (int y = i.y; y <= i.y + i.h; y++) {
+                        Block b = w.getBlockAt(x, y, z);
+                        if (!b.getType().isAir()) solid++;
+                        if (b.getType() == Material.CHEST) chests++;
+                    }
+            check(solid > 500, i.id + " tiene bloques (" + solid + ", " + chests + " cofres) en " + i.x + " " + i.y + " " + i.z);
+        }
     }
 
     private void checkReload() {

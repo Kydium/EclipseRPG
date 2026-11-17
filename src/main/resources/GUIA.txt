@@ -284,3 +284,28 @@ el juego te dice exactamente en qué línea.
 
  Para poner un arma en una tienda desde el editor: «Objetos especiales» →
  el arma → «Venderla en una tienda».
+
+---------------------------------------------------------------------
+ 13. ESTRUCTURAS GENERADAS (salen distintas cada vez)
+---------------------------------------------------------------------
+ El plugin trae un catálogo que se genera solo y se adapta al terreno:
+ cada edificio se asienta entero a su altura (cimientos hacia abajo o
+ excavando la ladera), nunca se deforma ni aplana el mundo.
+
+   Aldeas: chica (arcos de entrada), mediana (empalizada) y grande
+   (murallas de piedra con torres). El estilo cambia con el bioma:
+   llanura, taiga, nieve, desierto, sabana, cerezo, pantano, selva, oscuro.
+   Estructuras: torre del mago, molino, faro, ruinas de castillo, templo,
+   cabaña, granja, cementerio con cripta, campamento, posada.
+   Mazmorras grandes: fortaleza, torre oscura, cripta profunda.
+   Bases: base inicial, base fortificada, búnker, base granja.
+
+ /estructura catalogo                    ver todo
+ /estructura generar <tipo> [estilo]     ponerla delante de ti
+ /eclipse construiraldea [chica|mediana|grande] [estilo]   la aldea de la historia
+
+ En el editor: «Estructuras» → «Catálogo» → «Que aparezca al azar».
+ En estructuras.yml:   generador: torre_mago   (en vez de plano:)
+
+ La aldea de la historia ahora se genera así (config.yml: aldea.tipo =
+ auto | chica | mediana | grande | clasica, y aldea.estilo = auto o un estilo).

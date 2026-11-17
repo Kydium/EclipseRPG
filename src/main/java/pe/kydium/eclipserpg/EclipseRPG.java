@@ -208,7 +208,7 @@ public final class EclipseRPG extends JavaPlugin {
                 getConfig().set(k, null);
             }
             getConfig().set("aldea.generada", false);
-            for (String f : new String[]{"datos-mazmorras.yml", "datos-ruinas.yml", "datos-estructuras.yml"}) {
+            for (String f : new String[]{"datos-mazmorras.yml", "datos-ruinas.yml", "datos-estructuras.yml", "datos-aldea.json"}) {
                 File file = new File(getDataFolder(), f);
                 if (file.exists() && !file.delete()) getLogger().warning("No se pudo borrar " + f);
             }

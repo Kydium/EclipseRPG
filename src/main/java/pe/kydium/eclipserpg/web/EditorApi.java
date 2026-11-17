@@ -90,6 +90,13 @@ public final class EditorApi {
                 send(ex, 200, "text/html; charset=utf-8", in == null ? new byte[0] : in.readAllBytes());
             }
         }));
+        server.createContext("/est/", ex -> safe(ex, () -> {
+            String name = StoryParser.slug(ex.getRequestURI().getPath().substring(5).replace(".jpg", ""));
+            try (InputStream in = plugin.getResource("web/est/" + name + ".jpg")) {
+                if (in == null) send(ex, 404, "text/plain", new byte[0]);
+                else send(ex, 200, "image/jpeg", in.readAllBytes());
+            }
+        }));
         server.createContext("/skins/", ex -> safe(ex, () -> {
             String name = ex.getRequestURI().getPath().substring(7).replace(".png", "");
             byte[] png = skinBytes(StoryParser.slug(name));
@@ -292,6 +299,17 @@ public final class EditorApi {
         o.add("biomas", GSON.toJsonTree(biomes));
         o.add("eventos", GSON.toJsonTree(new ArrayList<>(plugin.world().eventIds())));
         o.add("planos", GSON.toJsonTree(new ArrayList<>(plugin.structures().planNames())));
+        JsonArray gens = new JsonArray();
+        for (var e : pe.kydium.eclipserpg.gen.Catalog.ALL.values()) {
+            JsonObject g = new JsonObject();
+            g.addProperty("id", e.id());
+            g.addProperty("nombre", e.name());
+            g.addProperty("categoria", e.category());
+            g.addProperty("descripcion", e.description());
+            gens.add(g);
+        }
+        o.add("generadores", gens);
+        o.add("estilos", GSON.toJsonTree(pe.kydium.eclipserpg.gen.Style.ids()));
         Map<String, Integer> placed = new LinkedHashMap<>();
         for (String sid : plugin.structures().ids()) placed.put(sid, plugin.structures().count(sid));
         o.add("estructurasEnMundo", GSON.toJsonTree(placed));

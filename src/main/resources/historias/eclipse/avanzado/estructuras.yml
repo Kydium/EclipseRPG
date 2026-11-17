@@ -15,12 +15,16 @@
 #  enemigos: aparecen cuando entra un jugador · reaparicion: minutos (0 = solo la primera vez)
 #  botin: "objeto cantidad probabilidad" para los cofres y barriles · botin-tiradas: veces que se sortea
 #  En una misión:   estructura: torre_vigia      objetivo: encuentra la estructura torre_vigia
+#
+#  GENERADAS: en vez de "plano" pon "generador: <tipo>" y cada vez sale distinta, adaptada al terreno.
+#  Tipos: /estructura catalogo  (aldeas, torres, molinos, faros, ruinas, templos, fortalezas, bases…)
+#  estilo: auto (según el bioma) | llanura | taiga | nieve | desierto | sabana | cerezo | pantano | selva | oscuro
 # =========================================================
 estructuras:
   torre_vigia:
     nombre: "<gray>Torre del Vigía"
     plano: torre_vigia
-    aparece: azar
+    aparece: manual
     probabilidad: 0.003
     maximo: 6
     distancia-min: 200
@@ -39,7 +43,7 @@ estructuras:
   campamento_bandidos:
     nombre: "<red>Campamento de bandidos"
     plano: campamento_bandidos
-    aparece: azar
+    aparece: manual
     probabilidad: 0.003
     maximo: 5
     distancia-min: 250
@@ -59,7 +63,7 @@ estructuras:
   santuario_alba:
     nombre: "<yellow>Santuario del Alba"
     plano: santuario_alba
-    aparece: azar
+    aparece: manual
     probabilidad: 0.0015
     maximo: 4
     distancia-min: 300
@@ -71,3 +75,190 @@ estructuras:
     anuncio: "<yellow>Santuario del Alba"
     subtitulo: "<gray>Un lugar que el eclipse no tocó"
     premio-xp: 100
+
+  # ---------------- Generadas: salen distintas cada vez ----------------
+  aldea_perdida:
+    nombre: "<green>Aldea perdida"
+    generador: aldea_chica
+    aparece: azar
+    probabilidad: 0.0006
+    maximo: 3
+    distancia-min: 700
+    anuncio: "<green>Una aldea"
+    subtitulo: "<gray>Gente que sobrevivió lejos del eclipse"
+    premio-xp: 80
+  pueblo_amurallado:
+    nombre: "<gold>Pueblo amurallado"
+    generador: aldea_grande
+    aparece: azar
+    probabilidad: 0.0003
+    maximo: 1
+    distancia-min: 1200
+    anuncio: "<gold>Pueblo amurallado"
+    subtitulo: "<gray>Sus muros resistieron la oscuridad"
+    premio-xp: 150
+  torre_mago:
+    nombre: "<light_purple>Torre del Mago"
+    generador: torre_mago
+    aparece: azar
+    probabilidad: 0.0015
+    maximo: 4
+    distancia-min: 300
+    enemigos: [{mob: witch, cantidad: 2}, {mob: skeleton, cantidad: 2}]
+    jefe: evoker
+    reaparicion: 40
+    anuncio: "<light_purple>Torre del Mago"
+    subtitulo: "<gray>Los libros todavía brillan"
+    premio-xp: 120
+  molino:
+    nombre: "<yellow>Molino"
+    generador: molino
+    aparece: azar
+    probabilidad: 0.002
+    maximo: 6
+    distancia-min: 200
+    biomas: [plains, sunflower_plains, meadow, savanna, cherry_grove, bosque]
+    premio-xp: 30
+  faro:
+    nombre: "<white>Faro"
+    generador: faro
+    aparece: azar
+    probabilidad: 0.0015
+    maximo: 4
+    distancia-min: 250
+    biomas: [beach, stony_shore, plains, meadow]
+    premio-xp: 40
+  ruinas_castillo:
+    nombre: "<gray>Ruinas de castillo"
+    generador: ruinas_castillo
+    aparece: azar
+    probabilidad: 0.0012
+    maximo: 4
+    distancia-min: 400
+    enemigos: [{mob: zombi_corrompido, cantidad: 4}, {mob: esqueleto_corrompido, cantidad: 3}]
+    jefe: vindicator
+    reaparicion: 45
+    anuncio: "<gray>Ruinas de castillo"
+    subtitulo: "<dark_gray>Algo sigue vigilando entre las piedras"
+    premio-xp: 150
+    premio-dinero: 40
+  templo_antiguo:
+    nombre: "<white>Templo antiguo"
+    generador: templo
+    aparece: azar
+    probabilidad: 0.0012
+    maximo: 4
+    distancia-min: 400
+    enemigos: [{mob: husk, cantidad: 3}]
+    jefe: illusioner
+    anuncio: "<white>Templo antiguo"
+    subtitulo: "<gray>Dicen que el altar guarda algo"
+    premio-xp: 100
+  cabana:
+    nombre: "<green>Cabaña"
+    generador: cabana
+    aparece: azar
+    probabilidad: 0.003
+    maximo: 10
+    distancia-min: 150
+    premio-xp: 15
+  granja:
+    nombre: "<yellow>Granja"
+    generador: granja_aislada
+    aparece: azar
+    probabilidad: 0.002
+    maximo: 6
+    distancia-min: 200
+    premio-xp: 20
+  cementerio:
+    nombre: "<dark_gray>Cementerio"
+    generador: cementerio
+    aparece: azar
+    probabilidad: 0.0012
+    maximo: 4
+    distancia-min: 300
+    enemigos: [{mob: zombie, cantidad: 4}, {mob: skeleton, cantidad: 2}]
+    jefe: zombi_corrompido
+    reaparicion: 30
+    anuncio: "<dark_gray>Cementerio"
+    subtitulo: "<gray>La cripta está abierta…"
+    premio-xp: 80
+  campamento:
+    nombre: "<red>Campamento de bandidos"
+    generador: campamento
+    aparece: azar
+    probabilidad: 0.0018
+    maximo: 5
+    distancia-min: 250
+    enemigos: [{mob: pillager, cantidad: 4}]
+    jefe: vindicator
+    reaparicion: 45
+    anuncio: "<red>Campamento de bandidos"
+    premio-xp: 60
+    premio-dinero: 25
+  posada:
+    nombre: "<gold>Posada del camino"
+    generador: posada_camino
+    aparece: azar
+    probabilidad: 0.0012
+    maximo: 3
+    distancia-min: 300
+    premio-xp: 20
+  fortaleza:
+    nombre: "<dark_red><bold>Fortaleza Sombría"
+    generador: fortaleza
+    aparece: azar
+    probabilidad: 0.0004
+    maximo: 2
+    distancia-min: 800
+    enemigos: [{mob: esqueleto_corrompido, cantidad: 6}, {mob: zombi_corrompido, cantidad: 6}, {mob: pillager, cantidad: 4}]
+    jefe: rey_ceniza
+    reaparicion: 60
+    anuncio: "<dark_red><bold>Fortaleza Sombría"
+    subtitulo: "<gray>Pocos salen con vida"
+    premio-xp: 600
+    premio-dinero: 200
+  torre_oscura:
+    nombre: "<dark_purple><bold>Torre Oscura"
+    generador: torre_oscura
+    aparece: azar
+    probabilidad: 0.0005
+    maximo: 2
+    distancia-min: 700
+    enemigos: [{mob: wither_skeleton, cantidad: 6}, {mob: enderman_corrompido, cantidad: 4}]
+    jefe: guardian_eclipse
+    reaparicion: 60
+    anuncio: "<dark_purple><bold>Torre Oscura"
+    subtitulo: "<gray>Sube piso por piso hasta la cima"
+    premio-xp: 700
+    premio-dinero: 250
+  cripta_profunda:
+    nombre: "<gray><bold>Cripta Profunda"
+    generador: cripta_profunda
+    aparece: azar
+    probabilidad: 0.0006
+    maximo: 3
+    distancia-min: 500
+    enemigos: [{mob: skeleton, cantidad: 5}, {mob: zombie, cantidad: 5}, {mob: cave_spider, cantidad: 4}]
+    jefe: capataz_hueso
+    reaparicion: 45
+    anuncio: "<gray><bold>Cripta Profunda"
+    subtitulo: "<dark_gray>Las catacumbas siguen y siguen"
+    premio-xp: 300
+    premio-dinero: 100
+  base_inicial:
+    nombre: "<aqua>Base inicial"
+    generador: base_inicial
+    aparece: manual
+  base_fortificada:
+    nombre: "<aqua>Base fortificada"
+    generador: base_fortificada
+    aparece: manual
+  bunker:
+    nombre: "<aqua>Búnker"
+    generador: bunker
+    aparece: manual
+  base_granja:
+    nombre: "<aqua>Base granja"
+    generador: base_granja
+    aparece: manual

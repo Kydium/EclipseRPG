@@ -108,6 +108,11 @@ textarea{resize:vertical;min-height:38px}
 .slot .qt{position:absolute;top:2px;right:4px;font-size:10px;color:var(--muted)}
 .slot .tg{position:absolute;top:2px;left:4px;font-size:9px;font-weight:700}
 .slot.buy .tg{color:#8fd05a}.slot.sell .tg{color:#e7bd5f}.slot.up .tg{color:#c9a0ff}
+.catgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.catcard{background:#14110d;border:1px solid var(--line);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:4px}
+.catcard img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;background:#18161e;margin-bottom:4px}
+.catcard span{color:var(--muted);font-size:13px}
+.gensel{display:flex;gap:14px;align-items:flex-start}.gensel img{width:220px;border-radius:8px;border:1px solid var(--line);flex:none}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{all:unset;cursor:pointer;font-size:12px;padding:4px 11px;border-radius:99px;border:1px solid var(--line2);color:var(--muted);background:#120f0c}
 .chip:hover{border-color:var(--gold2)}.chip.on{background:#2f2619;border-color:var(--gold);color:var(--gold)}
@@ -1130,7 +1135,8 @@ const APARECE=[["azar","Al azar por el mundo"],["mision","Al aceptar una misión
 function structForm(id,d){
   const ch=()=>markYaml("estructuras"); const name=mmSplit(d.nombre); d.aparece=d.aparece||"manual"; d.plano=d.plano||id; if(d.despejar==null)d.despejar=true;
   const setName=()=>{d.nombre=mmJoin(name);ch();const t=$(".form h2");if(t){t.textContent=name.text||id;t.style.color=COLORS[name.color]||""}};
-  const planos=[...new Set([...(st.cat.planos||[]),d.plano])]; const hasPlan=(st.cat.planos||[]).includes(d.plano);
+  const planos=[...new Set([...(st.cat.planos||[]),d.plano])]; const isGen=!!d.generador; if(isGen&&!d.estilo)d.estilo="auto"; const hasPlan=isGen||(st.cat.planos||[]).includes(d.plano);
+  const gens=(st.cat.generadores||[]);
   const inWorld=(st.cat.estructurasEnMundo||{})[id]||0; const used=st.story.missions.filter(m=>m.estructura===id||m.objetivos.some(o=>o.tipo==="estructura"&&o.cosa===id)).length;
   const others={v:arr(d.biomas).filter(b=>!BIOGRUPOS.some(g=>g[0]===b)).join(", ")};
   const setB=()=>{const g=arr(d.biomas).filter(b=>BIOGRUPOS.some(x=>x[0]===b));const o=others.v.split(",").map(x=>slug(x)).filter(Boolean);const all=[...g,...o];if(all.length)d.biomas=all;else delete d.biomas;ch()};
@@ -1138,8 +1144,13 @@ function structForm(id,d){
   return h("div",{class:"form"},h("h2",{style:"color:"+(COLORS[name.color]||"var(--text)")},name.text||id),
     h("p",{class:"sub"},"Estructura · id: "+id+" · en el mundo ahora: "+inWorld+" · usada en "+used+" misión(es)"),
     hasPlan?null:h("div",{class:"card",style:"border-color:#6b2a24"},h("h3",null,"Falta construirla"),h("p",{style:"margin:0;color:var(--muted)"},"Todavía no hay un plano llamado «"+d.plano+"». Constrúyela en el juego y guárdala con ",h("span",{class:"kbd"},"/estructura guardar "+d.plano),", o elige abajo uno de los planos que ya existen.")),
-    h("div",{class:"card"},h("h3",null,"Identidad"),h("div",{class:"row"},field("Nombre",inp(name,"text",setName,{ph:"Torre del Mago"})),field("Color",colorSel(name,"color",setName)),
-      field("Plano (la construcción)",sel(d,"plano",planos.map(p=>[p,p+((st.cat.planos||[]).includes(p)?"":" (sin construir)")]),()=>{ch();renderView()}),"se crea en el juego: /estructura guardar"))),
+    h("div",{class:"card"},h("h3",null,"Identidad"),h("div",{class:"row"},field("Nombre",inp(name,"text",setName,{ph:"Torre del Mago"})),field("Color",colorSel(name,"color",setName))),
+      h("div",{style:"margin:6px 0 10px"},h("div",{class:"seg"},h("button",{class:isGen?"on":"",onclick:()=>{if(!d.generador)d.generador=(gens.find(g=>g.categoria!=="aldea")||gens[0]||{}).id;ch();renderView()}},"Generada (distinta cada vez)"),h("button",{class:isGen?"":"on",onclick:()=>{delete d.generador;ch();renderView()}},"Mi construcción (plano)"))),
+      isGen?h("div",{class:"gensel"},h("img",{src:"/est/"+d.generador+".jpg",alt:""}),h("div",{style:"flex:1"},
+          h("div",{class:"row"},field("Generador",sel(d,"generador",gens.map(g=>[g.id,g.nombre+" · "+g.categoria]),()=>{ch();renderView()})),field("Estilo",sel(d,"estilo",[["auto","Según el bioma"],...(st.cat.estilos||[]).map(x=>[x,cap(x)])],ch))),
+          h("p",{style:"margin:6px 0 0;color:var(--muted)"},(gens.find(g=>g.id===d.generador)||{}).descripcion||""),
+          h("p",{style:"margin:6px 0 0;color:var(--dim);font-size:12px"},"Se adapta al terreno sin deformarse. Pruébala en el juego: ",h("span",{class:"kbd"},"/estructura generar "+d.generador))))
+      :h("div",{class:"row"},field("Plano (la construcción)",sel(d,"plano",planos.map(p=>[p,p+((st.cat.planos||[]).includes(p)?"":" (sin construir)")]),()=>{ch();renderView()}),"se crea en el juego: /estructura guardar"))),
     h("div",{class:"card"},h("h3",null,"Dónde aparece"),
       h("div",{style:"margin-bottom:8px"},h("div",{class:"seg"},APARECE.map(([v,l])=>h("button",{class:d.aparece===v?"on":"",onclick:()=>{d.aparece=v;ch();renderView()}},l)))),
       h("p",{style:"margin:0 0 12px;color:var(--muted)"},how),
@@ -1150,7 +1161,7 @@ function structForm(id,d){
         d.aparece==="mision"?numK(d,"distancia-max","Distancia máxima a la aldea","",ch,"450"):null),
       d.aparece==="manual"?null:h("div",{class:"cond"},h("div",{class:"cl"},h("span",null,"Biomas"),chips(d,"biomas",BIOGRUPOS,ch)),
         h("div",{class:"cl"},h("span",null,""),h("input",{value:others.v,list:"dl-biomas",placeholder:"otros biomas por id, separados por coma (vacío = cualquiera)",oninput:e=>{others.v=e.target.value;setB()}}))),
-      h("div",{class:"row",style:"margin-top:10px"},numK(d,"desnivel-max","Terreno plano (desnivel máx.)","más bajo = más plano",ch,"5"),numK(d,"hundir","Hundir (bloques)","-3 = enterrada 3 bloques",ch,"0"),
+      isGen?null:h("div",{class:"row",style:"margin-top:10px"},numK(d,"desnivel-max","Terreno plano (desnivel máx.)","más bajo = más plano",ch,"5"),numK(d,"hundir","Hundir (bloques)","-3 = enterrada 3 bloques",ch,"0"),
         h("div",{style:"display:flex;align-items:end;padding-bottom:6px"},chk(d,"despejar","Quitar árboles y tierra de encima",ch)))),
     h("div",{class:"card"},h("h3",null,"Enemigos ",h("span",{class:"hint"},"aparecen cuando entra un jugador · en los carteles [enemigo] si los pusiste")),
       listOfMaps(d,"enemigos",[["mob","Enemigo (de la historia o de Minecraft)","dl-mobsall"],["cantidad","Cantidad","num"]],{mob:"",cantidad:3},ch,"+ Añadir enemigos"),
@@ -1193,16 +1204,31 @@ function dungeonSettings(){
       h("div",{class:"row"},numK(r,"probabilidad","Probabilidad","por cada zona nueva · 0.004 ≈ 1 de cada 250",ch,"0.004"),numK(r,"distancia-min-spawn","Lejos del spawn (bloques)","",ch,"150"),numK(r,"radio-activacion","Despierta a (bloques)","",ch,"8")))));
 }
 function viewStructs(){
-  const S=structRoot(),D=dunRoot(); const tab=st.sel.estTab||"propias";
-  const tabs=[["propias","Estructuras propias",Object.keys(S).length],["mazmorras","Mazmorras",Object.keys(D.mazmorras).length],["ajustes","Ajustes y ruinas"]];
+  const S=structRoot(),D=dunRoot(); const tab=st.sel.estTab||"catalogo";
+  const tabs=[["catalogo","Catálogo",(st.cat.generadores||[]).length],["propias","En mi historia",Object.keys(S).length],["mazmorras","Mazmorras",Object.keys(D.mazmorras).length],["ajustes","Ajustes y ruinas"]];
   let body;
-  if(tab==="propias"){
+  if(tab==="catalogo") body=viewCatalog(S);
+  else if(tab==="propias"){
     if(!Object.keys(S).length) body=h("div",{class:"view single"},h("div",{class:"form",style:"max-width:820px"},h("h2",null,"Estructuras propias"),h("p",{class:"sub"},"Tus construcciones, convertidas en lugares de la historia."),howToBuild(),h("button",{class:"btn pri",onclick:()=>{const k=slug(prompt("Id corto de la estructura, por ejemplo: torre_mago")||"");if(!k)return;S[k]={nombre:"<yellow>"+cap(k.replace(/_/g," ")),plano:k,aparece:"manual"};st.sel.estructuras=k;markYaml("estructuras");renderView()}},"+ Crear la primera")));
-    else body=yamlList("estructuras",S,"Estructuras propias","",{ejemplo:"torre_mago",file:"estructuras",make:()=>({nombre:"<yellow>Nueva estructura",aparece:"manual",enemigos:[],botin:[]})},structForm,(id,d)=>{const p=mmSplit(d.nombre);return {t:p.text||id,s:id+" · "+lbl(APARECE,d.aparece||"manual").toLowerCase()+((st.cat.planos||[]).includes(d.plano||id)?"":" · sin construir"),color:COLORS[p.color]}});
+    else body=yamlList("estructuras",S,"Estructuras propias","",{ejemplo:"torre_mago",file:"estructuras",make:()=>({nombre:"<yellow>Nueva estructura",aparece:"manual",enemigos:[],botin:[]})},structForm,(id,d)=>{const p=mmSplit(d.nombre);return {t:p.text||id,s:id+" · "+lbl(APARECE,d.aparece||"manual").toLowerCase()+(d.generador?" · generada":(st.cat.planos||[]).includes(d.plano||id)?"":" · sin construir"),color:COLORS[p.color]}});
   } else if(tab==="mazmorras") body=yamlList("mazmorras",D.mazmorras,"Mazmorras","",{ejemplo:String(Math.max(0,...Object.keys(D.mazmorras).map(Number).filter(n=>!isNaN(n)))+1)+"  (un número)",file:"mazmorras",make:()=>{const base=D.mazmorras[Object.keys(D.mazmorras)[0]];const c=base?JSON.parse(JSON.stringify(base)):{suelo:["stone_bricks"],pared:["cobblestone"],techo:["cobblestone"],luz:"lantern",botin:[]};c.nombre="<gray>Nueva mazmorra";delete c.jefe;return c}},dungeonForm,(id,d)=>{const p=mmSplit(d.nombre);return {t:p.text||("Mazmorra "+id),s:"mazmorra "+id+(d.jefe?" · jefe: "+d.jefe:""),color:COLORS[p.color]}});
   else body=dungeonSettings();
   return h("div",{class:"wv"},h("div",{class:"tabs"},tabs.map(([k,l,n])=>h("button",{class:tab===k?"on":"",onclick:()=>{st.sel.estTab=k;renderView()}},l,n!=null?h("span",{class:"cnt"}," "+n):null)),
     tab==="propias"?h("button",{style:"margin-left:auto;color:var(--gold)",onclick:()=>{const m=h("div",{class:"modal",onclick:e=>{if(e.target===m)m.remove()}},h("div",{class:"box",style:"width:min(720px,100%)"},h("div",{class:"mh"},h("b",null,"Cómo crear una estructura"),h("button",{class:"btn ghost",style:"margin-left:auto",onclick:()=>m.remove()},"✕")),h("div",{style:"padding:18px;overflow:auto"},howToBuild())));document.body.append(m)}},"¿Cómo construyo una?"):null),body);
+}
+function viewCatalog(S){
+  const gens=st.cat.generadores||[]; const cats=[["aldea","Aldeas"],["estructura","Estructuras"],["mazmorra","Mazmorras grandes"],["base","Bases"]];
+  const used=id=>Object.entries(S).filter(([k,v])=>v.generador===id);
+  const add=(g,azar)=>{let k=g.id;let n=2;while(S[k])k=g.id+"_"+(n++);
+    S[k]={nombre:"<yellow>"+g.nombre,generador:g.id,aparece:azar?"azar":"manual",probabilidad:g.categoria==="mazmorra"?0.0005:g.categoria==="aldea"?0.0004:0.0015,maximo:g.categoria==="aldea"?2:4,"distancia-min":g.categoria==="mazmorra"?600:g.categoria==="aldea"?700:250,enemigos:[],botin:[]};
+    markYaml("estructuras");st.sel.estTab="propias";st.sel.estructuras=k;renderView();toast("Añadida: ajusta enemigos, botín y dónde aparece","good")};
+  return h("div",{class:"view single"},h("div",{class:"form",style:"max-width:1200px"},h("h2",null,"Catálogo de estructuras"),
+    h("p",{class:"sub"},"Cada una se genera distinta cada vez (medidas, alturas, materiales, muebles) y se asienta en el terreno sin deformarse. Las aldeas cambian de estilo según el bioma."),
+    ...cats.map(([c,l])=>h("div",{class:"card"},h("h3",null,l),h("div",{class:"catgrid"},gens.filter(g=>g.categoria===c).map(g=>{const u=used(g.id);
+      return h("div",{class:"catcard"},h("img",{src:"/est/"+g.id+".jpg",alt:"",loading:"lazy"}),h("b",null,g.nombre),h("span",null,g.descripcion),
+        h("div",{class:"kbd",style:"margin:6px 0"},"/estructura generar "+g.id),
+        u.length?h("div",{style:"color:var(--green);font-size:12px;margin-bottom:6px"},"En tu historia: "+u.map(([k,v])=>(v.aparece==="azar"?"al azar":v.aparece==="mision"?"por misión":"a mano")).join(", ")):null,
+        h("div",{style:"display:flex;gap:6px;flex-wrap:wrap"},c==="base"?null:h("button",{class:"btn sm pri",onclick:()=>add(g,true)},"Que aparezca al azar"),h("button",{class:"btn sm",onclick:()=>add(g,false)},c==="base"?"Añadir":"Para una misión o a mano")))}))))));
 }
 function howToBuild(){
   const step=(n,t,...x)=>h("div",{style:"display:grid;grid-template-columns:28px 1fr;gap:10px;margin-bottom:10px"},h("b",{style:"color:var(--gold);font-size:16px"},n),h("div",null,h("b",null,t),h("div",{style:"color:var(--muted)"},x)));

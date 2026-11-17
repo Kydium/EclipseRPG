@@ -231,6 +231,115 @@ public final class VillageBuilder implements Listener {
 
     /** Construye la aldea con el centro de la plaza en "center" (y = nivel del suelo). */
     public void build(Location center, Player who) {
+        build(center, who, null, null);
+    }
+
+    /**
+     * tipo: chica | mediana | grande | auto | clasica (la de siempre, con plano fijo).
+     * estilo: llanura, taiga, nieve, desierto, sabana, cerezo, pantano, selva, oscuro o auto (según el bioma).
+     */
+    public void build(Location center, Player who, String tipo, String estilo) {
+        String mode = (tipo != null ? tipo : plugin.getConfig().getString("aldea.tipo", "auto")).toLowerCase(java.util.Locale.ROOT);
+        if (!mode.equals("clasica")) {
+            buildProcedural(center, who, mode, estilo != null ? estilo : plugin.getConfig().getString("aldea.estilo", "auto"));
+            return;
+        }
+        buildClassic(center, who);
+    }
+
+    private java.io.File markerFile() {
+        return new java.io.File(plugin.getDataFolder(), "datos-aldea.json");
+    }
+
+    private void buildProcedural(Location center, Player who, String mode, String estilo) {
+        if (busy) {
+            if (who != null) Txt.send(who, "<red>Ya se está construyendo la aldea.");
+            return;
+        }
+        busy = true;
+        World w = center.getWorld();
+        Random rnd = new Random(w.getSeed() ^ (center.getBlockX() * 341873128712L) ^ (center.getBlockZ() * 132897987541L) ^ System.nanoTime());
+        pe.kydium.eclipserpg.gen.VillageGen.Size size = switch (mode) {
+            case "chica", "pequena", "pequeña" -> pe.kydium.eclipserpg.gen.VillageGen.Size.CHICA;
+            case "mediana" -> pe.kydium.eclipserpg.gen.VillageGen.Size.MEDIANA;
+            case "grande" -> pe.kydium.eclipserpg.gen.VillageGen.Size.GRANDE;
+            default -> {
+                if (Boolean.getBoolean("eclipse.prueba")) yield pe.kydium.eclipserpg.gen.VillageGen.Size.MEDIANA;
+                int roll = rnd.nextInt(100);
+                yield roll < 30 ? pe.kydium.eclipserpg.gen.VillageGen.Size.CHICA : roll < 75 ? pe.kydium.eclipserpg.gen.VillageGen.Size.MEDIANA : pe.kydium.eclipserpg.gen.VillageGen.Size.GRANDE;
+            }
+        };
+        int cx = center.getBlockX(), cz = center.getBlockZ();
+        radius = pe.kydium.eclipserpg.gen.VillageGen.radiusFor(size) + 4;
+        int R0 = radius + 8;
+        progress("<gray>Preparando el terreno de la aldea…");
+        java.util.Set<Long> area = AsyncChunks.area(cx - R0, cz - R0, cx + R0, cz + R0);
+        AsyncChunks.load(w, area).whenComplete((v, ex) -> Bukkit.getScheduler().runTask(plugin, () -> {
+            for (long k : area) w.addPluginChunkTicket((int) (k >> 32), (int) k, plugin);
+            var terrain = new pe.kydium.eclipserpg.structure.WorldTerrain(w);
+            String styleId = estilo == null || estilo.equalsIgnoreCase("auto") ? pe.kydium.eclipserpg.gen.Style.forBiome(terrain.biome(cx, cz)) : estilo.toLowerCase(java.util.Locale.ROOT);
+            pe.kydium.eclipserpg.gen.Build b;
+            try {
+                b = new pe.kydium.eclipserpg.gen.VillageGen(terrain, rnd, pe.kydium.eclipserpg.gen.Style.get(styleId), size, cx, cz).generate();
+            } catch (RuntimeException e) {
+                busy = false;
+                plugin.getLogger().log(java.util.logging.Level.SEVERE, "No se pudo generar la aldea", e);
+                if (who != null) Txt.send(who, "<red>No se pudo generar la aldea: " + e.getMessage());
+                return;
+            }
+            int gy = terrain.ground(cx, cz);
+            markers.clear();
+            for (var m : b.markers) {
+                JsonObject o = new JsonObject();
+                o.addProperty("t", m.type());
+                o.addProperty("x", m.x() - cx);
+                o.addProperty("y", m.y() - gy);
+                o.addProperty("z", m.z() - cz);
+                switch (m.type()) {
+                    case "npc" -> {
+                        o.addProperty("id", m.arg());
+                        o.addProperty("yaw", m.yaw());
+                    }
+                    case "villager" -> {
+                        if (m.arg() == null || m.arg().isEmpty()) o.add("prof", com.google.gson.JsonNull.INSTANCE);
+                        else o.addProperty("prof", m.arg());
+                    }
+                    case "animal" -> o.addProperty("type", m.arg());
+                    default -> { }
+                }
+                markers.add(o);
+            }
+            try {
+                com.google.gson.JsonObject saved = new com.google.gson.JsonObject();
+                saved.addProperty("radio", radius);
+                com.google.gson.JsonArray arr = new com.google.gson.JsonArray();
+                markers.forEach(arr::add);
+                saved.add("marcas", arr);
+                java.nio.file.Files.writeString(markerFile().toPath(), saved.toString(), StandardCharsets.UTF_8);
+            } catch (java.io.IOException e) {
+                plugin.getLogger().warning("No se pudo guardar datos-aldea.json: " + e.getMessage());
+            }
+            plugin.getLogger().info("Construyendo aldea " + size.name().toLowerCase(java.util.Locale.ROOT) + " (" + styleId + ") en " + cx + " " + gy + " "
+                    + cz + ": " + b.blocks.size() + " bloques");
+            if (who != null) Txt.send(who, "<yellow>Construyendo " + plugin.villageName() + " <gray>(" + size.name().toLowerCase(java.util.Locale.ROOT) + ", estilo " + styleId + ")…");
+            int perTick = plugin.getConfig().getInt("aldea.bloques-por-tick", 8000);
+            pe.kydium.eclipserpg.structure.BuildPlacer.place(plugin, w, b, perTick,
+                    pct -> { if (pct % 10 == 0) progress("<gray>Construyendo la aldea… <white>" + pct + "%"); },
+                    containers -> {
+                        for (int[] c : containers) {
+                            if (w.getBlockAt(c[0], c[1], c[2]).getState() instanceof org.bukkit.block.Container ct && ct.getInventory().isEmpty()
+                                    && rnd.nextInt(3) == 0) plugin.dungeons().fillLoot(ct.getInventory(), 1, 1);
+                        }
+                        finish(w, cx, gy, cz, who);
+                        if (!Boolean.getBoolean("eclipse.prueba")) Bukkit.getScheduler().runTaskLater(plugin, () -> w.removePluginChunkTickets(plugin), 200L);
+                    });
+        }));
+    }
+
+    private void buildClassic(Location center, Player who) {
+        ops.clear();
+        markers.clear();
+        if (markerFile().exists() && !markerFile().delete()) plugin.getLogger().warning("No se pudo borrar datos-aldea.json");
         if (busy) {
             if (who != null) Txt.send(who, "<red>Ya se está construyendo la aldea.");
             return;
@@ -405,7 +514,17 @@ public final class VillageBuilder implements Listener {
 
     /** Vuelve a poner a los NPCs de relleno (caminantes) de una aldea ya construida. */
     public int respawnFillers() {
-        if (!loadBlueprint()) return 0;
+        if (markerFile().exists()) {
+            try {
+                JsonObject saved = JsonParser.parseString(java.nio.file.Files.readString(markerFile().toPath(), StandardCharsets.UTF_8)).getAsJsonObject();
+                markers.clear();
+                for (var e : saved.getAsJsonArray("marcas")) markers.add(e.getAsJsonObject());
+                radius = saved.get("radio").getAsInt();
+            } catch (Exception e) {
+                plugin.getLogger().warning("datos-aldea.json dañado: " + e.getMessage());
+                return 0;
+            }
+        } else if (!loadBlueprint()) return 0;
         var cfg = plugin.getConfig();
         World w = Bukkit.getWorld(cfg.getString("aldea.mundo", "world"));
         if (w == null || !cfg.contains("aldea.centro.x")) return 0;
