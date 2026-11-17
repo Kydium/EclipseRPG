@@ -63,6 +63,11 @@ public final class RuinBuilder {
             case CIRCLE -> circle();
             case CRYPT -> crypt();
         }
+        // los huesos y escombros al azar no pueden tapar el cofre ni el altar
+        String ck = res.chestX + "," + res.chestY + "," + res.chestZ;
+        if (!res.blocks.getOrDefault(ck, "").startsWith("chest")) res.blocks.put(ck, "chest[facing=north]");
+        String ak = res.altarX + "," + res.altarY + "," + res.altarZ;
+        if (!res.blocks.getOrDefault(ak, "").equals("crying_obsidian")) res.blocks.put(ak, "crying_obsidian");
         return res;
     }
 

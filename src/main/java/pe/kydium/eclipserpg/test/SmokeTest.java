@@ -359,6 +359,14 @@ public final class SmokeTest {
             for (pe.kydium.eclipserpg.dungeon.RuinBuilder.Variant v : pe.kydium.eclipserpg.dungeon.RuinBuilder.Variant.values())
                 for (String st : new pe.kydium.eclipserpg.dungeon.RuinBuilder(1, desert).build(v).blocks.values())
                     if (!valid(st)) bad.add("ruina " + v + " " + st);
+        int missing = 0;
+        for (int seed = 0; seed < 200; seed++)
+            for (boolean desert : new boolean[]{false, true})
+                for (var v : pe.kydium.eclipserpg.dungeon.RuinBuilder.Variant.values()) {
+                    var rr = new pe.kydium.eclipserpg.dungeon.RuinBuilder(seed, desert).build(v);
+                    if (!rr.blocks.getOrDefault(rr.chestX + "," + rr.chestY + "," + rr.chestZ, "").startsWith("chest")) missing++;
+                }
+        check(missing == 0, "las ruinas siempre tienen su cofre (1200 ruinas de prueba, " + missing + " sin cofre)");
         for (String b : bad) plugin.getLogger().severe("[PRUEBA] bloque/objeto inválido: " + b);
         check(bad.isEmpty(), "todos los bloques y botines de mazmorras y ruinas existen (" + bad.size() + " malos)");
     }
