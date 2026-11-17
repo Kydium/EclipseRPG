@@ -246,6 +246,124 @@ estructuras:
     subtitulo: "<dark_gray>Las catacumbas siguen y siguen"
     premio-xp: 300
     premio-dinero: 100
+  # ---------------- Extravagantes (con tesoro escondido) ----------------
+  isla_flotante:
+    nombre: "<green>Isla Flotante"
+    generador: isla_flotante
+    aparece: azar
+    probabilidad: 0.0007
+    maximo: 4
+    distancia-min: 400
+    enemigos: [{mob: phantom, cantidad: 3}]
+    anuncio: "<green>Isla Flotante"
+    subtitulo: "<gray>El musgo marca algo enterrado…"
+    premio-xp: 150
+  ciudadela_celeste:
+    nombre: "<aqua><bold>Ciudadela Celeste"
+    generador: ciudadela_celeste
+    aparece: azar
+    probabilidad: 0.0003
+    maximo: 1
+    distancia-min: 1000
+    enemigos: [{mob: blaze, cantidad: 4}, {mob: vex, cantidad: 4}, {mob: phantom, cantidad: 3}]
+    jefe: guardian_eclipse
+    reaparicion: 60
+    anuncio: "<aqua><bold>Ciudadela Celeste"
+    subtitulo: "<gray>Bajo el trono, la bóveda"
+    premio-xp: 900
+    premio-dinero: 300
+  galeon_volador:
+    nombre: "<gold><bold>Galeón Volador"
+    generador: galeon_volador
+    aparece: azar
+    probabilidad: 0.0004
+    maximo: 2
+    distancia-min: 700
+    enemigos: [{mob: pillager, cantidad: 5}, {mob: vindicator, cantidad: 2}]
+    jefe: senor_brasas
+    reaparicion: 60
+    anuncio: "<gold><bold>Galeón Volador"
+    subtitulo: "<gray>El capitán esconde su tesoro bajo la cabina"
+    premio-xp: 600
+    premio-dinero: 250
+  arbol_gigante:
+    nombre: "<dark_green>Árbol Gigante"
+    generador: arbol_gigante
+    aparece: azar
+    probabilidad: 0.0008
+    maximo: 3
+    distancia-min: 300
+    biomas: [bosque, plains, meadow, cherry_grove, selva]
+    anuncio: "<dark_green>Árbol Gigante"
+    subtitulo: "<gray>Entre sus raíces crece un hongo raro…"
+    premio-xp: 120
+  piramide:
+    nombre: "<yellow><bold>Pirámide"
+    generador: piramide
+    aparece: azar
+    probabilidad: 0.0008
+    maximo: 3
+    distancia-min: 500
+    biomas: [desierto]
+    enemigos: [{mob: husk, cantidad: 6}]
+    jefe: bruja_dunas
+    reaparicion: 45
+    anuncio: "<yellow><bold>Pirámide"
+    subtitulo: "<gray>La terracota azul guarda un secreto"
+    premio-xp: 500
+    premio-dinero: 150
+  volcan:
+    nombre: "<red><bold>Volcán"
+    generador: volcan
+    aparece: azar
+    probabilidad: 0.0004
+    maximo: 2
+    distancia-min: 700
+    enemigos: [{mob: magma_cube, cantidad: 4}, {mob: blaze, cantidad: 3}]
+    jefe: senor_brasas
+    reaparicion: 60
+    anuncio: "<red><bold>Volcán"
+    subtitulo: "<gray>Algo brilla detrás de la piedra negra"
+    premio-xp: 700
+    premio-dinero: 250
+  calavera_gigante:
+    nombre: "<white><bold>Calavera Gigante"
+    generador: calavera_gigante
+    aparece: azar
+    probabilidad: 0.0006
+    maximo: 3
+    distancia-min: 500
+    enemigos: [{mob: skeleton, cantidad: 4}, {mob: wither_skeleton, cantidad: 2}]
+    jefe: capataz_hueso
+    reaparicion: 45
+    anuncio: "<white><bold>Calavera Gigante"
+    subtitulo: "<gray>Mírala a los ojos…"
+    premio-xp: 400
+    premio-dinero: 120
+  laberinto:
+    nombre: "<green><bold>Laberinto"
+    generador: laberinto
+    aparece: azar
+    probabilidad: 0.0007
+    maximo: 3
+    distancia-min: 400
+    enemigos: [{mob: spider, cantidad: 4}, {mob: zombie, cantidad: 4}]
+    jefe: rondador_podrido
+    reaparicion: 40
+    anuncio: "<green><bold>Laberinto"
+    subtitulo: "<gray>El premio está en el centro"
+    premio-xp: 350
+    premio-dinero: 100
+  coloso:
+    nombre: "<gold>Coloso"
+    generador: coloso
+    aparece: azar
+    probabilidad: 0.0008
+    maximo: 3
+    distancia-min: 350
+    anuncio: "<gold>Coloso"
+    subtitulo: "<gray>La losa a sus pies suena hueca"
+    premio-xp: 200
   base_inicial:
     nombre: "<aqua>Base inicial"
     generador: base_inicial

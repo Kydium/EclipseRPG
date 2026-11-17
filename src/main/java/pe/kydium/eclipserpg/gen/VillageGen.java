@@ -17,6 +17,20 @@ public final class VillageGen {
 
     public enum Size { CHICA, MEDIANA, GRANDE }
 
+    /** Trazado de las calles: cada uno da un pueblo con otra forma. */
+    public enum Layout { RADIAL, CUADRICULA, LINEAL, ANILLO, RAMIFICADO }
+
+    private Layout layout;
+
+    public VillageGen layout(Layout l) {
+        this.layout = l;
+        return this;
+    }
+
+    public Layout layout() {
+        return layout;
+    }
+
     private final Terrain t;
     private final Random r;
     private final Style s;
@@ -62,9 +76,18 @@ public final class VillageGen {
         R = radiusFor(size) - 6;
         wallR = R + 3;
         plazaR = size == Size.CHICA ? 6 : size == Size.MEDIANA ? 8 : 10;
+        if (layout == null) layout = Layout.values()[r.nextInt(Layout.values().length)];
         plaza();
-        mainRoads();
-        sideRoads();
+        switch (layout) {
+            case CUADRICULA -> gridRoads();
+            case LINEAL -> linearRoads();
+            case ANILLO -> ringRoads();
+            case RAMIFICADO -> branchRoads();
+            default -> {
+                mainRoads();
+                sideRoads();
+            }
+        }
         paveRoads();
         placeBuildings();
         water();
@@ -143,6 +166,129 @@ public final class VillageGen {
                 roads.add(pts);
                 mark(pts, 1);
             }
+        }
+    }
+
+    /** Calle recta (o casi) entre dos puntos. */
+    private List<int[]> line(double x1, double z1, double x2, double z2) {
+        List<int[]> pts = new ArrayList<>();
+        int n = (int) Math.ceil(Math.hypot(x2 - x1, z2 - z1) * 2);
+        int lx = Integer.MIN_VALUE, lz = 0;
+        for (int i = 0; i <= n; i++) {
+            int x = (int) Math.round(x1 + (x2 - x1) * i / (double) n), z = (int) Math.round(z1 + (z2 - z1) * i / (double) n);
+            if (x == lx && z == lz) continue;
+            lx = x;
+            lz = z;
+            if (dist(x, z) <= R + 1 || i < 3) pts.add(new int[]{x, z});
+        }
+        return pts;
+    }
+
+    private void spoke(double a, int half) {
+        List<int[]> pts = walk(cx + Math.cos(a) * plazaR, cz + Math.sin(a) * plazaR, a, wallR + 4, 0.03);
+        roads.add(pts);
+        int[] last = pts.get(pts.size() - 1);
+        roadEnds.add(new int[]{last[0], last[1], (int) Math.round(Math.cos(a) * 100), (int) Math.round(Math.sin(a) * 100)});
+        mark(pts, half);
+    }
+
+    /** Cuadrícula: dos avenidas en cruz y calles paralelas. */
+    private void gridRoads() {
+        int half = size == Size.CHICA ? 1 : 2;
+        for (int i = 0; i < 4; i++) spoke(Math.PI / 2 * i, half);
+        int step = size == Size.GRANDE ? 18 : 17;
+        for (int k = -3; k <= 3; k++) {
+            if (k == 0) continue;
+            int off = k * step;
+            if (Math.abs(off) > R - 8) continue;
+            double span = Math.sqrt(Math.max(0, (double) R * R - off * off)) - 4;
+            List<int[]> a = line(cx + off, cz - span, cx + off, cz + span);
+            List<int[]> b = line(cx - span, cz + off, cx + span, cz + off);
+            for (List<int[]> l : List.of(a, b)) if (l.size() > 6) {
+                roads.add(l);
+                mark(l, 1);
+            }
+        }
+    }
+
+    /** Lineal: un camino largo que cruza el pueblo y callejones a los lados. */
+    private void linearRoads() {
+        double a = r.nextDouble() * Math.PI;
+        int half = size == Size.CHICA ? 1 : 2;
+        spoke(a, half);
+        spoke(a + Math.PI, half);
+        List<int[]> main = new ArrayList<>(roads.get(0));
+        java.util.Collections.reverse(main);
+        main.addAll(roads.get(1));
+        for (int i = 10; i < main.size() - 10; i += 11) {
+            int[] p = main.get(i), q = main.get(i - 3);
+            double ang = Math.atan2(p[1] - q[1], p[0] - q[0]) + (((i / 11) % 2 == 0) ? 1 : -1) * Math.PI / 2;
+            int len = (int) (R * (0.25 + r.nextDouble() * 0.25));
+            List<int[]> lane = walk(p[0], p[1], ang, len, 0.05);
+            lane.removeIf(c -> dist(c[0], c[1]) > R);
+            if (lane.size() < 5) continue;
+            roads.add(lane);
+            mark(lane, 1);
+        }
+    }
+
+    /** Anillo: una calle circular alrededor de la plaza y radios hacia afuera. */
+    private void ringRoads() {
+        int half = size == Size.CHICA ? 1 : 2;
+        double base = r.nextDouble() * Math.PI * 2;
+        int n = size == Size.CHICA ? 3 : 4;
+        for (int i = 0; i < n; i++) spoke(base + Math.PI * 2 * i / n, half);
+        double rr = R * (size == Size.CHICA ? 0.5 : 0.45);
+        List<int[]> ring = new ArrayList<>();
+        int lx = Integer.MIN_VALUE, lz = 0;
+        for (int i = 0; i <= 720; i++) {
+            double ang = Math.PI * 2 * i / 720;
+            int x = cx + (int) Math.round(Math.cos(ang) * rr), z = cz + (int) Math.round(Math.sin(ang) * rr);
+            if (x == lx && z == lz) continue;
+            lx = x;
+            lz = z;
+            ring.add(new int[]{x, z});
+        }
+        roads.add(ring);
+        mark(ring, 1);
+        if (size != Size.CHICA) {
+            double rr2 = R * 0.8;
+            List<int[]> outer = new ArrayList<>();
+            for (int i = 0; i <= 720; i++) {
+                double ang = Math.PI * 2 * i / 720;
+                int x = cx + (int) Math.round(Math.cos(ang) * rr2), z = cz + (int) Math.round(Math.sin(ang) * rr2);
+                if (!outer.isEmpty() && outer.get(outer.size() - 1)[0] == x && outer.get(outer.size() - 1)[1] == z) continue;
+                outer.add(new int[]{x, z});
+            }
+            roads.add(outer);
+            mark(outer, 1);
+        }
+    }
+
+    /** Ramificado: caminos que se abren en ramas y sub-ramas, como un pueblo que creció solo. */
+    private void branchRoads() {
+        int n = size == Size.CHICA ? 2 : 3;
+        double base = r.nextDouble() * Math.PI * 2;
+        for (int i = 0; i < n; i++) spoke(base + Math.PI * 2 * i / n + (r.nextDouble() - 0.5) * 0.6, size == Size.CHICA ? 1 : 2);
+        List<List<int[]>> frontier = new ArrayList<>(roads);
+        for (int depth = 0; depth < 2; depth++) {
+            List<List<int[]>> next = new ArrayList<>();
+            for (List<int[]> m : frontier) {
+                int branches = depth == 0 ? 2 + r.nextInt(2) : 1 + r.nextInt(2);
+                for (int k = 0; k < branches; k++) {
+                    if (m.size() < 10) break;
+                    int idx = 5 + r.nextInt(m.size() - 8);
+                    int[] p = m.get(idx), q = m.get(Math.max(0, idx - 3));
+                    double a = Math.atan2(p[1] - q[1], p[0] - q[0]) + (r.nextBoolean() ? 1 : -1) * (0.6 + r.nextDouble() * 0.6);
+                    List<int[]> b = walk(p[0], p[1], a, (int) (R * (0.3 + r.nextDouble() * 0.25)), 0.25);
+                    b.removeIf(c -> dist(c[0], c[1]) > R);
+                    if (b.size() < 6) continue;
+                    roads.add(b);
+                    mark(b, 1);
+                    next.add(b);
+                }
+            }
+            frontier = next;
         }
     }
 

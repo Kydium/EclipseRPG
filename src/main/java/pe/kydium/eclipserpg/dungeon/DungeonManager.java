@@ -449,7 +449,8 @@ public final class DungeonManager implements Listener {
         ConfigurationSection t = theme(act) != null ? theme(act) : theme(Math.max(1, Math.min(10, act)));
         if (t == null) return;
         ThreadLocalRandom r = ThreadLocalRandom.current();
-        for (int i = 0; i < rolls; i++) {
+        // nunca un cofre vacío: si salió nada, se vuelve a sortear
+        for (int i = 0; i < rolls || (inv.isEmpty() && i < rolls + 6); i++) {
             for (String line : t.getStringList("botin")) {
                 String[] parts = line.trim().split("\\s+");
                 if (parts.length < 3) continue;

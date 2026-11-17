@@ -1217,7 +1217,7 @@ function viewStructs(){
     tab==="propias"?h("button",{style:"margin-left:auto;color:var(--gold)",onclick:()=>{const m=h("div",{class:"modal",onclick:e=>{if(e.target===m)m.remove()}},h("div",{class:"box",style:"width:min(720px,100%)"},h("div",{class:"mh"},h("b",null,"Cómo crear una estructura"),h("button",{class:"btn ghost",style:"margin-left:auto",onclick:()=>m.remove()},"✕")),h("div",{style:"padding:18px;overflow:auto"},howToBuild())));document.body.append(m)}},"¿Cómo construyo una?"):null),body);
 }
 function viewCatalog(S){
-  const gens=st.cat.generadores||[]; const cats=[["aldea","Aldeas"],["estructura","Estructuras"],["mazmorra","Mazmorras grandes"],["base","Bases"]];
+  const gens=st.cat.generadores||[]; const cats=[["aldea","Aldeas"],["estructura","Estructuras"],["mazmorra","Mazmorras grandes"],["aerea","Mazmorras aéreas (en el cielo)"],["base","Bases"]];
   const used=id=>Object.entries(S).filter(([k,v])=>v.generador===id);
   const add=(g,azar)=>{let k=g.id;let n=2;while(S[k])k=g.id+"_"+(n++);
     S[k]={nombre:"<yellow>"+g.nombre,generador:g.id,aparece:azar?"azar":"manual",probabilidad:g.categoria==="mazmorra"?0.0005:g.categoria==="aldea"?0.0004:0.0015,maximo:g.categoria==="aldea"?2:4,"distancia-min":g.categoria==="mazmorra"?600:g.categoria==="aldea"?700:250,enemigos:[],botin:[]};

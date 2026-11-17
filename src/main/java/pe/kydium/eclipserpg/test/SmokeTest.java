@@ -228,7 +228,7 @@ public final class SmokeTest {
                     }
                 }
                 case 5 -> {
-                    if ((generatedDone < 3 || !structureDone) && genWait++ < 60) return;
+                    if ((generatedDone < 5 || !structureDone) && genWait++ < 80) return;
                     checkWorldEnd();
                     checkStructuresEnd();
                     checkGeneratorsEnd();
@@ -615,7 +615,7 @@ public final class SmokeTest {
         var sm = plugin.structures();
         Location c = plugin.village().center();
         int k = 0;
-        for (String id : List.of("torre_mago", "fortaleza", "base_inicial")) {
+        for (String id : List.of("torre_mago", "fortaleza", "base_inicial", "galeon_volador", "piramide")) {
             var d = sm.catalogDef(id, null);
             int x = c.getBlockX() - 260 + k * 90, z = c.getBlockZ() - 260;
             k++;
@@ -627,7 +627,31 @@ public final class SmokeTest {
     }
 
     private void checkGeneratorsEnd() {
-        check(generatedDone == 3 && generated.size() == 3, "se construyeron 3 estructuras generadas (" + generated.size() + "/" + generatedDone + ")");
+        check(generatedDone == 5 && generated.size() == 5, "se construyeron 5 estructuras generadas (" + generated.size() + "/" + generatedDone + ")");
+        int emptyChests = 0, totalChests = 0, rich = 0, spawners = 0, typed = 0;
+        for (var i : generated) {
+            World w = Bukkit.getWorld(i.world);
+            for (int x = i.x - i.rx - 2; x <= i.x + i.rx + 2; x++)
+                for (int z = i.z - i.rz - 2; z <= i.z + i.rz + 2; z++)
+                    for (int y = i.y - 10; y <= i.y + i.h + 4; y++) {
+                        Block b = w.getBlockAt(x, y, z);
+                        if (b.getState() instanceof org.bukkit.block.Container ct && (b.getType() == Material.CHEST || b.getType() == Material.BARREL)) {
+                            if (i.id.equals("base_inicial")) continue;
+                            totalChests++;
+                            if (ct.getInventory().isEmpty()) emptyChests++;
+                            for (ItemStack it : ct.getInventory().getContents())
+                                if (it != null && (it.getType() == Material.DIAMOND || it.getType().name().startsWith("NETHERITE") || it.getType() == Material.ENCHANTED_GOLDEN_APPLE
+                                        || it.getType() == Material.TOTEM_OF_UNDYING || it.getType() == Material.ENCHANTED_BOOK)) rich++;
+                        }
+                        if (b.getState() instanceof org.bukkit.block.CreatureSpawner sp) {
+                            spawners++;
+                            if (sp.getSpawnedType() != null) typed++;
+                        }
+                    }
+        }
+        check(totalChests > 5 && emptyChests == 0, "ningún cofre de las estructuras está vacío (" + emptyChests + " vacíos de " + totalChests + ")");
+        check(rich > 0, "hay botín valioso en los tesoros escondidos (" + rich + " objetos)");
+        check(spawners > 0 && typed == spawners, "los generadores de monstruos tienen su criatura (" + typed + "/" + spawners + ")");
         for (var i : generated) {
             World w = Bukkit.getWorld(i.world);
             int solid = 0, chests = 0;

@@ -459,6 +459,14 @@ public final class StructureManager implements Listener {
 
     /** ¿Sirve este lugar? Devuelve la altura del suelo en el centro o Integer.MIN_VALUE. */
     private int siteOk(Def d, Plan p, World w, int x, int z) {
+        if ("aerea".equals(d.category)) {
+            // en el cielo: solo que no quede encima de la aldea ni de otra estructura
+            int rr = Math.max(-p.minX, p.maxX);
+            Location v = plugin.village().center();
+            if (v != null && v.getWorld() == w && Math.hypot(v.getX() - x, v.getZ() - z) < 120 + rr) return Integer.MIN_VALUE;
+            for (Inst o : instances) if (o.world.equals(w.getName()) && Math.abs(o.x - x) < o.rx + rr + 30 && Math.abs(o.z - z) < o.rz + rr + 30) return Integer.MIN_VALUE;
+            return ground(w, x, z) == Integer.MIN_VALUE ? w.getHighestBlockYAt(x, z) : ground(w, x, z);
+        }
         int rx = Math.max(-p.minX, p.maxX), rz = Math.max(-p.minZ, p.maxZ);
         int[][] pts = {{x, z}, {x - rx, z - rz}, {x + rx, z - rz}, {x - rx, z + rz}, {x + rx, z + rz}, {x - rx, z}, {x + rx, z}, {x, z - rz}, {x, z + rz}};
         int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE, center = 0;
@@ -501,6 +509,15 @@ public final class StructureManager implements Listener {
 
     private static final List<String> LOOT_STRUCTURE = List.of("BREAD 4 0.7", "COOKED_BEEF 3 0.4", "IRON_INGOT 3 0.5", "GOLD_INGOT 2 0.3",
             "EMERALD 3 0.3", "ARROW 12 0.4", "EXPERIENCE_BOTTLE 3 0.3", "DIAMOND 1 0.06", "pocion:healing 1 0.25", "libro:mending:1 1 0.03");
+    /** Tesoros escondidos: lo más valioso del juego. */
+    public static final List<String> LOOT_TREASURE = List.of("DIAMOND 8 0.9", "NETHERITE_SCRAP 3 0.4", "NETHERITE_INGOT 1 0.1",
+            "ENCHANTED_GOLDEN_APPLE 2 0.3", "TOTEM_OF_UNDYING 1 0.25", "ELYTRA 1 0.06", "EMERALD_BLOCK 3 0.45", "GOLD_BLOCK 3 0.5",
+            "DIAMOND_BLOCK 1 0.2", "HEART_OF_THE_SEA 1 0.1", "TRIDENT 1 0.06", "libro:mending:1 1 0.35", "libro:sharpness:5 1 0.3",
+            "libro:protection:4 1 0.3", "libro:efficiency:5 1 0.25", "libro:fortune:3 1 0.25", "libro:looting:3 1 0.2", "libro:unbreaking:3 1 0.3",
+            "custom:fragmento_mejora 3 0.5", "EXPERIENCE_BOTTLE 16 0.7", "SHULKER_SHELL 2 0.12", "NETHER_STAR 1 0.03");
+    /** Lo de los cofres comunes de las casas de una aldea. */
+    public static final List<String> LOOT_VILLAGE = List.of("BREAD 6 0.8", "APPLE 4 0.5", "COAL 8 0.5", "TORCH 8 0.4", "WHEAT 10 0.4",
+            "IRON_INGOT 2 0.25", "EMERALD 2 0.2", "STRING 4 0.3", "LEATHER 3 0.3", "BOOK 2 0.2", "COOKED_PORKCHOP 3 0.3");
     private static final List<String> LOOT_DUNGEON = List.of("GOLD_INGOT 4 0.6", "DIAMOND 2 0.25", "EMERALD 5 0.5", "IRON_INGOT 6 0.6",
             "GOLDEN_APPLE 1 0.25", "ENCHANTED_GOLDEN_APPLE 1 0.02", "EXPERIENCE_BOTTLE 6 0.5", "pocion:strength 1 0.3", "pocion:healing 2 0.4",
             "libro:sharpness:3 1 0.15", "libro:protection:3 1 0.15", "NAME_TAG 1 0.1", "DIAMOND_SWORD 1 0.06");
@@ -530,18 +547,25 @@ public final class StructureManager implements Listener {
             }
             BuildPlacer.place(plugin, w, b, Math.max(500, plugin.getConfig().getInt("estructuras.bloques-por-tick", 6000)), null, containers -> {
                 boolean base = "base".equals(d.category);
-                List<String> table = !d.loot.isEmpty() ? d.loot : base ? List.of() : "mazmorra".equals(d.category) ? LOOT_DUNGEON : LOOT_STRUCTURE;
-                for (int[] c : containers) {
-                    if (table.isEmpty()) break;
-                    if (w.getBlockAt(c[0], c[1], c[2]).getState() instanceof Container cont && cont.getInventory().isEmpty()) {
-                        if (!d.loot.isEmpty()) fillLoot(cont.getInventory(), d);
-                        else {
-                            Def tmp = new Def();
-                            tmp.loot.addAll(table);
-                            tmp.rolls = d.rolls;
-                            fillLoot(cont.getInventory(), tmp);
+                boolean rich = "mazmorra".equals(d.category) || "aerea".equals(d.category);
+                List<String> table = !d.loot.isEmpty() ? d.loot : base ? List.of() : "aldea".equals(d.category) ? LOOT_VILLAGE : rich ? LOOT_DUNGEON : LOOT_STRUCTURE;
+                // primero los tesoros escondidos
+                for (var mk : b.markers) {
+                    if (mk.type().equals("tesoro") && w.getBlockAt(mk.x(), mk.y(), mk.z()).getState() instanceof Container cont)
+                        fillTable(cont.getInventory(), LOOT_TREASURE, 3, 4);
+                    if (mk.type().equals("spawner") && w.getBlockAt(mk.x(), mk.y(), mk.z()).getState() instanceof org.bukkit.block.CreatureSpawner sp) {
+                        org.bukkit.entity.EntityType et = pe.kydium.eclipserpg.util.Reg.entity(mk.arg());
+                        if (et != null && et.isAlive()) {
+                            sp.setSpawnedType(et);
+                            sp.setRequiredPlayerRange(20);
+                            sp.update(true, false);
                         }
                     }
+                }
+                for (int[] c : containers) {
+                    if (table.isEmpty()) break;
+                    if (w.getBlockAt(c[0], c[1], c[2]).getState() instanceof Container cont && cont.getInventory().isEmpty())
+                        fillTable(cont.getInventory(), table, Math.max(2, d.rolls), "aldea".equals(d.category) ? 1 : 2);
                 }
                 Inst inst = new Inst();
                 inst.id = d.id;
@@ -670,7 +694,8 @@ public final class StructureManager implements Listener {
                 task.cancel();
                 Connect.fix(w, joins);
                 for (int[] ct : containers) {
-                    if (w.getBlockAt(ct[0], ct[1], ct[2]).getState() instanceof Container cont) fillLoot(cont.getInventory(), d);
+                    if (w.getBlockAt(ct[0], ct[1], ct[2]).getState() instanceof Container cont)
+                        fillTable(cont.getInventory(), d.loot.isEmpty() ? LOOT_STRUCTURE : d.loot, d.rolls, 2);
                 }
                 Inst inst = new Inst();
                 inst.id = d.id;
@@ -703,6 +728,34 @@ public final class StructureManager implements Listener {
                 if (done != null) done.accept(inst);
             }, 1L, 1L);
         }));
+    }
+
+    /** Llena un cofre con una tabla; si por mala suerte queda vacío, le pone al menos "min" objetos. */
+    public void fillTable(Inventory inv, List<String> table, int rolls, int min) {
+        Def tmp = new Def();
+        tmp.loot.addAll(table);
+        tmp.rolls = Math.max(1, rolls);
+        fillLoot(inv, tmp);
+        int have = 0;
+        for (ItemStack it : inv.getContents()) if (it != null) have++;
+        java.util.Random r = ThreadLocalRandom.current();
+        for (int guard = 0; have < min && guard < 40 && !table.isEmpty(); guard++) {
+            String[] parts = table.get(r.nextInt(table.size())).trim().split("\\s+");
+            String spec = parts[0].contains(":") ? parts[0] : "material:" + parts[0];
+            ItemStack it = plugin.shops().buildSpec(spec, 1);
+            if (it == null || it.getType() == Material.ENCHANTED_BOOK && !spec.startsWith("libro")) continue;
+            int amount = 1;
+            try {
+                amount = parts.length > 1 ? Math.max(1, Integer.parseInt(parts[1])) : 1;
+            } catch (NumberFormatException ignored) {
+                // 1
+            }
+            it.setAmount(Math.max(1, Math.min(it.getMaxStackSize(), 1 + r.nextInt(amount))));
+            int slot = r.nextInt(inv.getSize());
+            if (inv.getItem(slot) == null) inv.setItem(slot, it);
+            else inv.addItem(it);
+            have++;
+        }
     }
 
     private void fillLoot(Inventory inv, Def d) {

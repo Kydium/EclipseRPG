@@ -47,6 +47,7 @@ public final class StructureCommand implements TabExecutor {
                     Txt.send(s, "<yellow>" + switch (last) {
                         case "aldea" -> "Aldeas";
                         case "mazmorra" -> "Mazmorras grandes";
+                        case "aerea" -> "Mazmorras aéreas";
                         case "base" -> "Bases";
                         default -> "Estructuras";
                     } + ":");

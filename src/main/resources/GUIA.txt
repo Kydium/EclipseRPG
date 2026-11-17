@@ -309,3 +309,13 @@ el juego te dice exactamente en qué línea.
 
  La aldea de la historia ahora se genera así (config.yml: aldea.tipo =
  auto | chica | mediana | grande | clasica, y aldea.estilo = auto o un estilo).
+
+ Extravagantes (con TESORO ESCONDIDO de diamantes, netherita, tótems,
+ libros de nivel máximo…): isla flotante, ciudadela celeste y galeón
+ volador (en el cielo, se sube por una columna con escalera), árbol
+ gigante, pirámide, volcán, calavera gigante, laberinto y coloso.
+ Pistas: un bloque de musgo, la terracota azul, una tabla suelta, un ojo,
+ una losa que suena hueca…
+
+ Trazados de las aldeas (config.yml: aldea.trazado): radial, cuadricula,
+ lineal, anillo, ramificado o auto.

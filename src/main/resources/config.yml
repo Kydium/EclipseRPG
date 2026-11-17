@@ -133,6 +133,7 @@ grieta:
 aldea:
   auto: true                    # construir la aldea sola al iniciar un mundo nuevo
   tipo: auto                    # auto (al azar) | chica | mediana | grande | clasica (el plano fijo de antes)
+  trazado: auto                 # auto | radial | cuadricula | lineal | anillo | ramificado (forma de las calles)
   estilo: auto                  # auto (según el bioma) | llanura | taiga | nieve | desierto | sabana | cerezo | pantano | selva | oscuro
   ubicacion: spawn              # spawn = donde aparecen los jugadores · buscar = busca un bioma bonito (puede quedar lejos)
   radio-spawn: 160              # si en el spawn hay agua o montaña, se aparta como mucho esto

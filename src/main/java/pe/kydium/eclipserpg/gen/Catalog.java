@@ -28,6 +28,7 @@ public final class Catalog {
         add("aldea_grande", "Aldea grande", "aldea", "Posada, capilla, mercado, más de 35 construcciones y murallas de piedra con torres.",
                 VillageGen.radiusFor(VillageGen.Size.GRANDE), (t, r, s, x, z) -> new VillageGen(t, r, s, VillageGen.Size.GRANDE, x, z).generate());
         Structures.register();
+        Extravagant.register();
     }
 
     static void register(String id, String name, String cat, String desc, int radius, Gen g) {

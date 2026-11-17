@@ -280,7 +280,10 @@ public final class VillageBuilder implements Listener {
             String styleId = estilo == null || estilo.equalsIgnoreCase("auto") ? pe.kydium.eclipserpg.gen.Style.forBiome(terrain.biome(cx, cz)) : estilo.toLowerCase(java.util.Locale.ROOT);
             pe.kydium.eclipserpg.gen.Build b;
             try {
-                b = new pe.kydium.eclipserpg.gen.VillageGen(terrain, rnd, pe.kydium.eclipserpg.gen.Style.get(styleId), size, cx, cz).generate();
+                var vg = new pe.kydium.eclipserpg.gen.VillageGen(terrain, rnd, pe.kydium.eclipserpg.gen.Style.get(styleId), size, cx, cz);
+                String tr = plugin.getConfig().getString("aldea.trazado", "auto").toUpperCase(java.util.Locale.ROOT).replace("Í", "I");
+                for (var l : pe.kydium.eclipserpg.gen.VillageGen.Layout.values()) if (l.name().equals(tr)) vg.layout(l);
+                b = vg.generate();
             } catch (RuntimeException e) {
                 busy = false;
                 plugin.getLogger().log(java.util.logging.Level.SEVERE, "No se pudo generar la aldea", e);
@@ -327,8 +330,8 @@ public final class VillageBuilder implements Listener {
                     pct -> { if (pct % 10 == 0) progress("<gray>Construyendo la aldea… <white>" + pct + "%"); },
                     containers -> {
                         for (int[] c : containers) {
-                            if (w.getBlockAt(c[0], c[1], c[2]).getState() instanceof org.bukkit.block.Container ct && ct.getInventory().isEmpty()
-                                    && rnd.nextInt(3) == 0) plugin.dungeons().fillLoot(ct.getInventory(), 1, 1);
+                            if (w.getBlockAt(c[0], c[1], c[2]).getState() instanceof org.bukkit.block.Container ct && ct.getInventory().isEmpty())
+                                plugin.structures().fillTable(ct.getInventory(), pe.kydium.eclipserpg.structure.StructureManager.LOOT_VILLAGE, 2, 1);
                         }
                         finish(w, cx, gy, cz, who);
                         if (!Boolean.getBoolean("eclipse.prueba")) Bukkit.getScheduler().runTaskLater(plugin, () -> w.removePluginChunkTickets(plugin), 200L);
