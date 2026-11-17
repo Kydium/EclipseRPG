@@ -323,7 +323,9 @@ public final class Powers implements Listener {
         // descripción: la original del objeto + las runas
         String id = plugin.items().idOf(target);
         ItemManager.CustomItem ci = id == null ? null : plugin.items().def(id);
-        List<String> base = ci != null ? plugin.items().loreLines(ci, plugin.items().upgradeLevel(target)) : new java.util.ArrayList<>();
+        int upl = plugin.items().upgradeLevel(target);
+        List<String> base = ci != null ? plugin.items().loreLines(ci, upl) : new java.util.ArrayList<>();
+        if (ci == null && upl > 0) base.add("<yellow>✦ Mejorada +" + upl);
         base.addAll(runeLore(meta));
         meta.lore(pe.kydium.eclipserpg.util.Txt.lore(base));
         target.setItemMeta(meta);
@@ -380,6 +382,8 @@ public final class Powers implements Listener {
         if (!(e.getEntity() instanceof Player) || e.getBow() == null) return;
         List<Power> ps = of(e.getBow());
         if (!ps.isEmpty()) e.getProjectile().getPersistentDataContainer().set(SHOT, PersistentDataType.STRING, ser(ps));
+        int up = plugin.items().upgradeLevel(e.getBow());
+        if (up > 0) e.getProjectile().getPersistentDataContainer().set(Keys.UPGRADE, PersistentDataType.INTEGER, up);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -395,6 +399,10 @@ public final class Powers implements Listener {
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onHit(EntityDamageByEntityEvent e) {
         if (!(e.getEntity() instanceof LivingEntity target) || target instanceof Mannequin) return;
+        if (e.getDamager() instanceof Projectile shot && !(shot instanceof org.bukkit.entity.Trident)) {
+            Integer up = shot.getPersistentDataContainer().get(Keys.UPGRADE, PersistentDataType.INTEGER);
+            if (up != null && up > 0) e.setDamage(e.getDamage() + up);
+        }
         // armadura de quien recibe
         if (target instanceof Player victim) armor(e, victim);
         Player p;

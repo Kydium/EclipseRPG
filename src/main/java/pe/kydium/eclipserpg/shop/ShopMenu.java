@@ -115,8 +115,9 @@ public final class ShopMenu extends Menu {
                 }
                 case MEJORA -> {
                     int max = plugin.getConfig().getInt("mejoras.maximo", 5);
-                    meta.displayName(Txt.item("<gold>Mejorar arma única"));
-                    lore.add(Txt.item("<gray>Ten el arma única en la mano."));
+                    meta.displayName(Txt.item("<gold>Mejorar arma"));
+                    lore.add(Txt.item("<gray>Ten el arma en la mano (cualquiera:"));
+                    lore.add(Txt.item("<gray>espada, hacha, maza, tridente, arco…)."));
                     lore.add(Txt.item("<gray>+1 de daño por mejora (máx. +" + max + ")"));
                     lore.add(Txt.item("<gray>Cuesta: <yellow>" + sm.priceText(e.price) + "</yellow> + 1 Fragmento de Mejora"));
                     lore.add(Txt.item("<yellow>Clic para mejorar"));
@@ -253,8 +254,8 @@ public final class ShopMenu extends Menu {
         String id = plugin.items().idOf(hand);
         var def = id == null ? null : plugin.items().def(id);
         int max = plugin.getConfig().getInt("mejoras.maximo", 5);
-        if (def == null || !def.upgradable) {
-            Txt.send(player, "<red>Ten un arma única en la mano principal.");
+        if (!plugin.items().upgradable(hand)) {
+            Txt.send(player, "<red>Ten un arma en la mano principal (espada, hacha, maza, tridente, arco…).");
             return;
         }
         if (plugin.items().upgradeLevel(hand) >= max) {

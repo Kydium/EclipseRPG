@@ -32,7 +32,7 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         switch (cmd.getName().toLowerCase()) {
             case "nivel" -> new StatsMenu(plugin, p).open();
             case "guardian" -> {
-                if (args.length > 0 && args[0].toLowerCase().startsWith("br")) plugin.village().giveCompass(p);
+                if (args.length > 0 && args[0].toLowerCase().startsWith("br")) plugin.quests().missionCompass(p);
                 else if (args.length > 0 && args[0].toLowerCase().startsWith("est")) plugin.hotkeys().status(p);
                 else plugin.hotkeys().open(p);
             }

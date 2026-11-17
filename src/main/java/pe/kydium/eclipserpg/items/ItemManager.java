@@ -304,15 +304,40 @@ public final class ItemManager implements Listener {
     }
 
     /** Sube +1 el daño de un arma única. Devuelve false si no se puede. */
+    /** ¿Se puede mejorar en el yunque de Bruno? Cualquier arma (de Minecraft o de la historia). */
+    public boolean upgradable(ItemStack it) {
+        if (it == null || it.getType().isAir()) return false;
+        String id = idOf(it);
+        CustomItem ci = id == null ? null : items.get(id);
+        if (ci != null && (ci.upgradable || !ci.powers.isEmpty())) return true;
+        if (ci != null && ci.backpack > 0) return false;
+        return isWeapon(it.getType());
+    }
+
+    public static boolean isWeapon(Material m) {
+        String n = m.name();
+        return n.endsWith("_SWORD") || n.endsWith("_AXE") || n.endsWith("_SPEAR") || m == Material.MACE || m == Material.TRIDENT
+                || m == Material.BOW || m == Material.CROSSBOW;
+    }
+
     public boolean upgrade(ItemStack it, int maxLevel) {
         String id = idOf(it);
         CustomItem ci = id == null ? null : items.get(id);
-        if (ci == null || !ci.upgradable) return false;
+        if (!upgradable(it)) return false;
         int lvl = upgradeLevel(it);
         if (lvl >= maxLevel) return false;
         lvl++;
         ItemMeta meta = it.getItemMeta();
         if (meta == null) return false;
+        // un arma normal no tiene atributos propios: copia los de fábrica antes de sumar la mejora
+        if (!meta.hasAttributeModifiers()) {
+            try {
+                var defs = it.getType().getDefaultAttributeModifiers(EquipmentSlot.HAND);
+                for (var en : defs.entries()) meta.addAttributeModifier(en.getKey(), en.getValue());
+            } catch (RuntimeException | LinkageError ignored) {
+                // sin datos de fábrica
+            }
+        }
         NamespacedKey key = pe.kydium.eclipserpg.util.Keys.k("mejora");
         Collection<AttributeModifier> mods = meta.getAttributeModifiers(Attribute.ATTACK_DAMAGE);
         if (mods != null) {
@@ -322,8 +347,17 @@ public final class ItemManager implements Listener {
         }
         meta.addAttributeModifier(Attribute.ATTACK_DAMAGE,
                 new AttributeModifier(key, lvl, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
-        meta.displayName(Txt.item(displayName(ci, lvl)));
-        List<String> ll = loreLines(ci, lvl);
+        List<String> ll;
+        if (ci != null) {
+            meta.displayName(Txt.item(displayName(ci, lvl)));
+            ll = loreLines(ci, lvl);
+        } else {
+            meta.displayName(net.kyori.adventure.text.Component.translatable(it.getType().translationKey())
+                    .append(net.kyori.adventure.text.Component.text(" +" + lvl))
+                    .color(net.kyori.adventure.text.format.NamedTextColor.YELLOW)
+                    .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
+            ll = new ArrayList<>(List.of("<yellow>✦ Mejorada +" + lvl + (it.getType() == Material.BOW || it.getType() == Material.CROSSBOW ? " <gray>(+" + lvl + " de daño por flecha)" : "")));
+        }
         ll.addAll(Powers.runeLore(meta));
         meta.lore(Txt.lore(ll));
         PersistentDataContainer pdc = meta.getPersistentDataContainer();

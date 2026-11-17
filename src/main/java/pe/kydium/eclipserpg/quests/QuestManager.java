@@ -61,9 +61,21 @@ public final class QuestManager implements Listener {
     private final java.util.Set<String> spawnedAt = new java.util.HashSet<>();
 
     /** Misión con "aparecen:" y "estructura:": los enemigos salen al llegar a ese lugar, no alrededor del jugador. */
+    private final java.util.Set<String> dungeonChecked = new java.util.HashSet<>();
+
+    /** Brújula de la misión: la de su mazmorra si tiene; si no, la de la aldea. */
+    public void missionCompass(Player p) {
+        Quest q = current(p);
+        if (q != null && plugin.data().get(p).questAccepted && q.dungeon > 0) plugin.dungeons().ensure(q.dungeon, p);
+        else plugin.village().giveCompass(p);
+    }
+
     private void structureSpawnTick() {
         for (Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
             Quest q = current(p);
+            // si la mazmorra de la misión no llegó a crearse (por ejemplo, el servidor se cerró), se crea y da la brújula
+            if (q != null && q.dungeon > 0 && plugin.data().get(p).questAccepted && !plugin.dungeons().isBuilt(q.dungeon)
+                    && dungeonChecked.add(p.getUniqueId() + ";" + q.id)) plugin.dungeons().ensure(q.dungeon, p);
             if (q == null || q.structure == null || q.spawns.isEmpty() || !plugin.data().get(p).questAccepted || isComplete(p, q)) continue;
             String key = p.getUniqueId() + ";" + q.id;
             if (spawnedAt.contains(key)) continue;

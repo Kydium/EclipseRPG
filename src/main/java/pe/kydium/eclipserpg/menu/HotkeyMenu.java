@@ -51,9 +51,7 @@ public final class HotkeyMenu implements Listener {
             Quest cur = plugin.quests().current(p);
             if (cur != null) plugin.quests().showObjectives(p, cur);
         }));
-        buttons.add(new DialogUI.Button("<light_purple>🧭 Brújula de la aldea", "Si perdiste la tuya", () -> {
-            plugin.village().giveCompass(p);
-        }));
+        buttons.add(new DialogUI.Button("<light_purple>🧭 Brújula", "La de tu misión (mazmorra) o la de la aldea", () -> plugin.quests().missionCompass(p)));
         buttons.add(new DialogUI.Button("<gray>Cerrar", null, null));
         ui.show(p, "<gold><bold>☀ " + plugin.title(), body, buttons, true);
     }
@@ -125,7 +123,7 @@ public final class HotkeyMenu implements Listener {
                     {"label": {"text": "☀ Mi estado (nivel, soles y misión)", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "guardian estado"}},
                     {"label": {"text": "⚔ Nivel y habilidades", "color": "yellow"}, "action": {"type": "minecraft:run_command", "command": "nivel"}},
                     {"label": {"text": "📖 Diario de misiones", "color": "yellow"}, "action": {"type": "minecraft:run_command", "command": "misiones"}},
-                    {"label": {"text": "🧭 Brújula de la aldea", "color": "light_purple"}, "action": {"type": "minecraft:run_command", "command": "guardian brujula"}}
+                    {"label": {"text": "🧭 Brújula (misión o aldea)", "color": "light_purple"}, "action": {"type": "minecraft:run_command", "command": "guardian brujula"}}
                   ]
                 }
                 """, StandardCharsets.UTF_8);
