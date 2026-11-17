@@ -753,6 +753,7 @@ public final class SmokeTest {
             check(false, "hay un aldeano para probar las caídas");
             return;
         }
+        start.remove(npc.getUniqueId()); // vuelve a su casa al levantarse: no cuenta para la prueba de caminar
         combat.hurt(npc, 999);
         check(combat.isDown(npc) && npc.getScoreboardTags().contains(pe.kydium.eclipserpg.npc.Combat.FALLEN), "un NPC derribado cae al suelo");
         combat.stand(npc);
