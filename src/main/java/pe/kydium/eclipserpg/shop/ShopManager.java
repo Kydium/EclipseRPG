@@ -40,6 +40,11 @@ public final class ShopManager {
         public int minLevel = 1;
         public String name;          // nombre visible opcional
         public final Map<String, Integer> enchants = new LinkedHashMap<>();
+        public int stock;            // 0 = sin límite
+        public int restock = 20;     // minutos para reponer el stock
+        public int quest;            // misiones completadas necesarias
+        public String payWith;       // se paga con este objeto en vez de dinero (trueque)
+        public String key;           // tienda:slot (para el stock)
     }
 
     public static final class Shop {
@@ -50,6 +55,10 @@ public final class ShopManager {
         public boolean rotating;
         public int show = 3;
         public int[] rotatingSlots = {11, 13, 15};
+        public String opens = "siempre";   // siempre | dia | noche
+        public String onlyEvent;           // solo abre durante este evento del mundo
+        public int quest;                  // misiones completadas necesarias para entrar
+        public double variation;           // 0.2 = los precios cambian ±20% cada día
     }
 
     private final EclipseRPG plugin;
@@ -73,6 +82,11 @@ public final class ShopManager {
             shop.rows = Math.max(1, Math.min(6, s.getInt("filas", 4)));
             shop.rotating = s.getBoolean("rotativa", false);
             shop.show = s.getInt("mostrar", 3);
+            shop.opens = s.getString("abre", "siempre").toLowerCase(Locale.ROOT);
+            String oe = s.getString("solo-evento");
+            shop.onlyEvent = oe == null || oe.isBlank() ? null : oe.toLowerCase(Locale.ROOT);
+            shop.quest = s.getInt("mision", 0);
+            shop.variation = Math.max(0, Math.min(0.9, s.getDouble("variacion", 0)));
             List<Integer> rs = s.getIntegerList("slots-rotativos");
             if (!rs.isEmpty()) shop.rotatingSlots = rs.stream().mapToInt(Integer::intValue).toArray();
             for (Map<?, ?> m : s.getMapList("objetos")) {
@@ -92,6 +106,11 @@ public final class ShopManager {
                 e.price = intOf(m.get("precio"), 0);
                 e.minLevel = intOf(m.get("nivel"), 1);
                 e.name = m.get("nombre") == null ? null : m.get("nombre").toString();
+                e.stock = intOf(m.get("stock"), 0);
+                e.restock = Math.max(1, intOf(m.get("reabastece"), 20));
+                e.quest = intOf(m.get("mision"), 0);
+                e.payWith = m.get("paga-con") == null || m.get("paga-con").toString().isBlank() ? null : m.get("paga-con").toString();
+                e.key = id + ":" + e.slot;
                 Object en = m.get("encantamientos");
                 if (en instanceof Map<?, ?> em) {
                     for (Map.Entry<?, ?> x : em.entrySet()) e.enchants.put(x.getKey().toString(), intOf(x.getValue(), 1));
@@ -121,8 +140,106 @@ public final class ShopManager {
     public boolean open(Player p, String id) {
         Shop s = shops.get(id);
         if (s == null) return false;
+        String closed = closedReason(p, s);
+        if (closed != null) {
+            Txt.send(p, closed);
+            Txt.sound(p, "block.chest.locked", 1f, 1f);
+            return true;
+        }
         new ShopMenu(plugin, p, s, visibleEntries(s)).open();
         return true;
+    }
+
+    /** Por qué la tienda está cerrada para este jugador (null = abierta). */
+    public String closedReason(Player p, Shop s) {
+        boolean night = pe.kydium.eclipserpg.world.WorldManager.isNight(p.getWorld());
+        if (s.opens.equals("dia") && night) return "<red>Esta tienda solo abre de día. Vuelve cuando amanezca.";
+        if (s.opens.equals("noche") && !night) return "<red>Esta tienda solo abre de noche.";
+        if (s.onlyEvent != null && !plugin.world().activeEvents().contains(s.onlyEvent))
+            return "<red>Esta tienda solo abre durante <reset>" + plugin.world().eventName(s.onlyEvent) + "<red>.";
+        if (s.quest > 0 && plugin.data().get(p).questIndex < s.quest)
+            return "<red>Aún no confían en ti aquí. Avanza en la historia (misión " + s.quest + ").";
+        return null;
+    }
+
+    // ---------- stock y precios ----------
+
+    private final Map<String, int[]> stock = new java.util.HashMap<>();     // key -> {vendidos}
+    private final Map<String, Long> stockSince = new java.util.HashMap<>();
+
+    /** Unidades que quedan (Integer.MAX_VALUE si no tiene límite). */
+    public int stockLeft(Entry e) {
+        if (e.stock <= 0 || e.key == null) return Integer.MAX_VALUE;
+        Long since = stockSince.get(e.key);
+        if (since != null && System.currentTimeMillis() - since >= e.restock * 60_000L) {
+            stock.remove(e.key);
+            stockSince.remove(e.key);
+        }
+        int[] sold = stock.get(e.key);
+        return Math.max(0, e.stock - (sold == null ? 0 : sold[0]));
+    }
+
+    public void useStock(Entry e) {
+        if (e.stock <= 0 || e.key == null) return;
+        stock.computeIfAbsent(e.key, k -> new int[1])[0]++;
+        stockSince.putIfAbsent(e.key, System.currentTimeMillis());
+    }
+
+    /** Minutos que faltan para reponer. */
+    public long restockMinutes(Entry e) {
+        Long since = e.key == null ? null : stockSince.get(e.key);
+        if (since == null) return 0;
+        return Math.max(1, (e.restock * 60_000L - (System.currentTimeMillis() - since) + 59_999L) / 60_000L);
+    }
+
+    /** Precio de hoy (si la tienda tiene variación de precios, cambia cada día). */
+    public long priceOf(Shop s, Entry e) {
+        if (s == null || s.variation <= 0 || e.payWith != null || e.kind == Kind.MEJORA) return e.price;
+        ZoneId zone = ZoneId.of(plugin.getConfig().getString("zona-horaria", "America/Lima"));
+        long day = LocalDate.now(zone).toEpochDay();
+        double f = new Random(day * 131 + (s.id + e.item + e.slot).hashCode()).nextDouble() * 2 - 1;
+        return Math.max(1, Math.round(e.price * (1 + f * s.variation)));
+    }
+
+    /** Cuántos tiene el jugador del objeto con el que se paga (trueque). */
+    public int countSpec(Player p, String spec) {
+        String rest = spec.startsWith("material:") ? spec.substring(9) : spec;
+        if (rest.startsWith("custom:")) return plugin.items().count(p, rest.substring(7));
+        Material m = Material.matchMaterial(rest);
+        if (m == null) return 0;
+        int n = 0;
+        for (ItemStack it : p.getInventory().getStorageContents()) if (it != null && it.getType() == m && plugin.items().idOf(it) == null) n += it.getAmount();
+        return n;
+    }
+
+    public void takeSpec(Player p, String spec, int amount) {
+        String rest = spec.startsWith("material:") ? spec.substring(9) : spec;
+        if (rest.startsWith("custom:")) {
+            plugin.items().take(p, rest.substring(7), amount);
+            return;
+        }
+        Material m = Material.matchMaterial(rest);
+        if (m == null) return;
+        int left = amount;
+        ItemStack[] inv = p.getInventory().getStorageContents();
+        for (int i = 0; i < inv.length && left > 0; i++) {
+            ItemStack it = inv[i];
+            if (it == null || it.getType() != m || plugin.items().idOf(it) != null) continue;
+            int take = Math.min(left, it.getAmount());
+            it.setAmount(it.getAmount() - take);
+            left -= take;
+            inv[i] = it.getAmount() <= 0 ? null : it;
+        }
+        p.getInventory().setStorageContents(inv);
+    }
+
+    public String specName(String spec) {
+        String rest = spec.startsWith("material:") ? spec.substring(9) : spec;
+        if (rest.startsWith("custom:")) {
+            var d = plugin.items().def(rest.substring(7));
+            return d == null ? rest.substring(7) : pe.kydium.eclipserpg.story.StoryManager.plain(d.name);
+        }
+        return Txt.pretty(rest);
     }
 
     /** En tiendas rotativas se muestran unos pocos objetos que cambian cada día. */
@@ -143,6 +260,11 @@ public final class ShopManager {
             copy.price = src.price;
             copy.minLevel = src.minLevel;
             copy.name = src.name;
+            copy.stock = src.stock;
+            copy.restock = src.restock;
+            copy.quest = src.quest;
+            copy.payWith = src.payWith;
+            copy.key = src.key;
             copy.enchants.putAll(src.enchants);
             out.add(copy);
         }

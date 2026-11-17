@@ -27,6 +27,8 @@ public final class StoryDoc {
         public String place;
         public String hand;
         public String offhand;
+        public String combat;
+        public double combatHp, combatDamage;
         public final List<String> services = new ArrayList<>();
         public final List<String> talk = new ArrayList<>();
     }
@@ -58,6 +60,8 @@ public final class StoryDoc {
         public boolean boss;
         public boolean noDeath;
         public int dungeon;
+        public String event;     // evento del mundo que empieza al aceptar
+        public String weather;   // clima al aceptar
         public long xp;
         public long money;
         public final List<String> start = new ArrayList<>();

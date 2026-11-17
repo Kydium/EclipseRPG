@@ -208,6 +208,7 @@ public final class SmokeTest {
                     checkBlockNames();
                     checkWalking();
                     checkRuin();
+                    checkWorldBegin();
                     plugin.dungeons().buildForTest(1);
                     stage = 3;
                 }
@@ -219,7 +220,14 @@ public final class SmokeTest {
                     }
                 }
                 case 4 -> {
-                    if (editorDone) finish();
+                    if (editorDone) {
+                        stage = 5;
+                        wait = 8;
+                    }
+                }
+                case 5 -> {
+                    checkWorldEnd();
+                    finish();
                 }
                 default -> { }
             }
@@ -442,6 +450,63 @@ public final class SmokeTest {
         } finally {
             editorDone = true;
         }
+    }
+
+    // ---------------------------------------------------------------- mundo vivo
+
+    private int guardHits;
+    private final List<org.bukkit.entity.LivingEntity> husks = new ArrayList<>();
+
+    private void checkWorldBegin() {
+        var wm = plugin.world();
+        check(wm.ruleIds().size() >= 8 && wm.eventIds().size() >= 3 && wm.spawnRuleCount() >= 4,
+                "mundo vivo cargado (" + wm.ruleIds().size() + " reglas, " + wm.eventIds().size() + " eventos, " + wm.spawnRuleCount() + " apariciones)");
+        check(wm.start("luna_sangre") && wm.activeEvents().contains("luna_sangre"), "un evento del mundo empieza");
+        check(wm.stop("luna_sangre", true) && wm.activeEvents().isEmpty(), "un evento del mundo termina");
+        check(wm.start("tormenta_eclipse"), "empieza la tormenta");
+        check(!wm.start("no_existe"), "un evento que no existe no rompe nada");
+        // historia con campos nuevos
+        var st = plugin.story();
+        List<String> lines = List.of("HISTORIA: Roles", "NPC cabo", "  nombre: Cabo", "  combate: guardián", "  vida: 60", "  daño: 8",
+                "MISIÓN Noche roja", "  npc: cabo", "  evento: luna_sangre", "  clima: tormenta", "  objetivo: derrota a 3 zombis");
+        var r = new pe.kydium.eclipserpg.story.StoryParser(st.dictionary(), st.catalog()).parse(lines);
+        for (var pr : r.problems()) plugin.getLogger().info("[PRUEBA] roles: " + pr);
+        check(r.errors() == 0 && "guardian".equals(r.doc().npcs.get("cabo").combat) && "luna_sangre".equals(r.doc().missions.get(0).event),
+                "la historia entiende combate, evento y clima");
+        // guardias contra hostiles
+        Bukkit.getPluginManager().registerEvents(new org.bukkit.event.Listener() {
+            @org.bukkit.event.EventHandler(priority = org.bukkit.event.EventPriority.MONITOR)
+            public void onHit(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
+                if (e.getDamager() instanceof Mannequin && !e.isCancelled()) guardHits++;
+            }
+        }, plugin);
+        int guards = 0;
+        for (UUID u : plugin.npcEntities().fillerIds()) {
+            Entity g = Bukkit.getEntity(u);
+            if (g == null || !plugin.npcEntities().isGuard(g)) continue;
+            guards++;
+            if (guards > 3) continue;
+            Location at = plugin.mobs().spawnSpot(g.getLocation(), 3);
+            if (g.getWorld().spawnEntity(at, org.bukkit.entity.EntityType.HUSK) instanceof org.bukkit.entity.LivingEntity h) {
+                h.setAI(false);
+                h.setPersistent(true);
+                husks.add(h);
+            }
+        }
+        check(guards > 0 && !husks.isEmpty(), "hay guardias en la aldea (" + guards + ")");
+    }
+
+    private void checkWorldEnd() {
+        var w = Bukkit.getWorlds().get(0);
+        check(w.hasStorm() && plugin.world().activeEvents().contains("tormenta_eclipse"), "el evento mantiene la tormenta");
+        plugin.world().stop("tormenta_eclipse", false);
+        check(!w.hasStorm(), "al terminar el evento vuelve el buen tiempo");
+        int dead = 0;
+        for (var h : husks) {
+            if (h.isDead() || !h.isValid()) dead++;
+            else h.remove();
+        }
+        check(guardHits > 0, "los guardias atacan a los hostiles (" + guardHits + " golpes, " + dead + "/" + husks.size() + " vencidos)");
     }
 
     private void checkReload() {

@@ -53,6 +53,8 @@ public final class Quest {
     public boolean boss;
     public boolean noDeath;
     public int dungeon;
+    public String event;
+    public String weather;
     public long xp;
     public long soles;
     public final List<String> start = new ArrayList<>();

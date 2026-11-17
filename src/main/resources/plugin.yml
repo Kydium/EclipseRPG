@@ -29,6 +29,11 @@ commands:
     usage: /historia [recargar|errores|colocar|skins|lugares|lista|nueva|usar]
     permission: eclipserpg.admin
     aliases: [story, h]
+  evento:
+    description: Eventos del mundo y clima (Luna de Sangre, tormentas…)
+    usage: /evento [lista|iniciar|parar|clima|estado]
+    permission: eclipserpg.admin
+    aliases: [eventos, mundo]
   eclipse:
     description: Administración de Aventura Maker
     permission: eclipserpg.admin

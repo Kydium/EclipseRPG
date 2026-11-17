@@ -243,7 +243,16 @@ public final class StoryParser {
                 }
             }
             case "charla", "dice", "frase" -> n.talk.add(val);
-            default -> error(ln, "El NPC no tiene un campo '" + key + "'. Campos: nombre, color, skin, oficio, lugar, objeto, servicio, charla");
+            case "combate", "pelea", "rol de combate" -> {
+                String k = Dictionary.norm(val);
+                if (k.startsWith("guardi") || k.equals("defensor")) n.combat = "guardian";
+                else if (k.equals("cobarde") || k.equals("huye")) n.combat = "cobarde";
+                else if (k.equals("neutral") || k.equals("ninguno") || k.equals("no")) n.combat = null;
+                else error(ln, "combate: no entiendo '" + val + "'. Usa: guardián, cobarde o neutral");
+            }
+            case "vida" -> n.combatHp = Math.max(1, intVal(val, ln, 40));
+            case "dano", "danio", "ataque" -> n.combatDamage = Math.max(0, intVal(val, ln, 6));
+            default -> error(ln, "El NPC no tiene un campo '" + key + "'. Campos: nombre, color, skin, oficio, lugar, objeto, servicio, charla, combate, vida, daño");
         }
     }
 
@@ -277,7 +286,13 @@ public final class StoryParser {
                     error(ln, "No existe la mazmorra " + m.dungeon + ". Hay mazmorras para los actos " + cat.dungeons().keySet());
             }
             case "eleccion", "opcion", "decision" -> choice(val, ln, m);
-            default -> error(ln, "La misión no tiene un campo '" + key + "'. Campos: npc, acto, nivel, dice, final, objetivo, premio, aparecen, recibe, jefe, mazmorra, eleccion");
+            case "evento" -> m.event = slug(val);
+            case "clima" -> {
+                String k = Dictionary.norm(val);
+                if (k.equals("tormenta") || k.equals("lluvia") || k.equals("despejado")) m.weather = k;
+                else error(ln, "clima: no entiendo '" + val + "'. Usa: despejado, lluvia o tormenta");
+            }
+            default -> error(ln, "La misión no tiene un campo '" + key + "'. Campos: npc, acto, nivel, dice, final, objetivo, premio, aparecen, recibe, jefe, mazmorra, eleccion, evento, clima");
         }
     }
 

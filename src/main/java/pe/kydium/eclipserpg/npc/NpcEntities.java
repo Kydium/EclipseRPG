@@ -72,7 +72,7 @@ public final class NpcEntities implements Listener {
     }
 
     /** Estado de paseo de un NPC. */
-    private static final class Walk {
+    static final class Walk {
         double homeX, homeY, homeZ;
         double radius;
         double speed;
@@ -112,11 +112,48 @@ public final class NpcEntities implements Listener {
     private final Map<UUID, Walk> walks = new HashMap<>();
     private final Map<String, Map<Mark, UUID>> marks = new HashMap<>();
 
+    private final Combat combat;
+
     public NpcEntities(EclipseRPG plugin) {
         this.plugin = plugin;
+        this.combat = new Combat(plugin, this);
+    }
+
+    public Combat combat() {
+        return combat;
+    }
+
+    /** ¿Este maniquí pelea como guardián? (guardias de la aldea o NPC con "combate: guardián") */
+    public boolean isGuard(Entity e) {
+        if (!combat.guardsFight()) return false;
+        if ("guardia".equals(fillerRole(e))) return true;
+        String id = npcId(e);
+        NpcManager.NpcDef d = id == null ? null : plugin.npcs().def(id);
+        return d != null && "guardian".equals(d.combat);
+    }
+
+    private boolean isCoward(Entity e) {
+        String role = fillerRole(e);
+        if (role != null) return combat.fleeEnabled() && !"guardia".equals(role);
+        String id = npcId(e);
+        NpcManager.NpcDef d = id == null ? null : plugin.npcs().def(id);
+        return d != null && "cobarde".equals(d.combat);
+    }
+
+    /** Vuelve a poner el texto de debajo del nombre (después de estar herido). */
+    void restoreDescription(LivingEntity le) {
+        String role = fillerRole(le);
+        if (role != null) {
+            describe(le, ROLE_TITLE.getOrDefault(role, "Aldeano"));
+            return;
+        }
+        String id = npcId(le);
+        NpcManager.NpcDef d = id == null ? null : plugin.npcs().def(id);
+        describe(le, d == null || d.role == null ? "" : d.role);
     }
 
     public void load() {
+        combat.load();
         npcs.clear();
         fillers.clear();
         var sec = plugin.getConfig().getConfigurationSection("npc-entidades");
@@ -480,7 +517,12 @@ public final class NpcEntities implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageEvent e) {
-        if (npcId(e.getEntity()) != null || fillerRole(e.getEntity()) != null) e.setCancelled(true);
+        if (npcId(e.getEntity()) == null && fillerRole(e.getEntity()) == null) return;
+        e.setCancelled(true);
+        if (e instanceof org.bukkit.event.entity.EntityDamageByEntityEvent by && e.getEntity() instanceof LivingEntity le && isGuard(le)) {
+            Entity src = by.getDamager() instanceof org.bukkit.entity.Projectile pr && pr.getShooter() instanceof Entity sh ? sh : by.getDamager();
+            if (!(src instanceof Player)) combat.hurt(le, e.getDamage());
+        }
     }
 
     // ---------- Tareas: paseo, mirar al jugador y marcadores ----------
@@ -488,6 +530,7 @@ public final class NpcEntities implements Listener {
     public void startTask() {
         Bukkit.getScheduler().runTaskTimer(plugin, this::walkTick, 40L, 1L);
         Bukkit.getScheduler().runTaskTimer(plugin, this::markTick, 40L, 10L);
+        combat.startTask();
     }
 
     private Walk walkFor(LivingEntity le, boolean story) {
@@ -559,7 +602,22 @@ public final class NpcEntities implements Listener {
         // nadie cerca: no gastar
         if (!TEST && nearest(le, 72) == null) return;
         ThreadLocalRandom r = ThreadLocalRandom.current();
-        Player close = nearest(le, w.story ? 5 : 3);
+        if (isGuard(le)) {
+            String sid = npcId(le);
+            NpcManager.NpcDef nd = sid == null ? null : plugin.npcs().def(sid);
+            double hp = nd != null && nd.combatHp > 0 ? nd.combatHp : combat.guardHp();
+            double dmg = nd != null && nd.combatDamage > 0 ? nd.combatDamage : combat.guardDmg();
+            if (combat.guardTick(le, w, hp, dmg)) return;
+        }
+        boolean panic = isCoward(le) && combat.danger(le);
+        if (panic) {
+            // corre a casa
+            w.pause = 0;
+            w.tx = w.homeX;
+            w.tz = w.homeZ;
+            w.hasTarget = true;
+        }
+        Player close = panic ? null : nearest(le, w.story ? 5 : 3);
         if (close != null) {
             // detenerse y mirar al jugador
             Location eye = le.getEyeLocation(), to = close.getEyeLocation();
@@ -589,10 +647,11 @@ public final class NpcEntities implements Listener {
         double d = Math.sqrt(dx * dx + dz * dz);
         if (d < 0.25) {
             w.hasTarget = false;
-            w.pause = w.story ? r.nextInt(120, 400) : r.nextInt(30, 200);
+            w.pause = panic ? 10 : w.story ? r.nextInt(120, 400) : r.nextInt(30, 200);
             return;
         }
-        double nx = loc.getX() + dx / d * w.speed, nz = loc.getZ() + dz / d * w.speed;
+        double sp = Math.min(d, panic ? Math.max(0.2, w.speed * 2.6) : w.speed);
+        double nx = loc.getX() + dx / d * sp, nz = loc.getZ() + dz / d * sp;
         // mirar un poco más adelante para no meterse en paredes
         double ax = loc.getX() + dx / d * 0.45, az = loc.getZ() + dz / d * 0.45;
         double ny = surface(le.getWorld(), nx, nz, loc.getY());
@@ -631,7 +690,7 @@ public final class NpcEntities implements Listener {
     }
 
     /** Altura del suelo caminable en (x,z) cerca de y; NaN si no se puede pisar. */
-    private static double surface(World w, double x, double z, double y) {
+    static double surface(World w, double x, double z, double y) {
         int bx = (int) Math.floor(x), bz = (int) Math.floor(z), by = (int) Math.floor(y + 0.01);
         if (!w.isChunkLoaded(bx >> 4, bz >> 4)) return Double.NaN;
         for (int yy : new int[]{by, by + 1, by - 1}) {

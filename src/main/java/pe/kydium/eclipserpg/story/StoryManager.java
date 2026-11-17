@@ -33,7 +33,7 @@ public final class StoryManager {
 
     /** Archivos de la historia de ejemplo que trae el plugin. */
     private static final String[] BUNDLED = {"historia.txt", "avanzado/objetos.yml", "avanzado/mobs.yml",
-            "avanzado/tiendas.yml", "avanzado/contratos.yml", "avanzado/mazmorras.yml", "skins/LEEME.txt"};
+            "avanzado/tiendas.yml", "avanzado/contratos.yml", "avanzado/mazmorras.yml", "avanzado/mundo.yml", "skins/LEEME.txt"};
 
     /** Lugares de la aldea donde se pueden poner NPCs (vienen del plano). */
     public static final List<String> PLACES = List.of("casa", "cuartel", "herreria", "tienda", "biblioteca", "mapas", "torre",
@@ -131,7 +131,9 @@ public final class StoryManager {
     public YamlConfiguration yaml(String name) {
         File f = new File(folder(), "avanzado/" + name + ".yml");
         if (f.exists()) return YamlConfiguration.loadConfiguration(f);
-        try (InputStream in = plugin.getResource("historias/eclipse/avanzado/" + name + ".yml")) {
+        // una historia nueva sin "mundo vivo" propio usa el genérico (sin enemigos de la historia de ejemplo)
+        String res = name.equals("mundo") && !id().equals("eclipse") ? "motor/mundo.yml" : "historias/eclipse/avanzado/" + name + ".yml";
+        try (InputStream in = plugin.getResource(res)) {
             if (in == null) return new YamlConfiguration();
             return YamlConfiguration.loadConfiguration(new InputStreamReader(in, StandardCharsets.UTF_8));
         } catch (IOException e) {

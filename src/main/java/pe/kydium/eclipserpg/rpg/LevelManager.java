@@ -121,6 +121,10 @@ public final class LevelManager implements Listener {
 
     /** Da XP RPG y Soles juntos y lo muestra en la barra de acción. */
     public void reward(Player p, long xp, long soles) {
+        if (plugin.world() != null) {
+            xp = Math.round(xp * plugin.world().xpMult(p));
+            soles = Math.round(soles * plugin.world().moneyMult(p));
+        }
         long realSoles = soles > 0 ? applyFortune(p, soles) : 0;
         if (realSoles > 0) addSoles(p, realSoles);
         addXp(p, xp);

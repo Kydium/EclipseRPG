@@ -1,0 +1,67 @@
+# =========================================================
+#  MUNDO VIVO — clima, hora, luna y biomas que cambian el juego
+#  Es más cómodo editarlo desde el editor web (/historia editor > «Mundo vivo»).
+#
+#  cuando: (todo es opcional; lo que no pongas no se revisa)
+#    clima: despejado | lluvia | tormenta        momento: dia | noche | amanecer | atardecer
+#    luna: llena | menguante | nueva | creciente bioma: id de bioma o grupo
+#        (grupos: frio, calido, desierto, selva, oceano, montana, pantano, bosque, cuevas)
+#    dimension: overworld | nether | end         altura-min / altura-max
+#    cielo: abierto | techo                      luz-max: 0 a 15 (oscuridad)
+#    en-agua: true/false                         zona: aldea | fuera
+#    armadura: ninguna | alguna | cuero | sin_cuero | metal
+#    tiene / no-tiene: objeto (material o id especial)
+#    nivel-min, nivel-max, acto-min, acto-max    evento: id de un evento activo
+#
+#  efectos de una regla o evento:
+#    efectos: [{efecto: slowness, nivel: 1}]     danio / curar / hambre  + cada: segundos
+#    fuego: segundos · congelar: true            vida-maxima: -4 · velocidad: -0.15
+#    danio-hecho / danio-recibido / xp / dinero / apariciones: multiplicadores (1 = normal)
+#    mensaje: texto que sale al empezar
+# =========================================================
+
+tiempo:
+  minutos-dia: 10
+  minutos-noche: 10
+  dormir: si
+
+reglas:
+  tormenta:
+    nombre: "Tormenta"
+    cuando: {clima: [tormenta], cielo: abierto, dimension: [overworld]}
+    velocidad: -0.08
+    apariciones: 1.5
+    mensaje: "<gray>⛈ La tormenta te frena y los monstruos salen de día."
+  luna_llena:
+    nombre: "Luna llena"
+    cuando: {luna: [llena], momento: [noche], dimension: [overworld]}
+    apariciones: 1.5
+    xp: 1.25
+    mensaje: "<yellow>🌕 Luna llena: más monstruos y más experiencia."
+
+apariciones:
+  multiplicador: 1.0
+  bloquear: []
+  reglas: []
+
+eventos:
+  luna_sangre:
+    nombre: "<red><bold>☾ Luna de Sangre"
+    color-barra: RED
+    empieza: noche
+    probabilidad: 0.1
+    duracion: 0
+    anuncio: "<red><bold>Luna de Sangre"
+    subtitulo: "<gray>Aguanta hasta el amanecer."
+    no-dormir: true
+    apariciones: 2.5
+    xp: 1.5
+    oleadas: {mobs: [zombie, skeleton, spider], cada: 40, cantidad: 2}
+    mensaje-fin: "<gold>Amanece. Sobreviviste."
+    premio-xp: 100
+
+roles:
+  guardias: {pelean: true, vida: 40, danio: 6, vision: 14, persecucion: 24, recuperacion: 45}
+  aldeanos-huyen: true
+  mobs:
+    iron_golem: guardian

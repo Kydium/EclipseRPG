@@ -29,6 +29,8 @@ public final class NpcManager {
         public String place;
         public String hand;
         public String offhand;
+        public String combat;        // guardian | cobarde | null
+        public double combatHp, combatDamage;
         public Material icon = Material.PLAYER_HEAD;
         public final List<String> services = new ArrayList<>();
         public final List<String> talk = new ArrayList<>();
@@ -56,6 +58,9 @@ public final class NpcManager {
             n.place = sn.place;
             n.hand = sn.hand;
             n.offhand = sn.offhand;
+            n.combat = Combat.normRole(sn.combat);
+            n.combatHp = sn.combatHp;
+            n.combatDamage = sn.combatDamage;
             n.services.addAll(sn.services);
             n.talk.addAll(sn.talk);
             npcs.put(n.id, n);

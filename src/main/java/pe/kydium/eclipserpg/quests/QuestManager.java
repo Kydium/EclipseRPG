@@ -75,6 +75,8 @@ public final class QuestManager implements Listener {
             q.boss = m.boss;
             q.noDeath = m.noDeath;
             q.dungeon = m.dungeon;
+            q.event = m.event;
+            q.weather = m.weather;
             q.xp = m.xp;
             q.soles = m.money;
             q.start.addAll(m.start);
@@ -264,6 +266,9 @@ public final class QuestManager implements Listener {
         }
         for (String g : q.giveOnAccept) give(p, g);
         if (q.dungeon > 0) plugin.dungeons().ensure(q.dungeon, p);
+        if (q.weather != null) plugin.world().setWeather(q.weather, 600);
+        if (q.event != null && !plugin.world().start(q.event))
+            plugin.getLogger().warning("La misión \"" + q.name + "\" pide el evento '" + q.event + "', que no existe en Mundo vivo.");
         for (Quest.Spawn sp : q.spawns) {
             for (int i = 0; i < sp.amount(); i++) {
                 plugin.mobs().spawn(sp.mob(), plugin.mobs().spawnSpot(p.getLocation(), 8));

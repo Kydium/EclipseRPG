@@ -41,6 +41,7 @@ public final class EclipseRPG extends JavaPlugin {
     private VillageBuilder village;
     private NpcEntities npcEntities;
     private HotkeyMenu hotkeys;
+    private pe.kydium.eclipserpg.world.WorldManager world;
     private pe.kydium.eclipserpg.story.StoryManager story;
     private pe.kydium.eclipserpg.npc.ResourcePack resourcePack;
     private pe.kydium.eclipserpg.web.EditorApi editor;
@@ -89,6 +90,7 @@ public final class EclipseRPG extends JavaPlugin {
         village = new VillageBuilder(this);
         npcEntities = new NpcEntities(this);
         hotkeys = new HotkeyMenu(this);
+        world = new pe.kydium.eclipserpg.world.WorldManager(this);
         loadContent();
 
         var pm = Bukkit.getPluginManager();
@@ -103,6 +105,8 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(ruins, this);
         pm.registerEvents(village, this);
         pm.registerEvents(npcEntities, this);
+        pm.registerEvents(npcEntities.combat(), this);
+        pm.registerEvents(world, this);
         resourcePack = new pe.kydium.eclipserpg.npc.ResourcePack(this);
         resourcePack.start();
         pm.registerEvents(resourcePack, this);
@@ -121,6 +125,12 @@ public final class EclipseRPG extends JavaPlugin {
             hc.setTabCompleter(storyCmd);
         }
         pm.registerEvents(storyCmd, this);
+        PluginCommand evc = getCommand("evento");
+        if (evc != null) {
+            var wc = new pe.kydium.eclipserpg.world.WorldCommand(this);
+            evc.setExecutor(wc);
+            evc.setTabCompleter(wc);
+        }
         PlayerCommands pc = new PlayerCommands(this);
         for (String c : new String[]{"nivel", "soles", "pagar", "misiones", "mision", "guardian"}) bind(c, pc);
         AdminCommand ac = new AdminCommand(this);
@@ -138,6 +148,7 @@ public final class EclipseRPG extends JavaPlugin {
         dungeons.startTask();
         ruins.startTask();
         npcEntities.startTask();
+        world.startTasks();
         Bukkit.getScheduler().runTaskLater(this, village::autoGenerate, 100L);
         Bukkit.getScheduler().runTaskLater(this, npcEntities::refreshIfChanged, 60L);
         if (pe.kydium.eclipserpg.test.SmokeTest.enabled()) new pe.kydium.eclipserpg.test.SmokeTest(this).start();
@@ -162,6 +173,7 @@ public final class EclipseRPG extends JavaPlugin {
     @Override
     public void onDisable() {
         if (rifts != null) rifts.stopAll();
+        if (world != null) for (String ev : new java.util.ArrayList<>(world.activeEvents())) world.stop(ev, false);
         if (mobs != null) mobs.cleanup();
         if (data != null) data.saveAll();
         if (ruins != null) ruins.save();
@@ -213,6 +225,7 @@ public final class EclipseRPG extends JavaPlugin {
         shops.load();
         contracts.load();
         dungeons.load();
+        world.load();
         ruins.reloadSettings();
         var r = story.read();
         story.apply(r);
@@ -247,6 +260,8 @@ public final class EclipseRPG extends JavaPlugin {
         shops.load();
         contracts.load();
         dungeons.load();
+        world.load();
+        npcEntities.combat().load();
         ruins.reloadSettings();
         var r = story.read();
         if (r.errors() > 0 && !force) {
@@ -288,6 +303,7 @@ public final class EclipseRPG extends JavaPlugin {
     public VillageBuilder village() { return village; }
     public NpcEntities npcEntities() { return npcEntities; }
     public HotkeyMenu hotkeys() { return hotkeys; }
+    public pe.kydium.eclipserpg.world.WorldManager world() { return world; }
     public pe.kydium.eclipserpg.story.StoryManager story() { return story; }
 
     /** Nombre de la historia y de su aldea (para los textos del juego). */

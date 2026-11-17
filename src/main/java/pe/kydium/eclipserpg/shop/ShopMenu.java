@@ -51,7 +51,13 @@ public final class ShopMenu extends Menu {
                 case COMPRAR -> {
                     if (e.name != null) meta.displayName(Txt.item(e.name));
                     lore.add(Txt.item("<gray>Cantidad: <white>" + e.amount));
-                    lore.add(Txt.item("<gray>Precio: <yellow>" + sm.priceText(e.price)));
+                    lore.add(Txt.item("<gray>Precio: <yellow>" + priceText(e)));
+                    if (e.quest > 0 && d.questIndex < e.quest) lore.add(Txt.item("<red>Se desbloquea al avanzar en la historia (misión " + e.quest + ")"));
+                    if (e.stock > 0) {
+                        int left = sm.stockLeft(e);
+                        lore.add(Txt.item(left > 0 ? "<gray>Quedan: <white>" + left + "<gray> de " + e.stock
+                                : "<red>Agotado · se repone en " + sm.restockMinutes(e) + " min"));
+                    }
                     if (e.minLevel > 1) {
                         String c = d.level >= e.minLevel ? "<green>" : "<red>";
                         lore.add(Txt.item("<gray>Nivel requerido: " + c + e.minLevel));
@@ -61,7 +67,7 @@ public final class ShopMenu extends Menu {
                 case VENDER -> {
                     meta.displayName(Txt.item("<green>Vender " + (e.name != null ? e.name : Txt.pretty(display.getType().name()))));
                     lore.add(Txt.item("<gray>Entregas: <white>" + e.amount));
-                    lore.add(Txt.item("<gray>Recibes: <yellow>" + sm.priceText(e.price)));
+                    lore.add(Txt.item("<gray>Recibes: <yellow>" + sm.priceText(sm.priceOf(shop, e))));
                     lore.add(Txt.item("<yellow>Clic: vender · Shift+clic: todo lo posible"));
                 }
                 case MEJORA -> {
@@ -95,23 +101,52 @@ public final class ShopMenu extends Menu {
         render();
     }
 
+    private String priceText(ShopManager.Entry e) {
+        ShopManager sm = plugin.shops();
+        if (e.payWith != null) return e.price + " × " + sm.specName(e.payWith);
+        long today = sm.priceOf(shop, e);
+        String t = sm.priceText(today);
+        if (today < e.price) t += " <green>▼ oferta";
+        else if (today > e.price) t += " <red>▲";
+        return t;
+    }
+
     private void buy(ShopManager.Entry entry, int times) {
         PlayerData d = plugin.data().get(player);
+        if (entry.quest > 0 && d.questIndex < entry.quest) {
+            Txt.send(player, "<red>Esto se desbloquea al avanzar en la historia.");
+            Txt.sound(player, "entity.villager.no", 1f, 1f);
+            return;
+        }
         if (d.level < entry.minLevel) {
             Txt.send(player, "<red>Necesitas nivel " + entry.minLevel + " para comprar esto.");
             Txt.sound(player, "entity.villager.no", 1f, 1f);
             return;
         }
         int bought = 0;
+        ShopManager sm = plugin.shops();
+        boolean soldOut = false;
+        long price = sm.priceOf(shop, entry);
         for (int i = 0; i < times; i++) {
-            if (!plugin.levels().takeSoles(player, entry.price)) break;
-            ItemStack it = plugin.shops().build(entry);
+            if (sm.stockLeft(entry) <= 0) {
+                soldOut = true;
+                break;
+            }
+            ItemStack it = sm.build(entry);
             if (it == null) break;
+            if (entry.payWith != null) {
+                if (sm.countSpec(player, entry.payWith) < entry.price) break;
+                sm.takeSpec(player, entry.payWith, (int) entry.price);
+            } else if (!plugin.levels().takeSoles(player, price)) break;
             plugin.items().give(player, it);
+            sm.useStock(entry);
             bought++;
         }
-        if (bought == 0) {
-            Txt.send(player, "<red>No te alcanzan los Soles.");
+        if (bought == 0 && soldOut) {
+            Txt.send(player, "<red>Agotado. Se repone en " + sm.restockMinutes(entry) + " min.");
+            Txt.sound(player, "entity.villager.no", 1f, 1f);
+        } else if (bought == 0) {
+            Txt.send(player, entry.payWith != null ? "<red>Necesitas " + entry.price + " × " + sm.specName(entry.payWith) + "." : "<red>No te alcanza el dinero.");
             Txt.sound(player, "entity.villager.no", 1f, 1f);
         } else {
             Txt.sound(player, "entity.experience_orb.pickup", 1f, 1.2f);
@@ -119,20 +154,22 @@ public final class ShopMenu extends Menu {
     }
 
     private void sell(ShopManager.Entry entry, boolean all) {
-        Material m = plugin.shops().sellMaterial(entry);
-        if (m == null) return;
+        ShopManager sm = plugin.shops();
+        if (entry.item == null) return;
+        long price = sm.priceOf(shop, entry);
         int sold = 0;
         int limit = all ? 64 : 1;
-        while (sold < limit && player.getInventory().containsAtLeast(new ItemStack(m), entry.amount)) {
-            player.getInventory().removeItem(new ItemStack(m, entry.amount));
-            plugin.levels().addSoles(player, entry.price);
+        while (sold < limit && sm.stockLeft(entry) > 0 && sm.countSpec(player, entry.item) >= entry.amount) {
+            sm.takeSpec(player, entry.item, entry.amount);
+            plugin.levels().addSoles(player, price);
+            sm.useStock(entry);
             sold++;
         }
         if (sold == 0) {
             Txt.send(player, "<red>Necesitas " + entry.amount + " de ese objeto.");
             Txt.sound(player, "entity.villager.no", 1f, 1f);
         } else {
-            Txt.send(player, "<green>Vendiste " + (sold * entry.amount) + " y ganaste <yellow>" + Txt.num(sold * entry.price) + " ☀");
+            Txt.send(player, "<green>Vendiste " + (sold * entry.amount) + " y ganaste <yellow>" + Txt.num(sold * price) + " ☀");
             Txt.sound(player, "entity.villager.yes", 1f, 1f);
         }
     }

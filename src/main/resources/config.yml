@@ -163,3 +163,7 @@ reiniciar-progreso-con-mundo-nuevo: true
 editor:
   activo: true
   token: ""                     # se genera solo; es la "contraseña" del link del editor
+
+# Mundo vivo (reglas, apariciones y eventos se editan en historias/<id>/avanzado/mundo.yml o en el editor web)
+mundo:
+  maximo-enemigos-cerca: 30     # tope de monstruos cerca de un jugador para las oleadas y los multiplicadores
