@@ -21,14 +21,56 @@ public final class ShopMenu extends Menu {
     private final EclipseRPG plugin;
     private final ShopManager.Shop shop;
     private final Map<Integer, ShopManager.Entry> bySlot = new HashMap<>();
+    private final List<ShopManager.Entry> buys = new ArrayList<>(), sells = new ArrayList<>();
     private final int infoSlot;
+    /** Si la tienda compra y vende, se separa en dos secciones con pestañas abajo. */
+    private final boolean tabs;
+    private boolean selling;
+    private int tabBuy = -1, tabSell = -1;
 
     public ShopMenu(EclipseRPG plugin, Player player, ShopManager.Shop shop, List<ShopManager.Entry> entries) {
         super(player, shop.rows, shop.title);
         this.plugin = plugin;
         this.shop = shop;
-        for (ShopManager.Entry e : entries) bySlot.put(e.slot, e);
+        for (ShopManager.Entry e : entries) (e.kind == ShopManager.Kind.VENDER ? sells : buys).add(e);
         this.infoSlot = shop.rows * 9 - 1;
+        this.tabs = !buys.isEmpty() && !sells.isEmpty() && shop.rows >= 2;
+        if (tabs) {
+            // dos huecos libres en la última fila para las pestañas
+            java.util.Set<Integer> used = new java.util.HashSet<>();
+            for (ShopManager.Entry e : buys) used.add(e.slot);
+            int last = (shop.rows - 1) * 9;
+            for (int sl : new int[]{last + 3, last + 5, last + 2, last + 6, last + 1, last + 7, last, last + 4})
+                if (!used.contains(sl) && sl != infoSlot) {
+                    if (tabBuy < 0) tabBuy = sl;
+                    else if (tabSell < 0) {
+                        tabSell = sl;
+                        break;
+                    }
+                }
+        }
+        layout();
+    }
+
+    /** Pone en su sitio lo de la sección abierta: lo que vende el NPC en sus huecos, y lo que compra ordenado. */
+    private void layout() {
+        bySlot.clear();
+        if (!tabs) {
+            for (ShopManager.Entry e : buys) bySlot.put(e.slot, e);
+            for (ShopManager.Entry e : sells) bySlot.put(e.slot, e);
+            return;
+        }
+        if (!selling) {
+            for (ShopManager.Entry e : buys) bySlot.put(e.slot, e);
+            return;
+        }
+        List<Integer> free = new ArrayList<>();
+        int rows = shop.rows;
+        // primero el centro (sin bordes), luego lo que quede
+        for (int r = 1; r < rows - 1; r++) for (int c = 1; c < 8; c++) free.add(r * 9 + c);
+        for (int sl = 0; sl < (rows - 1) * 9; sl++) if (!free.contains(sl)) free.add(sl);
+        int i = 0;
+        for (ShopManager.Entry e : sells) if (i < free.size()) bySlot.put(free.get(i++), e);
     }
 
     @Override
@@ -37,7 +79,8 @@ public final class ShopMenu extends Menu {
         PlayerData d = plugin.data().get(player);
         ShopManager sm = plugin.shops();
         for (ShopManager.Entry e : bySlot.values()) {
-            if (e.slot < 0 || e.slot >= inventory.getSize()) continue;
+            int at = slotOf(e);
+            if (at < 0 || at >= inventory.getSize()) continue;
             ItemStack display = e.kind == ShopManager.Kind.MEJORA
                     ? new ItemStack(Material.ANVIL)
                     : sm.build(e);
@@ -81,7 +124,17 @@ public final class ShopMenu extends Menu {
             }
             meta.lore(lore);
             display.setItemMeta(meta);
-            inventory.setItem(e.slot, display);
+            inventory.setItem(slotOf(e), display);
+        }
+        if (tabs) {
+            ItemStack b = icon(Material.EMERALD, (selling ? "<gray>" : "<green><bold>") + "🛒 Comprar",
+                    List.of("<gray>Lo que " + "vende la tienda", selling ? "<yellow>Clic para ver" : "<green>▶ Estás aquí"));
+            ItemStack v = icon(Material.GOLD_INGOT, (selling ? "<gold><bold>" : "<gray>") + "💰 Vender",
+                    List.of("<gray>Lo que la tienda te compra", selling ? "<green>▶ Estás aquí" : "<yellow>Clic para ver"));
+            if (!selling) glint(b);
+            else glint(v);
+            inventory.setItem(tabBuy, b);
+            inventory.setItem(tabSell, v);
         }
         inventory.setItem(infoSlot, icon(Material.SUNFLOWER, "<yellow>Tus Soles: " + Txt.num(d.soles) + " ☀",
                 List.of("<gray>Nivel " + d.level)));
@@ -90,6 +143,16 @@ public final class ShopMenu extends Menu {
 
     @Override
     public void onClick(InventoryClickEvent e, int slot) {
+        if (tabs && (slot == tabBuy || slot == tabSell)) {
+            boolean want = slot == tabSell;
+            if (want != selling) {
+                selling = want;
+                layout();
+                Txt.sound(player, "item.book.page_turn", 1f, 1.1f);
+                render();
+            }
+            return;
+        }
         ShopManager.Entry entry = bySlot.get(slot);
         if (entry == null) return;
         boolean shift = e.isShiftClick();
@@ -99,6 +162,17 @@ public final class ShopMenu extends Menu {
             case MEJORA -> upgrade(entry);
         }
         render();
+    }
+
+    private int slotOf(ShopManager.Entry e) {
+        for (Map.Entry<Integer, ShopManager.Entry> en : bySlot.entrySet()) if (en.getValue() == e) return en.getKey();
+        return e.slot;
+    }
+
+    private static void glint(ItemStack it) {
+        ItemMeta m = it.getItemMeta();
+        m.setEnchantmentGlintOverride(true);
+        it.setItemMeta(m);
     }
 
     private String priceText(ShopManager.Entry e) {
