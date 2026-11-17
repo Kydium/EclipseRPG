@@ -379,7 +379,7 @@ public final class VillageBuilder implements Listener {
             for (String rule : List.of("spawnRadius", "respawn_radius", "spawn_radius")) {
                 try {
                     @SuppressWarnings("unchecked")
-                    org.bukkit.GameRule<Integer> gr = (org.bukkit.GameRule<Integer>) org.bukkit.GameRule.getByName(rule);
+                    org.bukkit.GameRule<Integer> gr = (org.bukkit.GameRule<Integer>) (Object) org.bukkit.GameRule.getByName(rule);
                     if (gr != null) w.setGameRule(gr, 0);
                 } catch (RuntimeException ignored) {
                     // regla con otro nombre en esta versión
