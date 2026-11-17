@@ -106,6 +106,12 @@ public final class EditorApi {
         server.createContext("/api/", ex -> safe(ex, () -> api(ex)));
     }
 
+    private String resource(String path) throws IOException {
+        try (InputStream in = plugin.getResource(path)) {
+            return in == null ? "" : new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
     // ---------------------------------------------------------------- rutas
 
     private void api(HttpExchange ex) throws Exception {
@@ -179,6 +185,75 @@ public final class EditorApi {
                 JsonObject ext = extra;
                 StoryParser.Result r = sync(() -> new StoryParser(st.dictionary(), withExtra(st.catalog(), ext)).parse(lines));
                 json(ex, 200, result(r));
+            }
+            case "texto-completo" -> {
+                // historia + todo lo avanzado en un solo texto (bloques AVANZADO con el YAML tal cual)
+                boolean ejemplo = "ejemplo".equals(q.get("origen"));
+                StringBuilder sb = new StringBuilder();
+                String hist = ejemplo ? resource("historias/eclipse/historia.txt")
+                        : st.file().exists() ? Files.readString(st.file().toPath(), StandardCharsets.UTF_8) : "";
+                sb.append(hist.stripTrailing()).append("\n\n");
+                sb.append("# =====================================================================\n");
+                sb.append("#  TODO LO DEMÁS (enemigos, objetos, tiendas, mundo, estructuras, mazmorras).\n");
+                sb.append("#  Cada bloque AVANZADO es el archivo .yml con dos espacios delante.\n");
+                sb.append("# =====================================================================\n");
+                for (String name : List.of("objetos", "tiendas", "mobs", "estructuras", "mazmorras", "mundo", "contratos")) {
+                    File f = new File(st.folder(), "avanzado/" + name + ".yml");
+                    String y = !ejemplo && f.exists() ? Files.readString(f.toPath(), StandardCharsets.UTF_8)
+                            : resource(!ejemplo && name.equals("mundo") && !st.id().equals("eclipse") ? "motor/mundo.yml" : "historias/eclipse/avanzado/" + name + ".yml");
+                    if (y.isBlank()) continue;
+                    sb.append("\nAVANZADO ").append(name).append("\n");
+                    for (String line : y.split("\\R", -1)) sb.append(line.isEmpty() ? "" : "  " + line).append("\n");
+                }
+                JsonObject o = new JsonObject();
+                o.addProperty("texto", sb.toString());
+                json(ex, 200, o);
+            }
+            case "yaml-leer" -> {
+                // {"objetos": "texto yaml", ...} → {"datos": {"objetos": {...}}, "errores": {...}}
+                JsonObject in = JsonParser.parseString(body(ex)).getAsJsonObject();
+                JsonObject datos = new JsonObject(), errores = new JsonObject();
+                for (Map.Entry<String, JsonElement> e : in.entrySet()) {
+                    if (!YAMLS.contains(e.getKey())) {
+                        errores.addProperty(e.getKey(), "No conozco el archivo «" + e.getKey() + "». Usa: " + String.join(", ", YAMLS));
+                        continue;
+                    }
+                    YamlConfiguration y = new YamlConfiguration();
+                    try {
+                        y.loadFromString(e.getValue().getAsString());
+                        datos.add(e.getKey(), toJson(y));
+                    } catch (org.bukkit.configuration.InvalidConfigurationException ice) {
+                        String m = ice.getMessage() == null ? "" : ice.getMessage();
+                        errores.addProperty(e.getKey(), "El bloque AVANZADO " + e.getKey() + " tiene un error de formato: " + m.lines().limit(4).reduce((a, b) -> a + " " + b).orElse(""));
+                    }
+                }
+                JsonObject o = new JsonObject();
+                o.add("datos", datos);
+                o.add("errores", errores);
+                json(ex, 200, o);
+            }
+            case "vacio" -> {
+                // para "empezar desde cero": todo vacío menos las mazmorras (sin jefes de la historia) y el mundo genérico
+                JsonObject av = new JsonObject();
+                YamlConfiguration mz = new YamlConfiguration();
+                mz.loadFromString(resource("historias/eclipse/avanzado/mazmorras.yml"));
+                var sec = mz.getConfigurationSection("mazmorras");
+                if (sec != null) for (String k : sec.getKeys(false)) {
+                    mz.set("mazmorras." + k + ".jefe", null);
+                    mz.set("mazmorras." + k + ".enemigos", null);
+                }
+                av.add("mazmorras", toJson(mz));
+                YamlConfiguration mu = new YamlConfiguration();
+                mu.loadFromString(resource("motor/mundo.yml"));
+                av.add("mundo", toJson(mu));
+                for (String[] r : new String[][]{{"mobs", "mobs"}, {"objetos", "items"}, {"tiendas", "tiendas"}, {"estructuras", "estructuras"}}) {
+                    JsonObject root = new JsonObject();
+                    root.add(r[1], new JsonObject());
+                    av.add(r[0], root);
+                }
+                JsonObject o = new JsonObject();
+                o.add("avanzado", av);
+                json(ex, 200, o);
             }
             case "traducir" -> {
                 JsonObject in = JsonParser.parseString(body(ex)).getAsJsonObject();

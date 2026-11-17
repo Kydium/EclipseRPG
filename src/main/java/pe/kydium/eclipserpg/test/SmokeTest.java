@@ -444,6 +444,22 @@ public final class SmokeTest {
             int after = Bukkit.getScheduler().callSyncMethod(plugin, () -> plugin.mobs().ids().size()).get();
             check(put.statusCode() == 200 && aj.get("aplicado").getAsBoolean() && after == before,
                     "guardar jefes desde el editor y aplicar funciona (" + before + " → " + after + ")");
+            // todo en un texto, leer bloques AVANZADO y empezar desde cero
+            String full = com.google.gson.JsonParser.parseString(get.apply("/api/texto-completo?origen=ejemplo", tok).body()).getAsJsonObject().get("texto").getAsString();
+            check(full.contains("\nAVANZADO tiendas\n") && full.contains("HISTORIA:") && full.contains("legendaria:"), "el texto completo trae la historia y todo lo avanzado");
+            var yl = http.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + "/api/yaml-leer")).header("X-Token", tok)
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString("{\"tiendas\":\"tiendas:\\n  x:\\n    filas: 3\\n\",\"mobs\":\"mobs: [\"}")).build(),
+                    java.net.http.HttpResponse.BodyHandlers.ofString());
+            var ylj = com.google.gson.JsonParser.parseString(yl.body()).getAsJsonObject();
+            check(ylj.getAsJsonObject("datos").getAsJsonObject("tiendas").getAsJsonObject("tiendas").has("x") && ylj.getAsJsonObject("errores").has("mobs"),
+                    "los bloques AVANZADO se leen y avisan si tienen errores");
+            var vac = com.google.gson.JsonParser.parseString(get.apply("/api/vacio", tok).body()).getAsJsonObject().getAsJsonObject("avanzado");
+            check(vac.getAsJsonObject("mobs").getAsJsonObject("mobs").size() == 0 && !vac.getAsJsonObject("mazmorras").toString().contains("\"jefe\""),
+                    "«empezar desde cero» deja todo vacío");
+            String empty = "HISTORIA: Mi nueva historia\nDESCRIPCION: x\nALDEA: Mi aldea\nMONEDA: monedas\n\nNPC guia\n  nombre: Guía\n  color: dorado\n  oficio: Guía de la aldea\n  lugar: plaza_norte\n  charla: Hola\n\nACTO 1: El comienzo\n\nMISIÓN Primeros pasos\n  npc: guia\n  dice: Hola\n  objetivo: tala 8 troncos\n  premio: 50 xp\n";
+            var er = http.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + "/api/revisar")).header("X-Token", tok)
+                    .POST(java.net.http.HttpRequest.BodyPublishers.ofString(empty)).build(), java.net.http.HttpResponse.BodyHandlers.ofString());
+            check(com.google.gson.JsonParser.parseString(er.body()).getAsJsonObject().get("errores").getAsInt() == 0, "la historia en blanco no tiene errores");
             // skin desde un link
             var sk = http.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + "/api/skin?nombre=prueba_link&url="
                     + java.net.URLEncoder.encode("https://raw.githubusercontent.com/Kydium/EclipseRPG/main/src/main/resources/skins/pirata.png",

@@ -1269,16 +1269,17 @@ function howToBuild(){
 // Bloques que no son de la historia: OBJETO/ARMA/HERRAMIENTA/ARMADURA, ENEMIGO/JEFE, TIENDA, REGLA, EVENTO,
 // APARICION, ESTRUCTURA, MAZMORRA y MUNDO. Cada uno con sus campos debajo ("campo: valor"), con sangría.
 const BLOCK_RE=/^(objeto|arma|herramienta|armadura|item|enemigo|jefe|mob|monstruo|tienda|regla|evento|aparicion|estructura|mazmorra|mundo)\b[ :]*(.*)$/;
-const BLOCK_KIND={objeto:"objeto",arma:"objeto",herramienta:"objeto",armadura:"objeto",item:"objeto",enemigo:"enemigo",jefe:"enemigo",mob:"enemigo",monstruo:"enemigo",tienda:"tienda",regla:"regla",evento:"evento",aparicion:"aparicion",estructura:"estructura",mazmorra:"mazmorra",mundo:"mundo"};
+const BLOCK_KIND={objeto:"objeto",arma:"objeto",herramienta:"objeto",armadura:"objeto",item:"objeto",enemigo:"enemigo",jefe:"enemigo",mob:"enemigo",monstruo:"enemigo",tienda:"tienda",regla:"regla",evento:"evento",aparicion:"aparicion",estructura:"estructura",mazmorra:"mazmorra",mundo:"mundo",avanzado:"avanzado"};
 function splitBlocks(text){
   const lines=String(text||"").split(/\r?\n/),story=[],blocks=[];let cur=null;
   lines.forEach((raw,i)=>{
     const top=raw.trim()!==""&&!/^\s/.test(raw);
     if(top&&!raw.trim().startsWith("#")){const word=raw.trim().split(/[\s:]+/)[0];const m=norm(word).match(/^[a-z]+$/)&&BLOCK_KIND[norm(word)];
       if(m){const id=raw.trim().slice(word.length).replace(/^[\s:]+/,"").trim();
-        cur={kind:m,word:norm(word),id,fields:[],line:i+1};blocks.push(cur);story.push("");return}
+        cur={kind:m,word:norm(word),id,fields:[],raw:[],line:i+1};blocks.push(cur);story.push("");return}
       cur=null}
     if(!cur){story.push(raw);return}
+    if(cur.kind==="avanzado"){story.push("");if(raw.trim()===""||/^\s/.test(raw))cur.raw.push(raw.replace(/^  /,""));return}
     story.push("");const t=raw.trim();if(!t||t.startsWith("#"))return;
     if(t.startsWith("-")){const last=cur.fields[cur.fields.length-1];const v=t.replace(/^-\s*/,"").trim();if(last)last.list.push(v);else cur.fields.push({k:"",v,list:[],line:i+1});return}
     const c=t.indexOf(":");
@@ -1613,7 +1614,13 @@ function viewImport(){
   const res=h("div");
   async function analyze(){if(!imp.text.trim()){toast("Pega o carga un texto primero","bad");return}
     const sp=splitBlocks(imp.text);imp.storyText=sp.story;imp.blocks=sp.blocks;
-    try{const r=await importBlocks(sp.blocks);imp.data=r.data;imp.warn=r.warnings}catch(e){toast(e.message,"bad");return}
+    try{const r=await importBlocks(sp.blocks.filter(b=>b.kind!=="avanzado"));imp.data=r.data;imp.warn=r.warnings}catch(e){toast(e.message,"bad");return}
+    const av=sp.blocks.filter(b=>b.kind==="avanzado");
+    if(av.length){const body={},lineOf={};for(const b of av){const n=slug(b.id);lineOf[n]=b.line;body[n]=(body[n]?body[n]+"\n":"")+b.raw.join("\n")}
+      try{const r=await api("yaml-leer",{method:"POST",body:JSON.stringify(body)});
+        for(const [n,m] of Object.entries(r.errores||{}))imp.warn.push({linea:lineOf[n]||0,mensaje:m});
+        imp.bundle=imp.bundle||{formato:"aventura-maker",version:1,skins:{}};imp.bundle.avanzado=Object.assign({},imp.bundle.avanzado||{},r.datos||{})}
+      catch(e){toast(e.message,"bad");return}}
     imp.hasStory=/^\s*(npc|mision|misión|historia|acto)\b/im.test(sp.story);
     imp.doc=parseStory(sp.story);
     try{imp.res=imp.hasStory?await api("revisar",{method:"POST",body:JSON.stringify({texto:sp.story,extra:bundleCatalog(unsavedCatalog(imp.data))})}):{problemas:[]}}catch(e){toast(e.message,"bad");return}drawRes()}
@@ -1623,7 +1630,7 @@ function viewImport(){
     const acts={};D.missions.forEach(m=>(acts[m.acto]=acts[m.acto]||[]).push(m));
     res.replaceChildren(h("div",{class:"card"},h("h3",null,"Lo que trae este texto"),
       h("div",{class:"stat"},h("div",null,h("b",null,D.title||"(sin título)"),h("span",null,"título")),h("div",null,h("b",null,D.npcs.length),h("span",null,"personajes")),h("div",null,h("b",null,D.missions.length),h("span",null,"misiones")),...extra.map(([n,l])=>h("div",null,h("b",null,n),h("span",null,l))),h("div",null,h("b",{style:"color:"+(errs.length?"var(--red)":"var(--green)")},errs.length),h("span",null,"errores"))),
-      imp.bundle?h("p",{style:"color:var(--muted);margin:0 0 10px"},"Copia completa: también trae enemigos, objetos, tiendas y "+Object.keys(imp.bundle.skins||{}).length+" skin(s) propias."):null,
+      imp.bundle?h("p",{style:"color:var(--muted);margin:0 0 10px"},"También trae: "+bundleSummary(imp.bundle)):null,
       D.npcs.length?h("div",{style:"display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"},D.npcs.map(n=>h("span",{class:"pill",style:"color:"+(COLORS[n.color]||"var(--text)")},n.nombre+(n.oficio?" · "+n.oficio:"")))):null,
       h("div",{style:"max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-bottom:12px"},Object.entries(acts).map(([a,ms])=>h("div",null,h("div",{class:"grp"},"Acto "+a),ms.map(m=>h("div",{style:"padding:2px 0;color:var(--muted)"},(m.jefe?"☠ ":"• ")+m.titulo+" ",h("span",{style:"color:var(--dim)"},"— "+(m.npc||"sin NPC"))))))),
       extra.length?h("div",{style:"display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px"},
@@ -1648,18 +1655,67 @@ function viewImport(){
       h("button",{class:"btn",onclick:async()=>{try{const r=await api("prompt");await navigator.clipboard.writeText(r.texto);toast("Instrucciones copiadas: pégalas en la IA","good")}catch(e){toast("No se pudo copiar: "+e.message,"bad")}}},"Copiar instrucciones para la IA")),
     h("div",{class:"card"},h("h3",null,"2. Pega el texto o carga un archivo"),ta,
       h("div",{style:"display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"},h("button",{class:"btn pri",onclick:analyze},"Analizar"),h("button",{class:"btn",onclick:()=>fileIn.click()},"Cargar archivo (.txt o copia .json)…"),fileIn,
-        h("button",{class:"btn ghost",onclick:()=>{imp.text="";imp.res=null;imp.bundle=null;ta.value="";drawRes()}},"Limpiar"))),
+        h("button",{class:"btn ghost",onclick:()=>{imp.text="";imp.res=null;imp.bundle=null;ta.value="";drawRes()}},"Limpiar"),
+        h("button",{class:"btn",style:"margin-left:auto",onclick:async()=>{try{const r=await api("texto-completo?origen=ejemplo");imp.bundle=null;imp.text=r.texto;ta.value=r.texto;analyze();toast("Historia de ejemplo cargada en el cuadro: revisa y pulsa «Usar esta historia»","good")}catch(e){toast(e.message,"bad")}}},"Cargar la historia de ejemplo (Crónicas del Eclipse)")),
+      h("p",{style:"color:var(--dim);font-size:12px;margin:10px 0 0"},"Un texto puede traerlo todo: la historia, bloques OBJETO / ARMA / TIENDA / ENEMIGO / ESTRUCTURA / MUNDO y bloques AVANZADO con archivos completos (.yml).")),
     res,
     h("div",{class:"card"},h("h3",null,"Exportar tu historia ",h("span",{class:"hint"},"por si acaso, o para compartirla")),
       h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},
         h("button",{class:"btn",onclick:()=>{download("historia.txt",serialize(S),"text/plain;charset=utf-8");toast("historia.txt descargado","good")}},"Descargar historia.txt"),
         h("button",{class:"btn",onclick:async()=>{await navigator.clipboard.writeText(serialize(S));toast("Historia copiada al portapapeles","good")}},"Copiar texto"),
+        h("button",{class:"btn",onclick:async()=>{if(dirty()){toast("Primero pulsa «Guardar»: el texto completo se arma con lo guardado","bad");return}try{const r=await api("texto-completo");download("historia-completa.txt",r.texto,"text/plain;charset=utf-8");toast("Todo en un solo texto descargado","good")}catch(e){toast(e.message,"bad")}}},"Descargar todo en un texto (.txt)"),
         h("button",{class:"btn pri",onclick:exportAll},"Descargar copia completa (.json)")),
-      h("p",{style:"color:var(--dim);font-size:12px;margin:10px 0 0"},"La copia completa incluye la historia, enemigos, objetos, tiendas y tus skins propias. Se restaura aquí mismo con «Cargar archivo».")));
+      h("p",{style:"color:var(--dim);font-size:12px;margin:10px 0 0"},"La copia completa incluye la historia, enemigos, objetos, tiendas y tus skins propias. Se restaura aquí mismo con «Cargar archivo». «Todo en un texto» trae lo mismo (menos las skins) en un .txt que puedes editar o pasar a una IA.")),
+    h("div",{class:"card",style:"border-color:#5a2a2a"},h("h3",null,"Empezar desde cero ",h("span",{class:"hint"},"borra todo lo de la historia y deja una en blanco")),
+      h("p",{style:"margin:0 0 10px;color:var(--muted)"},"Quita personajes, misiones, enemigos, objetos, tiendas y estructuras propias. El mundo ya construido (la aldea, ruinas…) no se toca."),
+      h("button",{class:"btn danger",onclick:startFromZero},"Empezar desde cero")));
+}
+async function applyBundle(mode){
+    const A=imp.bundle.avanzado||{};
+    if(A.mundo&&(mode==="reemplazar"||!Object.keys(worldRoot().reglas).length)){st.yaml.mundo=A.mundo;st.yamlDirty.mundo=true}
+    for(const k of ["estructuras","mazmorras"]){const src=A[k];if(!src)continue;if(mode==="reemplazar")st.yaml[k]=src;else{st.yaml[k]=st.yaml[k]||{};st.yaml[k][k]=Object.assign({},src[k]||{},st.yaml[k][k]||{})}st.yamlDirty[k]=true}
+    for(const k of ["mobs","objetos","tiendas","contratos"]){const src=A[k];if(!src)continue;
+      if(mode==="reemplazar")st.yaml[k]=src;else{const root={mobs:"mobs",objetos:"items",tiendas:"tiendas",contratos:"contratos"}[k];st.yaml[k]=st.yaml[k]||{};st.yaml[k][root]=Object.assign({},src[root]||{},st.yaml[k][root]||{})}
+      st.yamlDirty[k]=true}
+    for(const [name,b64] of Object.entries(imp.bundle.skins||{})){try{const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));await api("skin?nombre="+encodeURIComponent(name),{method:"POST",body:bin})}catch(e){toast("Skin "+name+": "+e.message,"bad")}}
+    st.cat=await api("catalogo"); st.skinVer=Date.now(); Object.keys(skinCache).forEach(k=>delete skinCache[k]);
+}
+function bundleSummary(b){const A=b.avanzado||{},n=(o,r)=>Object.keys((o||{})[r]||{}).length,out=[];
+  const c=[[n(A.objetos,"items"),"objetos"],[n(A.tiendas,"tiendas"),"tiendas"],[n(A.mobs,"mobs"),"enemigos"],[n(A.estructuras,"estructuras"),"estructuras"],[n(A.mazmorras,"mazmorras"),"mazmorras"],[n(A.contratos,"contratos"),"contratos"]];
+  for(const [k,l] of c)if(k)out.push(k+" "+l);if(A.mundo)out.push("mundo vivo");const sk=Object.keys(b.skins||{}).length;if(sk)out.push(sk+" skin(s)");return out.join(", ")||"nada más"}
+const EMPTY_STORY=`HISTORIA: Mi nueva historia
+DESCRIPCION: Escribe aquí de qué trata tu aventura.
+ALDEA: Mi aldea
+MONEDA: monedas
+
+NPC guia
+  nombre: Guía
+  color: dorado
+  oficio: Guía de la aldea
+  lugar: plaza_norte
+  charla: ¡Bienvenido! Esta historia recién empieza.
+
+ACTO 1: El comienzo
+
+MISIÓN Primeros pasos
+  npc: guia
+  dice: Todo empieza aquí. Trae algo de madera y empezamos.
+  objetivo: tala 8 troncos
+  premio: 50 xp
+`;
+async function startFromZero(){
+  if(!confirm("¿Empezar desde cero?\n\nSe borran del editor la historia, personajes, misiones, enemigos, objetos, tiendas y estructuras propias. El mundo vivo vuelve al de fábrica y las mazmorras quedan sin jefes.\n\nNada se guarda hasta que pulses «Guardar y aplicar en el juego». Si quieres, primero descarga una copia completa (.json)."))return;
+  if(!confirm("¿Seguro? Esta es la última confirmación."))return;
+  try{const r=await api("vacio");
+    st.story=parseStory(EMPTY_STORY);if(!st.story.currency)st.story.currency="monedas";
+    for(const [k,v] of Object.entries(r.avanzado||{})){st.yaml[k]=v;st.yamlDirty[k]=true}
+    st.txtDirty=true;st.view="inicio";render();check(false);toast("Listo: historia en blanco. Pulsa «Guardar y aplicar en el juego» para usarla","good")}
+  catch(e){toast(e.message,"bad")}
 }
 async function importApply(mode){
   const D=imp.doc; if(!D) return;
   mergeImported(imp.data);
+  if(!imp.hasStory&&imp.bundle)await applyBundle(mode==="reemplazar"?"añadir":mode);
   if(!imp.hasStory){const d=imp.data||{};st.view=Object.keys(d.objetos||{}).length?"objetos":Object.keys(d.mobs||{}).length?"mobs":Object.keys(d.tiendas||{}).length?"tiendas":Object.keys(d.estructuras||{}).length||Object.keys(d.mazmorras||{}).length?"estructuras":"mundo";imp.text="";imp.res=null;imp.doc=null;imp.data=null;render();check(false);toast("Añadido. Revisa y pulsa «Guardar y aplicar en el juego»","good");return}
   if(mode==="reemplazar"){
     if(!confirm("Esto reemplaza la historia que tienes abierta en el editor (no se guarda hasta que pulses Guardar). ¿Continuar?"))return;
@@ -1671,15 +1727,7 @@ async function importApply(mode){
     for(const q of D.missions){S.missions.push(q);m++}
     toast("Añadidos "+n+" personajes y "+m+" misiones","good");
   }
-  if(imp.bundle){
-    if(imp.bundle.avanzado&&imp.bundle.avanzado.mundo&&(mode==="reemplazar"||!Object.keys(worldRoot().reglas).length)){st.yaml.mundo=imp.bundle.avanzado.mundo;st.yamlDirty.mundo=true}
-    for(const k of ["estructuras","mazmorras"]){const src=imp.bundle.avanzado&&imp.bundle.avanzado[k];if(!src)continue;if(mode==="reemplazar")st.yaml[k]=src;else st.yaml[k][k]=Object.assign({},src[k]||{},st.yaml[k][k]||{});st.yamlDirty[k]=true}
-    for(const k of ["mobs","objetos","tiendas"]){const src=imp.bundle.avanzado&&imp.bundle.avanzado[k];if(!src)continue;
-      if(mode==="reemplazar")st.yaml[k]=src;else{const root={mobs:"mobs",objetos:"items",tiendas:"tiendas"}[k];st.yaml[k][root]=Object.assign({},src[root]||{},st.yaml[k][root]||{})}
-      st.yamlDirty[k]=true}
-    for(const [name,b64] of Object.entries(imp.bundle.skins||{})){try{const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));await api("skin?nombre="+encodeURIComponent(name),{method:"POST",body:bin})}catch(e){toast("Skin "+name+": "+e.message,"bad")}}
-    st.cat=await api("catalogo"); st.skinVer=Date.now(); Object.keys(skinCache).forEach(k=>delete skinCache[k]);
-  }
+  if(imp.bundle)await applyBundle(mode);
   imp.text="";imp.res=null;imp.doc=null;imp.bundle=null;imp.data=null;
   st.txtDirty=true; st.view="npcs"; render(); check(false);
   toast("Listo. Revisa y pulsa «Guardar y aplicar en el juego»","good");
@@ -1721,7 +1769,7 @@ async function check(show){
 async function save(apply){
   if(st.busy) return; st.busy=true;
   try{
-    for(const n of ["mobs","objetos","tiendas","mundo","estructuras","mazmorras"]) if(st.yamlDirty[n]){await api("yaml?archivo="+n,{method:"PUT",body:JSON.stringify(st.yaml[n])});st.yamlDirty[n]=false}
+    for(const n of ["mobs","objetos","tiendas","mundo","estructuras","mazmorras","contratos"]) if(st.yamlDirty[n]){await api("yaml?archivo="+n,{method:"PUT",body:JSON.stringify(st.yaml[n])});st.yamlDirty[n]=false}
     const txt=serialize(st.story);
     if(st.txtDirty||apply){await api("texto",{method:"PUT",body:txt});st.txtDirty=false}
     if(apply){const r=await api("aplicar",{method:"POST"});st.probs=r.problemas.map(p=>({...p,where:whereIs(p.linea)}));
@@ -1736,7 +1784,7 @@ async function loadAll(){
   st.cat=await api("catalogo");
   const t=await api("texto"); st.story=parseStory(t.texto);
   if(!st.story.currency) st.story.currency=st.cat.moneda||"";
-  for(const n of ["mobs","objetos","tiendas","mundo","estructuras","mazmorras"]){const y=await api("yaml?archivo="+n);st.yaml[n]=y.datos||{}}
+  for(const n of ["mobs","objetos","tiendas","mundo","estructuras","mazmorras","contratos"]){const y=await api("yaml?archivo="+n);st.yaml[n]=y.datos||{}}
   st.txtDirty=false; st.yamlDirty={}; serialize(st.story); render(); check(false);
 }
 window.addEventListener("beforeunload",e=>{if(dirty()){e.preventDefault();e.returnValue=""}});

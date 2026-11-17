@@ -394,3 +394,22 @@ el juego te dice exactamente en qué línea.
  Mazmorras: general.reaparicion-minutos.  Estructuras: reaparicion.
  Un enemigo de mobs.yml con "cuerpo: false" desaparece al morir.
 
+---------------------------------------------------------------------
+ 16. TODO EN UN TEXTO, HISTORIA DE EJEMPLO Y EMPEZAR DESDE CERO
+---------------------------------------------------------------------
+ En el editor → Importar / exportar:
+   «Cargar la historia de ejemplo»  pone Crónicas del Eclipse completa en
+       el cuadro (historia + armas, tiendas, enemigos, estructuras, mundo).
+   «Descargar todo en un texto (.txt)»  tu historia y todo lo demás en
+       un solo texto que puedes editar o pasar a una IA.
+   «Empezar desde cero»  deja una historia en blanco (el mundo construido
+       no se toca). Se aplica al pulsar «Guardar y aplicar».
+ Un texto puede traer archivos .yml completos con bloques AVANZADO:
+   AVANZADO tiendas
+     tiendas:
+       mi_tienda:
+         titulo: "Mi tienda"
+ (el contenido va con dos espacios delante; archivos: objetos, tiendas,
+  mobs, estructuras, mazmorras, mundo, contratos). Estos textos se pegan
+  en el editor, no dentro de historia.txt.
+
