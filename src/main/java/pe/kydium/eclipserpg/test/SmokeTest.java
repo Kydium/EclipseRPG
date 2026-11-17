@@ -744,6 +744,10 @@ public final class SmokeTest {
             ClassLoader cl = Bukkit.getServer().getClass().getClassLoader();
             for (String r : new String[]{"data/minecraft/dialog/server_links.json", "data/minecraft/dialogs/server_links.json", "data/minecraft/tags/dialog/quick_actions.json", "data/minecraft/tags/dialog/pause_screen_additions.json"})
                 plugin.getLogger().info("[PRUEBA] recurso " + r + " = " + (cl.getResource(r) != null));
+            for (String r : new String[]{"data/minecraft/dialog/quick_actions.json", "data/minecraft/dialog/server_links.json", "data/minecraft/tags/dialog/quick_actions.json"})
+                try (var in = cl.getResourceAsStream(r)) {
+                    if (in != null) plugin.getLogger().info("[PRUEBA] contenido " + r + ": " + new String(in.readAllBytes()).replace("\n", " "));
+                }
             java.io.File dp = new java.io.File(pe.kydium.eclipserpg.menu.HotkeyMenu.levelDir(), "datapacks/eclipse_atajos");
             try (var w = java.nio.file.Files.walk(dp.toPath())) { w.forEach(f -> plugin.getLogger().info("[PRUEBA] archivo " + f)); }
         } catch (Throwable t) {
