@@ -729,6 +729,14 @@ public final class SmokeTest {
             plugin.getLogger().info("[PRUEBA] datapacks: " + t);
         }
         check(plugin.hotkeys().datapackActive(), "el paquete de la tecla G está activo");
+        boolean dlg = false;
+        try {
+            var reg = io.papermc.paper.registry.RegistryAccess.registryAccess().getRegistry(io.papermc.paper.registry.RegistryKey.DIALOG);
+            dlg = reg.get(net.kyori.adventure.key.Key.key("eclipse", "menu")) != null;
+        } catch (Throwable t) {
+            plugin.getLogger().info("[PRUEBA] registro de diálogos: " + t);
+        }
+        check(dlg, "el menú de la tecla G (diálogo eclipse:menu) está cargado");
     }
 
     private void checkDeaths() {
