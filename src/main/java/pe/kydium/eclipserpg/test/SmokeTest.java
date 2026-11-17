@@ -740,7 +740,7 @@ public final class SmokeTest {
             var reg = io.papermc.paper.registry.RegistryAccess.registryAccess().getRegistry(io.papermc.paper.registry.RegistryKey.DIALOG);
             StringBuilder ks = new StringBuilder();
             reg.keyStream().limit(20).forEach(k -> ks.append(k.asString()).append(' '));
-            plugin.getLogger().info("[PRUEBA] diálogos: " + ks);
+            plugin.getLogger().info("[PRUEBA] diálogos: " + ks + " t1=" + (reg.get(net.kyori.adventure.key.Key.key("eclipse", "t1")) != null) + " t2=" + (reg.get(net.kyori.adventure.key.Key.key("eclipse", "t2")) != null));
             ClassLoader cl = Bukkit.getServer().getClass().getClassLoader();
             for (String r : new String[]{"data/minecraft/dialog/server_links.json", "data/minecraft/dialogs/server_links.json", "data/minecraft/tags/dialog/quick_actions.json", "data/minecraft/tags/dialog/pause_screen_additions.json"})
                 plugin.getLogger().info("[PRUEBA] recurso " + r + " = " + (cl.getResource(r) != null));

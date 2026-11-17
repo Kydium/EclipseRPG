@@ -127,6 +127,10 @@ public final class HotkeyMenu implements Listener {
                   ]
                 }
                 """, StandardCharsets.UTF_8);
+        if (Boolean.getBoolean("eclipse.prueba")) {
+            Files.writeString(new File(dialog.getParentFile(), "t1.json").toPath(), "{\"type\": \"minecraft:notice\", \"title\": \"Hola\"}", StandardCharsets.UTF_8);
+            Files.writeString(new File(dialog.getParentFile(), "t2.json").toPath(), "{\"type\": \"minecraft:multi_action\", \"title\": \"Hola\", \"actions\": [{\"label\": \"A\", \"action\": {\"type\": \"minecraft:run_command\", \"command\": \"guardian\"}}]}", StandardCharsets.UTF_8);
+        }
         Files.writeString(tag.toPath(), """
                 {"values": ["eclipse:menu"]}
                 """, StandardCharsets.UTF_8);
