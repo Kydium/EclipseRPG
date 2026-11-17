@@ -497,6 +497,18 @@ public final class StoryParser {
 
     // ---------------------------------------------------------------- premios
 
+    private static final Set<String> ENGLISH_POTIONS = Set.of("healing", "strong_healing", "harming", "strong_harming", "regeneration",
+            "strong_regeneration", "long_regeneration", "strength", "strong_strength", "long_strength", "swiftness", "strong_swiftness",
+            "long_swiftness", "slowness", "long_slowness", "fire_resistance", "long_fire_resistance", "night_vision", "long_night_vision",
+            "invisibility", "long_invisibility", "water_breathing", "long_water_breathing", "leaping", "strong_leaping", "long_leaping",
+            "slow_falling", "long_slow_falling", "poison", "strong_poison", "long_poison", "weakness", "long_weakness", "luck",
+            "turtle_master", "strong_turtle_master", "long_turtle_master", "wind_charged", "weaving", "oozing", "infested");
+    private static final Set<String> ENGLISH_ENCHANTS = Set.of("sharpness", "smite", "bane_of_arthropods", "knockback", "fire_aspect",
+            "looting", "sweeping_edge", "efficiency", "silk_touch", "unbreaking", "fortune", "power", "punch", "flame", "infinity",
+            "luck_of_the_sea", "lure", "loyalty", "impaling", "riptide", "channeling", "multishot", "quick_charge", "piercing", "mending",
+            "protection", "fire_protection", "feather_falling", "blast_protection", "projectile_protection", "respiration", "aqua_affinity",
+            "thorns", "depth_strider", "frost_walker", "soul_speed", "swift_sneak", "density", "breach", "wind_burst", "lunge");
+
     private void rewards(String val, int ln, StoryDoc.Mission m, List<String> out, boolean allowXp) {
         for (String part : val.split(",")) {
             String p = part.trim();
@@ -507,7 +519,7 @@ public final class StoryParser {
             if (n != null) {
                 amount = n;
                 w.remove(0);
-            } else if (w.size() > 1 && number(w.get(w.size() - 1)) != null && !w.get(0).equals("libro")) {
+            } else if (w.size() > 1 && number(w.get(w.size() - 1)) != null && !w.get(0).equals("libro") && !w.get(0).startsWith("enchanted")) {
                 amount = number(w.remove(w.size() - 1));
             }
             String rest = String.join(" ", w);
@@ -534,11 +546,17 @@ public final class StoryParser {
                 out.add("custom:" + ci + " " + amount);
                 continue;
             }
+            // también como en los comandos, en inglés: potion of healing, healing potion, enchanted book sharpness 3
+            rest = rest.replaceFirst("^minecraft:", "");
+            if (rest.matches("^(splash |lingering )?potions? (of )?.+") || rest.matches(".+ potions?$"))
+                rest = "pocion " + rest.replaceFirst("^(splash |lingering )?potions? (of )?", "").replaceFirst(" potions?$", "");
+            if (rest.matches("^enchanted[ _]book (of )?.+")) rest = "libro " + rest.replaceFirst("^enchanted[ _]book (of )?", "");
             if (rest.startsWith("pocion") || rest.startsWith("pociones")) {
                 String kind = rest.replaceFirst("^pocion(es)?( de)?", "").trim();
                 if (kind.isEmpty()) kind = "curacion";
                 List<String> ids = dict.lookup("pociones", kind);
-                if (ids == null) error(ln, "Poción desconocida '" + kind + "'. Ejemplos: curación, fuerza, velocidad, regeneración");
+                if (ids == null && kind.matches("[a-z_ ]+") && ENGLISH_POTIONS.contains(kind.replace(' ', '_'))) ids = List.of(kind.replace(' ', '_'));
+                if (ids == null) error(ln, "Poción desconocida '" + kind + "'. Ejemplos: curación, fuerza, velocidad, regeneración (o en inglés: healing, strength)");
                 else out.add("pocion:" + ids.get(0) + " " + amount);
                 continue;
             }
@@ -552,6 +570,7 @@ public final class StoryParser {
                     ench = String.join(" ", Arrays.copyOf(ws, ws.length - 1));
                 }
                 List<String> ids = dict.lookup("encantamientos", ench);
+                if (ids == null && ENGLISH_ENCHANTS.contains(ench.replace(' ', '_'))) ids = List.of(ench.replace(' ', '_'));
                 if (ids == null) error(ln, "Encantamiento desconocido '" + ench + "'. Ejemplos: filo, eficiencia, protección, irrompibilidad");
                 else out.add("libro:" + ids.get(0) + ":" + lvl + " " + amount);
                 continue;

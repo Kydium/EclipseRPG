@@ -161,9 +161,22 @@ public final class EditorApi {
             }
             case "revisar" -> {
                 String body = body(ex);
+                // también acepta {"texto": "...", "extra": {...}} con lo que el editor tiene sin guardar todavía
+                JsonObject extra = null;
+                if (body.startsWith("{")) {
+                    JsonObject o = JsonParser.parseString(body).getAsJsonObject();
+                    body = o.has("texto") ? o.get("texto").getAsString() : "";
+                    extra = o.has("extra") && o.get("extra").isJsonObject() ? o.getAsJsonObject("extra") : null;
+                }
                 List<String> lines = Arrays.asList(body.split("\\R", -1));
-                StoryParser.Result r = sync(() -> new StoryParser(st.dictionary(), st.catalog()).parse(lines));
+                JsonObject ext = extra;
+                StoryParser.Result r = sync(() -> new StoryParser(st.dictionary(), withExtra(st.catalog(), ext)).parse(lines));
                 json(ex, 200, result(r));
+            }
+            case "traducir" -> {
+                JsonObject in = JsonParser.parseString(body(ex)).getAsJsonObject();
+                JsonObject out = sync(() -> translate(in));
+                json(ex, 200, out);
             }
             case "aplicar" -> {
                 StoryParser.Result r = sync(() -> plugin.reloadStory(false));
@@ -294,6 +307,78 @@ public final class EditorApi {
         o.add("diccionario", dictionaryNames());
         o.addProperty("moneda", st.doc().currency);
         return o;
+    }
+
+    private static Set<String> strs(JsonObject o, String k) {
+        Set<String> out = new java.util.LinkedHashSet<>();
+        if (o != null && o.has(k) && o.get(k).isJsonArray()) for (JsonElement e : o.getAsJsonArray(k)) out.add(e.getAsString());
+        return out;
+    }
+
+    /** El catálogo del servidor más lo que el editor tiene sin guardar (enemigos, objetos, tiendas…). */
+    private static StoryParser.Catalog withExtra(StoryParser.Catalog base, JsonObject x) {
+        if (x == null) return base;
+        Map<String, String> mobs = new LinkedHashMap<>(base.customMobs());
+        if (x.has("mobs") && x.get("mobs").isJsonObject()) x.getAsJsonObject("mobs").entrySet().forEach(e -> mobs.putIfAbsent(e.getKey(), e.getValue().getAsString()));
+        Map<String, String> items = new LinkedHashMap<>(base.customItems());
+        if (x.has("objetos") && x.get("objetos").isJsonObject()) x.getAsJsonObject("objetos").entrySet().forEach(e -> items.putIfAbsent(e.getKey(), e.getValue().getAsString()));
+        Map<Integer, String> dungeons = new java.util.TreeMap<>(base.dungeons());
+        if (x.has("mazmorras") && x.get("mazmorras").isJsonObject()) x.getAsJsonObject("mazmorras").entrySet().forEach(e -> {
+            try {
+                dungeons.putIfAbsent(Integer.parseInt(e.getKey()), e.getValue().getAsString());
+            } catch (NumberFormatException ignored) {
+                // solo números
+            }
+        });
+        Set<String> shops = new java.util.LinkedHashSet<>(base.shops());
+        shops.addAll(strs(x, "tiendas"));
+        Set<String> structs = new java.util.LinkedHashSet<>(base.structures());
+        structs.addAll(strs(x, "estructuras"));
+        return new StoryParser.Catalog() {
+            public boolean isItem(String id) { return base.isItem(id); }
+            public boolean isBlock(String id) { return base.isBlock(id); }
+            public boolean isEntity(String id) { return base.isEntity(id); }
+            public Map<String, String> customMobs() { return mobs; }
+            public Map<String, String> customItems() { return items; }
+            public Map<Integer, String> dungeons() { return dungeons; }
+            public Set<String> shops() { return shops; }
+            public Set<String> skins() { return base.skins(); }
+            public Set<String> places() { return base.places(); }
+            public Set<String> structures() { return structs; }
+        };
+    }
+
+    /** Traduce nombres en español a ids de Minecraft: {"objetos":["pan","lingotes de hierro"], "mobs":[…], "encantamientos":[…], "pociones":[…]} */
+    private JsonObject translate(JsonObject in) {
+        JsonObject out = new JsonObject();
+        var dict = plugin.story().dictionary();
+        for (String sec : List.of("objetos", "mobs", "encantamientos", "pociones")) {
+            JsonObject m = new JsonObject();
+            for (String phrase : strs(in, sec)) {
+                String id = null;
+                List<String> hit = dict == null ? null : dict.lookup(sec, phrase);
+                if (hit != null) for (String h : hit) {
+                    String c = h.contains("*") ? h.replace("*", "oak") : h;
+                    if (sec.equals("objetos") && Material.matchMaterial(c) == null) continue;
+                    id = c;
+                    break;
+                }
+                if (id == null) {
+                    String raw = pe.kydium.eclipserpg.story.Dictionary.rawId(phrase).replace(' ', '_');
+                    boolean ok = switch (sec) {
+                        case "objetos" -> Material.matchMaterial(raw) != null;
+                        case "mobs" -> pe.kydium.eclipserpg.util.Reg.entity(raw) != null;
+                        case "encantamientos" -> pe.kydium.eclipserpg.util.Reg.enchant(raw) != null;
+                        default -> pe.kydium.eclipserpg.util.Reg.effect(raw) != null
+                                || org.bukkit.Registry.POTION.get(org.bukkit.NamespacedKey.minecraft(raw)) != null;
+                    };
+                    if (ok) id = raw;
+                }
+                if (id != null) m.addProperty(phrase, id.toLowerCase(java.util.Locale.ROOT));
+            }
+            out.add(sec, m);
+        }
+        return out;
     }
 
     private JsonObject dictionaryNames() {

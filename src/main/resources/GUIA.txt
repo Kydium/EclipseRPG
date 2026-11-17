@@ -255,3 +255,32 @@ el juego te dice exactamente en qué línea.
  Mazmorras nuevas: en el editor, «Estructuras» → Mazmorras → «+ Nuevo».
  Ponle un número (11, 12…), nombre, jefe, enemigos, bloques y botín.
  Se genera sola bajo tierra. En la misión:  mazmorra: 11
+
+---------------------------------------------------------------------
+ 12. IMPORTAR TODO DESDE TEXTO
+---------------------------------------------------------------------
+ En el editor, «Importar / exportar», puedes pegar no solo personajes y
+ misiones: también bloques ARMA, OBJETO, ENEMIGO, JEFE, TIENDA, EVENTO,
+ REGLA, ESTRUCTURA, MAZMORRA y MUNDO. «Copiar instrucciones para la IA»
+ trae el formato completo.
+
+   ARMA espada_tormenta
+     material: diamond_sword
+     nombre: <gradient:#5ad1ff:#b06cff>Espada de la Tormenta</gradient>
+     rareza: legendario
+     daño: 14
+     encantamientos: sharpness 5, unbreaking 3
+     tienda: herreria 2000 nivel 30
+
+   TIENDA armeria
+     titulo: Armería de Kael
+     vende: espada_tormenta por 2000
+     vende: 16 pan por 20
+     compra: 8 iron_ingot por 20
+
+ Los objetos se entienden en español (pan, mesa de trabajo) o con su id
+ de Minecraft en inglés, como en los comandos (bread, crafting_table,
+ minecraft:diamond_sword, potion of healing, enchanted book sharpness 3).
+
+ Para poner un arma en una tienda desde el editor: «Objetos especiales» →
+ el arma → «Venderla en una tienda».

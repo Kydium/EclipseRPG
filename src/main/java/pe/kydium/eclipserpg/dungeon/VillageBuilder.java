@@ -119,11 +119,14 @@ public final class VillageBuilder implements Listener {
      */
     public void findSiteAsync(World w, java.util.function.Consumer<Location> done) {
         Location spawn = w.getSpawnLocation();
-        int maxR = plugin.getConfig().getInt("aldea.busqueda-max", 1500);
-        int maxDiff = plugin.getConfig().getInt("aldea.desnivel-max", 7);
+        // "spawn" (lo normal): la aldea va donde aparecen los jugadores; solo se aparta un poco si ahí hay agua o un barranco
+        boolean nearSpawn = !plugin.getConfig().getString("aldea.ubicacion", "spawn").equalsIgnoreCase("buscar");
+        int maxR = nearSpawn ? plugin.getConfig().getInt("aldea.radio-spawn", 160) : plugin.getConfig().getInt("aldea.busqueda-max", 1500);
+        int maxDiff = plugin.getConfig().getInt("aldea.desnivel-max", 7) + (nearSpawn ? 5 : 0);
+        int stepR = nearSpawn ? 24 : 96;
         List<int[]> cands = new ArrayList<>();
-        for (int r = 0; r <= maxR; r += 96) {
-            int steps = r == 0 ? 1 : Math.max(8, r / 48);
+        for (int r = 0; r <= maxR; r += stepR) {
+            int steps = r == 0 ? 1 : nearSpawn ? Math.max(8, r / 12) : Math.max(8, r / 48);
             for (int i = 0; i < steps; i++) {
                 double a = 2 * Math.PI * i / steps;
                 cands.add(new int[]{spawn.getBlockX() + (int) (Math.cos(a) * r), spawn.getBlockZ() + (int) (Math.sin(a) * r)});
@@ -136,6 +139,15 @@ public final class VillageBuilder implements Listener {
 
             void next() {
                 if (idx >= cands.size()) {
+                    if (nearSpawn && best == null) {
+                        // alrededor del spawn todo es agua o montaña: buscar más lejos
+                        plugin.getConfig().set("aldea.ubicacion", "buscar");
+                        findSiteAsync(w, site -> {
+                            plugin.getConfig().set("aldea.ubicacion", "spawn");
+                            done.accept(site);
+                        });
+                        return;
+                    }
                     done.accept(best);
                     return;
                 }
@@ -143,7 +155,7 @@ public final class VillageBuilder implements Listener {
                 int[] c = cands.get(idx++);
                 AsyncChunks.load(w, AsyncChunks.around(new int[][]{c})).whenComplete((v, ex) -> Bukkit.getScheduler().runTask(plugin, () -> {
                     Block top = w.getHighestBlockAt(c[0], c[1], HeightMap.MOTION_BLOCKING_NO_LEAVES);
-                    if (ex != null || top.isLiquid() || !goodBiome(w, c[0], top.getY(), c[1])) {
+                    if (ex != null || top.isLiquid() || (!nearSpawn && !goodBiome(w, c[0], top.getY(), c[1]))) {
                         next();
                         return;
                     }
@@ -168,6 +180,10 @@ public final class VillageBuilder implements Listener {
                             int diff = max - min;
                             if (diff <= maxDiff) {
                                 done.accept(here);
+                                return;
+                            }
+                            if (nearSpawn && diff > maxDiff * 3) {
+                                next();
                                 return;
                             }
                             if (diff < bestDiff) {
@@ -355,6 +371,29 @@ public final class VillageBuilder implements Listener {
         cfg.set("aldea.centro.z", cz);
         cfg.set("aldea.generada", true);
         plugin.saveConfig();
+        if (plugin.getConfig().getBoolean("aldea.mover-spawn", true)) {
+            // los jugadores nuevos (y los que mueren sin cama) aparecen en la plaza
+            Location sp = campSpot.clone();
+            sp.setYaw(180f);
+            w.setSpawnLocation(sp);
+            for (String rule : List.of("spawnRadius", "respawn_radius", "spawn_radius")) {
+                try {
+                    @SuppressWarnings("unchecked")
+                    org.bukkit.GameRule<Integer> gr = (org.bukkit.GameRule<Integer>) org.bukkit.GameRule.getByName(rule);
+                    if (gr != null) w.setGameRule(gr, 0);
+                } catch (RuntimeException ignored) {
+                    // regla con otro nombre en esta versión
+                }
+            }
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (p.getWorld() != w || p.getLocation().distanceSquared(sp) < 40 * 40) continue;
+                var d = plugin.data().get(p);
+                if (d.questIndex == 0 && !d.questAccepted) {
+                    p.teleportAsync(sp);
+                    Txt.send(p, "<green>Te llevé a " + plugin.villageName() + "<green>: tu aventura empieza aquí.");
+                }
+            }
+        }
         busy = false;
         plugin.npcEntities().placeStoryNpcs();
         plugin.saveConfig();

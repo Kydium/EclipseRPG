@@ -132,8 +132,11 @@ grieta:
 
 aldea:
   auto: true                    # construir la aldea sola al iniciar un mundo nuevo
+  ubicacion: spawn              # spawn = donde aparecen los jugadores · buscar = busca un bioma bonito (puede quedar lejos)
+  radio-spawn: 160              # si en el spawn hay agua o montaña, se aparta como mucho esto
+  mover-spawn: true             # los jugadores aparecen en la plaza de la aldea
   biomas: [plains, sunflower_plains, meadow, forest, flower_forest, birch_forest, old_growth_birch_forest, cherry_grove, savanna]
-  busqueda-max: 1500            # distancia máxima desde el spawn para buscar lugar
+  busqueda-max: 1500            # (modo buscar) distancia máxima desde el spawn
   desnivel-max: 7               # diferencia de altura aceptada en el terreno
   bloques-por-tick: 8000
   aldeanos-invencibles: true    # que no los maten los Corrompidos

@@ -1,6 +1,7 @@
 Copia TODO este texto en ChatGPT, Gemini o Claude (sirve la versión gratis).
 Al final, donde dice MI IDEA, escribe tu historia en pocas palabras.
-Pega la respuesta en historias/<nombre>/historia.txt y usa /historia revisar.
+Pega la respuesta en el editor (/historia editor → «Importar / exportar» → Analizar).
+Si solo quieres armas, enemigos o tiendas, pídele solo esos bloques.
 ---------------------------------------------------------------------------
 
 Eres un escritor de misiones para un servidor de Minecraft. Escribe una
@@ -45,12 +46,16 @@ FRASES DE OBJETIVO PERMITIDAS (cambia los números y cosas):
   funde 8 lingotes de oro | pesca 5 peces | domestica 2 lobos
   encanta 3 objetos | ve al nether | ve al end
   habla con <id de otro NPC>
-Usa solo objetos y enemigos normales de Minecraft, con su nombre en
-español (pan, carbón, lingote de hierro, espada de diamante, zombi,
-esqueleto, araña, creeper, enderman, bruja, blaze…).
+Objetos y criaturas: en español (pan, lingote de hierro, espada de
+diamante, zombi, araña…) o con su id de Minecraft en inglés, como en los
+comandos (bread, iron_ingot, crafting_table, diamond_sword, zombie,
+wither_skeleton). Los ids en inglés son lo más seguro. También puedes usar
+las armas, objetos y enemigos que inventes abajo, por su id.
 
 PREMIOS PERMITIDOS: "<N> xp", "<N> <moneda>", "<N> <objeto de Minecraft>",
-  "poción de curación", "2 pociones de fuerza", "libro filo 3".
+  "<id de un OBJETO/ARMA inventado>", "poción de curación" (o "potion of healing"),
+  "2 pociones de fuerza", "libro filo 3" (o "enchanted book sharpness 3").
+  objetivo: derrota a <id de un JEFE inventado>   (para pelear contra tus jefes)
 
 SKINS: aldeana_1, aldeana_2, aldeana_3, aldeano_1, aldeano_2, aldeano_3, anciana, aprendiz_1, aprendiz_2, arquero_1, arquero_2, bruja, caballero, campesina_1, campesina_2, campesina_3, campesino_1, campesino_2, campesino_3, cantero_1, cantero_2, capitana, carnicero_1, carnicero_2, cazador, curtidor_1, curtidor_2, druida, encapuchado, erudito_1, erudito_2, exploradora, fraile, guardia_1, guardia_2, guardia_3, hechicero, herrero, ladron, mago, marinero, mendigo, mercader, minero, monja, monje_1, monje_2, nigromante, nina_1, nina_2, nina_3, nino_1, nino_2, nino_3, noble, pastora_1, pastora_2, pescador_1, pescador_2, pirata, pirata_mujer, posadera, princesa, reina, rey, soldado, vikingo
 
@@ -58,11 +63,93 @@ LUGARES: casa, cuartel, herreria, tienda, biblioteca, mapas, torre,
 tienda_negra, plaza_norte, plaza_sur, plaza_este, plaza_oeste, fuente,
 muelle, granja, puerta_norte, puerta_sur, puerta_este, puerta_oeste
 
+LUGARES explicados (dónde se para cada NPC dentro de la aldea):
+  casa = casa del alcalde · cuartel = cuartel de la guardia · herreria = herrería
+  tienda = tienda general · biblioteca · mapas = casa del cartógrafo
+  torre = torre de vigía · tienda_negra = mercado oscuro (de noche)
+  plaza_norte/sur/este/oeste = alrededor de la plaza · fuente = centro de la plaza
+  muelle = junto al agua · granja = los cultivos
+  puerta_norte/sur/este/oeste = entradas de la muralla (buenas para guardias)
+
+=====================================================================
+EXTRAS (opcionales): armas, objetos, enemigos, jefes, tiendas, eventos,
+estructuras y mazmorras. Van en el mismo texto, cada uno con su bloque.
+Un campo por línea, con 2 espacios de sangría. Puedes repetir un campo
+(lore, vende, habilidad…) en varias líneas.
+=====================================================================
+
+ARMA <id>                (o OBJETO, HERRAMIENTA, ARMADURA)
+  material: <id de Minecraft: diamond_sword, iron_axe, bow, netherite_helmet…>
+  nombre: <nombre; admite colores: <gold>, <#ff8800>, <gradient:#5ad1ff:#b06cff>texto</gradient>, <rainbow>, <bold>>
+  rareza: <comun|poco_comun|raro|epico|legendario|mitico>
+  lore: <línea de descripción con colores>          (varias líneas)
+  daño: <daño TOTAL del arma; espada de diamante normal = 7>
+  velocidad de ataque: <golpes por segundo: espada 1.6, hacha 1>
+  armadura: <N>   vida: <corazones extra ×2>   velocidad: <0.1 = 10% más rápido>
+  encantamientos: sharpness 5, unbreaking 3   (o en español: filo 5, irrompibilidad 3)
+  efecto en mano: <speed 1, night_vision, strength 2…>
+  irrompible: sí      brillo: sí      mejorable: sí
+  tienda: <id de una TIENDA> <precio> [nivel N]      (para que se venda ahí)
+
+ENEMIGO <id>             (o JEFE <id> para un jefe con barra de vida)
+  tipo: <criatura de Minecraft: zombie, skeleton, wither_skeleton, pillager, spider…>
+  nombre: <nombre con colores>
+  vida: <N>   daño: <N>   armadura: <N>   escala: <1 = normal, 2 = el doble>
+  velocidad: <0.3 normal>   regeneracion: <vida por segundo>
+  xp: <N>     soles: <dinero que da>    barra: <rojo|azul|verde|amarillo|morado|rosa|blanco>
+  arma: <material o id de tu ARMA>   casco / pecho / piernas / botas: <material>
+  rol: <enemigo|neutral|pacifico|guardian>
+  efectos: speed 2, fire_resistance
+  esbirros: <ids de enemigos que invoca>
+  habilidad: salto cada 8 potencia 12 radio 6     (onda, salto, teleporte, invocar, flechas, fuego, rayo, atraer)
+  habilidad: invocar cada 20 extra skeleton cantidad 3
+  premio: <id de tu ARMA u objeto> 1               (lo da al morir, una vez)
+  botin: <objeto> <cantidad> <probabilidad 0 a 1>  (lo que suelta)
+
+TIENDA <id>
+  titulo: <nombre de la ventana>
+  vende: <cantidad> <objeto> por <precio> [nivel N] [stock N]   (el jugador compra)
+  compra: <cantidad> <objeto> por <precio>                       (el jugador vende)
+  mejora: <precio>          (botón para mejorar armas "mejorable")
+  abre: <siempre|dia|noche>
+  (luego ponla en un NPC:  servicio: tienda <id>)
+
+EVENTO <id>               (Luna de Sangre, invasiones…)
+  nombre: <nombre con colores>
+  empieza: <noche|dia|cualquiera|manual>
+  probabilidad: <0.1 = 10%>     duracion: <segundos, 0 = hasta el amanecer>
+  clima: <despejado|lluvia|tormenta>
+  oleadas: <enemigos>   oleadas-cada: <segundos>   oleadas-cantidad: <N>
+  daño-recibido: <1.2 = +20%>   xp: <1.5>   premio-xp: <N>
+  anuncio: <título en pantalla>   mensaje-fin: <texto>
+
+REGLA <id>                (el clima o el lugar afecta al jugador)
+  nombre: <nombre>
+  clima: <lluvia|tormenta>  momento: <noche|dia>  luna: <llena|nueva>  bioma: <frio|desierto|pantano|bosque…>
+  efecto: <slowness 1, blindness 1…>   daño: <N>   cada: <segundos>
+  mensaje: <texto>
+
+ESTRUCTURA <id>           (lugares; la construcción se hace en el juego, o usa
+  nombre: <nombre>         uno de estos planos: torre_vigia, campamento_bandidos, santuario_alba)
+  plano: <id del plano>
+  aparece: <azar|mision|manual>
+  enemigos: <enemigo> <cantidad>     jefe: <id>
+  botin: <objeto> <cantidad> <probabilidad>
+  (en una MISIÓN:  estructura: <id>   y   objetivo: encuentra la estructura <id>)
+
+MAZMORRA <número desde 11>  (se genera sola bajo tierra)
+  nombre: <nombre>   jefe: <id de un JEFE>
+  enemigos: <ids>    suelo: <bloques>   pared: <bloques>
+  botin: <objeto> <cantidad> <probabilidad>
+  (en una MISIÓN:  mazmorra: <número>   y   objetivo: derrota a <jefe>)
+
 REGLAS
 - Entre 3 y 8 NPCs, cada uno con personalidad propia.
 - Las misiones van en orden; cuenta una historia con giros.
 - Agrupa las misiones en actos (ACTO 1, ACTO 2…).
 - Usa "habla con" para que el jugador visite a otros NPCs.
+- Si inventas armas o jefes, úsalos: que un jefe suelte el arma, que una
+  tienda la venda, que una misión pida derrotarlo.
 - No inventes campos que no estén en el formato.
 
 MI IDEA:
