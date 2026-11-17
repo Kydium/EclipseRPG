@@ -729,36 +729,14 @@ public final class SmokeTest {
             plugin.getLogger().info("[PRUEBA] datapacks: " + t);
         }
         check(plugin.hotkeys().datapackActive(), "el paquete de la tecla G está activo");
-        boolean dlg = false;
-        try {
+        // los diálogos de un paquete nuevo se cargan recién al reiniciar: en un mundo de prueba recién creado solo se revisa el archivo
+        java.io.File menu = new java.io.File(pe.kydium.eclipserpg.menu.HotkeyMenu.levelDir(), "datapacks/eclipse_atajos/data/eclipse/dialog/menu.json");
+        boolean dlg = menu.exists();
+        if (pe.kydium.eclipserpg.menu.HotkeyMenu.presentAtStartup) try {
             var reg = io.papermc.paper.registry.RegistryAccess.registryAccess().getRegistry(io.papermc.paper.registry.RegistryKey.DIALOG);
             dlg = reg.get(net.kyori.adventure.key.Key.key("eclipse", "menu")) != null;
         } catch (Throwable t) {
             plugin.getLogger().info("[PRUEBA] registro de diálogos: " + t);
-        }
-        if (!dlg) try {
-            var reg = io.papermc.paper.registry.RegistryAccess.registryAccess().getRegistry(io.papermc.paper.registry.RegistryKey.DIALOG);
-            StringBuilder ks = new StringBuilder();
-            reg.keyStream().limit(20).forEach(k -> ks.append(k.asString()).append(' '));
-            plugin.getLogger().info("[PRUEBA] diálogos: " + ks + " t1=" + (reg.get(net.kyori.adventure.key.Key.key("eclipse", "t1")) != null) + " t2=" + (reg.get(net.kyori.adventure.key.Key.key("eclipse", "t2")) != null));
-            ClassLoader cl = Bukkit.getServer().getClass().getClassLoader();
-            for (String r : new String[]{"data/minecraft/dialog/server_links.json", "data/minecraft/dialogs/server_links.json", "data/minecraft/tags/dialog/quick_actions.json", "data/minecraft/tags/dialog/pause_screen_additions.json"})
-                plugin.getLogger().info("[PRUEBA] recurso " + r + " = " + (cl.getResource(r) != null));
-            for (String r : new String[]{"data/minecraft/dialog/quick_actions.json", "data/minecraft/dialog/server_links.json", "data/minecraft/tags/dialog/quick_actions.json"})
-                try (var in = cl.getResourceAsStream(r)) {
-                    if (in != null) plugin.getLogger().info("[PRUEBA] contenido " + r + ": " + new String(in.readAllBytes()).replace("\n", " "));
-                }
-            java.io.File dp = new java.io.File(pe.kydium.eclipserpg.menu.HotkeyMenu.levelDir(), "datapacks/eclipse_atajos");
-            try (var w = java.nio.file.Files.walk(dp.toPath())) { w.forEach(f -> plugin.getLogger().info("[PRUEBA] archivo " + f)); }
-        } catch (Throwable t) {
-            plugin.getLogger().info("[PRUEBA] diag: " + t);
-        }
-        if (!dlg) try {
-            for (String ln : java.nio.file.Files.readAllLines(new java.io.File("logs/latest.log").toPath()))
-                if (ln.toLowerCase().contains("dialog") || ln.contains("eclipse:menu") || ln.contains("eclipse_atajos"))
-                    plugin.getLogger().info("[PRUEBA] log: " + (ln.length() > 400 ? ln.substring(0, 400) : ln));
-        } catch (Exception ignored) {
-            // sin log
         }
         check(dlg, "el menú de la tecla G (diálogo eclipse:menu) está cargado");
     }

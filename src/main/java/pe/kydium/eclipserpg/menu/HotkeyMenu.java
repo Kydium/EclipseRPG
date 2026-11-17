@@ -127,10 +127,6 @@ public final class HotkeyMenu implements Listener {
                   ]
                 }
                 """, StandardCharsets.UTF_8);
-        if (Boolean.getBoolean("eclipse.prueba")) {
-            Files.writeString(new File(dialog.getParentFile(), "t1.json").toPath(), "{\"type\": \"minecraft:notice\", \"title\": \"Hola\"}", StandardCharsets.UTF_8);
-            Files.writeString(new File(dialog.getParentFile(), "t2.json").toPath(), "{\"type\": \"minecraft:multi_action\", \"title\": \"Hola\", \"actions\": [{\"label\": \"A\", \"action\": {\"type\": \"minecraft:run_command\", \"command\": \"guardian\"}}]}", StandardCharsets.UTF_8);
-        }
         Files.writeString(tag.toPath(), """
                 {"values": ["eclipse:menu"]}
                 """, StandardCharsets.UTF_8);
@@ -138,10 +134,13 @@ public final class HotkeyMenu implements Listener {
     }
 
     /** Se llama al iniciar el plugin, antes de cargar los mundos: así Minecraft lo activa solo. */
+    /** ¿El paquete ya estaba al arrancar? Los diálogos solo se cargan al iniciar el servidor. */
+    public static boolean presentAtStartup;
+
     public static void installEarly(org.bukkit.plugin.java.JavaPlugin plugin) {
         if (!plugin.getConfig().getBoolean("atajos.tecla-g", true)) return;
         try {
-            writePack(levelDir());
+            presentAtStartup = !writePack(levelDir());
         } catch (IOException | RuntimeException e) {
             plugin.getLogger().warning("No se pudo instalar el paquete de la tecla G: " + e.getMessage());
         }
@@ -161,6 +160,8 @@ public final class HotkeyMenu implements Listener {
             plugin.getLogger().warning("No se pudo instalar el paquete de la tecla G: " + e.getMessage());
             return false;
         }
+        if (!presentAtStartup)
+            plugin.getLogger().warning("Se instaló el menú de la tecla G: reinicia el servidor una vez (stop y abrir) para activarlo.");
         if (datapackActive()) return false;
         plugin.getLogger().info("Activando el paquete de la tecla G (recarga de datos, solo esta vez)…");
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
