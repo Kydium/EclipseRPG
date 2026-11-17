@@ -50,6 +50,7 @@ public final class EclipseRPG extends JavaPlugin {
     /** Antes se llamaba EclipseRPG: mueve su carpeta (config, historias, jugadores) a la nueva. */
     @Override
     public void onLoad() {
+        pe.kydium.eclipserpg.menu.HotkeyMenu.installEarly(this);
         File now = getDataFolder();
         File old = new File(now.getParentFile(), "EclipseRPG");
         if (!old.isDirectory() || new File(now, "config.yml").exists()) return;

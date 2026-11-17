@@ -85,53 +85,91 @@ public final class HotkeyMenu implements Listener {
 
     // ---------- Paquete de datos para la tecla G ----------
 
-    /** Instala el paquete de datos en el mundo principal. Devuelve true si es nuevo. */
-    public boolean installDatapack() {
-        if (!plugin.getConfig().getBoolean("atajos.tecla-g", true)) return false;
-        World w = Bukkit.getWorlds().get(0);
-        // en Paper 26 la carpeta del mundo es world/dimensions/minecraft/overworld: los datapacks van en world/datapacks
-        File level = w.getWorldFolder().getAbsoluteFile();
-        for (File f = level; f != null; f = f.getParentFile()) if (new File(f, "level.dat").exists()) { level = f; break; }
-        File wrong = new File(w.getWorldFolder(), "datapacks/eclipse_atajos");
+    /** Carpeta del mundo principal (world/), leída de server.properties: funciona antes de que cargue el mundo. */
+    public static File levelDir() {
+        String name = "world";
+        File props = new File(Bukkit.getWorldContainer(), "server.properties");
+        if (!props.exists()) props = new File("server.properties");
+        try (var in = new java.io.FileInputStream(props)) {
+            java.util.Properties p = new java.util.Properties();
+            p.load(in);
+            name = p.getProperty("level-name", "world");
+        } catch (IOException ignored) {
+            // por defecto "world"
+        }
+        return new File(Bukkit.getWorldContainer(), name);
+    }
+
+    /** Escribe el paquete en world/datapacks/eclipse_atajos. Devuelve true si no existía. */
+    public static boolean writePack(File level) throws IOException {
         File root = new File(level, "datapacks/eclipse_atajos");
-        if (!wrong.getAbsoluteFile().equals(root.getAbsoluteFile()) && wrong.exists()) deleteTree(wrong);
         File mcmeta = new File(root, "pack.mcmeta");
         File dialog = new File(root, "data/eclipse/dialog/menu.json");
         File tag = new File(root, "data/minecraft/tags/dialog/quick_actions.json");
         boolean isNew = !dialog.exists();
+        dialog.getParentFile().mkdirs();
+        tag.getParentFile().mkdirs();
+        Files.writeString(mcmeta.toPath(), """
+                {"pack": {"description": "Aventura Maker: menú con la tecla G", "min_format": 1, "max_format": 999}}
+                """, StandardCharsets.UTF_8);
+        Files.writeString(dialog.toPath(), """
+                {
+                  "type": "minecraft:multi_action",
+                  "title": {"text": "☀ Menú del aventurero", "color": "gold", "bold": true},
+                  "external_title": {"text": "Menú del aventurero", "color": "gold"},
+                  "body": [{"type": "minecraft:plain_message", "contents": {"text": "Tu nivel, tus misiones y tu brújula", "color": "gray"}}],
+                  "columns": 1,
+                  "actions": [
+                    {"label": {"text": "☀ Abrir el menú", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "guardian"}},
+                    {"label": {"text": "⚔ Nivel y habilidades", "color": "yellow"}, "action": {"type": "minecraft:run_command", "command": "nivel"}},
+                    {"label": {"text": "📖 Diario de misiones", "color": "yellow"}, "action": {"type": "minecraft:run_command", "command": "misiones"}},
+                    {"label": {"text": "✦ Objetivos en el chat", "color": "aqua"}, "action": {"type": "minecraft:run_command", "command": "mision"}}
+                  ]
+                }
+                """, StandardCharsets.UTF_8);
+        Files.writeString(tag.toPath(), """
+                {"values": ["eclipse:menu"]}
+                """, StandardCharsets.UTF_8);
+        return isNew;
+    }
+
+    /** Se llama al iniciar el plugin, antes de cargar los mundos: así Minecraft lo activa solo. */
+    public static void installEarly(org.bukkit.plugin.java.JavaPlugin plugin) {
+        if (!plugin.getConfig().getBoolean("atajos.tecla-g", true)) return;
         try {
-            dialog.getParentFile().mkdirs();
-            tag.getParentFile().mkdirs();
-            Files.writeString(mcmeta.toPath(), """
-                    {"pack": {"description": "Aventura Maker: menú con la tecla G", "min_format": 80, "max_format": 200}}
-                    """, StandardCharsets.UTF_8);
-            Files.writeString(dialog.toPath(), """
-                    {
-                      "type": "minecraft:multi_action",
-                      "title": {"text": "☀ Menú del aventurero", "color": "gold", "bold": true},
-                      "external_title": {"text": "Menú del aventurero", "color": "gold"},
-                      "body": [{"type": "minecraft:plain_message", "contents": {"text": "Tu nivel, tus misiones y tu brújula", "color": "gray"}}],
-                      "columns": 1,
-                      "actions": [
-                        {"label": {"text": "☀ Abrir el menú", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "guardian"}},
-                        {"label": {"text": "⚔ Nivel y habilidades", "color": "yellow"}, "action": {"type": "minecraft:run_command", "command": "nivel"}},
-                        {"label": {"text": "📖 Diario de misiones", "color": "yellow"}, "action": {"type": "minecraft:run_command", "command": "misiones"}},
-                        {"label": {"text": "✦ Objetivos en el chat", "color": "aqua"}, "action": {"type": "minecraft:run_command", "command": "mision"}}
-                      ]
-                    }
-                    """, StandardCharsets.UTF_8);
-            Files.writeString(tag.toPath(), """
-                    {"values": ["eclipse:menu"]}
-                    """, StandardCharsets.UTF_8);
+            writePack(levelDir());
+        } catch (IOException | RuntimeException e) {
+            plugin.getLogger().warning("No se pudo instalar el paquete de la tecla G: " + e.getMessage());
+        }
+    }
+
+    /** Ya con el mundo cargado: limpia el sitio viejo y, si el paquete no quedó activo, recarga los datos una vez. */
+    public boolean installDatapack() {
+        if (!plugin.getConfig().getBoolean("atajos.tecla-g", true)) return false;
+        World w = Bukkit.getWorlds().get(0);
+        File level = levelDir();
+        File wrong = new File(w.getWorldFolder(), "datapacks/eclipse_atajos");
+        if (!wrong.getAbsoluteFile().toPath().normalize().equals(new File(level, "datapacks/eclipse_atajos").getAbsoluteFile().toPath().normalize()) && wrong.exists())
+            deleteTree(wrong);
+        try {
+            writePack(level);
         } catch (IOException e) {
-            plugin.getLogger().warning("No se pudo instalar el paquete de datos de atajos: " + e.getMessage());
+            plugin.getLogger().warning("No se pudo instalar el paquete de la tecla G: " + e.getMessage());
             return false;
         }
-        plugin.getLogger().info("[PRUEBA] Paquete de la tecla G en " + root.getAbsolutePath() + " (nuevo=" + isNew + ")");
-        if (isNew) {
-            plugin.getLogger().info("Paquete de datos de atajos instalado: recargando datos para activar la tecla G…");
-            Bukkit.getScheduler().runTaskLater(plugin, Bukkit::reloadData, 20L);
-        }
-        return isNew;
+        if (datapackActive()) return false;
+        plugin.getLogger().info("Activando el paquete de la tecla G (recarga de datos, solo esta vez)…");
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Bukkit.reloadData();
+            if (!datapackActive()) {
+                try {
+                    for (var pk : Bukkit.getDatapackManager().getPacks())
+                        if (pk.getName().contains("eclipse_atajos") && !pk.isEnabled()) pk.setEnabled(true);
+                } catch (RuntimeException | LinkageError ignored) {
+                    // API distinta
+                }
+            }
+        }, 20L);
+        return true;
     }
 }
