@@ -1577,6 +1577,13 @@ function mergeImported(d){
   if(wd)st.yamlDirty.mundo=true;
 }
 // Lo que el editor tiene sin guardar, para que el verificador del servidor lo conozca
+// lo que trae una copia completa (.json) también cuenta al revisar
+function bundleCatalog(o){const a=imp.bundle&&imp.bundle.avanzado;if(!a)return o;const plain=v=>mmSplit(v&&v.nombre).text||"";
+  for(const [k,v] of Object.entries((a.mobs||{}).mobs||{}))if(!o.mobs[k])o.mobs[k]=plain(v)||k;
+  for(const [k,v] of Object.entries((a.objetos||{}).items||{}))if(!o.objetos[k])o.objetos[k]=plain(v)||k;
+  for(const k of Object.keys((a.tiendas||{}).tiendas||{}))if(!o.tiendas.includes(k))o.tiendas.push(k);
+  for(const k of Object.keys((a.estructuras||{}).estructuras||{}))if(!o.estructuras.includes(k))o.estructuras.push(k);
+  return o}
 function unsavedCatalog(extra){
   const plain=v=>mmSplit(v&&v.nombre).text||"";const o={mobs:{},objetos:{},tiendas:[],estructuras:[],mazmorras:{}};
   for(const [k,v] of Object.entries((st.yaml.mobs||{}).mobs||{}))o.mobs[k]=plain(v)||k;
@@ -1609,7 +1616,7 @@ function viewImport(){
     try{const r=await importBlocks(sp.blocks);imp.data=r.data;imp.warn=r.warnings}catch(e){toast(e.message,"bad");return}
     imp.hasStory=/^\s*(npc|mision|misión|historia|acto)\b/im.test(sp.story);
     imp.doc=parseStory(sp.story);
-    try{imp.res=imp.hasStory?await api("revisar",{method:"POST",body:JSON.stringify({texto:sp.story,extra:unsavedCatalog(imp.data)})}):{problemas:[]}}catch(e){toast(e.message,"bad");return}drawRes()}
+    try{imp.res=imp.hasStory?await api("revisar",{method:"POST",body:JSON.stringify({texto:sp.story,extra:bundleCatalog(unsavedCatalog(imp.data))})}):{problemas:[]}}catch(e){toast(e.message,"bad");return}drawRes()}
   function drawRes(){
     if(!imp.res||!imp.doc){res.replaceChildren();return}
     const D=imp.doc,R=imp.res; const errs=R.problemas.filter(p=>p.error); const extra=importCounts(imp.data); const iw=imp.warn||[];
