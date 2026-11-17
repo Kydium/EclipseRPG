@@ -44,6 +44,10 @@ commands:
     permission: eclipserpg.admin
     aliases: [aventura, erpg]
 
+  bloque:
+    description: Bloques especiales (minerales que se regeneran, experiencia, máquinas)
+    usage: /bloque [lista|poner|quitar|dar]
+    permission: eclipserpg.admin
 permissions:
   eclipserpg.admin:
     description: Comandos de administración (/eclipse)

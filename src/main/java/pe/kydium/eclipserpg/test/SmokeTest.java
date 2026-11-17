@@ -214,6 +214,7 @@ public final class SmokeTest {
                     checkPowers();
                     checkDeaths();
                     checkReplies();
+                    checkBagsAndBlocks();
                     plugin.dungeons().buildForTest(1);
                     stage = 3;
                 }
@@ -706,6 +707,22 @@ public final class SmokeTest {
         check(br.contains("Derrotaré") && gr.contains("Te traeré"), "si no tiene respuesta, el jugador contesta según el objetivo");
         String lbl = plugin.shops().buttonLabel("runas");
         check(lbl.contains("Runas de forja") && !plugin.shops().buttonLabel("herreria").contains("Tienda"), "los botones de tienda dicen lo que venden (" + lbl + ")");
+    }
+
+    private void checkBagsAndBlocks() {
+        ItemStack bag = plugin.items().create("mochila_grande", 1);
+        check(bag != null && plugin.backpacks().size(bag) == 54 && bag.getMaxStackSize() == 1, "las mochilas se crean con sus huecos");
+        ItemStack big = plugin.items().create("mochila_del_viajero", 1);
+        check(big != null && plugin.backpacks().size(big) == 200, "mochila de 200 huecos");
+        var sb = plugin.specialBlocks();
+        check(sb.defs().size() >= 6 && sb.item("mena_hierro_eterna", 1) != null, "los bloques especiales cargan (" + sb.defs().size() + ")");
+        ItemStack fromShop = plugin.shops().buildSpec("bloque:generador_de_hierro", 1);
+        check(fromShop != null && fromShop.getType() == Material.BLAST_FURNACE, "los bloques especiales se venden en tiendas");
+        org.bukkit.Location at = plugin.items().campLocation().clone().add(6, 0, 6);
+        int before = sb.placedCount();
+        sb.put(at.getBlock(), "mena_hierro_eterna");
+        check(sb.placedCount() == before + 1 && at.getBlock().getType() == Material.IRON_ORE, "un bloque especial se coloca");
+        check(plugin.hotkeys().datapackActive(), "el paquete de la tecla G está activo");
     }
 
     private void checkDeaths() {

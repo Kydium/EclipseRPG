@@ -66,13 +66,35 @@ public final class HotkeyMenu implements Listener {
         ui.show(p, "<gold><bold>☀ " + plugin.title(), body, buttons, true);
     }
 
+    private static void deleteTree(File f) {
+        File[] kids = f.listFiles();
+        if (kids != null) for (File k : kids) deleteTree(k);
+        f.delete();
+    }
+
+    /** ¿Minecraft cargó el paquete de la tecla G? */
+    public boolean datapackActive() {
+        try {
+            for (var pack : Bukkit.getDatapackManager().getEnabledPacks())
+                if (pack.getName().contains("eclipse_atajos")) return true;
+        } catch (RuntimeException | LinkageError ignored) {
+            // API distinta
+        }
+        return false;
+    }
+
     // ---------- Paquete de datos para la tecla G ----------
 
     /** Instala el paquete de datos en el mundo principal. Devuelve true si es nuevo. */
     public boolean installDatapack() {
         if (!plugin.getConfig().getBoolean("atajos.tecla-g", true)) return false;
         World w = Bukkit.getWorlds().get(0);
-        File root = new File(w.getWorldFolder(), "datapacks/eclipse_atajos");
+        // en Paper 26 la carpeta del mundo es world/dimensions/minecraft/overworld: los datapacks van en world/datapacks
+        File level = w.getWorldFolder().getAbsoluteFile();
+        for (File f = level; f != null; f = f.getParentFile()) if (new File(f, "level.dat").exists()) { level = f; break; }
+        File wrong = new File(w.getWorldFolder(), "datapacks/eclipse_atajos");
+        File root = new File(level, "datapacks/eclipse_atajos");
+        if (!wrong.getAbsoluteFile().equals(root.getAbsoluteFile()) && wrong.exists()) deleteTree(wrong);
         File mcmeta = new File(root, "pack.mcmeta");
         File dialog = new File(root, "data/eclipse/dialog/menu.json");
         File tag = new File(root, "data/minecraft/tags/dialog/quick_actions.json");

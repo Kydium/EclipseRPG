@@ -61,6 +61,8 @@ public final class ItemManager implements Listener {
         public String rarity;        // comun, poco_comun, raro, epico, legendario, mitico
         public boolean rpgStyle;     // ocultar los atributos de Minecraft y mostrarlos en español
         public final List<Powers.Power> powers = new ArrayList<>();
+        public int backpack;          // mochila: cuántos huecos tiene (0 = no es mochila)
+        public String model;          // modelo de otro objeto (ej. minecraft:brown_bundle)
     }
 
     /** Rarezas: color del nombre y etiqueta al final de la descripción. */
@@ -104,6 +106,11 @@ public final class ItemManager implements Listener {
     /** Descripción completa: líneas propias, estadísticas en español (estilo RPG) y la rareza. */
     public List<String> loreLines(CustomItem ci, int lvl) {
         List<String> out = new ArrayList<>(ci.lore);
+        if (ci.backpack > 0) {
+            if (!out.isEmpty()) out.add("");
+            out.add("<gold>🎒 Mochila <gray>· <white>" + ci.backpack + " huecos");
+            out.add("<gray>Clic derecho para abrirla.");
+        }
         if (ci.rpgStyle) {
             Map<String, Double> sum = new LinkedHashMap<>();
             for (AttrDef a : ci.attributes) {
@@ -171,6 +178,8 @@ public final class ItemManager implements Listener {
             ci.rarity = s.getString("rareza");
             ci.rpgStyle = s.getBoolean("estilo-rpg", false);
             ci.action = s.getString("accion");
+            ci.backpack = Math.max(0, Math.min(10000, s.getInt("mochila", 0)));
+            ci.model = s.getString("modelo");
             ci.heldEffect = s.getString("efecto-en-mano");
             ci.heldEffectLevel = s.getInt("efecto-nivel", 0);
             ConfigurationSection en = s.getConfigurationSection("encantamientos");
@@ -260,6 +269,11 @@ public final class ItemManager implements Listener {
             meta.addAttributeModifier(attr, new AttributeModifier(key, a.value(), Reg.operation(a.operation()), Reg.slot(a.slot())));
         }
         if (ci.unbreakable) meta.setUnbreakable(true);
+        if (ci.model != null && !ci.model.isBlank()) {
+            NamespacedKey mk = NamespacedKey.fromString(ci.model.toLowerCase(java.util.Locale.ROOT).trim());
+            if (mk != null) meta.setItemModel(mk);
+        }
+        if (ci.backpack > 0) meta.setMaxStackSize(1);
         if (ci.glint) meta.setEnchantmentGlintOverride(true);
         if (ci.color != null && meta instanceof LeatherArmorMeta leather) {
             try {

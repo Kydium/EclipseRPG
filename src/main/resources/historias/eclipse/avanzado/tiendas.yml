@@ -13,6 +13,10 @@ tiendas:
     descripcion: "Comida, antorchas, camas y lo básico para sobrevivir"
     filas: 6
     objetos:
+      # --- Mochilas ---
+      - {tipo: comprar, slot: 24, item: "custom:mochila_pequena", precio: 150}
+      - {tipo: comprar, slot: 25, item: "custom:mochila_mediana", precio: 600, nivel: 8}
+      - {tipo: comprar, slot: 26, item: "custom:mochila_grande", precio: 1800, nivel: 18}
       # --- Comprar ---
       - {tipo: comprar, slot: 10, item: "material:BREAD", cantidad: 8, precio: 20}
       - {tipo: comprar, slot: 11, item: "material:COOKED_BEEF", cantidad: 8, precio: 40}
@@ -130,11 +134,12 @@ tiendas:
       - {tipo: comprar, slot: 15, item: "custom:peto_espinas", precio: 14000, nivel: 50, stock: 1}
       - {tipo: comprar, slot: 16, item: "custom:martillo_tormenta", precio: 25000, nivel: 60, stock: 1}
       - {tipo: comprar, slot: 22, item: "custom:guadana_almas", precio: 30000, nivel: 70, stock: 1}
+      - {tipo: comprar, slot: 24, item: "custom:mochila_del_viajero", precio: 20000, nivel: 40, stock: 1}
 
   herramientas_magicas:             # Bruno el Herrero — herramientas con poderes
     titulo: "<gold><bold>Herramientas Mágicas"
-    boton: "<gold>⛏ Picos y herramientas mágicas"
-    descripcion: "Picos 3x3, hacha taladora, azada cosechadora, caña de tesoros"
+    boton: "<gold>⛏ Herramientas, menas y máquinas"
+    descripcion: "Picos 3x3, hacha taladora, menas que se regeneran y máquinas que fabrican solas"
     filas: 3
     objetos:
       - {tipo: comprar, slot: 10, item: "custom:azada_cosechadora", precio: 2000, nivel: 10, stock: 1}
@@ -143,6 +148,13 @@ tiendas:
       - {tipo: comprar, slot: 13, item: "custom:hacha_lenador", precio: 8000, nivel: 28, stock: 1}
       - {tipo: comprar, slot: 14, item: "custom:cana_afortunada", precio: 7000, nivel: 25, stock: 1}
       - {tipo: comprar, slot: 16, item: "custom:pico_titan", precio: 22000, nivel: 50, stock: 1}
+      # bloques especiales: minerales que se regeneran, experiencia y máquinas
+      - {tipo: comprar, slot: 19, item: "bloque:granja_de_trigo", precio: 2500, nivel: 10}
+      - {tipo: comprar, slot: 20, item: "bloque:mena_hierro_eterna", precio: 5000, nivel: 15}
+      - {tipo: comprar, slot: 21, item: "bloque:generador_de_hierro", precio: 6000, nivel: 20}
+      - {tipo: comprar, slot: 22, item: "bloque:piedra_de_experiencia", precio: 8000, nivel: 25}
+      - {tipo: comprar, slot: 23, item: "bloque:fuente_de_runas", precio: 25000, nivel: 40, stock: 1}
+      - {tipo: comprar, slot: 24, item: "bloque:mena_diamante_eterna", precio: 30000, nivel: 50, stock: 1}
 
   runas:                            # Bruno el Herrero — Runas para forjar poderes en tus armas
     titulo: "<light_purple><bold>Runas de Forja"

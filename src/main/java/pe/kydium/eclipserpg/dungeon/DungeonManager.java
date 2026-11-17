@@ -491,6 +491,13 @@ public final class DungeonManager implements Listener {
                 + "<gray>. Sigue la brújula.");
     }
 
+    /** Entrada de la mazmorra de ese acto (null si todavía no existe). */
+    public Location entrance(int act) {
+        Dungeon d = dungeons.get(act);
+        World w = d == null ? null : Bukkit.getWorld(d.world);
+        return w == null ? null : new Location(w, d.ex + 0.5, d.ey, d.ez + 0.5);
+    }
+
     public Dungeon get(int act) {
         return dungeons.get(act);
     }

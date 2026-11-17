@@ -66,6 +66,9 @@ public final class ResourcePack implements Listener {
     public void rebuild() {
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream(); ZipOutputStream z = new ZipOutputStream(bout)) {
             put(z, "pack.mcmeta", resource("motor/pack.mcmeta"));
+            // HUD: moneda y letra desplazada para mostrar el dinero junto a la barra rápida
+            put(z, "assets/eclipse/font/hud.json", resource("motor/hud/hud.json"));
+            put(z, "assets/eclipse/textures/hud/coin.png", resource("motor/hud/coin.png"));
             int n = 0;
             for (Map.Entry<String, File> e : plugin.story().skins().entrySet()) {
                 byte[] png = e.getValue() == null ? resource("skins/" + e.getKey() + ".png") : Files.readAllBytes(e.getValue().toPath());
@@ -216,7 +219,22 @@ public final class ResourcePack implements Listener {
             }
             case DECLINED -> Txt.send(p, "<yellow>Rechazaste el paquete de skins: los NPCs se verán sin su ropa. "
                     + "<gray>Actívalo en Multijugador → Editar servidor → Paquetes de recursos.");
+            case SUCCESSFULLY_LOADED -> {
+                if (!triedFallback.contains(p.getUniqueId())) loaded.add(p.getUniqueId());
+            }
             default -> { }
         }
+    }
+
+    private final java.util.Set<UUID> loaded = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /** ¿Este jugador tiene cargado nuestro paquete (con la letra del HUD)? */
+    public boolean hasPack(Player p) {
+        return loaded.contains(p.getUniqueId());
+    }
+
+    @EventHandler
+    public void onQuit(org.bukkit.event.player.PlayerQuitEvent e) {
+        loaded.remove(e.getPlayer().getUniqueId());
     }
 }

@@ -99,6 +99,7 @@ public final class EclipseRPG extends JavaPlugin {
         hotkeys = new HotkeyMenu(this);
         world = new pe.kydium.eclipserpg.world.WorldManager(this);
         structures = new pe.kydium.eclipserpg.structure.StructureManager(this);
+        specialBlocks = new pe.kydium.eclipserpg.blocks.SpecialBlocks(this);
         loadContent();
 
         var pm = Bukkit.getPluginManager();
@@ -130,6 +131,18 @@ public final class EclipseRPG extends JavaPlugin {
         }
         pm.registerEvents(hotkeys, this);
         hotkeys.installDatapack();
+        hud = new pe.kydium.eclipserpg.menu.Hud(this);
+        pm.registerEvents(hud, this);
+        hud.start();
+        backpacks = new pe.kydium.eclipserpg.items.Backpacks(this);
+        pm.registerEvents(backpacks, this);
+        pm.registerEvents(specialBlocks, this);
+        specialBlocks.start();
+        PluginCommand bc = getCommand("bloque");
+        if (bc != null) {
+            bc.setExecutor(specialBlocks);
+            bc.setTabCompleter(specialBlocks);
+        }
 
         var storyCmd = new pe.kydium.eclipserpg.story.StoryCommand(this);
         PluginCommand hc = getCommand("historia");
@@ -199,6 +212,9 @@ public final class EclipseRPG extends JavaPlugin {
         if (ruins != null) ruins.save();
         if (npcEntities != null) npcEntities.cleanup();
         if (resourcePack != null) resourcePack.stop();
+        if (hud != null) hud.cleanup();
+        if (backpacks != null) backpacks.closeAll();
+        if (specialBlocks != null) specialBlocks.savePlaced();
     }
 
     /**
@@ -247,6 +263,10 @@ public final class EclipseRPG extends JavaPlugin {
         dungeons.load();
         world.load();
         structures.load();
+        if (specialBlocks != null) {
+            if (specialBlocks.placedCount() > 0) specialBlocks.savePlaced();
+            specialBlocks.load();
+        }
         ruins.reloadSettings();
         var r = story.read();
         story.apply(r);
@@ -325,6 +345,12 @@ public final class EclipseRPG extends JavaPlugin {
     public VillageBuilder village() { return village; }
     public NpcEntities npcEntities() { return npcEntities; }
     public HotkeyMenu hotkeys() { return hotkeys; }
+    public pe.kydium.eclipserpg.menu.Hud hud() { return hud; }
+    public pe.kydium.eclipserpg.items.Backpacks backpacks() { return backpacks; }
+    private pe.kydium.eclipserpg.menu.Hud hud;
+    private pe.kydium.eclipserpg.blocks.SpecialBlocks specialBlocks;
+    public pe.kydium.eclipserpg.blocks.SpecialBlocks specialBlocks() { return specialBlocks; }
+    private pe.kydium.eclipserpg.items.Backpacks backpacks;
     public pe.kydium.eclipserpg.world.WorldManager world() { return world; }
     public pe.kydium.eclipserpg.structure.StructureManager structures() { return structures; }
     public pe.kydium.eclipserpg.story.StoryManager story() { return story; }

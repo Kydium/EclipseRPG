@@ -124,6 +124,12 @@ public final class NpcEntities implements Listener {
     }
 
     /** ¿Este maniquí pelea como guardián? (guardias de la aldea o NPC con "combate: guardián") */
+    /** Entidad del NPC de la historia (null si no está en el mundo). */
+    public Entity entityOf(String id) {
+        UUID u = id == null ? null : npcs.get(id);
+        return u == null ? null : Bukkit.getEntity(u);
+    }
+
     public boolean isNpcOrFiller(Entity e) {
         return npcId(e) != null || fillerRole(e) != null;
     }

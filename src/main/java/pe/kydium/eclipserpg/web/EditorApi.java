@@ -57,7 +57,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class EditorApi {
 
-    private static final Set<String> YAMLS = Set.of("mobs", "objetos", "tiendas", "contratos", "mazmorras", "mundo", "estructuras");
+    private static final Set<String> YAMLS = Set.of("mobs", "objetos", "tiendas", "contratos", "mazmorras", "mundo", "estructuras", "bloques");
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     private final EclipseRPG plugin;
     private String token;
@@ -197,7 +197,7 @@ public final class EditorApi {
                 sb.append("#  TODO LO DEMÁS (enemigos, objetos, tiendas, mundo, estructuras, mazmorras).\n");
                 sb.append("#  Cada bloque AVANZADO es el archivo .yml con dos espacios delante.\n");
                 sb.append("# =====================================================================\n");
-                for (String name : List.of("objetos", "tiendas", "mobs", "estructuras", "mazmorras", "mundo", "contratos")) {
+                for (String name : List.of("objetos", "tiendas", "mobs", "bloques", "estructuras", "mazmorras", "mundo", "contratos")) {
                     File f = new File(st.folder(), "avanzado/" + name + ".yml");
                     String y = !ejemplo && f.exists() ? Files.readString(f.toPath(), StandardCharsets.UTF_8)
                             : resource(!ejemplo && name.equals("mundo") && !st.id().equals("eclipse") ? "motor/mundo.yml" : "historias/eclipse/avanzado/" + name + ".yml");
@@ -246,7 +246,7 @@ public final class EditorApi {
                 YamlConfiguration mu = new YamlConfiguration();
                 mu.loadFromString(resource("motor/mundo.yml"));
                 av.add("mundo", toJson(mu));
-                for (String[] r : new String[][]{{"mobs", "mobs"}, {"objetos", "items"}, {"tiendas", "tiendas"}, {"estructuras", "estructuras"}}) {
+                for (String[] r : new String[][]{{"mobs", "mobs"}, {"objetos", "items"}, {"tiendas", "tiendas"}, {"estructuras", "estructuras"}, {"bloques", "bloques"}}) {
                     JsonObject root = new JsonObject();
                     root.add(r[1], new JsonObject());
                     av.add(r[0], root);

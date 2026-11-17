@@ -33,7 +33,7 @@ public final class StoryManager {
 
     /** Archivos de la historia de ejemplo que trae el plugin. */
     private static final String[] BUNDLED = {"historia.txt", "avanzado/objetos.yml", "avanzado/mobs.yml",
-            "avanzado/tiendas.yml", "avanzado/contratos.yml", "avanzado/mazmorras.yml", "avanzado/mundo.yml", "avanzado/estructuras.yml", "skins/LEEME.txt"};
+            "avanzado/tiendas.yml", "avanzado/contratos.yml", "avanzado/mazmorras.yml", "avanzado/mundo.yml", "avanzado/estructuras.yml", "avanzado/bloques.yml", "skins/LEEME.txt"};
 
     /** Lugares de la aldea donde se pueden poner NPCs (vienen del plano). */
     public static final List<String> PLACES = List.of("casa", "cuartel", "herreria", "tienda", "biblioteca", "mapas", "torre",

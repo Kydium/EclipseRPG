@@ -1,0 +1,66 @@
+# =====================================================================
+#  BLOQUES ESPECIALES — minerales que vuelven a salir, bloques que dan
+#  experiencia y máquinas que fabrican solas.
+#
+#  tipo: regenera     → lo picas, suelta lo suyo y vuelve a aparecer tras "tiempo"
+#        experiencia  → solo suelta experiencia de Minecraft (y vuelve tras "tiempo")
+#        maquina      → cada "tiempo" segundos fabrica "produce"; lo deja en un cofre
+#                       pegado a la máquina o lo guarda dentro (clic derecho para sacarlo)
+#  bloque:     cómo se ve (cualquier bloque de Minecraft)
+#  mientras:   cómo se ve mientras se regenera
+#  tiempo:     segundos
+#  suelta:     lo que suelta al picarlo ("material cantidad" o "min-max"); vacío = lo normal
+#  experiencia: orbes de experiencia de Minecraft al picarlo
+#  produce:    lo que fabrica una máquina (mismo formato que "suelta"; sirve custom:, runa:, etc.)
+#  combustible: (máquina) objeto que gasta por cada vez que fabrica (opcional)
+#  irrompible: true = nadie lo puede romper (solo picarlo para que suelte)
+#
+#  Para conseguirlos: en tiendas o botín usa "bloque:<id>". Al colocarlo queda activo.
+#  Un admin también puede mirar un bloque y usar /bloque poner <id>  (o /bloque quitar).
+# =====================================================================
+bloques:
+  mena_hierro_eterna:
+    nombre: "<gray>Mena de hierro eterna"
+    tipo: regenera
+    bloque: IRON_ORE
+    mientras: COBBLESTONE
+    tiempo: 45
+    suelta: ["RAW_IRON 1-2"]
+    experiencia: 1
+    irrompible: true
+  mena_diamante_eterna:
+    nombre: "<aqua>Mena de diamante eterna"
+    tipo: regenera
+    bloque: DEEPSLATE_DIAMOND_ORE
+    mientras: COBBLED_DEEPSLATE
+    tiempo: 600
+    suelta: ["DIAMOND 1"]
+    experiencia: 5
+    irrompible: true
+  piedra_de_experiencia:
+    nombre: "<green>Piedra de experiencia"
+    tipo: experiencia
+    bloque: EMERALD_BLOCK
+    mientras: MOSSY_COBBLESTONE
+    tiempo: 30
+    experiencia: 25
+    irrompible: true
+  generador_de_hierro:
+    nombre: "<white>Generador de hierro"
+    tipo: maquina
+    bloque: BLAST_FURNACE
+    tiempo: 60
+    produce: ["IRON_INGOT 1"]
+    combustible: "COAL 1"
+  granja_de_trigo:
+    nombre: "<yellow>Granja automática"
+    tipo: maquina
+    bloque: COMPOSTER
+    tiempo: 45
+    produce: ["WHEAT 2-4", "WHEAT_SEEDS 0-2"]
+  fuente_de_runas:
+    nombre: "<light_purple>Altar de runas"
+    tipo: maquina
+    bloque: ENCHANTING_TABLE
+    tiempo: 1800
+    produce: ["runa:azar 1"]

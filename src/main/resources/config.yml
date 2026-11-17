@@ -184,3 +184,13 @@ poderes:
   forjar-en-yunque: true        # las runas se forjan haciendo clic en un yunque (false = en cualquier parte)
   niveles-base: 5               # niveles de experiencia que cuesta forjar una runa
   niveles-por-runa: 3           # niveles extra por cada runa que el objeto ya tenga
+
+# Lo que ve el jugador en pantalla
+hud:
+  monedas: true                 # dinero abajo a la derecha, junto a la barra rápida (necesita el paquete de recursos)
+  desplazamiento: 100           # cuántos píxeles a la derecha del centro (100 = justo al lado de la barra)
+  localizador: true             # puntos en la barra de localización (donde está la experiencia) hacia la misión
+  localizador-aldea: true       # otro punto hacia la aldea cuando estás lejos
+  color-mision: gold            # color del punto (nombre de color de Minecraft o #rrggbb)
+  color-aldea: green
+

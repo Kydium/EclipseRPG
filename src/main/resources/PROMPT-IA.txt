@@ -193,6 +193,17 @@ REGLAS
   que respondan a lo que el NPC acaba de pedir (nunca "Aceptar misión").
 - En cada TIENDA pon "boton:" con lo que vende (ej. "⚔ Armas y armaduras",
   "✦ Runas de forja") y "descripcion:" con una frase corta.
+- Mochilas: un OBJETO con "mochila: <huecos>" (9, 27, 54 o más).
+- Bloques especiales (opcional):
+  BLOQUE <id>
+    nombre: <nombre>
+    tipo: <regenera|experiencia|maquina>
+    bloque: <cómo se ve>    mientras: <cómo se ve mientras vuelve>
+    tiempo: <segundos>      experiencia: <N>
+    suelta: <material cantidad>          (regenera)
+    produce: <material cantidad>         (maquina; varias líneas)
+    combustible: <material cantidad>     (maquina, opcional)
+  y se venden en tiendas con "bloque:<id>".
 - No inventes campos que no estén en el formato.
 
 MI IDEA:

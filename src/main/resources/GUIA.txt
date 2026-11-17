@@ -433,3 +433,38 @@ el juego te dice exactamente en qué línea.
    descripcion: "Espadas, hachas, armaduras y escudos"
  (si no lo pones, se usa el título de la tienda).
 
+---------------------------------------------------------------------
+ 18. MOCHILAS, BLOQUES ESPECIALES, DINERO EN PANTALLA Y TECLA G
+---------------------------------------------------------------------
+ MOCHILAS: cualquier objeto con "mochila: <huecos>" es una mochila.
+   mochila_pequena (9), mochila_mediana (27), mochila_grande (54) en la
+   tienda de Pip, y la Mochila del viajero (200) en la Armería Legendaria.
+   Hasta 54 huecos es una ventana; con más, páginas de 45 con flechas.
+   Puedes ponerle cualquier número (hasta 10000). En texto:
+     OBJETO mochila_gigante
+       nombre: Mochila gigante
+       mochila: 500
+       modelo: minecraft:purple_bundle
+ BLOQUES ESPECIALES (avanzado/bloques.yml o editor → Bloques y máquinas):
+   regenera     mineral que vuelve a salir tras un tiempo
+   experiencia  solo suelta experiencia de Minecraft
+   maquina      fabrica cosas cada X segundos (a un cofre pegado o se
+                guardan dentro; clic derecho para sacarlas). Puede gastar
+                combustible de ese cofre.
+   En tiendas/botín: bloque:<id>. Admin: /bloque poner <id> mirando un
+   bloque, /bloque quitar, /bloque dar <id>. Agachado (admin) se quitan.
+   En texto:
+     BLOQUE mena_oro_eterna
+       tipo: regenera
+       bloque: gold_ore
+       mientras: cobblestone
+       tiempo: 60
+       suelta: raw_gold 1-3
+ DINERO EN PANTALLA: abajo a la derecha, junto a la barra rápida
+   (hud.monedas; necesita aceptar el paquete de recursos del servidor).
+ PUNTOS DE MISIÓN: en la barra de localización (donde va la
+   experiencia) sale un punto dorado hacia donde tienes que ir: el NPC,
+   la estructura o la mazmorra; y uno verde hacia la aldea.
+ TECLA G: abre el menú del aventurero (si no funciona, revisa que la
+   tecla "Acciones rápidas" de Opciones → Controles sea la G).
+

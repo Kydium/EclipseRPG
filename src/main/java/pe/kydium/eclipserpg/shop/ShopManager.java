@@ -318,6 +318,7 @@ public final class ShopManager {
                 List<String> ids = plugin.items().ofRarity(rest.isBlank() ? "epico" : rest);
                 if (!ids.isEmpty()) it = plugin.items().create(ids.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(ids.size())), 1);
             }
+            case "bloque" -> it = plugin.specialBlocks() == null ? null : plugin.specialBlocks().item(rest, Math.max(1, e.amount));
             case "material" -> {
                 Material m = Material.matchMaterial(rest);
                 if (m != null) it = new ItemStack(m, e.amount);
@@ -367,7 +368,7 @@ public final class ShopManager {
         e.item = spec;
         e.amount = Math.max(1, amount);
         ItemStack it = build(e);
-        if (it != null && !spec.startsWith("custom:") && !spec.startsWith("especial:")) it.setAmount(Math.min(it.getMaxStackSize(), e.amount));
+        if (it != null && !spec.startsWith("custom:") && !spec.startsWith("especial:") && !spec.startsWith("bloque:")) it.setAmount(Math.min(it.getMaxStackSize(), e.amount));
         return it;
     }
 

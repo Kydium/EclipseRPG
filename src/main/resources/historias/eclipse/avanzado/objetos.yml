@@ -557,3 +557,31 @@ items:
       - {tipo: pesca_doble, probabilidad: 0.35}
       - {tipo: pesca_tesoro, probabilidad: 0.15}
 
+
+  # ================= MOCHILAS (mochila: número de huecos; con más de 54 se usan páginas) =================
+  mochila_pequena:
+    material: LEATHER
+    modelo: minecraft:bundle
+    nombre: "<#c9a26b>Mochila pequeña"
+    lore: ["<gray><i>Para un par de cosas más."]
+    mochila: 9
+  mochila_mediana:
+    material: LEATHER
+    modelo: minecraft:brown_bundle
+    nombre: "<#a0703c>Mochila mediana"
+    lore: ["<gray><i>Cabe medio cofre."]
+    mochila: 27
+  mochila_grande:
+    material: LEATHER
+    modelo: minecraft:orange_bundle
+    nombre: "<gold>Mochila grande"
+    lore: ["<gray><i>Un cofre doble a la espalda."]
+    mochila: 54
+  mochila_del_viajero:
+    material: LEATHER
+    modelo: minecraft:purple_bundle
+    nombre: "<light_purple>Mochila del viajero"
+    rareza: legendario
+    brillo: true
+    lore: ["<gray><i>Nadie sabe dónde termina por dentro."]
+    mochila: 200
