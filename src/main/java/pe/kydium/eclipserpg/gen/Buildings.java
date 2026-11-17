@@ -302,7 +302,7 @@ public final class Buildings {
         c.gable(-1, -1, 5, 5, h + 5, s, 0, true);
         c.set(2, h + 2, 2, "lantern");
         c.mark("npc", 2, 1, -2, "torre", 0);
-        c.mark("villager", 2, h + 2, 1, "guard", 0);
+        c.mark("villager", 4, 1, -2, "guard", 0);
         return c;
     }
 

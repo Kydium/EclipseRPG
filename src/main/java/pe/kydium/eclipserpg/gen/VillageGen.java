@@ -778,7 +778,9 @@ public final class VillageGen {
                 used.add(col(wx, wz));
             }
         out.set(x, top + 1, z, s.light);
-        out.mark("villager", x, top + 1, z + 1, "guard", 0);
+        // el guardia vigila al pie de la torre, por dentro (arriba se caería caminando)
+        int ix = cx + (int) Math.round((x - cx) * (1 - 6.0 / Math.max(6, Math.hypot(x - cx, z - cz)))), iz = cz + (int) Math.round((z - cz) * (1 - 6.0 / Math.max(6, Math.hypot(x - cx, z - cz))));
+        if (!used.contains(col(ix, iz))) out.mark("villager", ix, g(ix, iz) + 1, iz, "guard", 0);
     }
 
     /** Asigna puerta_norte/sur/este/oeste a la entrada que más mira a cada lado. */
