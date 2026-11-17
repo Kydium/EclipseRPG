@@ -724,8 +724,7 @@ public final class SmokeTest {
         check(sb.placedCount() == before + 1 && at.getBlock().getType() == Material.IRON_ORE, "un bloque especial se coloca");
         try {
             for (var pk : Bukkit.getDatapackManager().getPacks())
-                if (pk.getName().contains("atajos") || pk.getName().startsWith("file/"))
-                    plugin.getLogger().info("[PRUEBA] datapack " + pk.getName() + " activo=" + pk.isEnabled() + " compat=" + pk.getCompatibility());
+                plugin.getLogger().info("[PRUEBA] datapack " + pk.getName() + " activo=" + pk.isEnabled() + " compat=" + pk.getCompatibility());
         } catch (Throwable t) {
             plugin.getLogger().info("[PRUEBA] datapacks: " + t);
         }
