@@ -213,6 +213,7 @@ public final class SmokeTest {
                     checkGeneratorsBegin();
                     checkPowers();
                     checkDeaths();
+                    checkReplies();
                     plugin.dungeons().buildForTest(1);
                     stage = 3;
                 }
@@ -688,6 +689,23 @@ public final class SmokeTest {
                     }
             check(solid > 500, i.id + " tiene bloques (" + solid + ", " + chests + " cofres) en " + i.x + " " + i.y + " " + i.z);
         }
+    }
+
+    private void checkReplies() {
+        var q1 = plugin.quests().byNumber(1);
+        check(q1 != null && q1.replies.size() == 2 && q1.replies.get(0).contains("madera"), "las misiones tienen respuestas propias del jugador");
+        pe.kydium.eclipserpg.quests.Quest boss = null, give = null;
+        for (int i = 1; i <= 200; i++) {
+            var q = plugin.quests().byNumber(i);
+            if (q == null) break;
+            if (q.replies.isEmpty() && q.boss && boss == null) boss = q;
+            if (q.replies.isEmpty() && !q.boss && give == null && !q.objectives.isEmpty() && q.objectives.get(0).type == pe.kydium.eclipserpg.quests.Quest.Type.ENTREGAR) give = q;
+        }
+        String br = boss == null ? "" : boss.autoReply(), gr = give == null ? "" : give.autoReply();
+        plugin.getLogger().info("[PRUEBA] respuesta automática de jefe: " + br + " | de entrega: " + gr);
+        check(br.contains("Derrotaré") && gr.contains("Te traeré"), "si no tiene respuesta, el jugador contesta según el objetivo");
+        String lbl = plugin.shops().buttonLabel("runas");
+        check(lbl.contains("Runas de forja") && !plugin.shops().buttonLabel("herreria").contains("Tienda"), "los botones de tienda dicen lo que venden (" + lbl + ")");
     }
 
     private void checkDeaths() {

@@ -59,6 +59,28 @@ public final class ShopManager {
         public String onlyEvent;           // solo abre durante este evento del mundo
         public int quest;                  // misiones completadas necesarias para entrar
         public double variation;           // 0.2 = los precios cambian ±20% cada día
+        public String button;              // texto del botón en el NPC ("⚔ Armas y armaduras")
+        public String hint;                // lo que se ve al pasar el mouse
+    }
+
+    /** Texto del botón del NPC para esta tienda: el que pusiste en "boton", o uno sacado del título. */
+    public String buttonLabel(String id) {
+        Shop s = shops.get(id);
+        if (s == null) return "<green>🛒 Tienda";
+        if (s.button != null && !s.button.isBlank()) return s.button.contains("<") ? s.button : "<green>" + s.button;
+        String t = s.title == null ? id : s.title.replaceAll("<[^>]+>", "").trim();
+        if (t.contains("·")) t = t.substring(t.lastIndexOf('·') + 1).trim();
+        if (t.isEmpty()) t = Txt.pretty(id);
+        String k = t.toLowerCase(Locale.ROOT);
+        String icon = k.contains("runa") ? "✦" : k.contains("herramienta") || k.contains("pico") ? "⛏" : k.contains("arm") || k.contains("herrer") || k.contains("forja") ? "⚔"
+                : k.contains("alquim") || k.contains("poci") || k.contains("bruja") ? "⚗" : k.contains("oscuro") || k.contains("negro") ? "☾"
+                : k.contains("comida") || k.contains("posada") || k.contains("cocina") ? "🍖" : k.contains("pesca") || k.contains("mar") ? "🎣" : "🛒";
+        return "<green>" + icon + " <white>" + t;
+    }
+
+    public String buttonHint(String id) {
+        Shop s = shops.get(id);
+        return s != null && s.hint != null && !s.hint.isBlank() ? s.hint : "Comprar y vender";
     }
 
     private final EclipseRPG plugin;
@@ -79,6 +101,8 @@ public final class ShopManager {
             Shop shop = new Shop();
             shop.id = id;
             shop.title = s.getString("titulo", id);
+            shop.button = s.getString("boton");
+            shop.hint = s.getString("descripcion");
             shop.rows = Math.max(1, Math.min(6, s.getInt("filas", 4)));
             shop.rotating = s.getBoolean("rotativa", false);
             shop.show = s.getInt("mostrar", 3);

@@ -39,6 +39,11 @@ public final class DialogUI {
         for (String l : lines) body.add(DialogBody.plainMessage(Txt.mm("<white>" + l)));
 
         List<ActionButton> actions = new ArrayList<>();
+        // respuestas largas: botones más anchos, uno debajo del otro
+        int longest = 0;
+        for (Button b : buttons) longest = Math.max(longest, b.label().replaceAll("<[^>]+>", "").length());
+        int width = longest > 28 ? Math.min(400, 60 + longest * 6) : 200;
+        boolean stack = longest > 28;
         for (Button b : buttons) {
             DialogAction action = b.action() == null ? null : DialogAction.customClick(
                     (view, audience) -> Bukkit.getScheduler().runTask(plugin, () -> {
@@ -46,7 +51,7 @@ public final class DialogUI {
                     }),
                     ClickCallback.Options.builder().uses(1).build());
             actions.add(ActionButton.create(Txt.mm(b.label()),
-                    b.tooltip() == null ? null : Txt.mm("<gray>" + b.tooltip()), 200, action));
+                    b.tooltip() == null ? null : Txt.mm("<gray>" + b.tooltip()), width, action));
         }
 
         DialogBase base = DialogBase.builder(Txt.mm(speaker))
@@ -57,7 +62,7 @@ public final class DialogUI {
         DialogType type;
         if (actions.size() == 1) {
             type = DialogType.notice(actions.get(0));
-        } else if (actions.size() == 2) {
+        } else if (actions.size() == 2 && !stack) {
             type = DialogType.confirmation(actions.get(0), actions.get(1));
         } else {
             type = DialogType.multiAction(actions).columns(1).build();

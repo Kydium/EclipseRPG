@@ -68,6 +68,8 @@ public final class StoryDoc {
         public final List<String> start = new ArrayList<>();
         public final List<String> end = new ArrayList<>();
         public final List<String> reminder = new ArrayList<>();
+        public final List<String> replies = new ArrayList<>(); // lo que responde el jugador para aceptar
+        public String decline;                                  // lo que responde para no aceptar todavía
         public final List<Objective> objectives = new ArrayList<>();
         public final List<String> spawns = new ArrayList<>();   // "mob:n"
         public final List<String> receive = new ArrayList<>();  // specs

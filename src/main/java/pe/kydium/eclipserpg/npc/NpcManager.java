@@ -127,7 +127,7 @@ public final class NpcManager {
         for (String s : n.services) {
             if (s.startsWith("tienda:")) {
                 String shop = s.substring(7);
-                b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button("<green>🛒 Tienda", "Comprar y vender", () -> plugin.shops().open(p, shop)));
+                b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button(plugin.shops().buttonLabel(shop), plugin.shops().buttonHint(shop), () -> plugin.shops().open(p, shop)));
             } else if (s.equals("contratos")) {
                 b.add(new pe.kydium.eclipserpg.quests.DialogUI.Button("<yellow>📜 Contratos del día", "3 encargos nuevos cada día",
                         () -> plugin.contracts().open(p)));

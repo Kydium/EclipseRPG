@@ -83,6 +83,8 @@ public final class QuestManager implements Listener {
             q.start.addAll(m.start);
             q.end.addAll(m.end);
             q.reminder.addAll(m.reminder);
+            q.replies.addAll(m.replies);
+            q.decline = m.decline;
             for (pe.kydium.eclipserpg.story.StoryDoc.Objective so : m.objectives) {
                 Quest.Objective o = new Quest.Objective();
                 try {
@@ -223,9 +225,14 @@ public final class QuestManager implements Listener {
                     body.add("<gold>Objetivos:");
                     for (Quest.Objective o : q.objectives) body.add("<gray>• <white>" + o.text + " <gray>(" + o.amount + ")");
                 }
-                ui.show(p, npcName + " <dark_gray>· <yellow>" + q.name, body, List.of(
-                        new DialogUI.Button("<green><bold>Aceptar misión", actName(q.act), () -> accept(p, q)),
-                        new DialogUI.Button("<gray>Ahora no", "Puedes volver cuando quieras", null)), true);
+                // el jugador contesta con algo que tiene que ver con lo que le piden (no "Aceptar misión")
+                List<DialogUI.Button> btns = new ArrayList<>();
+                List<String> replies = q.replies.isEmpty() ? List.of(q.autoReply()) : q.replies;
+                for (String r : replies)
+                    btns.add(new DialogUI.Button("<green>➜ <white>" + r, "<gray>Aceptas la misión · " + actName(q.act), () -> accept(p, q)));
+                btns.add(new DialogUI.Button("<gray>" + (q.decline == null || q.decline.isBlank() ? "Ahora no puedo. Vuelvo luego." : q.decline),
+                        "Puedes volver cuando quieras", null));
+                ui.show(p, npcName + " <dark_gray>· <yellow>" + q.name, body, btns, true);
             } else {
                 say(p, npcName, q.start, () -> accept(p, q));
             }
@@ -242,7 +249,7 @@ public final class QuestManager implements Listener {
                 }
                 if (q.noDeath) lines.add("<red>⚠ Si mueres, el progreso se reinicia");
                 ui.show(p, npcName + " <dark_gray>· <yellow>" + q.name, lines,
-                        List.of(new DialogUI.Button("<yellow>Entendido", null, null)), true);
+                        List.of(new DialogUI.Button("<yellow>Sigo en ello.", null, null)), true);
             } else {
                 say(p, npcName, lines, () -> showObjectives(p, q));
             }

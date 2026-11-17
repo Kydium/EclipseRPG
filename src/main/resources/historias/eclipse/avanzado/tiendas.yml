@@ -9,6 +9,8 @@ tiendas:
 
   general:                          # Pip el Mercader
     titulo: "<dark_gray>Pip · Tienda general"
+    boton: "🛒 Provisiones y útiles"
+    descripcion: "Comida, antorchas, camas y lo básico para sobrevivir"
     filas: 6
     objetos:
       # --- Comprar ---
@@ -42,6 +44,8 @@ tiendas:
 
   herreria:                         # Bruno el Herrero
     titulo: "<dark_gray>Bruno · Herrería"
+    boton: "⚔ Armas y armaduras"
+    descripcion: "Espadas, hachas, armaduras y escudos forjados por Bruno"
     filas: 6
     objetos:
       - {tipo: comprar, slot: 10, item: "material:IRON_SWORD", precio: 60}
@@ -67,6 +71,8 @@ tiendas:
 
   alquimia:                         # Fray Odón
     titulo: "<dark_gray>Fray Odón · Alquimia"
+    boton: "⚗ Pociones y alquimia"
+    descripcion: "Pociones, ingredientes y libros encantados"
     filas: 6
     objetos:
       - {tipo: comprar, slot: 10, item: "pocion:healing", precio: 25}
@@ -94,6 +100,8 @@ tiendas:
 
   mercado:                          # El Errante — 3 objetos que cambian cada día
     titulo: "<dark_gray>El Errante · Mercado oscuro"
+    boton: "☾ Mercado oscuro"
+    descripcion: "Cosas raras que nadie más vende… a buen precio"
     filas: 3
     rotativa: true
     mostrar: 3
@@ -110,6 +118,8 @@ tiendas:
 
   legendaria:                       # El Errante — Armería legendaria (armas con poderes)
     titulo: "<gold><bold>Armería Legendaria"
+    boton: "<gold>⚔ Armería legendaria"
+    descripcion: "Armas únicas con poderes: robo de vida, rayo, congelar…"
     filas: 3
     objetos:
       - {tipo: comprar, slot: 10, item: "custom:daga_sangrienta", precio: 2500, nivel: 15, stock: 1}
@@ -123,6 +133,8 @@ tiendas:
 
   herramientas_magicas:             # Bruno el Herrero — herramientas con poderes
     titulo: "<gold><bold>Herramientas Mágicas"
+    boton: "<gold>⛏ Picos y herramientas mágicas"
+    descripcion: "Picos 3x3, hacha taladora, azada cosechadora, caña de tesoros"
     filas: 3
     objetos:
       - {tipo: comprar, slot: 10, item: "custom:azada_cosechadora", precio: 2000, nivel: 10, stock: 1}
@@ -134,6 +146,8 @@ tiendas:
 
   runas:                            # Bruno el Herrero — Runas para forjar poderes en tus armas
     titulo: "<light_purple><bold>Runas de Forja"
+    boton: "<light_purple>✦ Runas de forja"
+    descripcion: "Runas para darle poderes a tus armas, armaduras y herramientas"
     filas: 6
     objetos:
       - {tipo: comprar, slot: 10, item: "runa:robo_de_vida:5", precio: 900, nivel: 10}

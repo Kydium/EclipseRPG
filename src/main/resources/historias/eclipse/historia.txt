@@ -99,6 +99,8 @@ MISIÓN La primera noche
   dice: ¡Por fin despiertas! Te encontramos tirado junto al camino.
   dice: Mira el cielo… el sol no salió del todo. Lo llaman el Eclipse.
   dice: Antes de que caiga la noche necesitamos madera. Tala 16 troncos y hazte una mesa de trabajo.
+  responde: Voy por la madera antes de que oscurezca.
+  responde: ¿El Eclipse? … Primero el refugio. Ya vuelvo con los troncos.
   objetivo: tala 16 troncos
   objetivo: ten una mesa de trabajo
   premio: 250 xp, 40 soles, 10 pan
@@ -108,6 +110,7 @@ MISIÓN Un techo
   npc: tula
   dice: De noche salen cosas que no deberían existir.
   dice: Hazte una cama y unas antorchas. La luz los mantiene lejos… casi siempre.
+  responde: Una cama y antorchas. Entendido, abuela.
   objetivo: ten una cama
   objetivo: ten 8 antorchas
   premio: 250 xp, 40 soles
@@ -117,6 +120,7 @@ MISIÓN Herramientas de piedra
   npc: bruno
   dice: Soy Bruno. Herrero. No hablo mucho.
   dice: Con las manos no vas a durar. Pico, hacha y espada de piedra. Ya.
+  responde: Pico, hacha y espada. Ya mismo, Bruno.
   objetivo: ten un pico de piedra
   objetivo: ten un hacha de piedra
   objetivo: ten una espada de piedra
@@ -127,6 +131,7 @@ MISIÓN Comida para todos
   npc: tula
   dice: Somos pocos, pero comemos como muchos.
   dice: Caza unos animales para el campamento, ¿sí?
+  responde: ¡Esta noche hay guiso! Voy de caza.
   objetivo: mata 6 cow o pig o sheep o chicken o rabbit | Caza 6 animales
   premio: 250 xp, 40 soles, 3 manzana
   final: ¡Esta noche hay guiso! Toma, unas manzanas para el camino.
@@ -136,6 +141,8 @@ MISIÓN Los primeros Corrompidos
   dice: Capitana Inés, guardia del campamento.
   dice: ¿Ves esos zombis con ojos morados? Son Corrompidos: el Eclipse los hace más fuertes.
   dice: Ahí vienen unos. Demuéstrame que sabes pelear.
+  responde: Que vengan. Les voy a enseñar a pelear.
+  rechaza: Dame un momento, todavía no estoy listo.
   objetivo: mata 5 zombie o husk o drowned o zombie_villager corrompidos | Mata 5 Zombis Corrompidos
   aparecen: 3 zombi_corrompido
   premio: 250 xp, 40 soles, 1 escudo
@@ -145,6 +152,7 @@ MISIÓN Hierro para la forja
   npc: bruno
   dice: La piedra no aguanta a un Corrompido.
   dice: Baja a las cuevas, saca hierro y fúndelo. Doce lingotes.
+  responde: Bajo a las cuevas y te traigo ese hierro fundido.
   objetivo: funde 12 lingotes de hierro
   premio: 250 xp, 40 soles
   final: Buen hierro. Ahora sí podemos trabajar.

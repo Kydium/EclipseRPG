@@ -271,6 +271,8 @@ public final class StoryParser {
             case "dice", "dialogo", "inicio", "texto" -> m.start.add(val);
             case "final", "al terminar", "termina", "al entregar", "fin" -> m.end.add(val);
             case "recuerda", "recordatorio", "pista" -> m.reminder.add(val);
+            case "responde", "respuesta", "respuestas", "aceptar", "acepta", "yo digo", "jugador", "jugador dice", "contesto", "contesta" -> m.replies.add(val);
+            case "rechaza", "rechazar", "no acepta", "negarse" -> m.decline = val;
             case "objetivo", "objetivos", "tarea" -> {
                 StoryDoc.Objective o = objective(val, ln);
                 if (o != null) m.objectives.add(o);
@@ -302,7 +304,7 @@ public final class StoryParser {
                 if (k.equals("tormenta") || k.equals("lluvia") || k.equals("despejado")) m.weather = k;
                 else error(ln, "clima: no entiendo '" + val + "'. Usa: despejado, lluvia o tormenta");
             }
-            default -> error(ln, "La misión no tiene un campo '" + key + "'. Campos: npc, acto, nivel, dice, final, objetivo, premio, aparecen, recibe, jefe, mazmorra, estructura, eleccion, evento, clima");
+            default -> error(ln, "La misión no tiene un campo '" + key + "'. Campos: npc, acto, nivel, dice, responde, rechaza, final, objetivo, premio, aparecen, recibe, jefe, mazmorra, estructura, eleccion, evento, clima");
         }
     }
 

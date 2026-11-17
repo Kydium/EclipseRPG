@@ -413,3 +413,20 @@ el juego te dice exactamente en qué línea.
   mobs, estructuras, mazmorras, mundo, contratos). Estos textos se pegan
   en el editor, no dentro de historia.txt.
 
+---------------------------------------------------------------------
+ 17. RESPUESTAS DEL JUGADOR Y BOTONES DE TIENDA
+---------------------------------------------------------------------
+ En vez de «Aceptar misión», el jugador contesta algo que tiene que ver
+ con lo que le piden:
+   MISIÓN Hierro para la forja
+     dice: Baja a las cuevas y trae doce lingotes.
+     responde: Bajo a las cuevas y te traigo ese hierro.
+     rechaza: Ahora no puedo, vuelvo luego.
+ Puedes poner varias "responde:" (salen varios botones). Si no pones
+ ninguna, el juego inventa una según el objetivo: «¡Cuenta conmigo!
+ Te traeré 20 panes.», «¡Que venga! Derrotaré al Rey de Ceniza.»…
+ Las tiendas dicen lo que venden en el botón del NPC:
+   boton: "⚔ Armas y armaduras"
+   descripcion: "Espadas, hachas, armaduras y escudos"
+ (si no lo pones, se usa el título de la tienda).
+

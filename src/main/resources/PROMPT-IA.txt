@@ -30,8 +30,11 @@ ACTO <número>: <nombre del acto>
 
 MISIÓN <título>
   npc: <id del NPC que la da>
-  nivel: <opcional, nivel mínimo; sube poco a poco: 1 al inicio, hasta 50>
+  nivel: <opcional, nivel mínimo; sube poco a poco (no hay límite de nivel)>
   dice: <línea de diálogo>          (2 a 4 líneas "dice:")
+  responde: <lo que contesta el jugador para aceptar, según lo que le piden>
+            (1 o 2 líneas, cortas; ej. "¡Ya te lo traigo!", "Voy a acabar con ellos.")
+  rechaza: <opcional, lo que contesta para dejarla para después>
   objetivo: <frase>                 (1 a 3 objetivos)
   premio: <N> xp, <N> <moneda>, <objetos opcionales>
   final: <lo que dice al entregar>
@@ -125,6 +128,8 @@ ENEMIGO <id>             (o JEFE <id> para un jefe con barra de vida)
 
 TIENDA <id>
   titulo: <nombre de la ventana>
+  boton: <lo que dice el botón del NPC, ej. "⚔ Armas y armaduras">
+  descripcion: <frase corta de lo que vende>
   vende: <cantidad> <objeto> por <precio> [nivel N] [stock N]   (el jugador compra)
          objeto puede ser "runa de <poder> [valor] [prob%]" (se forja en cualquier arma),
          "runa al azar" o "arma especial legendaria" (una al azar de esa rareza)
@@ -184,6 +189,10 @@ REGLAS
     enemigos-atacan: <todos|guardianes>    npcs-pueden-caer: sí    vida-npc: 20
     cuerpos: sí    cuerpos-criaturas: sí    cuerpo-segundos: 10
     reaparicion-npcs: 120    reaparicion-animales: 300     (segundos)
+- Cada misión debe llevar 1 o 2 líneas "responde:" con la voz del jugador,
+  que respondan a lo que el NPC acaba de pedir (nunca "Aceptar misión").
+- En cada TIENDA pon "boton:" con lo que vende (ej. "⚔ Armas y armaduras",
+  "✦ Runas de forja") y "descripcion:" con una frase corta.
 - No inventes campos que no estén en el formato.
 
 MI IDEA:
