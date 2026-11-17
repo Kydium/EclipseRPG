@@ -29,6 +29,11 @@ commands:
     usage: /historia [recargar|errores|colocar|skins|lugares|lista|nueva|usar]
     permission: eclipserpg.admin
     aliases: [story, h]
+  estructura:
+    description: Guardar y colocar tus propias construcciones (torres, templos, guaridas…)
+    usage: /estructura [pos1|pos2|guardar|colocar|lista|ir|brujula]
+    permission: eclipserpg.admin
+    aliases: [estructuras, est]
   evento:
     description: Eventos del mundo y clima (Luna de Sangre, tormentas…)
     usage: /evento [lista|iniciar|parar|clima|estado]

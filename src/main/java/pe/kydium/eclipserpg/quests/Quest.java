@@ -9,7 +9,7 @@ import java.util.Locale;
 /** Una misión de la historia (quests.yml). */
 public final class Quest {
 
-    public enum Type { MATAR, MOB, TENER, ENTREGAR, FUNDIR, MINAR, PESCAR, DOMESTICAR, ENCANTAR, DIMENSION, HABLAR, MAZMORRA }
+    public enum Type { MATAR, MOB, TENER, ENTREGAR, FUNDIR, MINAR, PESCAR, DOMESTICAR, ENCANTAR, DIMENSION, HABLAR, MAZMORRA, ESTRUCTURA }
 
     public static final class Objective {
         public Type type;
@@ -54,6 +54,7 @@ public final class Quest {
     public boolean noDeath;
     public int dungeon;
     public String event;
+    public String structure;
     public String weather;
     public long xp;
     public long soles;

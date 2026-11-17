@@ -209,6 +209,7 @@ public final class SmokeTest {
                     checkWalking();
                     checkRuin();
                     checkWorldBegin();
+                    checkStructuresBegin();
                     plugin.dungeons().buildForTest(1);
                     stage = 3;
                 }
@@ -227,6 +228,7 @@ public final class SmokeTest {
                 }
                 case 5 -> {
                     checkWorldEnd();
+                    checkStructuresEnd();
                     finish();
                 }
                 default -> { }
@@ -507,6 +509,61 @@ public final class SmokeTest {
             else h.remove();
         }
         check(guardHits > 0, "los guardias atacan a los hostiles (" + guardHits + " golpes, " + dead + "/" + husks.size() + " vencidos)");
+    }
+
+    // ---------------------------------------------------------------- estructuras
+
+    private pe.kydium.eclipserpg.structure.StructureManager.Inst builtStructure;
+    private boolean structureDone;
+
+    private void checkStructuresBegin() {
+        var sm = plugin.structures();
+        int bad = 0, blocks = 0;
+        for (String n : sm.planNames()) {
+            var pl = sm.plan(n);
+            if (pl == null) bad += 1000;
+            else {
+                bad += pl.bad;
+                blocks += pl.ops.size();
+            }
+        }
+        check(sm.ids().size() >= 3 && sm.planNames().size() >= 3 && bad == 0,
+                "estructuras cargadas (" + sm.ids().size() + " definidas, " + sm.planNames().size() + " planos, " + blocks + " bloques, " + bad + " malos)");
+        var st = plugin.story();
+        List<String> lines = List.of("HISTORIA: Torres", "NPC cabo", "  nombre: Cabo", "MISIÓN La torre", "  npc: cabo", "  estructura: torre_vigia",
+                "  objetivo: encuentra la estructura torre_vigia", "MISIÓN Otra", "  npc: cabo", "  objetivo: encuentra la estructura castillo_volador");
+        var r = new pe.kydium.eclipserpg.story.StoryParser(st.dictionary(), st.catalog()).parse(lines);
+        for (var pr : r.problems()) plugin.getLogger().info("[PRUEBA] estructuras: " + pr);
+        var m0 = r.doc().missions.get(0);
+        check(r.errors() == 1 && "torre_vigia".equals(m0.structure) && m0.objectives.size() == 1 && "ESTRUCTURA".equals(m0.objectives.get(0).type),
+                "la historia entiende «estructura:» y «encuentra la estructura …» (" + r.errors() + " error esperado)");
+        sm.buildForTest("torre_vigia", inst -> {
+            builtStructure = inst;
+            structureDone = true;
+        });
+    }
+
+    private void checkStructuresEnd() {
+        check(structureDone && builtStructure != null, "una estructura se construye sola en un buen lugar");
+        if (builtStructure == null) return;
+        var i = builtStructure;
+        World w = Bukkit.getWorld(i.world);
+        Block base = w.getBlockAt(i.x, i.y, i.z);
+        int loot = 0, chests = 0;
+        for (int x = i.x - i.rx; x <= i.x + i.rx; x++) for (int y = i.y; y <= i.y + i.h; y++) for (int z = i.z - i.rz; z <= i.z + i.rz; z++) {
+            if (w.getBlockAt(x, y, z).getState() instanceof org.bukkit.block.Container c) {
+                chests++;
+                for (ItemStack it : c.getInventory().getContents()) if (it != null) loot++;
+            }
+        }
+        check(base.getType() == Material.STONE_BRICKS && chests >= 2 && loot > 0,
+                "la torre tiene suelo, cofres y botín (" + base.getType() + ", " + chests + " cofres, " + loot + " objetos) en " + i.x + " " + i.y + " " + i.z);
+        check(i.enemySpots.size() == 4 && i.entrance != null && plugin.structures().count("torre_vigia") >= 1, "la torre guardó sus marcas de enemigos y entrada");
+        // guardar un plano desde el mundo y volver a leerlo
+        String msg = plugin.structures().savePlan("prueba_copia", w, new int[]{i.x - i.rx, i.y, i.z - i.rz}, new int[]{i.x + i.rx, i.y + i.h, i.z + i.rz});
+        var copy = plugin.structures().plan("prueba_copia");
+        check(copy != null && copy.ops.size() > 300 && copy.bad == 0 && plugin.structures().def("prueba_copia") != null,
+                "/estructura guardar crea el plano y lo registra (" + (copy == null ? msg : copy.ops.size() + " bloques") + ")");
     }
 
     private void checkReload() {

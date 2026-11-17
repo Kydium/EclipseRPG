@@ -76,6 +76,7 @@ public final class QuestManager implements Listener {
             q.noDeath = m.noDeath;
             q.dungeon = m.dungeon;
             q.event = m.event;
+            q.structure = m.structure;
             q.weather = m.weather;
             q.xp = m.xp;
             q.soles = m.money;
@@ -266,6 +267,8 @@ public final class QuestManager implements Listener {
         }
         for (String g : q.giveOnAccept) give(p, g);
         if (q.dungeon > 0) plugin.dungeons().ensure(q.dungeon, p);
+        if (q.structure != null && !plugin.structures().ensure(q.structure, p))
+            plugin.getLogger().warning("La misión \"" + q.name + "\" pide la estructura '" + q.structure + "', que no existe.");
         if (q.weather != null) plugin.world().setWeather(q.weather, 600);
         if (q.event != null && !plugin.world().start(q.event))
             plugin.getLogger().warning("La misión \"" + q.name + "\" pide el evento '" + q.event + "', que no existe en Mundo vivo.");

@@ -1,0 +1,73 @@
+# =========================================================
+#  ESTRUCTURAS PROPIAS — es más cómodo desde el editor web (Estructuras).
+#
+#  Crear una nueva dentro del juego:
+#    1. Constrúyela en creativo.
+#    2. Mira una esquina de abajo: /estructura pos1 · mira la contraria de arriba: /estructura pos2
+#    3. /estructura guardar torre_mago      (queda en la carpeta estructuras/ de la historia)
+#  Carteles especiales (1ª línea): [enemigo] [jefe] [entrada] [npc] (en [npc], su id en la 2ª línea)
+#
+#  aparece: azar (sola, en terreno nuevo) | mision (al aceptar una misión con "estructura: id") | manual
+#  probabilidad: por cada chunk nuevo · maximo: cuántas puede haber en el mundo
+#  distancia-min / distancia-max: desde la aldea (en "azar", distancia-min es desde el spawn)
+#  biomas: ids o grupos (frio, calido, desierto, selva, oceano, montana, pantano, bosque) · vacío = cualquiera
+#  hundir: -3 la entierra 3 bloques · desnivel-max: qué tan plano debe ser el terreno
+#  enemigos: aparecen cuando entra un jugador · reaparicion: minutos (0 = solo la primera vez)
+#  botin: "objeto cantidad probabilidad" para los cofres y barriles · botin-tiradas: veces que se sortea
+#  En una misión:   estructura: torre_vigia      objetivo: encuentra la estructura torre_vigia
+# =========================================================
+estructuras:
+  torre_vigia:
+    nombre: "<gray>Torre del Vigía"
+    plano: torre_vigia
+    aparece: azar
+    probabilidad: 0.003
+    maximo: 6
+    distancia-min: 200
+    distancia-max: 500
+    biomas: []
+    desnivel-max: 4
+    enemigos:
+      - {mob: skeleton, cantidad: 3}
+      - {mob: spider, cantidad: 1}
+    reaparicion: 30
+    botin: ["ARROW 16 0.8", "IRON_INGOT 4 0.6", "BREAD 5 0.7", "pocion:healing 1 0.4", "DIAMOND 1 0.1", "custom:fragmento_mejora 1 0.1"]
+    botin-tiradas: 2
+    anuncio: "<gray>Torre del Vigía"
+    subtitulo: "<dark_gray>Alguien vigilaba desde aquí… hace mucho"
+    premio-xp: 40
+  campamento_bandidos:
+    nombre: "<red>Campamento de bandidos"
+    plano: campamento_bandidos
+    aparece: azar
+    probabilidad: 0.003
+    maximo: 5
+    distancia-min: 250
+    distancia-max: 500
+    biomas: [bosque, plains, savanna, meadow]
+    desnivel-max: 3
+    enemigos:
+      - {mob: pillager, cantidad: 4}
+    jefe: vindicator
+    reaparicion: 45
+    botin: ["EMERALD 6 0.8", "COOKED_BEEF 6 0.7", "GOLD_INGOT 4 0.5", "CROSSBOW 1 0.3", "libro:sharpness:2 1 0.15"]
+    botin-tiradas: 2
+    anuncio: "<red>Campamento de bandidos"
+    subtitulo: "<gray>No están contentos de verte"
+    premio-xp: 60
+    premio-dinero: 25
+  santuario_alba:
+    nombre: "<yellow>Santuario del Alba"
+    plano: santuario_alba
+    aparece: azar
+    probabilidad: 0.0015
+    maximo: 4
+    distancia-min: 300
+    distancia-max: 600
+    biomas: []
+    desnivel-max: 3
+    botin: ["GOLDEN_APPLE 1 0.6", "EXPERIENCE_BOTTLE 6 0.8", "pocion:regeneration 1 0.5", "custom:fragmento_mejora 1 0.25"]
+    botin-tiradas: 2
+    anuncio: "<yellow>Santuario del Alba"
+    subtitulo: "<gray>Un lugar que el eclipse no tocó"
+    premio-xp: 100

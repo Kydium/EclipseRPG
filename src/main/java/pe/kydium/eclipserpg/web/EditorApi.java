@@ -57,7 +57,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class EditorApi {
 
-    private static final Set<String> YAMLS = Set.of("mobs", "objetos", "tiendas", "contratos", "mazmorras", "mundo");
+    private static final Set<String> YAMLS = Set.of("mobs", "objetos", "tiendas", "contratos", "mazmorras", "mundo", "estructuras");
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     private final EclipseRPG plugin;
     private String token;
@@ -278,6 +278,10 @@ public final class EditorApi {
         java.util.Collections.sort(biomes);
         o.add("biomas", GSON.toJsonTree(biomes));
         o.add("eventos", GSON.toJsonTree(new ArrayList<>(plugin.world().eventIds())));
+        o.add("planos", GSON.toJsonTree(new ArrayList<>(plugin.structures().planNames())));
+        Map<String, Integer> placed = new LinkedHashMap<>();
+        for (String sid : plugin.structures().ids()) placed.put(sid, plugin.structures().count(sid));
+        o.add("estructurasEnMundo", GSON.toJsonTree(placed));
         List<String> effects = new ArrayList<>();
         Registry.EFFECT.forEach(e -> effects.add(e.getKey().getKey()));
         o.add("efectos", GSON.toJsonTree(effects));

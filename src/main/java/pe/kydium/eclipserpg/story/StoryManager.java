@@ -33,7 +33,7 @@ public final class StoryManager {
 
     /** Archivos de la historia de ejemplo que trae el plugin. */
     private static final String[] BUNDLED = {"historia.txt", "avanzado/objetos.yml", "avanzado/mobs.yml",
-            "avanzado/tiendas.yml", "avanzado/contratos.yml", "avanzado/mazmorras.yml", "avanzado/mundo.yml", "skins/LEEME.txt"};
+            "avanzado/tiendas.yml", "avanzado/contratos.yml", "avanzado/mazmorras.yml", "avanzado/mundo.yml", "avanzado/estructuras.yml", "skins/LEEME.txt"};
 
     /** Lugares de la aldea donde se pueden poner NPCs (vienen del plano). */
     public static final List<String> PLACES = List.of("casa", "cuartel", "herreria", "tienda", "biblioteca", "mapas", "torre",
@@ -265,7 +265,7 @@ public final class StoryManager {
             items.put(id, d == null || d.name == null ? id : plain(d.name));
         }
         Map<Integer, String> dungeons = new TreeMap<>();
-        for (int act = 1; act <= 20; act++) if (plugin.dungeons().themeFor(act) != null) dungeons.put(act, plain(plugin.dungeons().name(act)));
+        for (int act = 1; act <= 99; act++) if (plugin.dungeons().themeFor(act) != null) dungeons.put(act, plain(plugin.dungeons().name(act)));
         Set<String> shops = new TreeSet<>(plugin.shops().ids());
         Set<String> skinNames = new TreeSet<>(skins.keySet());
         Set<String> places = new java.util.LinkedHashSet<>(PLACES);
@@ -306,6 +306,13 @@ public final class StoryManager {
 
             public Set<String> places() {
                 return places;
+            }
+
+            public Set<String> structures() {
+                Set<String> out = new java.util.LinkedHashSet<>();
+                var sec = yaml("estructuras").getConfigurationSection("estructuras");
+                if (sec != null) for (String k : sec.getKeys(false)) out.add(pe.kydium.eclipserpg.structure.StructureManager.slug(k));
+                return out;
             }
         };
     }

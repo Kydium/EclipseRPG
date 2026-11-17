@@ -1,0 +1,3 @@
+torre_vigia
+campamento_bandidos
+santuario_alba

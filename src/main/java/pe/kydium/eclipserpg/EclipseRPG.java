@@ -42,6 +42,7 @@ public final class EclipseRPG extends JavaPlugin {
     private NpcEntities npcEntities;
     private HotkeyMenu hotkeys;
     private pe.kydium.eclipserpg.world.WorldManager world;
+    private pe.kydium.eclipserpg.structure.StructureManager structures;
     private pe.kydium.eclipserpg.story.StoryManager story;
     private pe.kydium.eclipserpg.npc.ResourcePack resourcePack;
     private pe.kydium.eclipserpg.web.EditorApi editor;
@@ -91,6 +92,7 @@ public final class EclipseRPG extends JavaPlugin {
         npcEntities = new NpcEntities(this);
         hotkeys = new HotkeyMenu(this);
         world = new pe.kydium.eclipserpg.world.WorldManager(this);
+        structures = new pe.kydium.eclipserpg.structure.StructureManager(this);
         loadContent();
 
         var pm = Bukkit.getPluginManager();
@@ -107,6 +109,7 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(npcEntities, this);
         pm.registerEvents(npcEntities.combat(), this);
         pm.registerEvents(world, this);
+        pm.registerEvents(structures, this);
         resourcePack = new pe.kydium.eclipserpg.npc.ResourcePack(this);
         resourcePack.start();
         pm.registerEvents(resourcePack, this);
@@ -125,6 +128,12 @@ public final class EclipseRPG extends JavaPlugin {
             hc.setTabCompleter(storyCmd);
         }
         pm.registerEvents(storyCmd, this);
+        PluginCommand stc = getCommand("estructura");
+        if (stc != null) {
+            var sc = new pe.kydium.eclipserpg.structure.StructureCommand(this);
+            stc.setExecutor(sc);
+            stc.setTabCompleter(sc);
+        }
         PluginCommand evc = getCommand("evento");
         if (evc != null) {
             var wc = new pe.kydium.eclipserpg.world.WorldCommand(this);
@@ -149,6 +158,7 @@ public final class EclipseRPG extends JavaPlugin {
         ruins.startTask();
         npcEntities.startTask();
         world.startTasks();
+        structures.startTask();
         Bukkit.getScheduler().runTaskLater(this, village::autoGenerate, 100L);
         Bukkit.getScheduler().runTaskLater(this, npcEntities::refreshIfChanged, 60L);
         if (pe.kydium.eclipserpg.test.SmokeTest.enabled()) new pe.kydium.eclipserpg.test.SmokeTest(this).start();
@@ -198,7 +208,7 @@ public final class EclipseRPG extends JavaPlugin {
                 getConfig().set(k, null);
             }
             getConfig().set("aldea.generada", false);
-            for (String f : new String[]{"datos-mazmorras.yml", "datos-ruinas.yml"}) {
+            for (String f : new String[]{"datos-mazmorras.yml", "datos-ruinas.yml", "datos-estructuras.yml"}) {
                 File file = new File(getDataFolder(), f);
                 if (file.exists() && !file.delete()) getLogger().warning("No se pudo borrar " + f);
             }
@@ -226,6 +236,7 @@ public final class EclipseRPG extends JavaPlugin {
         contracts.load();
         dungeons.load();
         world.load();
+        structures.load();
         ruins.reloadSettings();
         var r = story.read();
         story.apply(r);
@@ -261,6 +272,7 @@ public final class EclipseRPG extends JavaPlugin {
         contracts.load();
         dungeons.load();
         world.load();
+        structures.load();
         npcEntities.combat().load();
         ruins.reloadSettings();
         var r = story.read();
@@ -304,6 +316,7 @@ public final class EclipseRPG extends JavaPlugin {
     public NpcEntities npcEntities() { return npcEntities; }
     public HotkeyMenu hotkeys() { return hotkeys; }
     public pe.kydium.eclipserpg.world.WorldManager world() { return world; }
+    public pe.kydium.eclipserpg.structure.StructureManager structures() { return structures; }
     public pe.kydium.eclipserpg.story.StoryManager story() { return story; }
 
     /** Nombre de la historia y de su aldea (para los textos del juego). */

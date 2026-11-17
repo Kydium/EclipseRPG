@@ -258,8 +258,12 @@ public final class DungeonManager implements Listener {
     /** Prueba lugares uno por uno, cargando sus chunks en segundo plano (no congela el servidor). */
     private void searchSite(int act, Player p, World w, Location camp, Random r, int tries) {
         ConfigurationSection g = cfg.getConfigurationSection("general");
+        ConfigurationSection own = theme(act);
         int min = g == null ? 250 : g.getInt("distancia-min", 250);
         int max = g == null ? 450 : g.getInt("distancia-max", 450);
+        if (own != null && own.getInt("distancia-min", 0) > 0) min = own.getInt("distancia-min");
+        if (own != null && own.getInt("distancia-max", 0) > min) max = own.getInt("distancia-max");
+        max = Math.max(max, min + 20);
         int depth = g == null ? 18 : g.getInt("profundidad", 18);
         if (tries >= 80) {
             msg(p, "<red>No encontré un buen lugar para la mazmorra. Intenta de nuevo más tarde.");
@@ -320,7 +324,12 @@ public final class DungeonManager implements Listener {
         th.treasure = t.getString("tesoro", "gold_block");
         int floorY = surface - depth;
         DungeonBuilder builder = new DungeonBuilder(w.getSeed() + act, th, spot.getBlockX(), floorY, spot.getBlockZ(), surface);
-        DungeonBuilder.Result res = builder.build(g == null ? 7 : g.getInt("salas-min", 7), g == null ? 10 : g.getInt("salas-max", 10));
+        ConfigurationSection ownT = theme(act);
+        int rMin = g == null ? 7 : g.getInt("salas-min", 7), rMax = g == null ? 10 : g.getInt("salas-max", 10);
+        if (ownT != null && ownT.getInt("salas-min", 0) > 0) rMin = Math.max(3, Math.min(16, ownT.getInt("salas-min")));
+        if (ownT != null && ownT.getInt("salas-max", 0) > 0) rMax = Math.min(18, ownT.getInt("salas-max"));
+        rMax = Math.max(rMax, rMin);
+        DungeonBuilder.Result res = builder.build(rMin, rMax);
 
         Dungeon d = new Dungeon();
         d.act = act;
@@ -416,6 +425,12 @@ public final class DungeonManager implements Listener {
     }
 
     private EntityType spawnerType(int act) {
+        ConfigurationSection th = theme(act);
+        String own = th == null ? null : th.getString("generador");
+        if (own != null && !own.isBlank()) {
+            EntityType et = pe.kydium.eclipserpg.util.Reg.entity(own.trim().toLowerCase(java.util.Locale.ROOT));
+            if (et != null && et.isAlive()) return et;
+        }
         return switch (act) {
             case 1 -> EntityType.ZOMBIE;
             case 2, 8 -> EntityType.SKELETON;
@@ -431,7 +446,7 @@ public final class DungeonManager implements Listener {
 
     /** Llena un cofre con el botín del acto. rolls = cuántas veces se tira la tabla. */
     public void fillLoot(Inventory inv, int act, int rolls) {
-        ConfigurationSection t = theme(Math.max(1, Math.min(10, act)));
+        ConfigurationSection t = theme(act) != null ? theme(act) : theme(Math.max(1, Math.min(10, act)));
         if (t == null) return;
         ThreadLocalRandom r = ThreadLocalRandom.current();
         for (int i = 0; i < rolls; i++) {
@@ -622,7 +637,9 @@ public final class DungeonManager implements Listener {
     }
 
     private void spawnWave(Dungeon d, Room r, World w, int count) {
-        List<String> pool = plugin.getConfig().getStringList("grieta.mobs-por-tier." + d.act);
+        ConfigurationSection th = theme(d.act);
+        List<String> pool = th == null ? List.of() : th.getStringList("enemigos");
+        if (pool.isEmpty()) pool = plugin.getConfig().getStringList("grieta.mobs-por-tier." + d.act);
         if (pool.isEmpty()) return;
         ThreadLocalRandom rnd = ThreadLocalRandom.current();
         for (int i = 0; i < count; i++) {
@@ -630,7 +647,7 @@ public final class DungeonManager implements Listener {
             int z = rnd.nextInt(r.box.z1() + 1, r.box.z2());
             Location at = new Location(w, x + 0.5, r.box.y1(), z + 0.5);
             if (!at.getBlock().isPassable()) continue;
-            LivingEntity le = plugin.mobs().spawn(pool.get(rnd.nextInt(pool.size())), at);
+            LivingEntity le = plugin.world().spawnMob(pool.get(rnd.nextInt(pool.size())).trim().toLowerCase(java.util.Locale.ROOT), at);
             if (le == null) continue;
             le.getPersistentDataContainer().set(Keys.DUNGEON, PersistentDataType.INTEGER, d.act);
             r.mobs.add(le.getUniqueId());

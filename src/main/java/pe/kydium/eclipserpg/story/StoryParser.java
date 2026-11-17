@@ -36,6 +36,11 @@ public final class StoryParser {
         Set<String> skins();
 
         Set<String> places();
+
+        /** ids de las estructuras propias de la historia. */
+        default Set<String> structures() {
+            return Set.of();
+        }
     }
 
     public record Problem(int line, boolean error, String message) {
@@ -286,13 +291,18 @@ public final class StoryParser {
                     error(ln, "No existe la mazmorra " + m.dungeon + ". Hay mazmorras para los actos " + cat.dungeons().keySet());
             }
             case "eleccion", "opcion", "decision" -> choice(val, ln, m);
+            case "estructura" -> {
+                m.structure = slug(val);
+                if (!cat.structures().contains(m.structure))
+                    error(ln, "No existe la estructura '" + val + "'. Estructuras: " + cat.structures());
+            }
             case "evento" -> m.event = slug(val);
             case "clima" -> {
                 String k = Dictionary.norm(val);
                 if (k.equals("tormenta") || k.equals("lluvia") || k.equals("despejado")) m.weather = k;
                 else error(ln, "clima: no entiendo '" + val + "'. Usa: despejado, lluvia o tormenta");
             }
-            default -> error(ln, "La misión no tiene un campo '" + key + "'. Campos: npc, acto, nivel, dice, final, objetivo, premio, aparecen, recibe, jefe, mazmorra, eleccion, evento, clima");
+            default -> error(ln, "La misión no tiene un campo '" + key + "'. Campos: npc, acto, nivel, dice, final, objetivo, premio, aparecen, recibe, jefe, mazmorra, estructura, eleccion, evento, clima");
         }
     }
 
@@ -430,6 +440,17 @@ public final class StoryParser {
     }
 
     private StoryDoc.Objective dungeonObjective(StoryDoc.Objective o, String rest, int ln, String val) {
+        // "encuentra la torre_vigia" / "explora la estructura torre vigia"
+        String sr = rest.replaceFirst("^(la |el )?estructura ", "").trim().replace(' ', '_');
+        if (cat.structures().contains(sr)) {
+            o.type = "ESTRUCTURA";
+            o.targets.add(sr);
+            return o;
+        }
+        if (rest.contains("estructura")) {
+            error(ln, "No existe la estructura '" + sr + "'. Estructuras: " + cat.structures());
+            return null;
+        }
         o.type = "MAZMORRA";
         for (String w : rest.split(" ")) {
             Integer n = number(w);

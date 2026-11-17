@@ -60,6 +60,7 @@ public final class StoryDoc {
         public boolean boss;
         public boolean noDeath;
         public int dungeon;
+        public String structure; // estructura que se construye al aceptar
         public String event;     // evento del mundo que empieza al aceptar
         public String weather;   // clima al aceptar
         public long xp;

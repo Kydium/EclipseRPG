@@ -167,3 +167,7 @@ editor:
 # Mundo vivo (reglas, apariciones y eventos se editan en historias/<id>/avanzado/mundo.yml o en el editor web)
 mundo:
   maximo-enemigos-cerca: 30     # tope de monstruos cerca de un jugador para las oleadas y los multiplicadores
+
+# Estructuras propias (se definen en historias/<id>/avanzado/estructuras.yml o en el editor web)
+estructuras:
+  bloques-por-tick: 6000        # velocidad de construcción

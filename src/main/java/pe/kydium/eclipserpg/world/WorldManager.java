@@ -163,6 +163,11 @@ public final class WorldManager implements Listener {
     }
 
     private boolean biomeMatches(List<String> wanted, String biome) {
+        return biomeIn(wanted, biome);
+    }
+
+    /** ¿El bioma está en la lista? Acepta ids y grupos (frio, desierto, bosque…). */
+    public static boolean biomeIn(List<String> wanted, String biome) {
         for (String b : wanted) {
             List<String> group = BIOME_GROUPS.get(b);
             if (group != null) {
@@ -639,7 +644,8 @@ public final class WorldManager implements Listener {
         }
     }
 
-    private LivingEntity spawnMob(String mob, Location at) {
+    /** Hace aparecer un enemigo de la historia o una criatura normal de Minecraft. */
+    public LivingEntity spawnMob(String mob, Location at) {
         if (plugin.mobs().def(mob) != null) return plugin.mobs().spawn(mob, at);
         EntityType t = Reg.entity(mob);
         if (t == null || at.getWorld() == null) return null;
