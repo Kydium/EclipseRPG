@@ -76,6 +76,24 @@ public final class Powers implements Listener {
         t("al_matar_xp", "<aqua>✦ Al matar: XP", " XP", "10", "1", "Ganas XP extra al matar");
         t("al_matar_escudo", "<gold>♦ Al matar: escudo", " s", "6", "1", "Corazones dorados al matar");
         t("duplicar_botin", "<green>✚ Botín doble", "", "0", "0.2", "A veces suelta el doble");
+        // herramientas
+        t("area", "<gold>⛏ Minar en área", " (1 = 3x3, 2 = 5x5)", "1", "1", "(herramienta) Rompe los bloques de alrededor");
+        t("vetas", "<aqua>⛏ Minar vetas", " bloques", "24", "1", "(herramienta) Rompe toda la veta de mineral");
+        t("talador", "<green>🪓 Talador", " troncos", "96", "1", "(herramienta) Tala el árbol entero");
+        t("fundir", "<red>🔥 Fundir", "", "0", "1", "(herramienta) Lo que rompes sale fundido");
+        t("iman", "<light_purple>🧲 Imán", "", "0", "1", "(herramienta) Lo que rompes va directo a tu inventario");
+        t("botin_extra", "<green>✚ Botín extra", "", "0", "0.25", "(herramienta) A veces suelta el doble");
+        t("xp_minar", "<aqua>✦ XP al minar", " XP", "2", "0.5", "(herramienta) Más experiencia al romper");
+        t("hallazgo", "<aqua>💎 Hallazgo", "", "0", "0.03", "(herramienta) Encuentras gemas en la piedra");
+        t("detector", "<yellow>◎ Detector de menas", " bloques", "6", "0.15", "(herramienta) Hace brillar las menas cercanas");
+        t("prisa", "<yellow>⚡ Prisa", " nivel", "2", "1", "(herramienta) Minas más rápido mientras la tienes");
+        t("vision", "<dark_aqua>👁 Visión nocturna", "", "0", "1", "(herramienta) Ves en la oscuridad mientras la tienes");
+        t("durabilidad", "<gray>⚙ Durabilidad", "", "0", "0.5", "Muchas veces no se gasta");
+        t("reparar", "<green>⚒ Autorreparar", " de durabilidad", "2", "0.5", "Se repara sola al usarla");
+        t("replantar", "<green>🌱 Replantar", "", "0", "1", "(azada) Vuelve a sembrar al cosechar");
+        t("cosecha_area", "<green>🌾 Cosecha en área", " (1 = 3x3)", "1", "1", "(azada) Cosecha los cultivos de alrededor");
+        t("pesca_doble", "<aqua>🎣 Pesca doble", "", "0", "0.3", "(caña) A veces sacas dos");
+        t("pesca_tesoro", "<gold>🎣 Pesca de tesoros", "", "0", "0.12", "(caña) A veces sacas un tesoro");
         t("espinas", "<dark_green>✹ Espinas", "% devuelto", "25", "1", "(armadura) Devuelve daño al atacante");
         t("regenerar", "<light_purple>❤ Regenerar", " s", "3", "0.2", "(armadura) Te regeneras al recibir golpes");
         t("resistencia", "<blue>⛨ Resistencia", "% menos daño", "15", "1", "(armadura) Recibes menos daño");
@@ -124,6 +142,23 @@ public final class Powers implements Listener {
             case "escudo_al_matar", "absorcion" -> "al_matar_escudo";
             case "botin_doble", "double_loot", "saqueo" -> "duplicar_botin";
             case "regen", "regeneracion" -> "regenerar";
+            case "3x3", "area_3x3", "minar_area", "excavar", "excavadora", "hammer", "martillo" -> "area";
+            case "vein", "veinminer", "vein_miner", "minar_vetas", "veta" -> "vetas";
+            case "treefeller", "tree_feller", "talar", "lenador", "tala" -> "talador";
+            case "autosmelt", "auto_smelt", "smelt", "fundicion", "derretir" -> "fundir";
+            case "magnet", "magnetico", "imantado" -> "iman";
+            case "fortuna", "fortuna_extra", "extra_drops", "doble_botin_minar" -> "botin_extra";
+            case "experiencia_minar", "xp_al_minar" -> "xp_minar";
+            case "gemas", "tesoros_minar", "suerte_minera" -> "hallazgo";
+            case "radar", "rayos_x", "ore_finder", "detectar" -> "detector";
+            case "haste", "rapidez", "velocidad_minado" -> "prisa";
+            case "night_vision", "vision_nocturna", "ver" -> "vision";
+            case "unbreaking", "irrompible", "resistente" -> "durabilidad";
+            case "autorreparar", "repair", "mending", "reparacion" -> "reparar";
+            case "replant", "resembrar", "sembrar" -> "replantar";
+            case "cosechar", "harvest", "cosecha" -> "cosecha_area";
+            case "double_fish", "pesca_extra" -> "pesca_doble";
+            case "treasure_fishing", "tesoro_pesca" -> "pesca_tesoro";
             case "resistance", "proteccion", "aguante" -> "resistencia";
             default -> null;
         };
@@ -145,7 +180,11 @@ public final class Powers implements Listener {
         return out;
     }
 
-    static final java.util.Set<String> NO_VALUE = java.util.Set.of("esquivar", "golpe_doble", "duplicar_botin");
+    static final java.util.Set<String> NO_VALUE = java.util.Set.of("esquivar", "golpe_doble", "duplicar_botin", "fundir", "iman", "botin_extra", "hallazgo", "vision",
+            "durabilidad", "replantar", "pesca_doble", "pesca_tesoro");
+    static final java.util.Set<String> TOOL = java.util.Set.of("area", "vetas", "talador", "fundir", "iman", "botin_extra", "xp_minar", "hallazgo",
+            "detector", "prisa", "vision", "durabilidad", "reparar", "replantar", "cosecha_area", "pesca_doble", "pesca_tesoro");
+    static final java.util.Set<String> UNIVERSAL = java.util.Set.of("durabilidad", "reparar", "vision");
     static final java.util.Set<String> ARMOR = java.util.Set.of("espinas", "esquivar", "regenerar", "resistencia");
 
     // ------------------------------------------------------------------ runas (se forjan en cualquier objeto)
@@ -207,14 +246,14 @@ public final class Powers implements Listener {
         }
         if (ch > 1) ch /= 100;
         Power p = new Power(type, v, ch);
-        ItemStack it = new ItemStack(ARMOR.contains(type) ? org.bukkit.Material.PRISMARINE_SHARD : org.bukkit.Material.AMETHYST_SHARD);
+        ItemStack it = new ItemStack(ARMOR.contains(type) ? org.bukkit.Material.PRISMARINE_SHARD : TOOL.contains(type) ? org.bukkit.Material.ECHO_SHARD : org.bukkit.Material.AMETHYST_SHARD);
         var meta = it.getItemMeta();
         meta.displayName(pe.kydium.eclipserpg.util.Txt.item("<light_purple><bold>Runa</bold> <dark_gray>· " + def[0]));
         List<String> lore = new java.util.ArrayList<>(lore(List.of(p)).subList(1, 2));
         lore.add("<gray>" + def[4]);
         lore.add("");
         lore.add("<yellow>Cómo forjarla:");
-        lore.add("<gray>Arma o armadura en la mano, esta runa en");
+        lore.add("<gray>Arma, herramienta o armadura en la mano, esta runa en");
         lore.add("<gray>la otra mano (tecla F), agáchate y clic derecho.");
         lore.add("<dark_gray>Máximo de runas por objeto: según config.");
         meta.lore(pe.kydium.eclipserpg.util.Txt.lore(lore));
@@ -247,7 +286,7 @@ public final class Powers implements Listener {
         }
         Power add = deser(runeIt.getItemMeta().getPersistentDataContainer().get(RUNE, PersistentDataType.STRING)).getFirst();
         boolean armor = isArmor(target.getType());
-        if (ARMOR.contains(add.type()) != armor) {
+        if (!UNIVERSAL.contains(add.type()) && ARMOR.contains(add.type()) != armor) {
             pe.kydium.eclipserpg.util.Txt.send(p, armor ? "<red>Esta runa es para armas, no para armaduras." : "<red>Esta runa es para armaduras.");
             return;
         }
@@ -293,7 +332,7 @@ public final class Powers implements Listener {
     }
 
     /** Poderes de fábrica + runas forjadas. */
-    List<Power> of(ItemStack it) {
+    public List<Power> of(ItemStack it) {
         if (it == null || it.getType().isAir() || !it.hasItemMeta()) return List.of();
         String id = plugin.items().idOf(it);
         ItemManager.CustomItem ci = id == null ? null : plugin.items().def(id);

@@ -101,6 +101,9 @@ ARMA <id>                (o OBJETO, HERRAMIENTA, ARMADURA)
          al_matar_soles, al_matar_xp, al_matar_escudo,
          espinas (% devuelto; armadura), esquivar (probabilidad; armadura),
          regenerar (segundos; armadura), resistencia (% menos daño; armadura)
+         HERRAMIENTAS: area (1 = 3x3), vetas (bloques), talador (troncos), fundir, iman,
+         botin_extra, xp_minar, hallazgo, detector (radio), prisa (nivel), vision,
+         durabilidad, reparar, replantar, cosecha_area, pesca_doble, pesca_tesoro
   tienda: <id de una TIENDA> <precio> [nivel N]      (para que se venda ahí;
          "legendaria" es la armería del Errante para armas especiales)
 

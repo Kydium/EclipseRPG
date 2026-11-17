@@ -274,6 +274,8 @@ items:
       - {atributo: attack_damage, valor: 5, slot: mainhand}
       - {atributo: attack_speed, valor: -2.8, slot: mainhand}
       - {atributo: block_break_speed, valor: 0.6, operacion: add_scalar, slot: mainhand}
+    poderes:
+      - {tipo: area, valor: 1}
 
   botas_saltarinas:
     material: NETHERITE_BOOTS
@@ -471,3 +473,87 @@ items:
       - {tipo: veneno, valor: 4, probabilidad: 0.35}
       - {tipo: levitar, valor: 2, probabilidad: 0.2}
       - {tipo: ceguera, valor: 2, probabilidad: 0.2}
+
+  # ================= HERRAMIENTAS ESPECIALES (agáchate para minar normal) =================
+  pico_titan:
+    material: NETHERITE_PICKAXE
+    nombre: "Pico del Titán"
+    rareza: mitico
+    estilo-rpg: true
+    irrompible: true
+    lore: ["<gold><i>Abre montañas como si fueran pan."]
+    encantamientos: {efficiency: 5, fortune: 3}
+    poderes:
+      - {tipo: area, valor: 1}
+      - {tipo: vetas, valor: 32}
+      - {tipo: fundir}
+      - {tipo: iman}
+      - {tipo: prisa, valor: 2}
+
+  pico_buscador:
+    material: DIAMOND_PICKAXE
+    nombre: "Pico del Buscador"
+    rareza: epico
+    estilo-rpg: true
+    lore: ["<aqua><i>Siente el brillo de las gemas a través de la roca."]
+    encantamientos: {efficiency: 4, unbreaking: 3}
+    poderes:
+      - {tipo: vetas, valor: 20}
+      - {tipo: detector, valor: 7, probabilidad: 0.2}
+      - {tipo: hallazgo, probabilidad: 0.03}
+      - {tipo: vision}
+      - {tipo: reparar, valor: 2, probabilidad: 0.4}
+
+  hacha_lenador:
+    material: DIAMOND_AXE
+    nombre: "Hacha del Leñador Gigante"
+    rareza: legendario
+    estilo-rpg: true
+    irrompible: true
+    lore: ["<green><i>Un golpe, un árbol."]
+    encantamientos: {efficiency: 5}
+    atributos:
+      - {atributo: attack_damage, valor: 8, slot: mainhand}
+      - {atributo: attack_speed, valor: -3.0, slot: mainhand}
+    poderes:
+      - {tipo: talador, valor: 128}
+      - {tipo: iman}
+      - {tipo: prisa, valor: 1}
+
+  pala_excavadora:
+    material: DIAMOND_SHOVEL
+    nombre: "Pala Excavadora"
+    rareza: epico
+    estilo-rpg: true
+    lore: ["<yellow><i>Hace trincheras en un parpadeo."]
+    encantamientos: {efficiency: 5}
+    poderes:
+      - {tipo: area, valor: 1}
+      - {tipo: fundir}
+      - {tipo: durabilidad, probabilidad: 0.6}
+
+  azada_cosechadora:
+    material: DIAMOND_HOE
+    nombre: "Azada Cosechadora"
+    rareza: raro
+    estilo-rpg: true
+    lore: ["<green><i>El campo se cosecha solo."]
+    encantamientos: {fortune: 3}
+    poderes:
+      - {tipo: cosecha_area, valor: 2}
+      - {tipo: replantar}
+      - {tipo: botin_extra, probabilidad: 0.3}
+      - {tipo: iman}
+
+  cana_afortunada:
+    material: FISHING_ROD
+    nombre: "Caña Afortunada"
+    rareza: legendario
+    estilo-rpg: true
+    irrompible: true
+    lore: ["<aqua><i>Los peces hacen fila para morderla."]
+    encantamientos: {lure: 3, luck_of_the_sea: 3}
+    poderes:
+      - {tipo: pesca_doble, probabilidad: 0.35}
+      - {tipo: pesca_tesoro, probabilidad: 0.15}
+

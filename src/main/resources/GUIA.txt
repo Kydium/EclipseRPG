@@ -347,6 +347,17 @@ el juego te dice exactamente en qué línea.
    al_matar_xp, al_matar_escudo, duplicar_botin, regenerar y resistencia
    (armadura).
 
+ HERRAMIENTAS (agáchate para minar normal, sin área/vetas/talador):
+   area (1 = 3x3, 2 = 5x5)   vetas (toda la veta)   talador (todo el árbol)
+   fundir (sale fundido)     iman (directo al inventario)
+   botin_extra   xp_minar   hallazgo (gemas en la piedra)
+   detector (hace brillar menas cercanas)   prisa (nivel)   vision
+   durabilidad (no se gasta)   reparar (se repara sola)
+   replantar y cosecha_area (azadas)   pesca_doble y pesca_tesoro (cañas)
+ Bruno vende "Herramientas Mágicas": Pico del Titán (3x3 + vetas + fundir
+ + imán), Pico del Buscador, Hacha del Leñador Gigante, Pala Excavadora,
+ Azada Cosechadora y Caña Afortunada.
+
  RUNAS: cualquier arma, herramienta o armadura (aunque sea normal de
  Minecraft) puede ganar poderes. Compra una runa (Bruno: tienda "runas")
  o encuéntrala en tesoros, ponla en la otra mano (tecla F), agáchate y

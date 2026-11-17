@@ -105,7 +105,9 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(new MenuListener(), this);
         pm.registerEvents(levels, this);
         pm.registerEvents(items, this);
-        pm.registerEvents(new pe.kydium.eclipserpg.items.Powers(this), this);
+        var powers = new pe.kydium.eclipserpg.items.Powers(this);
+        pm.registerEvents(powers, this);
+        pm.registerEvents(new pe.kydium.eclipserpg.items.ToolPowers(this, powers), this);
         pm.registerEvents(mobs, this);
         pm.registerEvents(contracts, this);
         pm.registerEvents(rifts, this);

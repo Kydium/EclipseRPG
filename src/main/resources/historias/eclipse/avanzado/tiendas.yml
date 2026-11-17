@@ -121,9 +121,20 @@ tiendas:
       - {tipo: comprar, slot: 16, item: "custom:martillo_tormenta", precio: 25000, nivel: 60, stock: 1}
       - {tipo: comprar, slot: 22, item: "custom:guadana_almas", precio: 30000, nivel: 70, stock: 1}
 
+  herramientas_magicas:             # Bruno el Herrero — herramientas con poderes
+    titulo: "<gold><bold>Herramientas Mágicas"
+    filas: 3
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:azada_cosechadora", precio: 2000, nivel: 10, stock: 1}
+      - {tipo: comprar, slot: 11, item: "custom:pala_excavadora", precio: 4500, nivel: 18, stock: 1}
+      - {tipo: comprar, slot: 12, item: "custom:pico_buscador", precio: 6000, nivel: 22, stock: 1}
+      - {tipo: comprar, slot: 13, item: "custom:hacha_lenador", precio: 8000, nivel: 28, stock: 1}
+      - {tipo: comprar, slot: 14, item: "custom:cana_afortunada", precio: 7000, nivel: 25, stock: 1}
+      - {tipo: comprar, slot: 16, item: "custom:pico_titan", precio: 22000, nivel: 50, stock: 1}
+
   runas:                            # Bruno el Herrero — Runas para forjar poderes en tus armas
     titulo: "<light_purple><bold>Runas de Forja"
-    filas: 4
+    filas: 6
     objetos:
       - {tipo: comprar, slot: 10, item: "runa:robo_de_vida:5", precio: 900, nivel: 10}
       - {tipo: comprar, slot: 11, item: "runa:critico:40:0.15", precio: 700, nivel: 8}
@@ -143,4 +154,17 @@ tiendas:
       - {tipo: comprar, slot: 29, item: "runa:resistencia:8", precio: 1500, nivel: 15}
       - {tipo: comprar, slot: 30, item: "runa:regenerar:2:0.2", precio: 1400, nivel: 15}
       - {tipo: comprar, slot: 31, item: "runa:esquivar:0:0.06", precio: 2500, nivel: 25}
-      - {tipo: comprar, slot: 34, item: "runa:azar", precio: 1000, nivel: 10}
+      - {tipo: comprar, slot: 37, item: "runa:area:1", precio: 3500, nivel: 20}
+      - {tipo: comprar, slot: 38, item: "runa:vetas:16", precio: 2500, nivel: 15}
+      - {tipo: comprar, slot: 39, item: "runa:talador:64", precio: 2000, nivel: 10}
+      - {tipo: comprar, slot: 40, item: "runa:fundir", precio: 1800, nivel: 12}
+      - {tipo: comprar, slot: 41, item: "runa:iman", precio: 1500, nivel: 10}
+      - {tipo: comprar, slot: 42, item: "runa:botin_extra:0:0.15", precio: 3000, nivel: 20}
+      - {tipo: comprar, slot: 43, item: "runa:prisa:1", precio: 1200, nivel: 8}
+      - {tipo: comprar, slot: 46, item: "runa:replantar", precio: 600, nivel: 3}
+      - {tipo: comprar, slot: 47, item: "runa:cosecha_area:1", precio: 900, nivel: 5}
+      - {tipo: comprar, slot: 48, item: "runa:durabilidad:0:0.3", precio: 1500, nivel: 10}
+      - {tipo: comprar, slot: 49, item: "runa:azar", precio: 1000, nivel: 10}
+      - {tipo: comprar, slot: 50, item: "runa:reparar:1:0.3", precio: 2000, nivel: 15}
+      - {tipo: comprar, slot: 51, item: "runa:pesca_tesoro:0:0.08", precio: 2500, nivel: 15}
+      - {tipo: comprar, slot: 52, item: "runa:vision", precio: 1000, nivel: 8}

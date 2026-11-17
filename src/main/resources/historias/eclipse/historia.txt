@@ -27,7 +27,7 @@ NPC bruno
   oficio: Herrero
   lugar: herreria
   objeto: maza
-  servicio: tienda herreria, tienda runas
+  servicio: tienda herreria, tienda runas, tienda herramientas_magicas
   charla: Hmpf. Mi forja estará encendida hasta el final. Ve y gana.
 
 NPC ines

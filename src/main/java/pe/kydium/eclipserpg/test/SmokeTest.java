@@ -687,7 +687,12 @@ public final class SmokeTest {
         check(rune != null && rune.getItemMeta().getPersistentDataContainer().has(pe.kydium.eclipserpg.items.Powers.RUNE), "las runas se crean desde la tienda");
         ItemStack rnd = plugin.shops().buildSpec("runa:azar", 1);
         check(rnd != null && rnd.getItemMeta().getPersistentDataContainer().has(pe.kydium.eclipserpg.items.Powers.RUNE), "las runas al azar funcionan");
-        check(pe.kydium.eclipserpg.items.Powers.TYPES.size() >= 30, "hay " + pe.kydium.eclipserpg.items.Powers.TYPES.size() + " poderes");
+        var pt = plugin.items().def("pico_titan");
+        check(pt != null && pt.powers.size() == 5, "las herramientas especiales cargan sus poderes");
+        ItemStack ing = pe.kydium.eclipserpg.items.ToolPowers.smelt(Material.RAW_IRON);
+        check(ing != null && ing.getType() == Material.IRON_INGOT, "el poder fundir convierte hierro crudo en lingote");
+        check(plugin.shops().ids().contains("herramientas_magicas"), "existe la tienda de herramientas mágicas");
+        check(pe.kydium.eclipserpg.items.Powers.TYPES.size() >= 45, "hay " + pe.kydium.eclipserpg.items.Powers.TYPES.size() + " poderes");
         java.util.List<String> lore = plugin.items().loreLines(cv, 0);
         check(lore.stream().anyMatch(l -> l.contains("Robo de vida")), "la descripción muestra los poderes");
         // forjar a mano una runa en una espada normal (como lo hace el evento)
