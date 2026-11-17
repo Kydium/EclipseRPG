@@ -857,6 +857,7 @@ function itemTooltip(d){
   const lore=[...(d.lore||[])];
   if(d["estilo-rpg"]){const sum={};for(const a of (d.atributos||[])){const k=String(a.atributo||"").replace("generic.","").replace("minecraft:","");sum[k]=(sum[k]||0)+(+a.valor||0)}
     if(Object.keys(sum).length){if(lore.length)lore.push("");lore.push("<gray>Estadísticas:");for(const [k,v] of Object.entries(sum)){const lbl=STAT_ES[k]||"<gray>"+cap(k.replace(/_/g," "));const val=k==="attack_damage"?"<white>"+fmt(1+v):k==="attack_speed"?"<white>"+fmt(4+v):(v>=0?"<green>+":"<red>")+fmt(v);lore.push(" "+lbl+": "+val)}}}
+  if(+d.mochila>0){if(lore.length)lore.push("");lore.push("<gold>🎒 Mochila <gray>· <white>"+d.mochila+" huecos","<gray>Clic derecho para abrirla.")}
   const pw=powerLore(d.poderes);if(pw.length){if(lore.length)lore.push("");lore.push(...pw)}
   if(r){lore.push("");lore.push(r[1]+"<bold>✦ "+r[2])}
   const box=h("div",{class:"tip"});box.append(h("div",null,mmToHtml(lines[0],"#ffffff")));
