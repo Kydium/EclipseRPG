@@ -97,6 +97,7 @@ public final class QuestBook {
                     pg.add("<dark_green>Vuelve con " + strip(plugin.npcs().name(cur.npc)) + ".");
                 }
                 if (cur.noDeath) pg.add("<dark_red>Si mueres, se reinicia.");
+                for (String l : qm.rewardLines(cur)) pg.add(l.replace("<gold>", "<dark_red>").replace("<aqua>", "<dark_aqua>").replace("<yellow>", "<gold>").replace("<white>", "<black>").replace("<gray>", "<dark_gray>"));
             }
         }
         pg.newPage();

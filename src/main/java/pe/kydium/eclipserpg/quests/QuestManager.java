@@ -257,6 +257,11 @@ public final class QuestManager implements Listener {
                     body.add("<gold>Objetivos:");
                     for (Quest.Objective o : q.objectives) body.add("<gray>• <white>" + o.text + " <gray>(" + o.amount + ")");
                 }
+                List<String> rw = rewardLines(q);
+                if (!rw.isEmpty()) {
+                    body.add("");
+                    body.addAll(rw);
+                }
                 // el jugador contesta con algo que tiene que ver con lo que le piden (no "Aceptar misión")
                 List<DialogUI.Button> btns = new ArrayList<>();
                 List<String> replies = q.replies.isEmpty() ? List.of(q.autoReply()) : q.replies;
@@ -451,6 +456,7 @@ public final class QuestManager implements Listener {
             p.sendMessage(Txt.mm("  " + mark + "<white>" + o.text + " <gray>" + have + "/" + o.amount));
         }
         if (q.noDeath) p.sendMessage(Txt.mm("  <red>⚠ Si mueres, el progreso se reinicia"));
+        for (String l : rewardLines(q)) p.sendMessage(Txt.mm("  " + l));
         p.sendMessage(Txt.mm("<gray>Vuelve con " + plugin.npcs().name(q.npc) + " <gray>al terminar. Diario: <white>/misiones"));
     }
 
@@ -593,6 +599,23 @@ public final class QuestManager implements Listener {
     }
 
     /** "material:BREAD 10", "custom:hoja_del_alba", "pocion:healing 3", "libro:sharpness:4" */
+    /** "Recompensa: +150 XP · +40 ☀ · 1 Espada…" para mostrar antes de terminar la misión. */
+    public List<String> rewardLines(Quest q) {
+        List<String> out = new ArrayList<>();
+        List<String> parts = new ArrayList<>();
+        if (q.xp > 0) parts.add("<aqua>+" + Txt.num(q.xp) + " XP");
+        if (q.soles > 0) parts.add("<yellow>+" + Txt.num(q.soles) + " ☀");
+        for (String r : q.rewards) {
+            String[] a = r.trim().split("\\s+");
+            int n = a.length > 1 ? intOf(a[1], 1) : 1;
+            String spec = a[0].contains(":") ? a[0] : "material:" + a[0];
+            parts.add("<white>" + (n > 1 ? n + " " : "") + plugin.shops().specName(spec));
+        }
+        if (!parts.isEmpty()) out.add("<gold>🎁 Recompensa: " + String.join(" <dark_gray>· ", parts));
+        if (!q.choices.isEmpty()) out.add("<gold>🎁 <gray>Al terminar eliges entre " + q.choices.size() + " premios");
+        return out;
+    }
+
     public void give(Player p, String spec) {
         String[] parts = spec.trim().split("\\s+");
         int amount = parts.length > 1 ? intOf(parts[1], 1) : 1;

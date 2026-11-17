@@ -55,6 +55,11 @@ public final class QuestMenu extends Menu {
                     lore.add((have >= o.amount ? "<green>✔ " : "<gray>• ") + "<white>" + o.text + " <gray>" + have + "/" + o.amount);
                 }
                 if (q.noDeath) lore.add("<red>⚠ Si mueres, se reinicia");
+                List<String> rw = qm.rewardLines(q);
+                if (!rw.isEmpty()) {
+                    lore.add("");
+                    lore.addAll(rw);
+                }
                 if (qm.isComplete(player, q)) {
                     lore.add("");
                     lore.add("<green>¡Lista! Vuelve con " + plugin.npcs().name(q.npc));
