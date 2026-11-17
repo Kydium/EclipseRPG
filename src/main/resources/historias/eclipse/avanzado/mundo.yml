@@ -75,7 +75,15 @@ reglas:
     mensaje: "<dark_purple>⛏ Las profundidades: más peligro, más recompensa."
 
 apariciones:
-  multiplicador: 1.0       # 2.0 = el doble de monstruos · 0.5 = la mitad
+  multiplicador: 1.3       # 2.0 = el doble de monstruos · 0.5 = la mitad
+  extra:                   # además de los de Minecraft, el plugin trae monstruos cerca de ti
+    activo: true
+    cada: 15               # segundos entre cada tanda
+    cantidad: "1-3"        # cuántos por tanda
+    distancia-min: 24      # bloques (lejos de tu vista, para que no aparezcan en tu cara)
+    distancia-max: 44
+    de-dia: false          # true = también de día en la superficie (bajo tierra salen siempre)
+    mobs: [zombie, zombie, skeleton, skeleton, spider, creeper, zombi_corrompido]
   bloquear: []             # por ejemplo: [phantom, creeper]
   reglas:
     - {mob: zombi_corrompido, reemplaza: [zombie], probabilidad: 0.25, grupo: "1-2", cuando: {luna: [llena], momento: [noche]}}

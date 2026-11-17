@@ -54,6 +54,38 @@ public final class QuestManager implements Listener {
     public QuestManager(EclipseRPG plugin) {
         this.plugin = plugin;
         this.ui = new DialogUI(plugin);
+        org.bukkit.Bukkit.getScheduler().runTaskTimer(plugin, this::structureSpawnTick, 80L, 20L);
+    }
+
+    /** Jugadores a los que ya les salieron los enemigos de la misión en su estructura (uuid + misión). */
+    private final java.util.Set<String> spawnedAt = new java.util.HashSet<>();
+
+    /** Misión con "aparecen:" y "estructura:": los enemigos salen al llegar a ese lugar, no alrededor del jugador. */
+    private void structureSpawnTick() {
+        for (Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
+            Quest q = current(p);
+            if (q == null || q.structure == null || q.spawns.isEmpty() || !plugin.data().get(p).questAccepted || isComplete(p, q)) continue;
+            String key = p.getUniqueId() + ";" + q.id;
+            if (spawnedAt.contains(key)) continue;
+            var inst = plugin.structures().nearest(q.structure, p.getLocation());
+            if (inst == null || !p.getWorld().getName().equals(inst.world)) continue;
+            org.bukkit.Location c = new org.bukkit.Location(p.getWorld(), inst.x + 0.5, inst.y, inst.z + 0.5);
+            double r = Math.max(14, Math.max(inst.rx, inst.rz) + 6);
+            if (c.distanceSquared(p.getLocation()) > r * r) continue;
+            spawnedAt.add(key);
+            java.util.List<int[]> spots = inst.enemySpots;
+            int k = 0;
+            for (Quest.Spawn sp : q.spawns)
+                for (int i = 0; i < sp.amount(); i++, k++) {
+                    org.bukkit.Location at = !spots.isEmpty()
+                            ? new org.bukkit.Location(p.getWorld(), spots.get(k % spots.size())[0] + 0.5, spots.get(k % spots.size())[1], spots.get(k % spots.size())[2] + 0.5)
+                            : c;
+                    plugin.mobs().spawn(sp.mob(), plugin.mobs().spawnSpot(at, 3));
+                }
+            p.showTitle(Title.title(Txt.mm("<red>⚔"), Txt.mm("<gray>¡Te estaban esperando!"),
+                    Title.Times.times(Duration.ofMillis(150), Duration.ofSeconds(2), Duration.ofMillis(400))));
+            Txt.sound(p, "entity.evoker.prepare_attack", 1f, 0.8f);
+        }
     }
 
     // ---------- Carga ----------
@@ -279,7 +311,11 @@ public final class QuestManager implements Listener {
         if (q.weather != null) plugin.world().setWeather(q.weather, 600);
         if (q.event != null && !plugin.world().start(q.event))
             plugin.getLogger().warning("La misión \"" + q.name + "\" pide el evento '" + q.event + "', que no existe en Mundo vivo.");
-        for (Quest.Spawn sp : q.spawns) {
+        if (q.structure != null && !q.spawns.isEmpty()) {
+            // los enemigos esperan en la estructura: salen cuando llegues (sigue el punto dorado)
+            spawnedAt.remove(p.getUniqueId() + ";" + q.id);
+            Txt.send(p, "<gray>Los enemigos te esperan en el lugar marcado. <gold>Sigue el punto dorado</gold> de la barra.");
+        } else for (Quest.Spawn sp : q.spawns) {
             for (int i = 0; i < sp.amount(); i++) {
                 plugin.mobs().spawn(sp.mob(), plugin.mobs().spawnSpot(p.getLocation(), 8));
             }

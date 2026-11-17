@@ -31,7 +31,11 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         }
         switch (cmd.getName().toLowerCase()) {
             case "nivel" -> new StatsMenu(plugin, p).open();
-            case "guardian" -> plugin.hotkeys().open(p);
+            case "guardian" -> {
+                if (args.length > 0 && args[0].toLowerCase().startsWith("br")) plugin.village().giveCompass(p);
+                else if (args.length > 0 && args[0].toLowerCase().startsWith("est")) plugin.hotkeys().status(p);
+                else plugin.hotkeys().open(p);
+            }
             case "misiones" -> pe.kydium.eclipserpg.quests.QuestBook.open(plugin, p);
             case "mision" -> {
                 if (args.length >= 2 && args[0].equalsIgnoreCase("elegir")) {

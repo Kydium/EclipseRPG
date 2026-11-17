@@ -206,6 +206,8 @@ REGLAS
   y se venden en tiendas con "bloque:<id>".
 - En tiendas, "nivel" solo para cosas especiales (objetos custom:, runas,
   bloques especiales). Lo normal de Minecraft no pide nivel.
+- Para misiones de matar enemigos en un sitio, usa "estructura: <tipo generado>"
+  junto con "aparecen: <mob> <cantidad>": los enemigos salen al llegar allí.
 - No inventes campos que no estén en el formato.
 
 MI IDEA:

@@ -81,3 +81,14 @@ muerte:
   # Enemigos de estructuras: estructuras.yml > reaparicion (minutos) en cada estructura
   # Cada enemigo de mobs.yml puede llevar "cuerpo: false" para desaparecer al morir
 
+
+apariciones:
+  multiplicador: 1.3       # 2.0 = el doble de monstruos · 0.5 = la mitad
+  extra:                   # además de los de Minecraft, el plugin trae monstruos cerca de ti
+    activo: true
+    cada: 15               # segundos entre cada tanda
+    cantidad: "1-3"
+    distancia-min: 24
+    distancia-max: 44
+    de-dia: false          # bajo tierra salen siempre
+    mobs: [zombie, zombie, skeleton, skeleton, spider, creeper]

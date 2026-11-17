@@ -58,6 +58,17 @@ public final class HotkeyMenu implements Listener {
         ui.show(p, "<gold><bold>☀ " + plugin.title(), body, buttons, true);
     }
 
+    /** Tu nivel, soles y misión en el chat (botón "Mi estado" de la tecla G). */
+    public void status(Player p) {
+        PlayerData d = plugin.data().get(p);
+        Quest q = plugin.quests().current(p);
+        Txt.send(p, "<gold>☀ Nivel " + d.level + " <gray>· <yellow>" + Txt.num(d.soles) + " Soles"
+                + (d.points > 0 ? " <gray>· <green>" + d.points + " punto(s) sin usar" : ""));
+        if (q != null && d.questAccepted) plugin.quests().showObjectives(p, q);
+        else if (q != null) Txt.send(p, "<gray>Sin misión activa · te busca " + plugin.npcs().name(q.npc));
+        else Txt.send(p, "<gold>¡Historia completada!");
+    }
+
     private static void deleteTree(File f) {
         File[] kids = f.listFiles();
         if (kids != null) for (File k : kids) deleteTree(k);
@@ -109,13 +120,12 @@ public final class HotkeyMenu implements Listener {
                   "type": "minecraft:multi_action",
                   "title": {"text": "☀ Menú del aventurero", "color": "gold", "bold": true},
                   "external_title": {"text": "Menú del aventurero", "color": "gold"},
-                  "body": [{"type": "minecraft:plain_message", "contents": {"text": "Tu nivel, tus misiones y tu brújula", "color": "gray"}}],
                   "columns": 1,
                   "actions": [
-                    {"label": {"text": "☀ Abrir el menú", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "guardian"}},
+                    {"label": {"text": "☀ Mi estado (nivel, soles y misión)", "color": "gold"}, "action": {"type": "minecraft:run_command", "command": "guardian estado"}},
                     {"label": {"text": "⚔ Nivel y habilidades", "color": "yellow"}, "action": {"type": "minecraft:run_command", "command": "nivel"}},
                     {"label": {"text": "📖 Diario de misiones", "color": "yellow"}, "action": {"type": "minecraft:run_command", "command": "misiones"}},
-                    {"label": {"text": "✦ Objetivos en el chat", "color": "aqua"}, "action": {"type": "minecraft:run_command", "command": "mision"}}
+                    {"label": {"text": "🧭 Brújula de la aldea", "color": "light_purple"}, "action": {"type": "minecraft:run_command", "command": "guardian brujula"}}
                   ]
                 }
                 """, StandardCharsets.UTF_8);

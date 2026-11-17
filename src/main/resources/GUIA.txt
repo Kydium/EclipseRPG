@@ -468,3 +468,24 @@ el juego te dice exactamente en qué línea.
  TECLA G: abre el menú del aventurero (si no funciona, revisa que la
    tecla "Acciones rápidas" de Opciones → Controles sea la G).
 
+---------------------------------------------------------------------
+ 19. ENEMIGOS DE MISIÓN EN UN LUGAR Y MÁS MONSTRUOS
+---------------------------------------------------------------------
+ Si una misión tiene "aparecen:" y "estructura:", los enemigos NO salen
+ alrededor del jugador: se crea la estructura (cripta, cementerio,
+ campamento…), el punto dorado lleva hasta ella y salen al llegar.
+   MISIÓN Huesos en la cripta
+     npc: ines
+     dice: Algo se mueve en la cripta del bosque.
+     objetivo: mata 10 esqueletos
+     estructura: cripta_profunda
+     aparecen: skeleton 10
+ Sin "estructura:", "aparecen:" los hace salir alrededor al aceptar.
+
+ Más monstruos (mundo.yml → apariciones):
+   multiplicador: 1.3   más de los que pone Minecraft
+   extra: cada 15 s trae 1-3 monstruos a 24-44 bloques de ti, de noche
+          en la superficie y siempre en cuevas oscuras (nunca en la aldea
+          ni donde hay antorchas). Se cambia: cada, cantidad, distancias,
+          de-dia y la lista de mobs (sirven los de la historia).
+

@@ -378,6 +378,10 @@ public final class WorldManager implements Listener {
     private final Map<UUID, State> states = new HashMap<>();
     private final Set<EntityType> blocked = new HashSet<>();
     private double spawnMult = 1;
+    // apariciones extra: el plugin trae monstruos cerca de los jugadores además de los de Minecraft
+    private boolean extraOn = true, extraDay = false;
+    private int extraEvery = 15, extraMin = 1, extraMax = 3, extraNear = 24, extraFar = 44, extraTick;
+    private final List<String> extraMobs = new ArrayList<>();
     private double dayMinutes = 10, nightMinutes = 10;
     private String sleep = "si";
     private double timeDebt;
@@ -418,6 +422,24 @@ public final class WorldManager implements Listener {
 
         ConfigurationSection ap = y.getConfigurationSection("apariciones");
         spawnMult = ap == null ? 1 : Math.max(0, ap.getDouble("multiplicador", 1));
+        ConfigurationSection ex = ap == null ? null : ap.getConfigurationSection("extra");
+        extraOn = ex == null || ex.getBoolean("activo", true);
+        extraEvery = ex == null ? 15 : Math.max(3, ex.getInt("cada", 15));
+        extraDay = ex != null && ex.getBoolean("de-dia", false);
+        extraNear = ex == null ? 24 : Math.max(8, ex.getInt("distancia-min", 24));
+        extraFar = ex == null ? 44 : Math.max(extraNear + 4, ex.getInt("distancia-max", 44));
+        String eg = ex == null ? "1-3" : ex.getString("cantidad", "1-3");
+        try {
+            String[] pp = eg.split("-");
+            extraMin = Math.max(1, Integer.parseInt(pp[0].trim()));
+            extraMax = Math.max(extraMin, pp.length > 1 ? Integer.parseInt(pp[1].trim()) : extraMin);
+        } catch (NumberFormatException e) {
+            extraMin = 1;
+            extraMax = 3;
+        }
+        extraMobs.clear();
+        if (ex != null) extraMobs.addAll(strings(ex, "mobs"));
+        if (extraMobs.isEmpty()) extraMobs.addAll(List.of("zombie", "zombie", "skeleton", "skeleton", "spider", "creeper"));
         if (ap != null) {
             for (String b : strings(ap, "bloquear")) {
                 EntityType et = Reg.entity(b);
@@ -514,6 +536,7 @@ public final class WorldManager implements Listener {
     public void startTasks() {
         Bukkit.getScheduler().runTaskTimer(plugin, this::timeTick, 20L, 1L);
         Bukkit.getScheduler().runTaskTimer(plugin, this::cycle, 40L, 20L);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::extraSpawns, 100L, 20L);
     }
 
     private World main() {
@@ -920,6 +943,74 @@ public final class WorldManager implements Listener {
                 }
             }
         });
+    }
+
+    /** Monstruos extra cerca de cada jugador: de noche en la superficie y en lugares oscuros bajo tierra. */
+    private void extraSpawns() {
+        if (!extraOn || ++extraTick % extraEvery != 0) return;
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        int cap = plugin.getConfig().getInt("mundo.maximo-enemigos-cerca", 30);
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getGameMode() != org.bukkit.GameMode.SURVIVAL && p.getGameMode() != org.bukkit.GameMode.ADVENTURE) continue;
+            World w = p.getWorld();
+            if (w.getDifficulty() == org.bukkit.Difficulty.PEACEFUL || w.getEnvironment() != World.Environment.NORMAL) continue;
+            Location v = plugin.village().center();
+            if (v != null && v.getWorld() == w && v.distanceSquared(p.getLocation()) < 70 * 70) continue; // la aldea es segura
+            int around = 0;
+            for (var ent : w.getNearbyEntities(p.getLocation(), 48, 24, 48)) if (ent instanceof Enemy) around++;
+            if (around >= Math.min(cap, 14)) continue;
+            boolean night = isNight(w) || "tormenta".equals(weatherOf(w));
+            boolean deep = p.getLocation().getBlockY() < w.getSeaLevel() - 8 && p.getLocation().getBlock().getLightFromSky() < 4;
+            if (!night && !deep && !extraDay) continue;
+            double m = spawnMult;
+            State st = state(p);
+            if (st != null) m *= st.spawns;
+            int n = (int) Math.round((extraMin + r.nextInt(extraMax - extraMin + 1)) * Math.max(0.3, m));
+            for (int tries = 0; n > 0 && tries < 12; tries++) {
+                Location at = extraSpot(p, deep, r);
+                if (at == null) continue;
+                String mob = extraMobs.get(r.nextInt(extraMobs.size())).toLowerCase(Locale.ROOT);
+                if (plugin.mobs().def(mob) != null) {
+                    spawnMob(mob, at);
+                } else {
+                    EntityType et = Reg.entity(mob);
+                    if (et == null || blocked.contains(et)) continue;
+                    // razón NATURAL: también pueden salir Corrompidos y aplican los reemplazos de la historia
+                    w.spawnEntity(at, et, CreatureSpawnEvent.SpawnReason.NATURAL);
+                }
+                n--;
+            }
+        }
+    }
+
+    private Location extraSpot(Player p, boolean deep, ThreadLocalRandom r) {
+        double a = r.nextDouble() * Math.PI * 2, d = extraNear + r.nextDouble() * (extraFar - extraNear);
+        Location base = p.getLocation();
+        int x = base.getBlockX() + (int) (Math.cos(a) * d), z = base.getBlockZ() + (int) (Math.sin(a) * d);
+        World w = p.getWorld();
+        if (!w.isChunkLoaded(x >> 4, z >> 4)) return null;
+        int y0;
+        if (deep) {
+            y0 = -1;
+            for (int dy = 6; dy >= -6; dy--) {
+                int y = base.getBlockY() + dy;
+                if (w.getBlockAt(x, y - 1, z).getType().isSolid() && w.getBlockAt(x, y, z).isPassable() && w.getBlockAt(x, y + 1, z).isPassable()) {
+                    y0 = y;
+                    break;
+                }
+            }
+            if (y0 == -1) return null;
+        } else {
+            y0 = w.getHighestBlockYAt(x, z) + 1;
+            if (Math.abs(y0 - base.getBlockY()) > 24) return null;
+        }
+        org.bukkit.block.Block b = w.getBlockAt(x, y0, z);
+        org.bukkit.block.Block floor = b.getRelative(0, -1, 0);
+        if (!floor.getType().isSolid() || floor.isLiquid() || floor.getType().name().contains("LEAVES") || b.isLiquid()) return null;
+        if (b.getLightFromBlocks() > 7) return null; // no en sitios iluminados con antorchas
+        Location at = b.getLocation().add(0.5, 0, 0.5);
+        if (at.distanceSquared(base) < extraNear * extraNear * 0.8) return null;
+        return at;
     }
 
     /** Resumen legible del estado del mundo (comando /evento). */
