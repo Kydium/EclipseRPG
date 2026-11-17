@@ -229,3 +229,29 @@ el juego te dice exactamente en qué línea.
  solo durante un evento, pedir misiones completadas y variar precios
  cada día. Cada producto puede tener stock que se repone, pagarse con
  objetos (trueque) o desbloquearse al avanzar en la historia.
+
+---------------------------------------------------------------------
+ 11. ESTRUCTURAS PROPIAS Y MAZMORRAS NUEVAS
+---------------------------------------------------------------------
+ Tus propias construcciones (torres, templos, guaridas, barcos…):
+   1. Constrúyela en creativo. Pon cofres y barriles donde quieras botín.
+   2. Mira una esquina de abajo:           /estructura pos1
+      Mira la esquina contraria de arriba: /estructura pos2
+   3. /estructura guardar torre_mago
+   4. En el editor web, «Estructuras»: dónde aparece (al azar, al
+      aceptar una misión o a mano), enemigos, jefe, botín y premio.
+
+ Carteles especiales (primera línea), para decir dónde va cada cosa:
+   [enemigo]   [jefe]   [entrada]   [npc] (y el id del NPC en la 2ª línea)
+ Los carteles no se copian a la estructura.
+
+ En la historia:
+   MISIÓN El mago perdido
+     estructura: torre_mago                       (la construye y da la brújula)
+     objetivo: encuentra la estructura torre_mago
+
+ Comandos:  /estructura lista · colocar <id> · ir <id> · brujula <id>
+
+ Mazmorras nuevas: en el editor, «Estructuras» → Mazmorras → «+ Nuevo».
+ Ponle un número (11, 12…), nombre, jefe, enemigos, bloques y botín.
+ Se genera sola bajo tierra. En la misión:  mazmorra: 11
