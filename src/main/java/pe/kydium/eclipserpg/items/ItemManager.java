@@ -94,7 +94,8 @@ public final class ItemManager implements Listener {
     /** Nombre con el color de su rareza (si el nombre no trae color propio) y el nivel de mejora. */
     public String displayName(CustomItem ci, int lvl) {
         String n = ci.name == null ? ci.id : ci.name;
-        String[] r = RARITIES.get(rarityKey(ci));
+        String rk = rarityKey(ci);
+        String[] r = rk == null ? null : RARITIES.get(rk);
         if (r != null && !n.trim().startsWith("<")) n = r[0] + n;
         return lvl > 0 ? n + " <yellow>+" + lvl : n;
     }
@@ -124,7 +125,8 @@ public final class ItemManager implements Listener {
             }
         }
         if (lvl > 0) out.add("<yellow>✦ Mejorada +" + lvl);
-        String[] r = RARITIES.get(rarityKey(ci));
+        String rk = rarityKey(ci);
+        String[] r = rk == null ? null : RARITIES.get(rk);
         if (r != null) {
             out.add("");
             out.add(r[1] + "<bold>✦ " + r[2]);
