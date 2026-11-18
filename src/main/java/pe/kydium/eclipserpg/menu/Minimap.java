@@ -84,7 +84,6 @@ public final class Minimap extends MapRenderer implements Listener {
             meta.lore(Txt.lore(List.of("<gray>Llévalo en la otra mano (tecla F):", "<gray>va centrado en ti, como un minimapa.",
                     "<red>✖ <gray>tu misión · <green>⚑ <gray>la aldea", "<yellow>Clic derecho: acercar / alejar")));
             meta.getPersistentDataContainer().set(KEY, PersistentDataType.BYTE, (byte) 1);
-            meta.setMapColor(org.bukkit.Color.fromRGB(0xD8A93A));
             it.setItemMeta(meta);
         }
         return it;
