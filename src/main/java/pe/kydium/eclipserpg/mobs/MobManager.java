@@ -256,7 +256,8 @@ public final class MobManager implements Listener {
         }
         String name = nameOverride != null ? nameOverride : d.name;
         le.customName(Txt.mm(name));
-        le.setCustomNameVisible(true);
+        // el nombre solo se ve al mirarlo de cerca (como en Minecraft); los jefes lo muestran siempre
+        le.setCustomNameVisible(d.boss || forceBar || plugin.getConfig().getBoolean("dificultad.nombres-siempre-visibles", false));
 
         boolean bossLike = d.boss || forceBar;
         double hpDiff = plugin.getConfig().getDouble(bossLike ? "dificultad.vida-jefes" : "dificultad.vida-corrompidos", 1.0);

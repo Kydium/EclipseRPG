@@ -680,7 +680,10 @@ public final class WorldManager implements Listener {
             String id = le.getPersistentDataContainer().get(pe.kydium.eclipserpg.util.Keys.MOB, org.bukkit.persistence.PersistentDataType.STRING);
             if (id == null) continue;
             var d = plugin.mobs().def(id);
-            if (d != null && !d.boss) wild(le);
+            if (d != null && !d.boss) {
+                wild(le);
+                if (!plugin.getConfig().getBoolean("dificultad.nombres-siempre-visibles", false)) le.setCustomNameVisible(false);
+            }
         }
     }
 
