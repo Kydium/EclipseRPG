@@ -378,6 +378,7 @@ public final class WorldManager implements Listener {
     private final Map<UUID, State> states = new HashMap<>();
     private final Set<EntityType> blocked = new HashSet<>();
     private double spawnMult = 1;
+    private int wildCap = 45;
     // apariciones extra: el plugin trae monstruos cerca de los jugadores además de los de Minecraft
     private boolean extraOn = true, extraDay = false;
     private int extraEvery = 15, extraMin = 1, extraMax = 3, extraNear = 24, extraFar = 44, extraTick;
@@ -422,6 +423,7 @@ public final class WorldManager implements Listener {
 
         ConfigurationSection ap = y.getConfigurationSection("apariciones");
         spawnMult = ap == null ? 1 : Math.max(0, ap.getDouble("multiplicador", 1));
+        wildCap = ap == null ? 45 : Math.max(1, ap.getInt("maximo-del-plugin", 45));
         ConfigurationSection ex = ap == null ? null : ap.getConfigurationSection("extra");
         extraOn = ex == null || ex.getBoolean("activo", true);
         extraEvery = ex == null ? 15 : Math.max(3, ex.getInt("cada", 15));
@@ -537,6 +539,7 @@ public final class WorldManager implements Listener {
         Bukkit.getScheduler().runTaskTimer(plugin, this::timeTick, 20L, 1L);
         Bukkit.getScheduler().runTaskTimer(plugin, this::cycle, 40L, 20L);
         Bukkit.getScheduler().runTaskTimer(plugin, this::extraSpawns, 100L, 20L);
+        Bukkit.getScheduler().runTaskTimer(plugin, this::despawnWild, 200L, 100L);
     }
 
     private World main() {
@@ -698,10 +701,35 @@ public final class WorldManager implements Listener {
     }
 
     /** Los que salen por el mundo (no jefes) desaparecen al alejarte, como en Minecraft, y cuentan para el límite normal. */
+    private static final String WILD = "eclipse_salvaje";
+
     private static void wild(LivingEntity le) {
         if (le != null) {
             le.setRemoveWhenFarAway(true);
             le.setPersistent(false);
+            // Minecraft no hace desaparecer a los mobs con nombre ni los cuenta en su límite: lo hace el plugin
+            le.addScoreboardTag(WILD);
+        }
+    }
+
+    private int wildNear(Location loc, double r) {
+        int n = 0;
+        for (var en : loc.getWorld().getNearbyEntities(loc, r, 384, r)) if (en.getScoreboardTags().contains(WILD) && !en.isDead()) n++;
+        return n;
+    }
+
+    /** Como en Minecraft: lejos de todos los jugadores desaparecen (a más de 128 bloques siempre; de 40 a 128, poco a poco). */
+    private void despawnWild() {
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        for (World w : Bukkit.getWorlds()) {
+            List<Player> players = w.getPlayers();
+            for (LivingEntity le : w.getLivingEntities()) {
+                if (!le.getScoreboardTags().contains(WILD) || le.isDead()) continue;
+                double best = Double.MAX_VALUE;
+                for (Player p : players) best = Math.min(best, p.getLocation().distanceSquared(le.getLocation()));
+                if (best > 128 * 128) le.remove();
+                else if (best > 40 * 40 && r.nextInt(8) == 0) le.remove();
+            }
         }
     }
 
@@ -956,6 +984,8 @@ public final class WorldManager implements Listener {
             if (!rule.replaces.isEmpty() && !rule.replaces.contains(type) && !rule.replaces.contains("cualquiera")) continue;
             if (r.nextDouble() >= rule.chance || !test(rule.when, loc, near)) continue;
             e.setCancelled(true);
+            // límite como el de Minecraft (los del plugin no cuentan en el suyo)
+            if (near != null && wildNear(near.getLocation(), 128) >= wildCap) return;
             int n = r.nextInt(rule.min, rule.max + 1);
             Bukkit.getScheduler().runTask(plugin, () -> {
                 for (int i = 0; i < n; i++) wild(spawnMob(rule.mob, i == 0 ? loc : plugin.mobs().spawnSpot(loc, 3)));
