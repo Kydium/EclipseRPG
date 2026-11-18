@@ -378,7 +378,8 @@ public final class WorldManager implements Listener {
     private final Map<UUID, State> states = new HashMap<>();
     private final Set<EntityType> blocked = new HashSet<>();
     private double spawnMult = 1;
-    private int wildCap = 45;
+    private int wildCap = 70;
+    private int statNatural, statReplaced, statCapped;
     // apariciones extra: el plugin trae monstruos cerca de los jugadores además de los de Minecraft
     private boolean extraOn = true, extraDay = false;
     private int extraEvery = 15, extraMin = 1, extraMax = 3, extraNear = 24, extraFar = 44, extraTick;
@@ -423,7 +424,7 @@ public final class WorldManager implements Listener {
 
         ConfigurationSection ap = y.getConfigurationSection("apariciones");
         spawnMult = ap == null ? 1 : Math.max(0, ap.getDouble("multiplicador", 1));
-        wildCap = ap == null ? 45 : Math.max(1, ap.getInt("maximo-del-plugin", 45));
+        wildCap = ap == null ? 70 : Math.max(1, ap.getInt("maximo-del-plugin", 70));
         ConfigurationSection ex = ap == null ? null : ap.getConfigurationSection("extra");
         extraOn = ex == null || ex.getBoolean("activo", true);
         extraEvery = ex == null ? 15 : Math.max(3, ex.getInt("cada", 15));
@@ -727,8 +728,10 @@ public final class WorldManager implements Listener {
                 if (!le.getScoreboardTags().contains(WILD) || le.isDead()) continue;
                 double best = Double.MAX_VALUE;
                 for (Player p : players) best = Math.min(best, p.getLocation().distanceSquared(le.getLocation()));
+                // igual que Minecraft: lejos de 128 se van; a más de 32, si llevan 30 s sin pelear, poco a poco
                 if (best > 128 * 128) le.remove();
-                else if (best > 40 * 40 && r.nextInt(8) == 0) le.remove();
+                else if (best > 32 * 32 && le.getTicksLived() > 600 && !(le instanceof org.bukkit.entity.Mob m && m.getTarget() != null)
+                        && r.nextInt(8) == 0) le.remove();
             }
         }
     }
@@ -972,6 +975,7 @@ public final class WorldManager implements Listener {
         Player near = nearest(loc, 96);
         ThreadLocalRandom r = ThreadLocalRandom.current();
         String type = le.getType().getKey().getKey();
+        statNatural++;
         // menos de 1 = salen menos (también antes de reemplazarlos por los del plugin)
         double m0 = spawnMult;
         State s0 = near == null ? null : state(near);
@@ -985,7 +989,11 @@ public final class WorldManager implements Listener {
             if (r.nextDouble() >= rule.chance || !test(rule.when, loc, near)) continue;
             e.setCancelled(true);
             // límite como el de Minecraft (los del plugin no cuentan en el suyo)
-            if (near != null && wildNear(near.getLocation(), 128) >= wildCap) return;
+            if (near != null && wildNear(near.getLocation(), 128) >= wildCap) {
+                statCapped++;
+                return;
+            }
+            statReplaced++;
             int n = r.nextInt(rule.min, rule.max + 1);
             Bukkit.getScheduler().runTask(plugin, () -> {
                 for (int i = 0; i < n; i++) wild(spawnMob(rule.mob, i == 0 ? loc : plugin.mobs().spawnSpot(loc, 3)));
@@ -1089,6 +1097,10 @@ public final class WorldManager implements Listener {
     public String describe() {
         World w = main();
         if (w == null) return "sin mundo";
-        return "clima " + weatherOf(w) + ", " + momentOf(w) + ", luna " + moonOf(w) + ", día " + (w.getFullTime() / 24000L + 1);
+        int wild = 0;
+        for (LivingEntity le : w.getLivingEntities()) if (le.getScoreboardTags().contains(WILD)) wild++;
+        return "clima " + weatherOf(w) + ", " + momentOf(w) + ", luna " + moonOf(w) + ", día " + (w.getFullTime() / 24000L + 1)
+                + "\nCorrompidos por el mundo: " + wild + " (límite " + wildCap + " cerca de cada jugador) · multiplicador " + spawnMult
+                + "\nDesde que arrancó: " + statNatural + " intentos de Minecraft, " + statReplaced + " cambiados por Corrompidos, " + statCapped + " frenados por el límite";
     }
 }

@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "pe.kydium"
-version = "6.9.3"
+version = "6.9.4"
 
 repositories {
     mavenCentral()
