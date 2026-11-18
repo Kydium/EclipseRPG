@@ -59,6 +59,12 @@ PREMIOS PERMITIDOS: "<N> xp", "<N> <moneda>", "<N> <objeto de Minecraft>",
   "<id de un OBJETO/ARMA inventado>", "poción de curación" (o "potion of healing"),
   "2 pociones de fuerza", "libro filo 3" (o "enchanted book sharpness 3").
   objetivo: derrota a <id de un JEFE inventado>   (para pelear contra tus jefes)
+  objetivo: resiste 90 segundos      + oleadas: <mob> 3, <mob> 2 cada 20   (defender/aguantar)
+  objetivo: busca el tesoro enterrado                                    (cofre enterrado lejos)
+  acertijo: <pregunta>  correcta: <respuesta>  incorrecta: <falsa> / <falsa>   (adivinanza del NPC)
+  tiempo: 5 min                                                           (contrarreloj, cualquier misión)
+  ¡Varía! No hagas solo "mata X" y "entrega X": mezcla emboscadas en estructuras, defensas, tesoros,
+  acertijos y contrarreloj.
 
 SKINS: aldeana_1, aldeana_2, aldeana_3, aldeano_1, aldeano_2, aldeano_3, anciana, aprendiz_1, aprendiz_2, arquero_1, arquero_2, bruja, caballero, campesina_1, campesina_2, campesina_3, campesino_1, campesino_2, campesino_3, cantero_1, cantero_2, capitana, carnicero_1, carnicero_2, cazador, curtidor_1, curtidor_2, druida, encapuchado, erudito_1, erudito_2, exploradora, fraile, guardia_1, guardia_2, guardia_3, hechicero, herrero, ladron, mago, marinero, mendigo, mercader, minero, monja, monje_1, monje_2, nigromante, nina_1, nina_2, nina_3, nino_1, nino_2, nino_3, noble, pastora_1, pastora_2, pescador_1, pescador_2, pirata, pirata_mujer, posadera, princesa, reina, rey, soldado, vikingo
 

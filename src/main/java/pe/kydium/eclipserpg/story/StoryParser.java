@@ -299,12 +299,44 @@ public final class StoryParser {
                     error(ln, "No existe la estructura '" + val + "'. Estructuras: " + cat.structures());
             }
             case "evento" -> m.event = slug(val);
+            case "tiempo", "tiempo limite", "limite de tiempo", "plazo" -> {
+                m.timeLimit = seconds(val);
+                if (m.timeLimit <= 0) error(ln, "Tiempo no válido: \"" + val + "\". Ejemplo: tiempo: 5 min");
+            }
+            case "oleadas", "oleada", "llegan" -> {
+                // "zombi_corrompido 3 cada 20"  ·  "skeleton 2, spider 1 cada 15"
+                String v = val;
+                java.util.regex.Matcher every = java.util.regex.Pattern.compile("cada\\s+(\\d+)").matcher(Dictionary.norm(v));
+                if (every.find()) {
+                    m.waveEvery = Math.max(5, Integer.parseInt(every.group(1)));
+                    v = v.replaceAll("(?i)cada\\s+\\d+\\s*(segundos|s|seg)?", "");
+                }
+                for (String part : v.split(",")) {
+                    String[] w = part.trim().split("\\s+");
+                    if (w.length == 0 || w[0].isBlank()) continue;
+                    String mob = customMob(Dictionary.norm(w[0]).replace(' ', '_'));
+                    if (mob == null) {
+                        List<String> ids = dict.lookup("mobs", Dictionary.norm(w[0]));
+                        mob = ids == null || ids.isEmpty() ? null : ids.get(0);
+                    }
+                    if (mob == null) {
+                        error(ln, "No conozco el enemigo '" + w[0] + "' en oleadas");
+                        continue;
+                    }
+                    m.waves.add(mob + ":" + (w.length > 1 && number(w[1]) != null ? number(w[1]) : 2));
+                }
+            }
+            case "acertijo", "pregunta", "adivinanza" -> m.riddle = val;
+            case "correcta", "respuesta correcta", "solucion" -> m.answer = val;
+            case "incorrecta", "incorrectas", "falsa", "falsas", "respuesta falsa", "otra respuesta" -> {
+                for (String x : val.split("/")) if (!x.isBlank()) m.wrong.add(x.trim());
+            }
             case "clima" -> {
                 String k = Dictionary.norm(val);
                 if (k.equals("tormenta") || k.equals("lluvia") || k.equals("despejado")) m.weather = k;
                 else error(ln, "clima: no entiendo '" + val + "'. Usa: despejado, lluvia o tormenta");
             }
-            default -> error(ln, "La misión no tiene un campo '" + key + "'. Campos: npc, acto, nivel, dice, responde, rechaza, final, objetivo, premio, aparecen, recibe, jefe, mazmorra, estructura, eleccion, evento, clima");
+            default -> error(ln, "La misión no tiene un campo '" + key + "'. Campos: npc, acto, nivel, dice, responde, rechaza, final, objetivo, premio, aparecen, recibe, jefe, mazmorra, estructura, eleccion, evento, clima, tiempo, oleadas, acertijo, correcta, incorrecta");
         }
     }
 
@@ -349,6 +381,29 @@ public final class StoryParser {
         }
         String verb = words.remove(0);
         String type = VERBS.get(verb);
+        String all = String.join(" ", words);
+        if (Set.of("sobrevive", "resiste", "aguanta", "defiende", "protege", "sobrevivir", "resistir").contains(verb)) {
+            o.type = "SOBREVIVIR";
+            Integer n = null;
+            for (String w : words) if ((n = number(w)) != null) break;
+            int secs = n == null ? 60 : n;
+            if (all.matches(".*\\bmin(uto|utos|s)?\\b.*")) secs *= 60;
+            o.amount = Math.max(5, secs);
+            o.targets.add("*");
+            return o;
+        }
+        if (all.contains("tesoro") && Set.of("busca", "encuentra", "desentierra", "halla", "buscar", "encontrar", "desenterrar", "cava").contains(verb)) {
+            o.type = "TESORO";
+            o.amount = 1;
+            o.targets.add("*");
+            return o;
+        }
+        if (Set.of("resuelve", "responde", "adivina", "resolver", "contesta").contains(verb)) {
+            o.type = "RESPONDER";
+            o.amount = 1;
+            o.targets.add("*");
+            return o;
+        }
         // "derrota al rey" / "ve al nether" / "habla con bruno"
         if (type == null) {
             if (verb.equals("mazmorra") || verb.equals("completa") || verb.equals("completar")) type = "MAZMORRA";
@@ -754,5 +809,24 @@ public final class StoryParser {
 
     private static String cut(String s) {
         return s.length() > 60 ? s.substring(0, 57) + "…" : s;
+    }
+
+    /** "5 min", "90 s", "2 minutos", "1:30" → segundos. */
+    private static int seconds(String v) {
+        String t = Dictionary.norm(v);
+        try {
+            if (t.matches("\\d+:\\d{1,2}")) {
+                String[] a = t.split(":");
+                return Integer.parseInt(a[0]) * 60 + Integer.parseInt(a[1]);
+            }
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d+)").matcher(t);
+            if (!m.find()) return 0;
+            int n = Integer.parseInt(m.group(1));
+            if (t.contains("hora")) return n * 3600;
+            if (t.contains("min")) return n * 60;
+            return n;
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }

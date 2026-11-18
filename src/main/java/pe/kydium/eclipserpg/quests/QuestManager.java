@@ -50,10 +50,17 @@ public final class QuestManager implements Listener {
     private final Map<Integer, String> actNames = new HashMap<>();
     private final Set<UUID> talking = new HashSet<>();
     private final DialogUI ui;
+    private final QuestExtras extras;
+
+    public QuestExtras extras() {
+        return extras;
+    }
 
     public QuestManager(EclipseRPG plugin) {
         this.plugin = plugin;
         this.ui = new DialogUI(plugin);
+        this.extras = new QuestExtras(plugin, this);
+        org.bukkit.Bukkit.getPluginManager().registerEvents(extras, plugin);
         org.bukkit.Bukkit.getScheduler().runTaskTimer(plugin, this::structureSpawnTick, 80L, 20L);
     }
 
@@ -129,6 +136,15 @@ public final class QuestManager implements Listener {
             q.reminder.addAll(m.reminder);
             q.replies.addAll(m.replies);
             q.decline = m.decline;
+            q.timeLimit = m.timeLimit;
+            q.waveEvery = m.waveEvery;
+            for (String sp : m.waves) {
+                String[] parts = sp.split(":");
+                q.waves.add(new Quest.Spawn(parts[0].trim(), parts.length > 1 ? intOf(parts[1].trim(), 1) : 1));
+            }
+            q.riddle = m.riddle;
+            q.answer = m.answer;
+            q.wrong.addAll(m.wrong);
             for (pe.kydium.eclipserpg.story.StoryDoc.Objective so : m.objectives) {
                 Quest.Objective o = new Quest.Objective();
                 try {
@@ -145,6 +161,13 @@ public final class QuestManager implements Listener {
             for (String sp : m.spawns) {
                 String[] parts = sp.split(":");
                 q.spawns.add(new Quest.Spawn(parts[0].trim(), parts.length > 1 ? intOf(parts[1].trim(), 1) : 1));
+            }
+            if (q.riddle != null && q.objectives.stream().noneMatch(o -> o.type == Quest.Type.RESPONDER)) {
+                Quest.Objective o = new Quest.Objective();
+                o.type = Quest.Type.RESPONDER;
+                o.targets.add("*");
+                o.text = "Resuelve el acertijo de " + plugin.npcs().name(q.npc).replaceAll("<[^>]+>", "");
+                q.objectives.add(o);
             }
             q.giveOnAccept.addAll(m.receive);
             q.rewards.addAll(m.rewards);
@@ -287,6 +310,10 @@ public final class QuestManager implements Listener {
             }
             return;
         }
+        if (!isComplete(p, q) && ui.enabled() && extras.pendingRiddle(p, q)) {
+            extras.askRiddle(p, q, npcName, ui);
+            return;
+        }
         if (!isComplete(p, q)) {
             List<String> lines = new ArrayList<>(q.reminder.isEmpty() ? List.of("¿Ya terminaste? Esto es lo que falta:") : q.reminder);
             if (ui.enabled()) {
@@ -322,6 +349,7 @@ public final class QuestManager implements Listener {
             if (o.type == Quest.Type.DIMENSION && o.matches(envName(p.getWorld()))) d.questProgress[i] = o.amount;
         }
         for (String g : q.giveOnAccept) give(p, g);
+        extras.onAccept(p, q);
         if (q.dungeon > 0) plugin.dungeons().ensure(q.dungeon, p);
         if (q.structure != null && !plugin.structures().ensure(q.structure, p))
             plugin.getLogger().warning("La misión \"" + q.name + "\" pide la estructura '" + q.structure + "', que no existe.");
@@ -350,6 +378,7 @@ public final class QuestManager implements Listener {
 
     private void turnIn(Player p, Quest q, Quest.Choice choice) {
         PlayerData d = plugin.data().get(p);
+        extras.clear(p, q);
         for (Quest.Objective o : q.objectives) {
             if (o.type == Quest.Type.ENTREGAR) takeItems(p, o, o.amount);
         }
@@ -468,6 +497,8 @@ public final class QuestManager implements Listener {
             p.sendMessage(Txt.mm("  " + mark + "<white>" + o.text + " <gray>" + have + "/" + o.amount));
         }
         if (q.noDeath) p.sendMessage(Txt.mm("  <red>⚠ Si mueres, el progreso se reinicia"));
+        String left = extras.timeLeft(p, q);
+        if (left != null) p.sendMessage(Txt.mm("  <gold>⏳ Te quedan <white>" + left));
         for (String l : rewardLines(q)) p.sendMessage(Txt.mm("  " + l));
         p.sendMessage(Txt.mm("<gray>Vuelve con " + plugin.npcs().name(q.npc) + " <gray>al terminar. Diario: <white>/misiones"));
     }

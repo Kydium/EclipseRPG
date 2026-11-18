@@ -75,5 +75,10 @@ public final class StoryDoc {
         public final List<String> receive = new ArrayList<>();  // specs
         public final List<String> rewards = new ArrayList<>(); // specs
         public final List<Choice> choices = new ArrayList<>();
+        public int timeLimit;                                   // segundos (0 = sin límite)
+        public final List<String> waves = new ArrayList<>();    // "mob:n" que llegan mientras resistes
+        public int waveEvery = 20;
+        public String riddle, answer;                           // acertijo
+        public final List<String> wrong = new ArrayList<>();
     }
 }

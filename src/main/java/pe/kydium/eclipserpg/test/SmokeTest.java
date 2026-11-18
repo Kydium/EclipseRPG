@@ -705,6 +705,26 @@ public final class SmokeTest {
         String br = boss == null ? "" : boss.autoReply(), gr = give == null ? "" : give.autoReply();
         plugin.getLogger().info("[PRUEBA] respuesta automática de jefe: " + br + " | de entrega: " + gr);
         check(br.contains("Derrotaré") && gr.contains("Te traeré"), "si no tiene respuesta, el jugador contesta según el objetivo");
+        // misiones variadas: resistir, tesoro, acertijo y tiempo
+        int surv = 0, tre = 0, rid = 0, timed = 0;
+        for (int i = 1; i <= 200; i++) {
+            var q = plugin.quests().byNumber(i);
+            if (q == null) break;
+            for (var o : q.objectives) {
+                if (o.type == pe.kydium.eclipserpg.quests.Quest.Type.SOBREVIVIR) surv++;
+                if (o.type == pe.kydium.eclipserpg.quests.Quest.Type.TESORO) tre++;
+                if (o.type == pe.kydium.eclipserpg.quests.Quest.Type.RESPONDER && q.riddle != null && q.answer != null && !q.wrong.isEmpty()) rid++;
+            }
+            if (q.timeLimit > 0) timed++;
+        }
+        check(surv >= 5 && tre >= 3 && rid >= 5 && timed >= 4, "hay misiones de resistir, tesoro, acertijo y con tiempo (" + surv + "/" + tre + "/" + rid + "/" + timed + ")");
+        var rs = new pe.kydium.eclipserpg.story.StoryParser(plugin.story().dictionary(), plugin.story().catalog()).parse(List.of(
+                "HISTORIA: Prueba", "NPC a", "  nombre: Ana", "MISIÓN Uno", "  npc: a", "  objetivo: resiste 2 minutos",
+                "  oleadas: zombi_corrompido 3 cada 15", "  tiempo: 4 min", "  acertijo: ¿Qué es?", "  correcta: Esto", "  incorrecta: Aquello / Lo otro"));
+        for (var pr : rs.problems()) plugin.getLogger().info("[PRUEBA] misión variada: " + pr);
+        var mm = rs.doc().missions.isEmpty() ? null : rs.doc().missions.get(0);
+        check(rs.errors() == 0 && mm != null && mm.timeLimit == 240 && mm.waveEvery == 15 && mm.waves.size() == 1 && mm.wrong.size() == 2
+                && mm.objectives.get(0).amount == 120, "se leen tiempo, oleadas, acertijo y «resiste N minutos»");
         String lbl = plugin.shops().buttonLabel("runas");
         check(lbl.contains("Runas de forja") && !plugin.shops().buttonLabel("herreria").contains("Tienda"), "los botones de tienda dicen lo que venden (" + lbl + ")");
     }

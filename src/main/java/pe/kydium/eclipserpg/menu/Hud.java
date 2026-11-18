@@ -129,6 +129,10 @@ public final class Hud implements Listener {
                             if (w != null) return new Location(w, en[0] + 0.5, en[1], en[2] + 0.5);
                         }
                     }
+                    case TESORO -> {
+                        Location t = plugin.quests().extras().treasureOf(p, q);
+                        if (t != null) return t;
+                    }
                     case MAZMORRA -> {
                         Location l = plugin.dungeons().entranceLocation(q.dungeon > 0 ? q.dungeon : q.act);
                         if (l != null) return l;

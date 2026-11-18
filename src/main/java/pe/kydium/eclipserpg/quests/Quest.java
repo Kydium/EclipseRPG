@@ -9,7 +9,8 @@ import java.util.Locale;
 /** Una misión de la historia (quests.yml). */
 public final class Quest {
 
-    public enum Type { MATAR, MOB, TENER, ENTREGAR, FUNDIR, MINAR, PESCAR, DOMESTICAR, ENCANTAR, DIMENSION, HABLAR, MAZMORRA, ESTRUCTURA }
+    public enum Type { MATAR, MOB, TENER, ENTREGAR, FUNDIR, MINAR, PESCAR, DOMESTICAR, ENCANTAR, DIMENSION, HABLAR, MAZMORRA, ESTRUCTURA,
+        SOBREVIVIR, TESORO, RESPONDER }
 
     public static final class Objective {
         public Type type;
@@ -63,6 +64,11 @@ public final class Quest {
     public final List<String> reminder = new ArrayList<>();
     public final List<String> replies = new ArrayList<>();
     public String decline;
+    public int timeLimit;
+    public final List<Spawn> waves = new ArrayList<>();
+    public int waveEvery = 20;
+    public String riddle, answer;
+    public final List<String> wrong = new ArrayList<>();
 
     private static final java.util.Map<String, String> FUTURE = new java.util.HashMap<>();
 

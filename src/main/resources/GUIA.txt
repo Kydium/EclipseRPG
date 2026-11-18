@@ -497,3 +497,26 @@ el juego te dice exactamente en qué línea.
  verde = la aldea, marcas azules = otros jugadores. Clic derecho con él
  en la mano: zoom de 128, 256 o 512 bloques.
 
+
+---------------------------------------------------------------------
+ 21. MISIONES VARIADAS: RESISTIR, TESOROS, ACERTIJOS Y TIEMPO
+---------------------------------------------------------------------
+ Resistir oleadas (defender un lugar):
+   objetivo: resiste 90 segundos      (o "aguanta 3 minutos", "defiende…")
+   oleadas: zombi_corrompido 3, esqueleto_corrompido 2 cada 20
+   Cuenta 1 por segundo. Si mueres, vuelve a empezar desde 0.
+ Tesoro enterrado:
+   objetivo: busca el tesoro enterrado
+   Al aceptar se entierra un cofre a 130-270 bloques. El punto dorado
+   te lleva; cerca brillan partículas. Cava y ábrelo.
+ Acertijo (el NPC pregunta antes de entregar):
+   acertijo: Si me dices, me rompes. ¿Qué soy?
+   correcta: El silencio
+   incorrecta: Un secreto / Un vidrio / Una promesa
+   Si fallas, esperas unos segundos y vuelves a intentar.
+ Tiempo límite (sirve con cualquier objetivo):
+   tiempo: 5 min     (o "90 segundos")
+   Sale una barra arriba. Si se acaba, la misión se reinicia y vuelves
+   a hablar con el NPC.
+ Emboscada en un lugar: estructura: <id> + aparecen: 4 <mob> + objetivo:
+   encuentra la estructura <id>   (los enemigos salen allí).

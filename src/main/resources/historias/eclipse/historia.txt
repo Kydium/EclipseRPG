@@ -254,41 +254,59 @@ MISIÓN Creepers silenciosos
 
 MISIÓN Brillo azul
   npc: bruno
-  dice: Para encantar armas necesitamos lapislázuli.
-  dice: Búscalo en las cuevas.
+  dice: Para encantar armas necesitamos lapislázuli. Pero la mina azul está maldita.
+  dice: Cada vez que alguien pica allí, los muertos suben a reclamarla.
+  responde: Picaré rápido y me defenderé.
   objetivo: mina 8 lapis_ore o deepslate_lapis_ore | Mina 8 menas de lapislázuli
+  tiempo: 8 min
+  recuerda: El tiempo corre, muchacho. La maldición no espera.
   premio: 500 xp, 80 soles, 1 mesa de encantamiento
   final: Toma, una mesa de encantamientos. Fray Odón te enseñará luego.
 
 MISIÓN Venas rojas
   npc: bruno
-  dice: La redstone brilla como sangre en la roca.
-  dice: Tráeme lo que encuentres.
+  dice: La redstone late como sangre en la roca… y algo la vigila.
+  dice: Cuando la piques, aguanta. Vendrán a por ti.
+  responde: Que vengan. Aguanto lo que sea.
   objetivo: mina 12 redstone_ore o deepslate_redstone_ore | Mina 12 menas de redstone
+  objetivo: resiste 60 segundos | Resiste el ataque de los guardianes de la vena
+  oleadas: zombi_corrompido 2, esqueleto_corrompido 1 cada 20
   premio: 500 xp, 80 soles
   final: Bien. Esto alimentará mis máquinas.
 
 MISIÓN El tesoro de las minas
   npc: bruno
-  dice: Los mineros buscaban diamantes cuando desaparecieron.
-  dice: Encuentra cinco. Quédatelos, solo quiero verlos.
-  objetivo: ten 5 diamantes
+  dice: Los mineros enterraron su paga antes de desaparecer.
+  dice: Encontré un mapa a medias en sus cosas. El cofre está lejos del campamento.
+  dice: Sigue el punto dorado de la barra y cava donde brille el suelo.
+  responde: Iré a desenterrarlo.
+  objetivo: busca el tesoro enterrado | Desentierra el cofre de los mineros
+  objetivo: ten 3 diamantes
   premio: 500 xp, 80 soles, 10 esmeralda
   final: Diamantes de verdad… Ahora entiendo por qué bajaron tanto.
 
 MISIÓN Túneles abandonados
   npc: pip
-  dice: Mi carreta quedó en una mina abandonada.
-  dice: Tráeme los rieles de allí, valen oro.
+  dice: Mi carreta quedó en una mina abandonada. Los rieles valen oro.
+  dice: Pero cuidado: hay un campamento de bandidos usando esos túneles.
+  responde: Limpio el campamento y te traigo los rieles.
+  estructura: campamento_bandidos
+  objetivo: encuentra la estructura campamento_bandidos | Encuentra el campamento de bandidos
+  objetivo: mata 4 Saqueadores Corrompidos
   objetivo: entrega 16 rail | Entrega 16 rieles
+  aparecen: 4 saqueador_corrompido
   premio: 500 xp, 80 soles, 1 pico de diamante
   final: ¡Mis rieles! Toma este pico de diamante, era de un minero perdido.
 
 MISIÓN Cristales
   npc: pip
   dice: Dicen que en las geodas hay cristales morados que cantan.
-  dice: Tráeme unos, por favor.
+  dice: Pero antes… ¡un acertijo de mercader! Si lo resuelves te doy un descuento.
   objetivo: entrega 8 fragmentos de amatista
+  acertijo: Crezco sin raíces, canto sin boca y vivo dentro de una piedra hueca. ¿Qué soy?
+  correcta: Un cristal de amatista
+  incorrecta: Un murciélago / Una seta / Una lámpara de redstone
+  responde: Vengo con los cristales… y con la respuesta.
   premio: 500 xp, 80 soles, 1 catalejo
   final: Preciosos. Toma este catalejo.
 
@@ -309,8 +327,10 @@ ACTO 3: Sangre en las Aldeas
 MISIÓN La exploradora
   npc: lia
   dice: ¡Hola! Soy Lía, exploradora. Vengo de las aldeas del este.
-  dice: Los saqueadores las están atacando… y llevan la marca del Eclipse.
-  dice: Hazme un mapa para marcar las aldeas.
+  dice: Los saqueadores las atacan… y llevan la marca del Eclipse.
+  dice: Hay una torre de vigía abandonada. Desde arriba se ven todas las aldeas.
+  responde: Subo a la torre y te hago el mapa.
+  objetivo: encuentra la estructura torre_vigia | Llega a la torre de vigía
   objetivo: entrega 1 map o filled_map | Entrega un mapa
   premio: 750 xp, 120 soles, 1 brujula
   final: Perfecto. Toma esta brújula.
@@ -318,8 +338,11 @@ MISIÓN La exploradora
 MISIÓN Comercio con la aldea
   npc: lia
   dice: Los aldeanos confían en quien comercia con ellos.
-  dice: Consigue esmeraldas: comercia, vende o explora.
+  dice: Pero primero quieren saber si eres listo. Te mandaron esta adivinanza.
   objetivo: ten 10 esmeraldas
+  acertijo: Más la buscas, más se esconde; si la encuentras, todos te sonríen. Verde y dura, ¿qué es?
+  correcta: Una esmeralda
+  incorrecta: Una hoja / Un slime / Una botella de experiencia
   premio: 750 xp, 120 soles
   final: Ya te conocen en la aldea. Eso nos ayudará.
 
@@ -342,19 +365,26 @@ MISIÓN Pan para los refugiados
 
 MISIÓN Patrulla saqueadora
   npc: ines
-  dice: Una patrulla de saqueadores viene hacia acá.
-  dice: Que no lleguen al campamento.
+  dice: ¡Una patrulla viene hacia el campamento! Ya se oyen los cuernos.
+  dice: Aguanta en la entrada mientras los demás se esconden.
+  responde: Nadie pasa. Yo me quedo en la entrada.
+  objetivo: resiste 90 segundos | Defiende la entrada del campamento
   objetivo: mata 6 Saqueadores Corrompidos
-  aparecen: 3 saqueador_corrompido
+  oleadas: saqueador_corrompido 3 cada 25
+  recuerda: ¡No te muevas de la entrada!
   premio: 750 xp, 120 soles, 1 ballesta
   final: Bien hecho. Quédate con una de sus ballestas.
 
 MISIÓN Hachas en la noche
   npc: ines
-  dice: Los vindicadores son peores. Usan hachas y no tienen miedo.
-  dice: Cuídate la cabeza.
+  dice: Los vindicadores atacan de noche desde un fuerte en el bosque.
+  dice: Entra antes de que salgan. Tienes poco tiempo.
+  responde: Entro antes del amanecer.
+  estructura: fortaleza
+  objetivo: encuentra la estructura fortaleza | Encuentra el fuerte de los vindicadores
   objetivo: mata 4 Vindicadores Corrompidos
-  aparecen: 3 vindicador_corrompido
+  aparecen: 4 vindicador_corrompido
+  tiempo: 12 min
   premio: 750 xp, 120 soles, 1 casco de diamante
   final: Toma este casco de diamante. Te lo ganaste.
 
@@ -368,10 +398,12 @@ MISIÓN Cazar a la patrulla
 
 MISIÓN Preparar la defensa
   npc: bruno
-  dice: Si vienen, que nos encuentren listos.
-  dice: Escudo y muchas flechas.
+  dice: Si vienen, que nos encuentren listos. Escudo y muchas flechas.
+  dice: Y luego probaremos la defensa de verdad.
   objetivo: ten un escudo
   objetivo: ten 64 flechas
+  objetivo: resiste 60 segundos | Aguanta el simulacro de asalto
+  oleadas: zombi_corrompido 2, esqueleto_corrompido 2 cada 20
   premio: 750 xp, 120 soles
   final: Hmpf. Ahora sí.
 
@@ -425,26 +457,32 @@ MISIÓN Tinta para el diario
 
 MISIÓN Navegante
   npc: lia
-  dice: Para llegar a esa corona hay que cruzar el océano.
-  dice: Hazte un bote.
+  dice: Para llegar a la corona hay que cruzar el océano.
+  dice: Hay un faro viejo en la costa. Si llegas, sabremos la ruta.
+  responde: Me hago un bote y voy al faro.
   objetivo: ten un bote
+  objetivo: encuentra la estructura faro | Llega al faro de la costa
   premio: 1000 xp, 160 soles, 16 bacalao cocido
   final: Toma comida para el viaje. El mar es largo.
 
 MISIÓN Tesoro enterrado
   npc: lia
-  dice: Los naufragios esconden mapas del tesoro.
-  dice: Encuentra un corazón del mar. Dicen que late cerca de la corona.
+  dice: Los náufragos enterraban lo que salvaban del mar.
+  dice: Encontré una X en un mapa mojado. ¡Vamos a desenterrarlo!
+  responde: ¡Voy por el tesoro!
+  objetivo: busca el tesoro enterrado | Desentierra el tesoro del náufrago
   objetivo: entrega un corazón del mar
   premio: 1000 xp, 160 soles, 10 esmeralda
   final: Late… de verdad late. Toma, esmeraldas.
 
 MISIÓN La marea muerta
   npc: ines
-  dice: Los ahogados salen del agua por las noches.
-  dice: Acaba con ellos antes de que lleguen a la playa.
+  dice: La marea sube… y con ella salen los ahogados.
+  dice: Aguanta en la playa hasta que baje. No retrocedas.
+  responde: Defiendo la playa.
+  objetivo: resiste 2 minutos | Aguanta la marea muerta
   objetivo: mata 8 drowned o zombie corrompidos | Mata 8 Ahogados Corrompidos
-  aparecen: 5 ahogado_corrompido
+  oleadas: ahogado_corrompido 3 cada 20
   premio: 1000 xp, 160 soles, objeto fragmento_mejora
   final: Buen trabajo. El mar está más tranquilo.
 
@@ -467,8 +505,11 @@ MISIÓN Ojos en el agua
 MISIÓN Magia antigua
   npc: odon
   dice: La magia de los encantamientos viene de antes del Eclipse.
-  dice: Encanta tres objetos en la mesa. Te hará falta.
+  dice: Pero solo la entiende quien sabe pensar. Respóndeme esto primero.
   objetivo: encanta 3 objetos
+  acertijo: Cuanto más me das, más grande me vuelvo; si me gastas, desaparezco. Me usan los magos y los herreros. ¿Qué soy?
+  correcta: La experiencia
+  incorrecta: El oro / El fuego / El tiempo
   premio: 1000 xp, 160 soles, 30 experience_bottle
   final: Excelente. Toma botellas de experiencia.
 
@@ -482,9 +523,11 @@ MISIÓN Esponjas
 
 MISIÓN Pesca profunda
   npc: pip
-  dice: El mar da tesoros a quien tiene paciencia.
-  dice: Pesca un buen rato, a ver qué sale.
+  dice: El mar da tesoros a quien tiene paciencia… ¡y velocidad!
+  dice: Apuesto a que no pescas quince en cinco minutos.
+  responde: Acepto la apuesta.
   objetivo: pesca 15 veces
+  tiempo: 5 min
   premio: 1000 xp, 160 soles, libro suerte del mar 3
   final: Toma este libro. Pescarás puro tesoro.
 
@@ -512,19 +555,23 @@ MISIÓN Hacia el desierto
 
 MISIÓN Los momificados
   npc: ines
-  dice: Los muertos del desierto se levantaron.
-  dice: Ten cuidado: dan hambre al golpear.
+  dice: Los muertos del desierto salen de la arena al atardecer.
+  dice: Resiste la tormenta de momias. Dan hambre al golpear: lleva comida.
+  objetivo: resiste 2 minutos | Resiste a los momificados
   objetivo: mata 10 husk o zombie corrompidos | Mata 10 Husks Corrompidos
-  aparecen: 5 husk_corrompido
+  oleadas: husk_corrompido 3 cada 20
   premio: 1250 xp, 200 soles, 1 pantalones de diamante
   final: Toma estos pantalones de diamante.
 
 MISIÓN El templo de arena
   npc: lia
-  dice: Hay un templo con trampas de TNT.
-  dice: Saquea el cofre sin volar en pedazos.
+  dice: Hay un templo con trampas de TNT. Su puerta tiene una inscripción.
+  dice: Dice que solo quien responde puede saquearlo sin morir.
   objetivo: entrega una silla de montar
   objetivo: entrega 2 diamantes
+  acertijo: De día me pisan, de noche me enfrío, el viento me mueve y el vidrio es mi hijo. ¿Qué soy?
+  correcta: La arena
+  incorrecta: La piedra / El agua / La lana
   premio: 1250 xp, 200 soles, 15 esmeralda
   final: ¡Sigues entero! Toma tu parte.
 
@@ -548,18 +595,23 @@ MISIÓN La selva
 
 MISIÓN Ruinas cubiertas
   npc: lia
-  dice: En la selva hay un templo cubierto de musgo.
-  dice: Tráeme piedra de allí.
+  dice: En la selva hay un templo cubierto de musgo… y un cofre escondido cerca.
+  dice: Los antiguos enterraban ofrendas a las afueras.
   objetivo: entrega 16 de piedra musgosa
+  objetivo: busca el tesoro enterrado | Encuentra la ofrenda enterrada
   premio: 1250 xp, 200 soles, libro irrompibilidad 3
   final: Toma este libro encantado.
 
 MISIÓN El aquelarre
   npc: ines
-  dice: Las brujas se juntan para ayudar a su señora.
-  dice: Termina con ellas. Cuidado con sus pociones.
+  dice: Las brujas se reúnen en una cabaña del pantano.
+  dice: Llega antes de que terminen el ritual.
+  responde: Interrumpo su ritual.
+  estructura: cabana
+  objetivo: encuentra la estructura cabana | Encuentra la cabaña del aquelarre
   objetivo: mata 5 Brujas Corrompidas
-  aparecen: 3 bruja_corrompida
+  aparecen: 5 bruja_corrompida
+  tiempo: 10 min
   premio: 1250 xp, 200 soles, 5 manzana dorada
   final: Toma manzanas doradas, contra el veneno.
 
@@ -583,8 +635,10 @@ MISIÓN Compañeros fieles
 MISIÓN Tormenta de arena
   npc: ines
   dice: Se acerca una tormenta. La bruja la está llamando.
-  dice: Aguanta y mata todo lo que salga.
-  objetivo: mata 20 monstruos
+  dice: Resiste tres minutos. No mueras, o tendrás que empezar.
+  responde: Aguantaré la tormenta.
+  objetivo: resiste 3 minutos | Sobrevive a la tormenta de arena
+  oleadas: husk_corrompido 2, bruja_corrompida 1, arana_corrompida 2 cada 25
   premio: 1250 xp, 200 soles, objeto fragmento_mejora
   final: Ya está cerca. Toma este Fragmento.
 
@@ -630,11 +684,11 @@ MISIÓN Verrugas
 
 MISIÓN Varas de fuego
   npc: ines
-  dice: Los blazes custodian la fortaleza.
-  dice: Mátalos y trae sus varas.
-  objetivo: mata 6 Blazes Corrompidos
+  dice: Los blazes custodian la fortaleza. Te llueve fuego.
+  dice: Aguanta su ataque y arrebátales las varas.
+  objetivo: resiste 90 segundos | Resiste la lluvia de fuego
   objetivo: entrega 6 varas de blaze
-  aparecen: 3 blaze_corrompido
+  oleadas: blaze_corrompido 2 cada 25
   premio: 1500 xp, 240 soles, objeto fragmento_mejora
   final: Bien. Toma este Fragmento.
 
@@ -665,10 +719,13 @@ MISIÓN Cuarzo
   final: Hmpf. Buen cuarzo.
 
 MISIÓN Lágrimas
-  npc: ines
+  npc: odon
   dice: Los ghasts lloran… y sus lágrimas curan.
-  dice: Devuélveles sus bolas de fuego.
+  dice: Antes, respóndeme: ¿sabes por qué lloran?
   objetivo: entrega 3 lágrimas de ghast
+  acertijo: Floto sin alas, grito sin rabia y lloro sin pena en un mundo de fuego. ¿Quién soy?
+  correcta: Un ghast
+  incorrecta: Un blaze / Un phantom / Un murciélago
   premio: 1500 xp, 240 soles, 2 pociones de regeneracion fuerte
   final: Toma pociones fuertes de regeneración.
 
@@ -682,9 +739,12 @@ MISIÓN Trueque dorado
 
 MISIÓN Los planes de Velkar
   npc: velkar
-  dice: Necesito dos cráneos de esqueleto wither.
-  dice: ¿Para qué? Para… estudiarlos. Nada más.
+  dice: Necesito dos cráneos de esqueleto wither. Para… estudiarlos.
+  dice: Pero no confío en cualquiera. Responde mi enigma.
   objetivo: entrega 2 cráneos de esqueleto wither
+  acertijo: Tengo tres cabezas, no tengo piernas, nazco de arena de almas y destruyo todo lo que veo. ¿Qué soy?
+  correcta: El Wither
+  incorrecta: El Dragón del End / Un golem de hierro / Un ravager
   premio: 1500 xp, 240 soles, objeto fragmento_mejora
   final: Excelente. Muy… excelente.
 
@@ -730,9 +790,10 @@ MISIÓN Pantanos vivos
 MISIÓN Remolinos
   npc: ines
   dice: Los breezes son viento con malas intenciones.
-  dice: Te van a mandar a volar. No te caigas.
+  dice: Resiste en la cámara hasta que se calme el viento.
+  objetivo: resiste 2 minutos | Resiste los remolinos
   objetivo: mata 6 Breezes Corrompidos
-  aparecen: 4 breeze_corrompido
+  oleadas: breeze_corrompido 2 cada 25
   premio: 1750 xp, 280 soles, 5 manzana dorada
   final: Toma manzanas doradas.
 
@@ -763,8 +824,9 @@ MISIÓN Llave ominosa
 MISIÓN Cobre antiguo
   npc: bruno
   dice: El cobre de las cámaras es antiguo y fuerte.
-  dice: Treinta y dos lingotes.
+  dice: Necesito treinta y dos lingotes antes de que se apague mi forja. ¡Rápido!
   objetivo: entrega 32 lingotes de cobre
+  tiempo: 15 min
   premio: 1750 xp, 280 soles, objeto fragmento_mejora
   final: Toma un Fragmento de Mejora.
 
@@ -779,8 +841,9 @@ MISIÓN Cargas de viento
 MISIÓN La prueba ominosa
   npc: ines
   dice: El Viento Encadenado despierta. Las cámaras tiemblan.
-  dice: Despeja el camino.
-  objetivo: mata 25 monstruos
+  dice: Aguanta la prueba completa. Si caes, se reinicia.
+  objetivo: resiste 3 minutos | Supera la prueba ominosa
+  oleadas: breeze_corrompido 1, bogged_corrompido 2, zombi_corrompido 2 cada 25
   premio: 1750 xp, 280 soles
   final: Está listo. Y tú también.
 
@@ -827,7 +890,8 @@ MISIÓN Sombras en la oscuridad
 MISIÓN Ecos
   npc: lia
   dice: En la Ciudad Antigua hay cofres con fragmentos de eco.
-  dice: No hagas ruido o despertarás al Warden.
+  dice: Y Velkar enterró algo cerca de la entrada. Encuéntralo.
+  objetivo: busca el tesoro enterrado | Desentierra lo que escondió Velkar
   objetivo: entrega 3 fragmentos de eco
   premio: 2000 xp, 320 soles
   final: Silencioso como un gato.
@@ -842,9 +906,11 @@ MISIÓN Lo que escucha
 
 MISIÓN Pasos silenciosos
   npc: odon
-  dice: Para entrar al centro de la ciudad necesitas magia.
-  dice: Tráeme un libro encantado de sus cofres.
+  dice: Para entrar al centro de la ciudad necesitas magia… y sabiduría.
   objetivo: entrega un libro encantado
+  acertijo: Si me dices, me rompes. ¿Qué soy?
+  correcta: El silencio
+  incorrecta: Un secreto / Un vidrio / Una promesa
   premio: 2000 xp, 320 soles, 5 pociones de invisibilidad
   final: Toma pociones de invisibilidad.
 
@@ -867,9 +933,11 @@ MISIÓN Lo que se perdió
 
 MISIÓN Velas para los caídos
   npc: pip
-  dice: Quiero encender velas por los que se perdió el Eclipse.
-  dice: ¿Me ayudas?
+  dice: Quiero encender velas por los que perdimos en el Eclipse.
+  dice: Al encenderlas, las sombras vendrán. Protégeme mientras rezo.
   objetivo: entrega 16 velas
+  objetivo: resiste 90 segundos | Protege a Pip durante el rezo
+  oleadas: sombra_corrompida 2 cada 25
   premio: 2000 xp, 320 soles, objeto fragmento_mejora
   final: Gracias, socio. De verdad.
 
