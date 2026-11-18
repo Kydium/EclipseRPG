@@ -138,6 +138,7 @@ public final class EclipseRPG extends JavaPlugin {
         backpacks = new pe.kydium.eclipserpg.items.Backpacks(this);
         pm.registerEvents(backpacks, this);
         pm.registerEvents(specialBlocks, this);
+        pm.registerEvents(new pe.kydium.eclipserpg.dungeon.VillageGuard(this), this);
         minimap = new pe.kydium.eclipserpg.menu.Minimap(this);
         try {
             minimap.init();

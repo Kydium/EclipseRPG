@@ -383,6 +383,10 @@ public final class SpecialBlocks implements Listener, TabExecutor {
         }
     }
 
+    public boolean isSpecial(Block b) {
+        return placed.containsKey(key(b));
+    }
+
     public int placedCount() {
         return placed.size();
     }

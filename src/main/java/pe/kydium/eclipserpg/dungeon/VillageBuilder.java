@@ -56,6 +56,11 @@ public final class VillageBuilder implements Listener {
     private final List<Op> ops = new ArrayList<>();
     private final List<JsonObject> markers = new ArrayList<>();
     private int radius = 44;
+
+    /** Radio de la aldea en bloques (para protegerla). */
+    public int radius() {
+        return radius;
+    }
     private boolean busy;
 
     public VillageBuilder(EclipseRPG plugin) {

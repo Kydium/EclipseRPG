@@ -130,6 +130,8 @@ grieta:
     10: [enderman_corrompido, piglin_bruto_corrompido, sombra_corrompida]
 
 aldea:
+  indestructible: true          # nadie rompe ni construye en la aldea (los admins en creativo sí)
+  margen-proteccion: 6          # bloques extra alrededor del borde de la aldea
   auto: true                    # construir la aldea sola al iniciar un mundo nuevo
   tipo: auto                    # auto (al azar) | chica | mediana | grande | clasica (el plano fijo de antes)
   trazado: auto                 # auto | radial | cuadricula | lineal | anillo | ramificado (forma de las calles)
