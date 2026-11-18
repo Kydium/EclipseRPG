@@ -668,6 +668,43 @@ public final class WorldManager implements Listener {
     }
 
     /** Hace aparecer un enemigo de la historia o una criatura normal de Minecraft. */
+    /** Al cargar el mundo: los enemigos del plugin que no son jefes vuelven a desaparecer al alejarte (antes se quedaban para siempre). */
+    @EventHandler
+    public void onEntitiesLoad(org.bukkit.event.world.EntitiesLoadEvent e) {
+        for (var en : e.getEntities()) {
+            if (!(en instanceof LivingEntity le)) continue;
+            String id = le.getPersistentDataContainer().get(pe.kydium.eclipserpg.util.Keys.MOB, org.bukkit.persistence.PersistentDataType.STRING);
+            if (id == null) continue;
+            var d = plugin.mobs().def(id);
+            if (d != null && !d.boss) wild(le);
+        }
+    }
+
+    /** Quita los enemigos del plugin (no jefes) que están lejos de los jugadores. Devuelve cuántos. */
+    public int cleanup() {
+        int n = 0;
+        for (World w : Bukkit.getWorlds())
+            for (LivingEntity le : w.getLivingEntities()) {
+                String id = le.getPersistentDataContainer().get(pe.kydium.eclipserpg.util.Keys.MOB, org.bukkit.persistence.PersistentDataType.STRING);
+                var d = id == null ? null : plugin.mobs().def(id);
+                if (d == null || d.boss) continue;
+                boolean near = false;
+                for (Player p : w.getPlayers()) if (p.getLocation().distanceSquared(le.getLocation()) < 24 * 24) near = true;
+                if (near) continue;
+                le.remove();
+                n++;
+            }
+        return n;
+    }
+
+    /** Los que salen por el mundo (no jefes) desaparecen al alejarte, como en Minecraft, y cuentan para el límite normal. */
+    private static void wild(LivingEntity le) {
+        if (le != null) {
+            le.setRemoveWhenFarAway(true);
+            le.setPersistent(false);
+        }
+    }
+
     public LivingEntity spawnMob(String mob, Location at) {
         if (plugin.mobs().def(mob) != null) return plugin.mobs().spawn(mob, at);
         EntityType t = Reg.entity(mob);
@@ -913,7 +950,7 @@ public final class WorldManager implements Listener {
             e.setCancelled(true);
             int n = r.nextInt(rule.min, rule.max + 1);
             Bukkit.getScheduler().runTask(plugin, () -> {
-                for (int i = 0; i < n; i++) spawnMob(rule.mob, i == 0 ? loc : plugin.mobs().spawnSpot(loc, 3));
+                for (int i = 0; i < n; i++) wild(spawnMob(rule.mob, i == 0 ? loc : plugin.mobs().spawnSpot(loc, 3)));
             });
             return;
         }
@@ -971,7 +1008,7 @@ public final class WorldManager implements Listener {
                 if (at == null) continue;
                 String mob = extraMobs.get(r.nextInt(extraMobs.size())).toLowerCase(Locale.ROOT);
                 if (plugin.mobs().def(mob) != null) {
-                    spawnMob(mob, at);
+                    wild(spawnMob(mob, at));
                 } else {
                     EntityType et = Reg.entity(mob);
                     if (et == null || blocked.contains(et)) continue;

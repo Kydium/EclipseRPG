@@ -23,6 +23,10 @@ public final class WorldCommand implements TabExecutor {
         WorldManager w = plugin.world();
         String sub = a.length == 0 ? "estado" : a[0].toLowerCase();
         switch (sub) {
+            case "limpiar", "limpia" -> {
+                int n = w.cleanup();
+                Txt.send(s, "<green>Se quitaron " + n + " enemigos del plugin que estaban lejos de los jugadores.");
+            }
             case "lista" -> {
                 Txt.send(s, "<yellow>Eventos del mundo:");
                 for (String id : w.eventIds())
