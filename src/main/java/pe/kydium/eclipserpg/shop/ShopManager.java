@@ -268,6 +268,7 @@ public final class ShopManager {
             return t == null ? "Runa al azar" : "Runa de " + pe.kydium.eclipserpg.story.StoryManager.plain(pe.kydium.eclipserpg.items.Powers.TYPES.get(t)[0]).replaceAll("^[^A-Za-zÁÉÍÓÚáéíóúñ]+", "");
         }
         if (rest.startsWith("especial:")) return "Arma especial " + rest.substring(9);
+        if (rest.startsWith("minimapa") || rest.startsWith("mapa:")) return "Mapa del aventurero";
         return Txt.pretty(rest);
     }
 
@@ -318,6 +319,7 @@ public final class ShopManager {
                 List<String> ids = plugin.items().ofRarity(rest.isBlank() ? "epico" : rest);
                 if (!ids.isEmpty()) it = plugin.items().create(ids.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(ids.size())), 1);
             }
+            case "minimapa", "mapa" -> it = plugin.minimap() == null ? null : plugin.minimap().item();
             case "bloque" -> it = plugin.specialBlocks() == null ? null : plugin.specialBlocks().item(rest, Math.max(1, e.amount));
             case "material" -> {
                 Material m = Material.matchMaterial(rest);
@@ -368,7 +370,7 @@ public final class ShopManager {
         e.item = spec;
         e.amount = Math.max(1, amount);
         ItemStack it = build(e);
-        if (it != null && !spec.startsWith("custom:") && !spec.startsWith("especial:") && !spec.startsWith("bloque:")) it.setAmount(Math.min(it.getMaxStackSize(), e.amount));
+        if (it != null && !spec.startsWith("custom:") && !spec.startsWith("especial:") && !spec.startsWith("bloque:") && !spec.startsWith("minimapa")) it.setAmount(Math.min(it.getMaxStackSize(), e.amount));
         return it;
     }
 

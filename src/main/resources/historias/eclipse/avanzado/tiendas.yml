@@ -13,6 +13,7 @@ tiendas:
     descripcion: "Comida, antorchas, camas y lo básico para sobrevivir"
     filas: 6
     objetos:
+      - {tipo: comprar, slot: 17, item: "minimapa:aventurero", precio: 120}
       # --- Mochilas ---
       - {tipo: comprar, slot: 24, item: "custom:mochila_pequena", precio: 150}
       - {tipo: comprar, slot: 25, item: "custom:mochila_mediana", precio: 600, nivel: 8}

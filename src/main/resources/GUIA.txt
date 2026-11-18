@@ -489,3 +489,11 @@ el juego te dice exactamente en qué línea.
           ni donde hay antorchas). Se cambia: cada, cantidad, distancias,
           de-dia y la lista de mobs (sirven los de la historia).
 
+---------------------------------------------------------------------
+ 20. MAPA DEL AVENTURERO (MINIMAPA)
+---------------------------------------------------------------------
+ Pip lo vende (en tiendas y botín: minimapa:aventurero). Llévalo en la
+ otra mano (tecla F): va centrado en ti. X roja = tu misión, estandarte
+ verde = la aldea, marcas azules = otros jugadores. Clic derecho con él
+ en la mano: zoom de 128, 256 o 512 bloques.
+

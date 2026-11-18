@@ -138,6 +138,13 @@ public final class EclipseRPG extends JavaPlugin {
         backpacks = new pe.kydium.eclipserpg.items.Backpacks(this);
         pm.registerEvents(backpacks, this);
         pm.registerEvents(specialBlocks, this);
+        minimap = new pe.kydium.eclipserpg.menu.Minimap(this);
+        try {
+            minimap.init();
+            pm.registerEvents(minimap, this);
+        } catch (RuntimeException ex) {
+            getLogger().warning("Minimapa no disponible: " + ex.getMessage());
+        }
         specialBlocks.start();
         PluginCommand bc = getCommand("bloque");
         if (bc != null) {
@@ -349,6 +356,8 @@ public final class EclipseRPG extends JavaPlugin {
     public pe.kydium.eclipserpg.menu.Hud hud() { return hud; }
     public pe.kydium.eclipserpg.items.Backpacks backpacks() { return backpacks; }
     private pe.kydium.eclipserpg.menu.Hud hud;
+    private pe.kydium.eclipserpg.menu.Minimap minimap;
+    public pe.kydium.eclipserpg.menu.Minimap minimap() { return minimap; }
     private pe.kydium.eclipserpg.blocks.SpecialBlocks specialBlocks;
     public pe.kydium.eclipserpg.blocks.SpecialBlocks specialBlocks() { return specialBlocks; }
     private pe.kydium.eclipserpg.items.Backpacks backpacks;
