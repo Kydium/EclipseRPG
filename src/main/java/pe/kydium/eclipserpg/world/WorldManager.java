@@ -944,6 +944,14 @@ public final class WorldManager implements Listener {
         Player near = nearest(loc, 96);
         ThreadLocalRandom r = ThreadLocalRandom.current();
         String type = le.getType().getKey().getKey();
+        // menos de 1 = salen menos (también antes de reemplazarlos por los del plugin)
+        double m0 = spawnMult;
+        State s0 = near == null ? null : state(near);
+        if (s0 != null) m0 *= s0.spawns;
+        if (m0 < 1 && r.nextDouble() >= m0) {
+            e.setCancelled(true);
+            return;
+        }
         for (SpawnRule rule : spawnRules) {
             if (!rule.replaces.isEmpty() && !rule.replaces.contains(type) && !rule.replaces.contains("cualquiera")) continue;
             if (r.nextDouble() >= rule.chance || !test(rule.when, loc, near)) continue;
@@ -957,10 +965,7 @@ public final class WorldManager implements Listener {
         double m = spawnMult;
         State s = near == null ? null : state(near);
         if (s != null) m *= s.spawns;
-        if (m < 1) {
-            if (r.nextDouble() >= m) e.setCancelled(true);
-            return;
-        }
+        if (m < 1) return; // ya se filtró arriba
         double extra = Math.min(4, m - 1);
         int copies = (int) extra + (r.nextDouble() < extra - (int) extra ? 1 : 0);
         if (copies <= 0) return;
