@@ -434,6 +434,46 @@ mobs:
     premios:
       - {item: fragmento_solar_10}
 
+  # ---------------- La corrupción llega a los gólems (acto 3 en adelante) ----------------
+  golem_corrompido:
+    tipo: iron_golem
+    nombre: "<dark_purple>☠ Gólem Corrompido"
+    rol: enemigo                # ataca a jugadores, aldeanos y NPCs
+    vida: 160
+    danio: 9
+    armadura: 6
+    resistencia-empuje: 1
+    vida-inicial: 0.7           # nace agrietado: se le ven las venas moradas
+    velocidad: 0.1
+    aura: WITCH
+    xp: 60
+    soles: 25
+  lobo_corrompido:
+    tipo: wolf
+    nombre: "<dark_purple>☠ Lobo Corrompido"
+    rol: enemigo
+    vida: 40
+    danio-extra: 3
+    velocidad: 0.2
+    aura: WITCH
+    xp: 18
+    soles: 5
+  golem_eclipse:
+    tipo: iron_golem
+    nombre: "<dark_red>☠ Gólem del Eclipse"
+    rol: enemigo
+    vida: 420
+    danio: 16
+    armadura: 12
+    dureza: 4
+    resistencia-empuje: 1
+    escala: 1.35
+    vida-inicial: 0.45          # casi partido en dos por la corrupción
+    aura: SOUL_FIRE_FLAME
+    xp: 250
+    soles: 80
+    efectos: ["fire_resistance:0"]
+
 # Jefes normales de Minecraft que también dan premios
 jefes-vanilla:
   wither:

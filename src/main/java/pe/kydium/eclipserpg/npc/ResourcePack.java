@@ -69,6 +69,30 @@ public final class ResourcePack implements Listener {
             // HUD: moneda y letra desplazada para mostrar el dinero junto a la barra rápida
             put(z, "assets/eclipse/font/hud.json", resource("motor/hud/hud.json"));
             put(z, "assets/eclipse/textures/hud/coin.png", resource("motor/hud/coin.png"));
+            // Corrompidos: texturas con venas moradas para los monstruos de Minecraft (todos son Corrompidos en la historia)
+            Map<String, byte[]> textures = new java.util.TreeMap<>();
+            if (plugin.getConfig().getBoolean("paquete-recursos.monstruos-corrompidos", true)) {
+                byte[] list = resource("motor/corrupcion/lista.txt");
+                if (list != null) for (String rel : new String(list, StandardCharsets.UTF_8).split("\\R")) {
+                    rel = rel.trim();
+                    if (rel.isEmpty()) continue;
+                    byte[] png = resource("motor/corrupcion/" + rel);
+                    if (png == null) continue;
+                    textures.put(rel, png);
+                }
+            }
+            // texturas propias de la historia: historias/<historia>/texturas/zombie/zombie.png, etc.
+            File own = new File(plugin.story().folder(), "texturas");
+            if (own.isDirectory()) {
+                try (var walk = Files.walk(own.toPath())) {
+                    for (var path : (Iterable<java.nio.file.Path>) walk.filter(x -> x.toString().endsWith(".png"))::iterator) {
+                        String rel = own.toPath().relativize(path).toString().replace('\\', '/').toLowerCase(java.util.Locale.ROOT);
+                        textures.put(rel, Files.readAllBytes(path));
+                    }
+                }
+            }
+            for (Map.Entry<String, byte[]> t : textures.entrySet()) put(z, "assets/minecraft/textures/entity/" + t.getKey(), t.getValue());
+            int tex = textures.size();
             int n = 0;
             for (Map.Entry<String, File> e : plugin.story().skins().entrySet()) {
                 byte[] png = e.getValue() == null ? resource("skins/" + e.getKey() + ".png") : Files.readAllBytes(e.getValue().toPath());
@@ -79,7 +103,7 @@ public final class ResourcePack implements Listener {
             z.finish();
             zip = bout.toByteArray();
             sha1 = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-1").digest(zip));
-            plugin.getLogger().info("Paquete de skins listo: " + n + " skins (" + zip.length / 1024 + " KB)");
+            plugin.getLogger().info("Paquete de skins listo: " + n + " skins, " + tex + " texturas de monstruos (" + zip.length / 1024 + " KB)");
         } catch (Exception e) {
             plugin.getLogger().warning("No se pudo armar el paquete de skins: " + e.getMessage());
             zip = null;

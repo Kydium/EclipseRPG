@@ -86,6 +86,7 @@ public final class MobManager implements Listener {
         public double knockbackResist;
         public boolean enrage;
         public String aura;
+        public double startHealth = 1.0;                 // vida-inicial: 0.7 = empieza herido (gólems agrietados)
         public final List<Ability> abilities = new ArrayList<>();
     }
 
@@ -177,6 +178,7 @@ public final class MobManager implements Listener {
                 d.knockbackResist = s.getDouble("resistencia-empuje", d.boss ? 0.8 : 0);
                 d.enrage = s.getBoolean("furia", d.boss);
                 d.aura = s.getString("aura");
+                d.startHealth = Math.max(0.05, Math.min(1.0, s.getDouble("vida-inicial", 1.0)));
                 for (Map<?, ?> m : s.getMapList("habilidades")) {
                     Object t = m.get("tipo");
                     if (t == null) continue;
@@ -275,6 +277,9 @@ public final class MobManager implements Listener {
         double realHp = Math.min(totalHp, MAX_HP);
         setBase(le, Attribute.MAX_HEALTH, realHp);
         le.setHealth(Math.min(realHp, maxHealth(le)));
+        if (d.startHealth < 1.0) le.setHealth(Math.max(1, maxHealth(le) * d.startHealth));
+        if (le instanceof org.bukkit.entity.IronGolem golem) golem.setPlayerCreated(false);
+        if (le instanceof org.bukkit.entity.Wolf wolf && "enemigo".equals(d.role)) wolf.setAngry(true);
         if (totalHp > MAX_HP) le.getPersistentDataContainer().set(Keys.DMG_DIV, PersistentDataType.DOUBLE, totalHp / MAX_HP);
         AttributeInstance dmg = le.getAttribute(Attribute.ATTACK_DAMAGE);
         if (dmg != null) {
@@ -353,7 +358,7 @@ public final class MobManager implements Listener {
         if (inst != null) inst.setBaseValue(v);
     }
 
-    private static double maxHealth(LivingEntity le) {
+    public static double maxHealth(LivingEntity le) {
         AttributeInstance inst = le.getAttribute(Attribute.MAX_HEALTH);
         return inst == null ? 20 : inst.getValue();
     }

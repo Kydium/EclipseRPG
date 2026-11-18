@@ -520,3 +520,20 @@ el juego te dice exactamente en qué línea.
    a hablar con el NPC.
  Emboscada en un lugar: estructura: <id> + aparecen: 4 <mob> + objetivo:
    encuentra la estructura <id>   (los enemigos salen allí).
+
+---------------------------------------------------------------------
+ 22. ASPECTO CORROMPIDO Y GÓLEMS/LOBOS CORROMPIDOS
+---------------------------------------------------------------------
+ El paquete de recursos pinta venas moradas a los monstruos de Minecraft
+ (zombis, esqueletos, arañas, creepers, brujas, illagers, blazes,
+ breezes, endermans, guardianes, hoglins…). Se apaga en config.yml:
+   paquete-recursos.monstruos-corrompidos: false
+ Texturas propias: pon PNGs en historias/<historia>/texturas/ con la
+ misma ruta de Minecraft (ej. texturas/zombie/zombie.png) y /historia
+ recargar. Reemplazan a las de Minecraft para todos.
+ Gólems: sus grietas ahora son moradas. Un mob con "vida-inicial: 0.7"
+ nace herido, así se le ven las grietas desde el principio.
+ Mobs nuevos: golem_corrompido (acto 3+), lobo_corrompido (acto 5+, en
+ bosques) y golem_eclipse (acto 8+). Salen de noche gracias a las reglas
+ de mundo.yml → apariciones.reglas. Con "rol: enemigo" cualquier mob
+ (gólem, lobo, allay, aldeano…) ataca a jugadores y aldeanos.

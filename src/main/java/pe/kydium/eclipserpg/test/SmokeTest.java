@@ -162,11 +162,24 @@ public final class SmokeTest {
             String sha = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-1").digest(resp.body()));
             check(resp.statusCode() == 200 && sha.equals(rp.sha1()), "el servidor entrega el paquete de skins por HTTP ("
                     + resp.statusCode() + ", " + resp.body().length / 1024 + " KB)");
-            int skins = 0;
+            int skins = 0, mobTex = 0;
+            boolean golem = false;
             try (var z = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(resp.body()))) {
                 java.util.zip.ZipEntry en;
-                while ((en = z.getNextEntry()) != null) if (en.getName().startsWith("assets/eclipse/textures/npc/") && en.getName().endsWith(".png")) skins++;
+                while ((en = z.getNextEntry()) != null) {
+                    if (en.getName().startsWith("assets/eclipse/textures/npc/") && en.getName().endsWith(".png")) skins++;
+                    if (en.getName().startsWith("assets/minecraft/textures/entity/")) mobTex++;
+                    if (en.getName().equals("assets/minecraft/textures/entity/iron_golem/iron_golem_crackiness_low.png")) golem = true;
+                }
             }
+            check(mobTex >= 50 && golem, "el paquete trae las texturas de Corrompidos (" + mobTex + ")");
+            var gd = plugin.mobs().def("golem_corrompido");
+            check(gd != null && "enemigo".equals(gd.role) && gd.startHealth < 1 && plugin.mobs().def("lobo_corrompido") != null
+                    && plugin.mobs().def("golem_eclipse") != null, "existen los gólems y lobos corrompidos");
+            var g = plugin.mobs().spawn("golem_corrompido", plugin.getServer().getWorlds().get(0).getSpawnLocation().clone().add(3, 1, 3));
+            check(g instanceof org.bukkit.entity.IronGolem ig && !ig.isPlayerCreated() && g.getHealth() < pe.kydium.eclipserpg.mobs.MobManager.maxHealth(g) * 0.8
+                    && plugin.npcEntities().combat().hostile(g), "el gólem corrompido nace agrietado y es hostil");
+            if (g != null) g.remove();
             check(skins == plugin.story().skins().size(), "el paquete trae todas las skins (" + skins + ")");
         } catch (Exception e) {
             fail("no se pudo descargar el paquete de skins: " + e);

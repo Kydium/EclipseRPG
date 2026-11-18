@@ -28,6 +28,11 @@ jobs:
           mkdir -p pack/assets/eclipse/textures/npc
           cp src/main/resources/motor/pack.mcmeta pack/
           cp src/main/resources/skins/*.png pack/assets/eclipse/textures/npc/
+          mkdir -p pack/assets/minecraft/textures/entity
+          (cd src/main/resources/motor/corrupcion && find . -name '*.png' -exec cp --parents {} ../../../../../pack/assets/minecraft/textures/entity/ \;)
+          mkdir -p pack/assets/eclipse/font pack/assets/eclipse/textures/hud
+          cp src/main/resources/motor/hud/hud.json pack/assets/eclipse/font/hud.json
+          cp src/main/resources/motor/hud/coin.png pack/assets/eclipse/textures/hud/coin.png
           cd pack
           find . -exec touch -t 202601010000 {} +
           zip -X -r -9 ../EclipseRPG-pack.zip pack.mcmeta assets

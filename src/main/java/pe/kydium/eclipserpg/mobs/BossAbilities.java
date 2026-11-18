@@ -41,7 +41,30 @@ public final class BossAbilities {
         Bukkit.getScheduler().runTaskTimer(plugin, this::tick, 40L, 20L);
     }
 
+    private int auraClock;
+
+    /** Aura de los mobs comunes (no jefes) que la tengan: cada 2 s, solo cerca de jugadores. */
+    private void commonAuras() {
+        if (++auraClock % 2 != 0) return;
+        java.util.Set<UUID> seen = new java.util.HashSet<>();
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            for (Entity e : p.getNearbyEntities(32, 16, 32)) {
+                if (!(e instanceof LivingEntity le) || !seen.add(e.getUniqueId())) continue;
+                String id = le.getPersistentDataContainer().get(Keys.MOB, PersistentDataType.STRING);
+                MobManager.MobDef d = id == null ? null : mobs.def(id);
+                if (d == null || d.boss || d.aura == null) continue;
+                try {
+                    le.getWorld().spawnParticle(Particle.valueOf(d.aura.toUpperCase()), le.getLocation().add(0, le.getHeight() * 0.6, 0),
+                            5, le.getWidth() * 0.4, le.getHeight() * 0.3, le.getWidth() * 0.4, 0.01);
+                } catch (IllegalArgumentException ignored) {
+                    // partícula que necesita datos
+                }
+            }
+        }
+    }
+
     private void tick() {
+        commonAuras();
         cooldowns.keySet().removeIf(u -> {
             Entity e = Bukkit.getEntity(u);
             return e == null || e.isDead();

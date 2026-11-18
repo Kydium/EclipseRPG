@@ -86,6 +86,10 @@ apariciones:
     mobs: [zombie, zombie, skeleton, skeleton, spider, creeper, zombi_corrompido]
   bloquear: []             # por ejemplo: [phantom, creeper]
   reglas:
+    # La corrupción llega a los gólems y a los lobos (van primero: la primera regla que toca, gana)
+    - {mob: golem_corrompido, reemplaza: [zombie, skeleton, spider, creeper], probabilidad: 0.04, cuando: {acto-min: 3, cielo: abierto, momento: [noche], dimension: [overworld], zona: fuera}}
+    - {mob: lobo_corrompido, reemplaza: [zombie, skeleton, spider], probabilidad: 0.08, grupo: "2-3", cuando: {acto-min: 5, bioma: [bosque, frio], momento: [noche], zona: fuera}}
+    - {mob: golem_eclipse, reemplaza: [zombie, skeleton, creeper], probabilidad: 0.02, cuando: {acto-min: 8, momento: [noche], dimension: [overworld], zona: fuera}}
     - {mob: zombi_corrompido, reemplaza: [zombie], probabilidad: 0.25, grupo: "1-2", cuando: {luna: [llena], momento: [noche]}}
     - {mob: esqueleto_corrompido, reemplaza: [skeleton], probabilidad: 0.2, cuando: {clima: [tormenta]}}
     - {mob: husk_corrompido, reemplaza: [husk, zombie], probabilidad: 0.2, cuando: {bioma: [desierto], acto-min: 4}}

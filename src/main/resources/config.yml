@@ -155,6 +155,7 @@ paquete-recursos:
   activo: true
   obligatorio: false            # true = quien lo rechace no puede entrar
   puerto: 25580
+  monstruos-corrompidos: true   # venas moradas en zombis, esqueletos, arañas, creepers, brujas… y grietas moradas en los gólems
   direccion: ""                 # vacío = la misma dirección con la que se conectan
 
 # Paseo de los NPCs (bloques alrededor de su puesto)

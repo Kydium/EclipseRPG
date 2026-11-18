@@ -321,6 +321,7 @@ MISIÓN JEFE: Capataz Hueso
   objetivo: encuentra Minas del Capataz
   objetivo: derrota al Capataz Hueso
   final: El segundo Fragmento Solar. Los mineros pueden descansar en paz.
+  final: Pero llegan rumores del este… dicen que los gólems de hierro ya no protegen a nadie.
 
 ACTO 3: Sangre en las Aldeas
 
@@ -328,6 +329,8 @@ MISIÓN La exploradora
   npc: lia
   dice: ¡Hola! Soy Lía, exploradora. Vengo de las aldeas del este.
   dice: Los saqueadores las atacan… y llevan la marca del Eclipse.
+  dice: Y hay algo peor: la corrupción llegó a los gólems de hierro. Tienen grietas moradas y aplastan a los aldeanos que antes cuidaban.
+  dice: De noche ya rondan fuera de las aldeas. Si ves uno con venas brillando, no te acerques sin espada.
   dice: Hay una torre de vigía abandonada. Desde arriba se ven todas las aldeas.
   responde: Subo a la torre y te hago el mapa.
   objetivo: encuentra la estructura torre_vigia | Llega a la torre de vigía
@@ -409,12 +412,16 @@ MISIÓN Preparar la defensa
 
 MISIÓN Un guardián de hierro
   npc: lia
-  dice: Las aldeas tienen golems de hierro que las protegen.
-  dice: Tráeme los materiales y armaremos uno para el campamento.
+  dice: Dos gólems corrompidos vienen siguiendo a los refugiados. Ya destrozaron una aldea entera.
+  dice: Detenlos. Y con su hierro armaremos un gólem nuevo… uno que la corrupción no pueda tocar.
+  responde: Los detengo y te traigo el hierro.
+  objetivo: mata 2 golem_corrompido | Destruye 2 Gólems Corrompidos
   objetivo: entrega 4 bloques de hierro
   objetivo: entrega una calabaza tallada
+  aparecen: 2 golem_corrompido
   premio: 750 xp, 120 soles, 1 peto de diamante
-  final: ¡Ya tenemos guardián! Y para ti, una pechera de diamante.
+  final: Tula bendijo el hierro con la luz del Fragmento. Este gólem no se va a corromper.
+  final: Pero escúchame: si la corrupción ya entra en el hierro, nada en este mundo está a salvo.
 
 MISIÓN La mansión del bosque
   npc: lia
@@ -628,6 +635,9 @@ MISIÓN Compañeros fieles
   npc: pip
   dice: ¡Viajar solo es aburrido! Y peligroso.
   dice: Domestica unos lobos, ellos te cuidarán.
+  dice: Pero ojo: en los bosques hay lobos con ojos morados. La corrupción ya llegó a las manadas. ¡Esos no se dejan domar!
+  objetivo: mata 3 lobo_corrompido | Mata 3 Lobos Corrompidos
+  aparecen: 3 lobo_corrompido
   objetivo: domestica 2 lobos
   premio: 1250 xp, 200 soles, 12 hueso
   final: ¡Qué lindos! Toma huesos para ellos.
@@ -898,9 +908,13 @@ MISIÓN Ecos
 
 MISIÓN Lo que escucha
   npc: bruno
-  dice: Esos sensores oyen todo.
-  dice: Tráeme algunos. Quiero alarmas para el campamento.
+  dice: Esos sensores oyen todo. Quiero alarmas para el campamento.
+  dice: Y las necesitamos ya: vi un Gólem del Eclipse cerca de la ciudad. Hierro negro, fuego de almas… medio partido y aun así de pie.
+  dice: Velkar los está creando con los gólems corrompidos. Destruye a los que custodian el sculk.
+  responde: Derribo a los gólems y te traigo los sensores.
+  objetivo: mata 2 golem_eclipse | Derriba 2 Gólems del Eclipse
   objetivo: entrega 4 sensores de sculk
+  aparecen: 2 golem_eclipse
   premio: 2000 xp, 320 soles, 25 esmeralda
   final: Ahora nadie entra sin que lo sepamos.
 

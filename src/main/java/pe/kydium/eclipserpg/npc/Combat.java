@@ -402,6 +402,11 @@ public final class Combat implements Listener {
             case "guardian" -> {
                 if (!hostile(target)) e.setCancelled(true);
             }
+            // un gólem o lobo corrompido es del bando de la corrupción: no pelea con otros Corrompidos
+            case "enemigo" -> {
+                if (!(e.getEntity() instanceof org.bukkit.entity.Enemy) && hostile(target)
+                        && why != EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY) e.setCancelled(true);
+            }
             default -> { }
         }
     }
