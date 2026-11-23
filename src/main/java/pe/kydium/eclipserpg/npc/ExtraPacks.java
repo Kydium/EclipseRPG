@@ -51,6 +51,10 @@ public final class ExtraPacks {
     private final Map<String, Map<String, JsonElement>> byName = new HashMap<>();
     /** id de aspecto de armadura (icons/minecraft_dungeons/archers_armor_1) */
     private final Set<String> equipment = new LinkedHashSet<>();
+    /** Texturas de mobs que trae algún paquete (zombie/zombie.png…): el plugin no pone las suyas encima. */
+    private final Set<String> entityTextures = new java.util.HashSet<>();
+    /** Nombres originales (con mayúsculas) por objeto base, para elegir estilos al azar. */
+    private final Map<String, List<String>> namesByBase = new HashMap<>();
 
     public ExtraPacks(EclipseRPG plugin) {
         this.plugin = plugin;
@@ -76,6 +80,8 @@ public final class ExtraPacks {
         packs.clear();
         byName.clear();
         equipment.clear();
+        entityTextures.clear();
+        namesByBase.clear();
         File dir = folder();
         if (!dir.isDirectory()) {
             dir.mkdirs();
@@ -141,14 +147,20 @@ public final class ExtraPacks {
             }
             Map<String, ZipEntry> items = new LinkedHashMap<>();
             for (String root : roots) {
-                String ip = root + "assets/minecraft/items/", ep = root + "assets/minecraft/equipment/";
+                String ip = root + "assets/minecraft/items/", ep = root + "assets/minecraft/equipment/", tp = root + "assets/minecraft/textures/entity/";
                 var en = z.entries();
                 while (en.hasMoreElements()) {
                     ZipEntry e = en.nextElement();
                     String n = e.getName();
-                    if (e.isDirectory() || !n.endsWith(".json")) continue;
+                    if (e.isDirectory()) continue;
+                    if (n.startsWith(tp) && n.endsWith(".png") && !n.startsWith(tp + "equipment/")) {
+                        entityTextures.add(n.substring(tp.length()));
+                        continue;
+                    }
+                    if (!n.endsWith(".json")) continue;
                     if (n.startsWith(ip) && n.indexOf('/', ip.length()) < 0) items.put(n.substring(ip.length(), n.length() - 5), e);
                     else if (n.startsWith(ep)) equipment.add(n.substring(ep.length(), n.length() - 5));
+                    else if (n.startsWith(tp) && n.endsWith(".png") && !n.startsWith(tp + "equipment/")) entityTextures.add(n.substring(tp.length()));
                 }
             }
             for (Map.Entry<String, ZipEntry> e : items.entrySet()) {
@@ -201,7 +213,11 @@ public final class ExtraPacks {
                 List<String> names = new ArrayList<>();
                 if (when.isJsonPrimitive()) names.add(when.getAsString());
                 else if (when.isJsonArray()) for (JsonElement w : (JsonArray) when) if (w.isJsonPrimitive()) names.add(w.getAsString());
-                for (String n : names) byName.computeIfAbsent(key(n), k -> new LinkedHashMap<>()).put(base, model);
+                for (String n : names) {
+                    Map<String, JsonElement> m = byName.computeIfAbsent(key(n), k -> new LinkedHashMap<>());
+                    if (!m.containsKey(base)) namesByBase.computeIfAbsent(base, k -> new ArrayList<>()).add(n);
+                    m.put(base, model);
+                }
             }
         }
         for (Map.Entry<String, JsonElement> en : o.entrySet()) walk(en.getValue(), base);
@@ -251,5 +267,46 @@ public final class ExtraPacks {
         for (String e : equipment) if (e.endsWith("/" + n + suffix) || e.equals(n + suffix)) return e;
         for (String e : equipment) if (e.endsWith("/" + n)) return e;
         return null;
+    }
+
+    // ---------------------------------------------------------------- estilos al azar (novedades del día)
+
+    public Set<String> entityTextures() {
+        return entityTextures;
+    }
+
+    public Map<String, Map<String, JsonElement>> all() {
+        return byName;
+    }
+
+    /** "Champion's Armor Chestplate" → "champion_s_armor_chestplate" */
+    public static String slug(String name) {
+        return key(name).replaceAll("[^a-z0-9]+", "_").replaceAll("^_|_$", "");
+    }
+
+    /** Modelo de estilo para un objeto base: eclipse:v/<base>/<slug>. */
+    public static String variantPath(String base, String name) {
+        return "v/" + base + "/" + slug(name);
+    }
+
+    /** Nombres de estilos para este objeto (para armaduras, solo los de conjuntos que tienen aspecto puesto). */
+    public List<String> namesFor(String base) {
+        List<String> l = namesByBase.getOrDefault(base, List.of());
+        String piece = base.endsWith("_helmet") ? " helmet" : base.endsWith("_chestplate") ? " chestplate" : base.endsWith("_leggings") ? " leggings"
+                : base.endsWith("_boots") ? " boots" : null;
+        if (piece == null) return l;
+        List<String> out = new ArrayList<>();
+        for (String n : l) {
+            String k = key(n);
+            if (!k.endsWith(piece)) continue;
+            if (look(setOf(n), piece.equals(" leggings")) != null) out.add(n);
+        }
+        return out;
+    }
+
+    /** "Champion's Armor Chestplate" → "champions_armor" (el nombre del aspecto puesto). */
+    public static String setOf(String pieceName) {
+        String k = key(pieceName).replaceAll(" (helmet|chestplate|leggings|boots)$", "");
+        return k.replace("'", "").replace(' ', '_');
     }
 }

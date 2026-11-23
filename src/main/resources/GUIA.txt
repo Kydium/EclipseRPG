@@ -716,6 +716,11 @@ el juego te dice exactamente en qué línea.
  /eclipse texturas buscar dragon    → busca nombres de modelos
  /eclipse texturas recargar         → vuelve a leer la carpeta y lo manda
  Consejo: quita assets/minecraft/sounds del .zip (pesa cientos de MB).
+ Las NOVEDADES DEL DÍA (armas, herramientas y armaduras de Pip y Bruno)
+ salen con un estilo al azar del paquete: cada día se ven distintas.
+ RENOMBRAR EN YUNQUE: con el paquete puesto, un arma renombrada con el
+ nombre en inglés del paquete (ej. "Hawkbrand") cambia de textura.
+ Si un paquete trae texturas de mobs, el plugin no pone las suyas encima.
 
  CIUDADES ENORMES: "tamaño: enorme" en una CIUDAD (o /eclipse
  construiraldea enorme): gran plaza, mercado de 8 puestos y más de 60

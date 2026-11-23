@@ -148,6 +148,8 @@ items:
 
   botas_viento_seco:                  # Acto 5 — Bruja de las Dunas
     material: DIAMOND_BOOTS
+    textura: "Climbing Gear Boots"
+    aspecto: climbing_gear
     nombre: "<yellow><bold>Botas del Viento Seco"
     lore: ["<gray>Corren como la arena", "<gray>en una tormenta."]
     irrompible: true
@@ -185,6 +187,8 @@ items:
 
   capa_silencio:                      # Acto 8 — Sombra de Velkar
     material: LEATHER_CHESTPLATE
+    textura: "Soul Robe Chestplate"
+    aspecto: soul_robe
     color: "1A1A1A"
     nombre: "<dark_gray><bold>Capa del Silencio"
     lore: ["<gray>Tejida con ecos de", "<gray>la Ciudad Antigua."]
@@ -306,6 +310,7 @@ items:
 
   pico_terremoto:
     material: NETHERITE_PICKAXE
+    textura: "Breaking Beyond"
     nombre: "<gray><bold>Pico Terremoto"
     irrompible: true
     encantamientos: {efficiency: 5, fortune: 3}
@@ -318,6 +323,8 @@ items:
 
   botas_saltarinas:
     material: NETHERITE_BOOTS
+    textura: "Sprout Armor Boots"
+    aspecto: sprout_armor
     nombre: "<aqua><bold>Botas Saltarinas"
     irrompible: true
     encantamientos: {feather_falling: 4, protection: 3}
@@ -491,6 +498,8 @@ items:
 
   peto_espinas:
     material: NETHERITE_CHESTPLATE
+    textura: "Spider Armor Chestplate"
+    aspecto: spider_armor
     nombre: "Peto de Espinas"
     rareza: legendario
     estilo-rpg: true
@@ -539,6 +548,7 @@ items:
 
   pico_buscador:
     material: DIAMOND_PICKAXE
+    textura: "Luminous Pickaxe"
     nombre: "Pico del Buscador"
     rareza: epico
     estilo-rpg: true
@@ -553,6 +563,7 @@ items:
 
   hacha_lenador:
     material: DIAMOND_AXE
+    textura: "Highland Axe"
     nombre: "Hacha del Leñador Gigante"
     rareza: legendario
     estilo-rpg: true
@@ -569,6 +580,7 @@ items:
 
   pala_excavadora:
     material: DIAMOND_SHOVEL
+    textura: "Fortress Former"
     nombre: "Pala Excavadora"
     rareza: epico
     estilo-rpg: true
@@ -581,6 +593,7 @@ items:
 
   azada_cosechadora:
     material: DIAMOND_HOE
+    textura: "Vineyard Hoe"
     nombre: "Azada Cosechadora"
     rareza: raro
     estilo-rpg: true

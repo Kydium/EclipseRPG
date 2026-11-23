@@ -126,6 +126,9 @@ public final class ShopManager {
             for (int i = 0; i < n; i++) {
                 DailyArmor.Piece pc = DailyGoods.make(kind, day, i);
                 if (pc == null) continue;
+                // estilo único del paquete de texturas (el mismo para todos ese día)
+                if (plugin.resourcePack() != null && !kind.equals("pociones") && !kind.equals("libros"))
+                    plugin.resourcePack().decorate(pc.item(), new Random(day * 92821L + i * 31L + (s.id + kind).hashCode()));
                 Entry e = new Entry();
                 e.kind = Kind.COMPRAR;
                 e.item = "diario:" + kind + ":" + day + ":" + i;

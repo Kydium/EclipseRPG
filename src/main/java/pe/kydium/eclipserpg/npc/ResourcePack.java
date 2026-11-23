@@ -50,6 +50,35 @@ public final class ResourcePack implements Listener {
     private final ExtraPacks extras;
     /** Objetos de objetos.yml que tienen modelo propio en el paquete (eclipse:<id>). */
     private final Set<String> itemModels = new HashSet<>();
+    private final Set<String> variants = new HashSet<>();
+
+    /**
+     * Le da un estilo al azar del paquete extra (modelo y, si es armadura, cómo se ve puesta). Para las novedades del día:
+     * la misma semilla da el mismo estilo. Devuelve el nombre del estilo o null si no hay.
+     */
+    public String decorate(org.bukkit.inventory.ItemStack it, java.util.Random r) {
+        if (it == null || extras.packs().isEmpty()) return null;
+        String base = it.getType().getKey().getKey();
+        java.util.List<String> names = extras.namesFor(base);
+        if (names.isEmpty()) return null;
+        String name = names.get(r.nextInt(names.size()));
+        String path = ExtraPacks.variantPath(base, name);
+        if (!variants.contains(path)) return null;
+        var meta = it.getItemMeta();
+        meta.setItemModel(new org.bukkit.NamespacedKey("eclipse", path));
+        if (pe.kydium.eclipserpg.items.ItemManager.isArmor(it.getType())) {
+            String asset = extras.look(ExtraPacks.setOf(name), base.endsWith("_leggings"));
+            org.bukkit.NamespacedKey ak = asset == null ? null : org.bukkit.NamespacedKey.fromString("minecraft:" + asset);
+            if (ak != null) {
+                var eq = meta.getEquippable();
+                eq.setSlot(it.getType().getEquipmentSlot());
+                eq.setModel(ak);
+                meta.setEquippable(eq);
+            }
+        }
+        it.setItemMeta(meta);
+        return name;
+    }
 
     public ResourcePack(EclipseRPG plugin) {
         this.plugin = plugin;
@@ -108,8 +137,20 @@ public final class ResourcePack implements Listener {
                     }
                 }
             }
+            // si un paquete extra ya trae ese mob (ya corrompido), se respeta el suyo
+            textures.keySet().removeAll(extras.entityTextures());
             for (Map.Entry<String, byte[]> t : textures.entrySet()) put(z, "assets/minecraft/textures/entity/" + t.getKey(), t.getValue());
             int tex = textures.size();
+            // estilos de los paquetes extra (eclipse:v/<objeto>/<nombre>) para las novedades del día
+            variants.clear();
+            for (Map.Entry<String, Map<String, com.google.gson.JsonElement>> en : extras.all().entrySet())
+                for (Map.Entry<String, com.google.gson.JsonElement> b : en.getValue().entrySet()) {
+                    String path = ExtraPacks.variantPath(b.getKey(), en.getKey());
+                    if (!variants.add(path)) continue;
+                    com.google.gson.JsonObject def = new com.google.gson.JsonObject();
+                    def.add("model", b.getValue());
+                    put(z, "assets/eclipse/items/" + path + ".json", def.toString().getBytes(StandardCharsets.UTF_8));
+                }
             // objetos con "textura:" que usan un modelo de un paquete extra
             itemModels.clear();
             for (String id : plugin.items().ids()) {

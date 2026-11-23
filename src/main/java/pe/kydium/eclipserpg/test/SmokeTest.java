@@ -228,6 +228,14 @@ public final class SmokeTest {
             // se reporta abajo
         }
         check(inZip, "el paquete del plugin trae el modelo de los objetos con textura");
+        var plain = new org.bukkit.inventory.ItemStack(Material.NETHERITE_SWORD);
+        String style = null;
+        for (int i = 0; i < 40 && style == null; i++) {
+            plain = new org.bukkit.inventory.ItemStack(Material.NETHERITE_SWORD);
+            style = rp.decorate(plain, new java.util.Random(i));
+        }
+        check(style != null && plain.getItemMeta().hasItemModel() && plain.getItemMeta().getItemModel().getNamespace().equals("eclipse"),
+                "las novedades del día pueden llevar un estilo del paquete (" + style + ")");
         zf.delete();
         rp.extras().scan();
         rp.rebuild();
