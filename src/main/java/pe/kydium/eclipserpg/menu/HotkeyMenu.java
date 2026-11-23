@@ -45,15 +45,12 @@ public final class HotkeyMenu implements Listener {
         else if (q != null) body.add("<gray>Sin misión activa · te busca " + plugin.npcs().name(q.npc) + plugin.quests().whereIs(q.npc));
         else body.add("<gold>¡Historia completada!");
         List<DialogUI.Button> buttons = new ArrayList<>();
-        buttons.add(new DialogUI.Button("<gold>⚔ Nivel y atributos", "Reparte tus puntos", () -> new StatsMenu(plugin, p).open()));
-        buttons.add(new DialogUI.Button("<yellow>📖 Diario de misiones", "Tu misión y el avance de la historia", () -> pe.kydium.eclipserpg.quests.QuestBook.open(plugin, p)));
-        buttons.add(new DialogUI.Button("<aqua>✦ Ver objetivos en el chat", null, () -> {
-            Quest cur = plugin.quests().current(p);
-            if (cur != null) plugin.quests().showObjectives(p, cur);
-        }));
-        buttons.add(new DialogUI.Button("<light_purple>🧭 Brújula", "La de tu misión (mazmorra) o la de la aldea", () -> plugin.quests().missionCompass(p)));
-        buttons.add(new DialogUI.Button("<green>🛒 ¿Dónde compro?", "Comerciantes cercanos y hacia dónde ir", () -> traders(p)));
-        buttons.add(new DialogUI.Button("<white>📜 Panel de misión", "Mostrar, ocultar o mover el cuadro de la izquierda", () -> panelMenu(p)));
+        buttons.add(new DialogUI.Button("<gold>⚔ Personaje" + (d.points > 0 ? " <green>(" + d.points + " puntos)" : ""),
+                "Nivel, atributos, penetración y combate", () -> new StatsMenu(plugin, p).open()));
+        buttons.add(new DialogUI.Button("<yellow>📖 Diario", "Tu misión, sus objetivos y la historia", () -> pe.kydium.eclipserpg.quests.QuestBook.open(plugin, p)));
+        buttons.add(new DialogUI.Button("<light_purple>🧭 Ir a mi misión", "Brújula hacia la misión (o hacia la aldea)", () -> plugin.quests().missionCompass(p)));
+        buttons.add(new DialogUI.Button("<green>🛒 Comerciantes", "Quién vende qué y hacia dónde ir", () -> traders(p)));
+        buttons.add(new DialogUI.Button("<white>⚙ Panel de misión", "Mostrar, ocultar o mover el cuadro de la izquierda", () -> panelMenu(p)));
         buttons.add(new DialogUI.Button("<gray>Cerrar", null, null));
         ui.show(p, "<gold><bold>☀ " + plugin.title(), body, buttons, true);
     }

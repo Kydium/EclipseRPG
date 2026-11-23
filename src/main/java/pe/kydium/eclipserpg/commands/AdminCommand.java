@@ -26,7 +26,7 @@ import java.util.Locale;
 public final class AdminCommand implements CommandExecutor, TabCompleter {
     private static final List<String> SUBS = List.of(
             "tienda", "contratos", "grieta", "xp", "soles", "nivel", "item", "spawn",
-            "info", "setcampamento", "recargar", "npc", "crearnpcs", "mision", "construiraldea", "aldeanos", "brujula", "reiniciar", "mazmorra", "mazmorras");
+            "info", "setcampamento", "recargar", "npc", "crearnpcs", "mision", "construiraldea", "aldeanos", "brujula", "reiniciar", "mazmorra", "mazmorras", "texturas");
 
     private final EclipseRPG plugin;
 
@@ -45,6 +45,31 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
             case "recargar" -> {
                 plugin.reloadAll();
                 Txt.send(s, "<green>Configuración recargada.");
+            }
+            case "texturas" -> {
+                var rp = plugin.resourcePack();
+                if (rp == null) return true;
+                if (a.length >= 2 && a[1].equalsIgnoreCase("recargar")) {
+                    rp.extras().scan();
+                    rp.rebuild();
+                    for (Player op : Bukkit.getOnlinePlayers()) rp.send(op);
+                }
+                var x = rp.extras();
+                Txt.send(s, "<gold>Paquetes de texturas extra: <white>" + x.packs().size() + " <gray>(carpeta plugins/AventuraMaker/paquetes)");
+                for (var pk : x.packs()) s.sendMessage(Txt.mm("<gray> • " + pk.file().getName() + " <dark_gray>(" + pk.size() / (1024 * 1024) + " MB)"));
+                Txt.send(s, "<gray>Modelos con nombre: <white>" + x.models() + "<gray> · aspectos de armadura: <white>" + x.looks());
+                int with = 0, ok = 0;
+                for (String id : plugin.items().ids()) {
+                    var ci = plugin.items().def(id);
+                    if (ci == null || ci.texture == null) continue;
+                    with++;
+                    if (rp.hasModel(id)) ok++;
+                }
+                Txt.send(s, "<gray>Objetos con «textura:»: <white>" + ok + "/" + with + " <gray>encontrados en los paquetes");
+                if (a.length >= 3 && a[1].equalsIgnoreCase("buscar")) {
+                    String q = String.join(" ", java.util.Arrays.copyOfRange(a, 2, a.length));
+                    for (String l : x.search(q, 20)) s.sendMessage(Txt.mm("<white> " + l.replace("§7", "<gray>")));
+                } else s.sendMessage(Txt.mm("<dark_gray>/eclipse texturas buscar <texto> · /eclipse texturas recargar"));
             }
             case "setcampamento" -> {
                 if (!(s instanceof Player p)) {
@@ -223,8 +248,8 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                 "/eclipse nivel <jugador> <n>", "/eclipse item <jugador> <id> [n]",
                 "/eclipse spawn <mob> <jugador> [n]", "/eclipse info <jugador>",
                 "/eclipse npc <id> <jugador>", "/eclipse crearnpcs", "/eclipse mision <jugador> <n>",
-                "/eclipse construiraldea [chica|mediana|grande|clasica] [estilo]", "/eclipse aldeanos", "/eclipse brujula [jugador]", "/eclipse reiniciar <jugador|todos>", "/eclipse mazmorra <acto> [jugador]", "/eclipse mazmorras",
-                "/eclipse setcampamento", "/eclipse recargar"};
+                "/eclipse construiraldea [chica|mediana|grande|enorme|clasica] [estilo]", "/eclipse aldeanos", "/eclipse brujula [jugador]", "/eclipse reiniciar <jugador|todos>", "/eclipse mazmorra <acto> [jugador]", "/eclipse mazmorras",
+                "/eclipse texturas [buscar <texto>|recargar]", "/eclipse setcampamento", "/eclipse recargar"};
         for (String l : lines) s.sendMessage(Txt.mm("<gray>" + l));
     }
 
@@ -262,7 +287,7 @@ public final class AdminCommand implements CommandExecutor, TabCompleter {
                     case "spawn" -> opts.addAll(plugin.mobs().ids());
                     case "contratos", "grieta", "xp", "soles", "nivel", "item", "info", "brujula" -> opts.addAll(names());
                     case "reiniciar" -> { opts.add("todos"); opts.addAll(names()); }
-                    case "construiraldea" -> opts.addAll(List.of("auto", "chica", "mediana", "grande", "clasica"));
+                    case "construiraldea" -> opts.addAll(List.of("auto", "chica", "mediana", "grande", "enorme", "clasica"));
                     default -> { }
                 }
             } else if (a.length == 3) {

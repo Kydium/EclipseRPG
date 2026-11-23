@@ -11,8 +11,8 @@ general:
   distancia-min: 250            # bloques desde el campamento
   distancia-max: 450
   profundidad: 18               # bloques bajo la superficie
-  salas-min: 16                 # salas POR PISO (cuadrícula de 8×7 celdas por piso)
-  salas-max: 24
+  salas-min: 20                 # salas POR PISO (cuadrícula de 8×7 celdas por piso)
+  salas-max: 30
   # pisos: 4                    # si no se pone: 2 pisos en el acto 1 y uno más cada 2 actos (6 desde el acto 8)
                                 #   (también se puede poner "pisos:" dentro de cada mazmorra)
   bloques-por-tick: 6000        # velocidad de construcción

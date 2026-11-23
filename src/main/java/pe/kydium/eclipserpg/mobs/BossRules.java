@@ -84,12 +84,14 @@ public final class BossRules implements Listener {
             }
             return;
         }
-        // tope por golpe: % de su vida total (ya contando la que pasa de 1024)
+        // cazajefes, luego el tope por golpe (% de su vida total) y al final la penetración de armadura
+        if (plugin.penetration() != null) plugin.penetration().bossBonus(e);
         var max = le.getAttribute(Attribute.MAX_HEALTH);
         if (max != null) {
             double cap = max.getValue() * plugin.getConfig().getDouble("dificultad.jefes.tope-por-golpe", 0.05);
             if (e.getDamage() > cap) e.setDamage(cap);
         }
+        if (plugin.penetration() != null) plugin.penetration().apply(e);
     }
 
     /** Flechas desviadas y castigo a quien ataca de lejos sin acercarse. */

@@ -301,8 +301,9 @@ public final class MobManager implements Listener {
             if (d.damage > 0) dmg.setBaseValue(d.damage * dmgDiff);
             else dmg.setBaseValue((dmg.getBaseValue() + d.damageExtra) * dmgDiff);
         }
-        if (d.armor > 0) setBase(le, Attribute.ARMOR, d.armor);
-        if (d.toughness > 0) setBase(le, Attribute.ARMOR_TOUGHNESS, d.toughness);
+        double armorMult = d.boss ? plugin.getConfig().getDouble("dificultad.jefes.armadura", 0.75) : 1.0;
+        if (d.armor > 0) setBase(le, Attribute.ARMOR, d.armor * armorMult);
+        if (d.toughness > 0) setBase(le, Attribute.ARMOR_TOUGHNESS, d.toughness * armorMult);
         if (d.knockbackResist > 0) setBase(le, Attribute.KNOCKBACK_RESISTANCE, Math.min(1, d.knockbackResist));
         AttributeInstance spd = le.getAttribute(Attribute.MOVEMENT_SPEED);
         if (spd != null && d.speed != 0) spd.setBaseValue(spd.getBaseValue() * (1.0 + d.speed));

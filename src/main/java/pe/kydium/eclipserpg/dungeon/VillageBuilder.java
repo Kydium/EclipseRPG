@@ -268,6 +268,7 @@ public final class VillageBuilder implements Listener {
             case "chica", "pequena", "pequeña" -> pe.kydium.eclipserpg.gen.VillageGen.Size.CHICA;
             case "mediana" -> pe.kydium.eclipserpg.gen.VillageGen.Size.MEDIANA;
             case "grande" -> pe.kydium.eclipserpg.gen.VillageGen.Size.GRANDE;
+            case "enorme", "gigante", "ciudad" -> pe.kydium.eclipserpg.gen.VillageGen.Size.ENORME;
             default -> {
                 if (Boolean.getBoolean("eclipse.prueba")) yield pe.kydium.eclipserpg.gen.VillageGen.Size.MEDIANA;
                 int roll = rnd.nextInt(100);

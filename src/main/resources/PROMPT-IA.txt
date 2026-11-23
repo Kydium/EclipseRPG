@@ -28,7 +28,7 @@ NPC <id corto sin espacios ni tildes>
 
 CIUDAD <id corto>                   (OPCIONAL: otras ciudades lejos de la aldea; escríbelas ANTES de los NPC)
   nombre: <nombre visible>
-  tamaño: <chica|mediana|grande>
+  tamaño: <chica|mediana|grande|enorme>
   estilo: <auto|llanura|taiga|nieve|desierto|sabana|cerezo|pantano|selva|oscuro>
   distancia: <bloques desde la aldea, ej. 900-1400>
   dirección: <norte|sur|este|oeste>
@@ -216,6 +216,8 @@ REGLAS
   tienda la venda, que una misión pida derrotarlo.
 - Las armas especiales con poderes deben ser raras: rareza epico, legendario
   o mitico, precio alto, nivel alto y stock 1; o que las suelte un jefe.
+- Para jefes, da al jugador armas con poderes "penetracion" (ignora armadura)
+  o "cazajefes" (más daño a jefes): son los únicos que sirven contra ellos.
 - El nivel del jugador no tiene límite: puedes pedir nivel 60, 80, 100…
 - Bloque MUNDO (opcional) para combate y muertes:
   MUNDO

@@ -27,6 +27,8 @@ public final class Catalog {
                 VillageGen.radiusFor(VillageGen.Size.MEDIANA), (t, r, s, x, z) -> new VillageGen(t, r, s, VillageGen.Size.MEDIANA, x, z).generate());
         add("aldea_grande", "Aldea grande", "aldea", "Posada, capilla, mercado, más de 35 construcciones y murallas de piedra con torres.",
                 VillageGen.radiusFor(VillageGen.Size.GRANDE), (t, r, s, x, z) -> new VillageGen(t, r, s, VillageGen.Size.GRANDE, x, z).generate());
+        add("aldea_enorme", "Ciudad enorme", "aldea", "Capital amurallada: gran plaza, mercado de 8 puestos, posada, capilla y más de 60 construcciones.",
+                VillageGen.radiusFor(VillageGen.Size.ENORME), (t, r, s, x, z) -> new VillageGen(t, r, s, VillageGen.Size.ENORME, x, z).generate());
         Structures.register();
         Extravagant.register();
     }

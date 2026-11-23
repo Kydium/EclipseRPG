@@ -15,7 +15,7 @@ import java.util.function.BiFunction;
  */
 public final class VillageGen {
 
-    public enum Size { CHICA, MEDIANA, GRANDE }
+    public enum Size { CHICA, MEDIANA, GRANDE, ENORME }
 
     /** Trazado de las calles: cada uno da un pueblo con otra forma. */
     public enum Layout { RADIAL, CUADRICULA, LINEAL, ANILLO, RAMIFICADO }
@@ -59,6 +59,7 @@ public final class VillageGen {
             case CHICA -> 46;
             case MEDIANA -> 58;
             case GRANDE -> 74;
+            case ENORME -> 104;
         };
     }
 
@@ -75,7 +76,7 @@ public final class VillageGen {
     public Build generate() {
         R = radiusFor(size) - 6;
         wallR = R + 3;
-        plazaR = size == Size.CHICA ? 6 : size == Size.MEDIANA ? 8 : 10;
+        plazaR = size == Size.CHICA ? 6 : size == Size.MEDIANA ? 8 : size == Size.GRANDE ? 10 : 13;
         if (layout == null) layout = Layout.values()[r.nextInt(Layout.values().length)];
         plaza();
         switch (layout) {
@@ -100,7 +101,7 @@ public final class VillageGen {
     // ------------------------------------------------------------------ plaza
 
     private void plaza() {
-        Canvas f = Buildings.fountain(s, r, size == Size.GRANDE ? 2 : 1);
+        Canvas f = Buildings.fountain(s, r, size.ordinal() >= Size.GRANDE.ordinal() ? 2 : 1);
         int ox = cx - f.w / 2, oz = cz - f.d / 2;
         for (int x = -plazaR; x <= plazaR; x++)
             for (int z = -plazaR; z <= plazaR; z++) {
@@ -111,7 +112,7 @@ public final class VillageGen {
             }
         f.stamp(out, t, ox, oz, 0, s, r);
         // bancos y faroles alrededor
-        int n = size == Size.GRANDE ? 8 : 4;
+        int n = size.ordinal() >= Size.GRANDE.ordinal() ? 8 : 4;
         for (int i = 0; i < n; i++) {
             double a = Math.PI * 2 * i / n + Math.PI / n;
             int x = cx + (int) Math.round(Math.cos(a) * (plazaR - 1)), z = cz + (int) Math.round(Math.sin(a) * (plazaR - 1));
@@ -196,7 +197,7 @@ public final class VillageGen {
     private void gridRoads() {
         int half = size == Size.CHICA ? 1 : 2;
         for (int i = 0; i < 4; i++) spoke(Math.PI / 2 * i, half);
-        int step = size == Size.GRANDE ? 18 : 17;
+        int step = size.ordinal() >= Size.GRANDE.ordinal() ? 18 : 17;
         for (int k = -3; k <= 3; k++) {
             if (k == 0) continue;
             int off = k * step;
@@ -360,7 +361,7 @@ public final class VillageGen {
                 new Kind("granja", Buildings::farm, 1),
                 new Kind("tienda_negra", Buildings::blackMarket, 1)));
         if (size != Size.CHICA) must.add(2, new Kind(null, Buildings::chapel, 0));
-        if (size == Size.GRANDE) must.add(3, new Kind(null, Buildings::tavern, 0));
+        if (size.ordinal() >= Size.GRANDE.ordinal()) must.add(3, new Kind(null, Buildings::tavern, 0));
         List<int[]> spots = candidates();
         for (Kind k : must) {
             boolean ok = false;
@@ -388,6 +389,7 @@ public final class VillageGen {
             case CHICA -> 9;
             case MEDIANA -> 18;
             case GRANDE -> 32;
+            case ENORME -> 56;
         };
         java.util.Collections.shuffle(spots, r);
         java.util.Map<int[], Double> key = new java.util.IdentityHashMap<>();
@@ -409,7 +411,7 @@ public final class VillageGen {
             if (tryPlaceShift(c, sp)) placed++;
         }
         // mercado en la plaza
-        int stalls = size == Size.CHICA ? 2 : size == Size.MEDIANA ? 3 : 5;
+        int stalls = size == Size.CHICA ? 2 : size == Size.MEDIANA ? 3 : size == Size.GRANDE ? 5 : 8;
         for (int i = 0; i < stalls * 4 && stalls > 0; i++) {
             double a = r.nextDouble() * Math.PI * 2;
             int rad = plazaR + 2;
@@ -622,7 +624,7 @@ public final class VillageGen {
             }
         }
         // flores, pasto y fardos sueltos
-        int n = size == Size.CHICA ? 60 : size == Size.MEDIANA ? 110 : 180;
+        int n = size == Size.CHICA ? 60 : size == Size.MEDIANA ? 110 : size == Size.GRANDE ? 180 : 300;
         for (int i = 0; i < n; i++) {
             double a = r.nextDouble() * Math.PI * 2, d = plazaR + r.nextDouble() * (R - plazaR);
             int x = cx + (int) (Math.cos(a) * d), z = cz + (int) (Math.sin(a) * d);
@@ -645,7 +647,7 @@ public final class VillageGen {
         switch (size) {
             case CHICA -> arches(gates);
             case MEDIANA -> wall(gates, false);
-            case GRANDE -> wall(gates, true);
+            case GRANDE, ENORME -> wall(gates, true);
         }
         gateMarkers(gates);
     }

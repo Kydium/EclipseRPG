@@ -47,9 +47,13 @@ public final class ResourcePack implements Listener {
     private String fallbackUrl = "";
     private String fallbackSha1 = "";
     private final Set<UUID> triedFallback = new HashSet<>();
+    private final ExtraPacks extras;
+    /** Objetos de objetos.yml que tienen modelo propio en el paquete (eclipse:<id>). */
+    private final Set<String> itemModels = new HashSet<>();
 
     public ResourcePack(EclipseRPG plugin) {
         this.plugin = plugin;
+        this.extras = new ExtraPacks(plugin);
         Properties p = new Properties();
         try (InputStream in = plugin.getResource("pack.properties")) {
             if (in != null) p.load(new java.io.InputStreamReader(in, StandardCharsets.UTF_8));
@@ -106,6 +110,21 @@ public final class ResourcePack implements Listener {
             }
             for (Map.Entry<String, byte[]> t : textures.entrySet()) put(z, "assets/minecraft/textures/entity/" + t.getKey(), t.getValue());
             int tex = textures.size();
+            // objetos con "textura:" que usan un modelo de un paquete extra
+            itemModels.clear();
+            for (String id : plugin.items().ids()) {
+                var ci = plugin.items().def(id);
+                if (ci == null || ci.texture == null || ci.texture.isBlank()) continue;
+                com.google.gson.JsonElement model = extras.model(ci.texture, ci.material.getKey().getKey());
+                if (model == null) {
+                    if (!extras.packs().isEmpty()) plugin.getLogger().warning("objetos.yml: " + id + " pide la textura \"" + ci.texture + "\" pero ningún paquete extra la tiene.");
+                    continue;
+                }
+                com.google.gson.JsonObject def = new com.google.gson.JsonObject();
+                def.add("model", model);
+                put(z, "assets/eclipse/items/" + modelKey(id) + ".json", def.toString().getBytes(StandardCharsets.UTF_8));
+                itemModels.add(id);
+            }
             int n = 0;
             for (Map.Entry<String, File> e : plugin.story().skins().entrySet()) {
                 byte[] png = e.getValue() == null ? resource("skins/" + e.getKey() + ".png") : Files.readAllBytes(e.getValue().toPath());
@@ -116,7 +135,8 @@ public final class ResourcePack implements Listener {
             z.finish();
             zip = bout.toByteArray();
             sha1 = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-1").digest(zip));
-            plugin.getLogger().info("Paquete de skins listo: " + n + " skins, " + tex + " texturas de monstruos (" + zip.length / 1024 + " KB)");
+            plugin.getLogger().info("Paquete de skins listo: " + n + " skins, " + tex + " texturas de monstruos, " + itemModels.size()
+                    + " objetos con modelo (" + zip.length / 1024 + " KB)");
         } catch (Exception e) {
             plugin.getLogger().warning("No se pudo armar el paquete de skins: " + e.getMessage());
             zip = null;
@@ -140,7 +160,21 @@ public final class ResourcePack implements Listener {
 
     // ---------------------------------------------------------------- servir
 
+    /** Nombre válido para el modelo de un objeto (eclipse:<id>). */
+    public static String modelKey(String id) {
+        return id.toLowerCase(java.util.Locale.ROOT).replaceAll("[^a-z0-9_./-]", "_");
+    }
+
+    public boolean hasModel(String id) {
+        return itemModels.contains(id);
+    }
+
+    public ExtraPacks extras() {
+        return extras;
+    }
+
     public void start() {
+        extras.scan();
         rebuild();
         if (!plugin.getConfig().getBoolean("paquete-recursos.activo", true)) return;
         port = plugin.getConfig().getInt("paquete-recursos.puerto", 25580);
@@ -149,6 +183,15 @@ public final class ResourcePack implements Listener {
             server.createContext("/", ex -> {
                 byte[] body = zip;
                 String path = ex.getRequestURI().getPath();
+                for (ExtraPacks.Pack xp : extras.packs()) {
+                    if (!path.equals(xp.path())) continue;
+                    ex.getResponseHeaders().add("Content-Type", "application/zip");
+                    ex.sendResponseHeaders(200, xp.file().length());
+                    try (OutputStream os = ex.getResponseBody()) {
+                        Files.copy(xp.file().toPath(), os);
+                    }
+                    return;
+                }
                 if (body == null || !path.startsWith("/eclipse-") || !path.endsWith(".zip")) {
                     ex.sendResponseHeaders(404, -1);
                     ex.close();
@@ -160,7 +203,7 @@ public final class ResourcePack implements Listener {
                     os.write(body);
                 }
             });
-            server.setExecutor(Executors.newFixedThreadPool(2, r -> {
+            server.setExecutor(Executors.newFixedThreadPool(4, r -> {
                 Thread t = new Thread(r, "AventuraMaker-paquete");
                 t.setDaemon(true);
                 return t;
@@ -223,11 +266,19 @@ public final class ResourcePack implements Listener {
     private void request(Player p, String url, String hash) {
         ResourcePackInfo info = ResourcePackInfo.resourcePackInfo(UUID.nameUUIDFromBytes("eclipse-npc".getBytes(StandardCharsets.UTF_8)),
                 URI.create(url), hash);
+        java.util.List<ResourcePackInfo> all = new java.util.ArrayList<>();
+        // primero los paquetes extra (abajo), al final el del plugin (arriba: gana)
+        String base = url.startsWith("http://") && url.contains("/eclipse-") ? url.substring(0, url.indexOf("/eclipse-")) : null;
+        if (base != null) for (ExtraPacks.Pack xp : extras.packs())
+            all.add(ResourcePackInfo.resourcePackInfo(UUID.nameUUIDFromBytes(("eclipse-extra-" + xp.file().getName()).getBytes(StandardCharsets.UTF_8)),
+                    URI.create(base + xp.path()), xp.sha1()));
+        all.add(info);
         p.sendResourcePacks(ResourcePackRequest.resourcePackRequest()
-                .packs(info)
+                .packs(all)
                 .replace(true)
                 .required(plugin.getConfig().getBoolean("paquete-recursos.obligatorio", false))
-                .prompt(Txt.mm("<gold>" + plugin.story().doc().title + "<gray> usa un paquete pequeño con las skins de sus NPCs.")));
+                .prompt(Txt.mm("<gold>" + plugin.story().doc().title + "<gray> usa un paquete de recursos: skins de NPCs, HUD"
+                        + (extras.packs().isEmpty() ? "" : ", texturas de armas y armaduras") + " y monstruos corrompidos.")));
     }
 
     @EventHandler

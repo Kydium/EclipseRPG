@@ -363,11 +363,11 @@ el juego te dice exactamente en qué línea.
 
  RUNAS: cualquier arma, herramienta o armadura (aunque sea normal de
  Minecraft) puede ganar poderes. Compra una runa (Bruno: tienda "runas")
- o encuéntrala en tesoros, ponla en la otra mano (tecla F), agáchate y
- haz clic derecho en un YUNQUE. Cuesta niveles de experiencia: 5, y 3 más
- por cada runa que el objeto ya tenga (poderes.niveles-base y
- poderes.niveles-por-runa; poderes.forjar-en-yunque: false = en cualquier
- lugar). Máximo 3 runas distintas por objeto (poderes.max-runas);
+ o encuéntrala en tesoros y fórjala en el YUNQUE (el botón ⚒ de la
+ herrería, o agáchate y haz clic derecho en cualquier yunque: es la
+ misma ventana). Cuesta niveles de experiencia: 5, y 3 más por cada runa
+ que el objeto ya tenga (poderes.niveles-base y poderes.niveles-por-runa).
+ Máximo 5 runas distintas por objeto, +1 en +5 y otra en +10 (poderes.max-runas);
  una runa igual a otra ya forjada la refuerza (suma su valor).
  En tiendas y botín:  runa:<poder>[:valor[:probabilidad]]   o  runa:azar
  En texto:            vende: 1 runa de robo de vida 5 por 900
@@ -658,12 +658,15 @@ el juego te dice exactamente en qué línea.
 ---------------------------------------------------------------------
  27. TIENDAS POR CATEGORÍAS, VENDER LO QUE SEA Y MEJORAS HASTA +10
 ---------------------------------------------------------------------
- • Las tiendas grandes tienen pestañas arriba: Comida, Bloques y luz,
-   Herramientas, Armas, Armaduras, Armaduras del día, Pociones y magia,
-   Especiales, Mejoras y forja, Trueque, Te compra y Vender lo que sea.
-   Se adivinan solas; en tiendas.yml "categoria: armas" (etc.) la fija.
- • Pip compra CUALQUIER objeto ("Vender lo que sea"): pones cosas arriba
-   con clic y confirmas. Nunca paga más del 40 % de lo que cuesta comprarlo.
+ • Todas las tiendas se ven igual: pestañas arriba (Comida, Bloques y luz,
+   Herramientas, Armas, Armaduras, Novedades del día, Runas de ataque /
+   defensa / herramienta, Pociones y magia, Especiales, Fragmentos, Trueque),
+   la pestaña 💰 Vender a la derecha, y abajo: Cerrar · páginas · tus Soles ·
+   ⚒ Yunque · Ayuda. Se adivinan solas; "categoria: armas" (etc.) la fija.
+ • VENDER es una sola ventana: pones cosas arriba con clic y ves el total
+   antes de aceptar. Los "tipo: vender" de tiendas.yml son PEDIDOS: se pagan
+   mejor ahí mismo. Si la tienda está en tiendas.compran-todo (Pip), además
+   compra cualquier otra cosa. Nunca paga más del 40 % de lo que cuesta comprarlo.
    No compra mochilas ni objetos de la historia (fragmentos solares…).
    config.yml → tiendas.compran-todo y tiendas.venta-general.multiplicador.
  • Novedades del día (pestaña ✦): cosas únicas al azar que cambian a
@@ -673,8 +676,10 @@ el juego te dice exactamente en qué línea.
    veces un poder de runa) · Fray Odón: 4 elixires y 2 libros (a veces un
    "libro prohibido" de nivel imposible) · Sabina: 2 reliquias épicas que
    se pagan con Corazones Corruptos. config.yml → tiendas.novedades.
- • Yunque de Bruno (ventana propia): pones el objeto en un hueco y el
-   fragmento o la runa en el otro; no hace falta tenerlo en la mano.
+ • Yunque (ventana propia, botón ⚒ de la tienda o agáchate + clic derecho
+   en cualquier yunque): pones el objeto en un hueco y el fragmento o la
+   runa en el otro; no hace falta tenerlo en la mano. Mejorar con un yunque
+   cualquiera cuesta mejoras.precio-base Soles por nivel.
    Botón "Juntar fragmentos": 3 iguales → 1 del siguiente tipo.
  • Mejoras: armas, armaduras y herramientas hasta +10.
    +1 a +5: Fragmento de Mejora · +6 a +8: Superior (80 % de éxito) ·
@@ -684,3 +689,35 @@ el juego te dice exactamente en qué línea.
    contratos de tier 5+.
  • Mapa del aventurero: una bandera negra marca tu última muerte (se borra
    al volver a ese lugar).
+
+---------------------------------------------------------------------
+ 28. PENETRACIÓN (PARA JEFES) Y TEXTURAS ÚNICAS DE ARMAS Y ARMADURAS
+---------------------------------------------------------------------
+ PENETRACIÓN: parte de la armadura del enemigo que tu golpe ignora. Es lo
+ único que sirve de verdad contra los jefes (los demás poderes no les
+ hacen efecto). Se consigue:
+   • mejorando el arma: cada +1 da 3 % (un arma +10 ignora 30 %)
+     config.yml → dificultad.penetracion-por-mejora
+   • con la Runa de Penetración (runa:penetracion:10) o el poder
+     {tipo: penetracion, valor: 25} en objetos.yml
+   • con Cazajefes: {tipo: cazajefes, valor: 20} = 20 % más daño a jefes
+   Tope: dificultad.penetracion-maxima (80 %). Los jefes además tienen
+   menos armadura: dificultad.jefes.armadura (0.75 = 75 % de mobs.yml).
+   Tu penetración se ve en G → Personaje → ⚔ Combate.
+
+ TEXTURAS ÚNICAS: pon un paquete de texturas (.zip) en
+ plugins/AventuraMaker/paquetes/ y todos lo reciben al entrar (el del
+ plugin va encima). Si trae modelos por nombre (como New Default+):
+   textura: "Hawkbrand"            → el objeto usa ese modelo (en la mano)
+   aspecto: champions_armor        → cómo se ve la armadura puesta
+ No hace falta ponerle ese nombre al objeto: sigue con su nombre en
+ español. Sin el paquete se ve como el objeto normal (los poderes van igual).
+ /eclipse texturas                  → cuántos modelos se encontraron
+ /eclipse texturas buscar dragon    → busca nombres de modelos
+ /eclipse texturas recargar         → vuelve a leer la carpeta y lo manda
+ Consejo: quita assets/minecraft/sounds del .zip (pesa cientos de MB).
+
+ CIUDADES ENORMES: "tamaño: enorme" en una CIUDAD (o /eclipse
+ construiraldea enorme): gran plaza, mercado de 8 puestos y más de 60
+ construcciones con murallas y torres.
+

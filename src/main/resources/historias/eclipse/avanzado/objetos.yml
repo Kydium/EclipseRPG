@@ -101,6 +101,7 @@ items:
   # ---------------- Armas de los jefes ----------------
   hoja_del_alba:                      # Acto 1 — Rondador Podrido
     material: IRON_SWORD
+    textura: "Sunlight Heart"
     nombre: "<gold><bold>Hoja del Alba"
     lore: ["<gray>Forjada con la última luz", "<gray>antes del eclipse.", "", "<yellow>En la mano: Visión nocturna"]
     irrompible: true
@@ -113,6 +114,7 @@ items:
 
   pico_minero_perdido:                # Acto 2 — Capataz Hueso
     material: IRON_PICKAXE
+    textura: "Mountaineer Pick"
     nombre: "<aqua><bold>Pico del Minero Perdido"
     lore: ["<gray>Su dueño nunca salió de la mina."]
     irrompible: true
@@ -125,6 +127,7 @@ items:
 
   ballesta_vigia:                     # Acto 3 — Heraldo de la Mancha
     material: CROSSBOW
+    textura: "Azure Seeker"
     nombre: "<green><bold>Ballesta del Vigía"
     lore: ["<gray>Nunca falla un disparo", "<gray>contra la oscuridad."]
     irrompible: true
@@ -132,6 +135,7 @@ items:
 
   tridente_marea_negra:               # Acto 4 — Ahogado Coronado
     material: TRIDENT
+    textura: "Tears of the Deep"
     nombre: "<dark_aqua><bold>Tridente de la Marea Negra"
     lore: ["<gray>Arrancado de la corona", "<gray>de un rey ahogado."]
     irrompible: true
@@ -156,6 +160,7 @@ items:
 
   hacha_ignea:                        # Acto 6 — Señor de Brasas
     material: DIAMOND_AXE
+    textura: "Firebrand"
     nombre: "<red><bold>Hacha Ígnea"
     lore: ["<gray>Aún arde con el fuego", "<gray>del Nether."]
     irrompible: true
@@ -168,6 +173,7 @@ items:
 
   mazo_trueno:                        # Acto 7 — Viento Encadenado
     material: MACE
+    textura: "Thrashing Thunder"
     nombre: "<white><bold>Mazo del Trueno"
     lore: ["<gray>Golpea como una tormenta."]
     irrompible: true
@@ -192,6 +198,8 @@ items:
 
   armadura_ceniza_casco:       # Acto 9 — El Wither (4 piezas)
     material: NETHERITE_HELMET
+    textura: "Wither Armor Helmet"
+    aspecto: wither_armor
     nombre: "<dark_red><bold>Yelmo de la Ceniza"
     lore: ["<gray>Parte de la Armadura de la Ceniza."]
     irrompible: true
@@ -204,6 +212,8 @@ items:
 
   armadura_ceniza_pechera:
     material: NETHERITE_CHESTPLATE
+    textura: "Wither Armor Chestplate"
+    aspecto: wither_armor
     nombre: "<dark_red><bold>Coraza de la Ceniza"
     lore: ["<gray>Parte de la Armadura de la Ceniza."]
     irrompible: true
@@ -216,6 +226,8 @@ items:
 
   armadura_ceniza_grebas:
     material: NETHERITE_LEGGINGS
+    textura: "Wither Armor Leggings"
+    aspecto: wither_armor
     nombre: "<dark_red><bold>Grebas de la Ceniza"
     lore: ["<gray>Parte de la Armadura de la Ceniza."]
     irrompible: true
@@ -228,6 +240,8 @@ items:
 
   armadura_ceniza_botas:
     material: NETHERITE_BOOTS
+    textura: "Wither Armor Boots"
+    aspecto: wither_armor
     nombre: "<dark_red><bold>Botas de la Ceniza"
     lore: ["<gray>Parte de la Armadura de la Ceniza."]
     irrompible: true
@@ -240,6 +254,7 @@ items:
 
   espada_amanecer_eterno:             # Acto 10 — final "Restaurar el sol"
     material: NETHERITE_SWORD
+    textura: "Celestial Blade"
     nombre: "<gold><bold>Espada del Amanecer Eterno"
     lore: ["<gray>La Corona Solar renacida", "<gray>en forma de espada."]
     irrompible: true
@@ -253,6 +268,7 @@ items:
 
   baculo_velkar:                      # Acto 10 — final "Perdonar a Velkar"
     material: BLAZE_ROD
+    textura: "Necromancer Staff"
     nombre: "<dark_purple><bold>Báculo de Velkar"
     lore: ["<gray>El arrepentimiento de un mago", "<gray>convertido en poder."]
     mejorable: true
@@ -283,6 +299,7 @@ items:
 
   arco_cazador:
     material: BOW
+    textura: "Hunter's Promise"
     nombre: "<gold><bold>Arco del Cazador de Sombras"
     irrompible: true
     encantamientos: {power: 5, punch: 2, infinity: 1, flame: 1}
@@ -378,6 +395,7 @@ items:
   #        ejecutar, empuje, ceguera, levitar, al_matar_curar, al_matar_velocidad, espinas, esquivar
   colmillo_vampirico:
     material: NETHERITE_SWORD
+    textura: "Heartstealer"
     nombre: "Colmillo Vampírico"
     rareza: legendario
     estilo-rpg: true
@@ -393,6 +411,7 @@ items:
 
   hoja_escarcha:
     material: DIAMOND_SWORD
+    textura: "Frost Slayer"
     nombre: "Hoja de Escarcha"
     rareza: epico
     estilo-rpg: true
@@ -407,6 +426,7 @@ items:
 
   martillo_tormenta:
     material: MACE
+    textura: "Stormlander"
     nombre: "Martillo de la Tormenta"
     rareza: mitico
     estilo-rpg: true
@@ -423,6 +443,7 @@ items:
 
   daga_sangrienta:
     material: IRON_SWORD
+    textura: "Backstabber"
     nombre: "Daga Sangrienta"
     rareza: raro
     estilo-rpg: true
@@ -438,6 +459,7 @@ items:
 
   arco_fenix:
     material: BOW
+    textura: "Firestorm"
     nombre: "Arco del Fénix"
     rareza: legendario
     estilo-rpg: true
@@ -451,6 +473,7 @@ items:
 
   guadana_almas:
     material: NETHERITE_HOE
+    textura: "Soul Scythe"
     nombre: "Guadaña de Almas"
     rareza: mitico
     estilo-rpg: true
@@ -482,6 +505,7 @@ items:
 
   tridente_abismo:
     material: TRIDENT
+    textura: "Winding Tide"
     nombre: "Tridente del Abismo"
     rareza: legendario
     estilo-rpg: true
@@ -499,6 +523,7 @@ items:
   # ================= HERRAMIENTAS ESPECIALES (agáchate para minar normal) =================
   pico_titan:
     material: NETHERITE_PICKAXE
+    textura: "Gargantua"
     nombre: "Pico del Titán"
     rareza: mitico
     estilo-rpg: true
@@ -607,3 +632,399 @@ items:
     brillo: true
     lore: ["<gray><i>Nadie sabe dónde termina por dentro."]
     mochila: 200
+
+  # ---------------------------------------------------------------- Equipo único (texturas del paquete extra)
+  # "textura:" es el nombre del modelo en el paquete de texturas (paquetes/*.zip) y "aspecto:" cómo se ve puesta.
+  # Sin el paquete se ven como el objeto normal de Minecraft: los poderes y atributos funcionan igual.
+
+  campeon_casco:
+    material: IRON_HELMET
+    textura: "Champion's Armor Helmet"
+    aspecto: champions_armor
+    nombre: "<aqua><bold>Yelmo del Campeón"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>La llevó el primer campeón de la aldea.", "<dark_gray>Conjunto: Armadura del Campeón"]
+    atributos:
+      - {atributo: armor, valor: 3, slot: head}
+      - {atributo: armor_toughness, valor: 2, slot: head}
+      - {atributo: max_health, valor: 2, slot: head}
+
+  campeon_pechera:
+    material: IRON_CHESTPLATE
+    textura: "Champion's Armor Chestplate"
+    aspecto: champions_armor
+    nombre: "<aqua><bold>Coraza del Campeón"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>La llevó el primer campeón de la aldea.", "<dark_gray>Conjunto: Armadura del Campeón"]
+    atributos:
+      - {atributo: armor, valor: 8, slot: chest}
+      - {atributo: armor_toughness, valor: 2, slot: chest}
+      - {atributo: max_health, valor: 4, slot: chest}
+    poderes:
+      - {tipo: resistencia, valor: 8, probabilidad: 1}
+
+  campeon_grebas:
+    material: IRON_LEGGINGS
+    textura: "Champion's Armor Leggings"
+    aspecto: champions_armor
+    nombre: "<aqua><bold>Grebas del Campeón"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>La llevó el primer campeón de la aldea.", "<dark_gray>Conjunto: Armadura del Campeón"]
+    atributos:
+      - {atributo: armor, valor: 6, slot: legs}
+      - {atributo: armor_toughness, valor: 2, slot: legs}
+      - {atributo: max_health, valor: 2, slot: legs}
+
+  campeon_botas:
+    material: IRON_BOOTS
+    textura: "Champion's Armor Boots"
+    aspecto: champions_armor
+    nombre: "<aqua><bold>Botas del Campeón"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>La llevó el primer campeón de la aldea.", "<dark_gray>Conjunto: Armadura del Campeón"]
+    atributos:
+      - {atributo: armor, valor: 3, slot: feet}
+      - {atributo: armor_toughness, valor: 2, slot: feet}
+      - {atributo: max_health, valor: 2, slot: feet}
+    poderes:
+      - {tipo: esquivar, valor: 0, probabilidad: 0.05}
+
+  guardia_real_casco:
+    material: DIAMOND_HELMET
+    textura: "Royal Guard Armor Helmet"
+    aspecto: royal_guard_armor
+    nombre: "<blue><bold>Yelmo de la Guardia Real"
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Forjada en Altavela para la Guardia Blanca.", "<dark_gray>Conjunto: Armadura de la Guardia Real"]
+    atributos:
+      - {atributo: armor, valor: 4, slot: head}
+      - {atributo: armor_toughness, valor: 3, slot: head}
+      - {atributo: max_health, valor: 3, slot: head}
+    poderes:
+      - {tipo: regenerar, valor: 2, probabilidad: 0.2}
+
+  guardia_real_pechera:
+    material: DIAMOND_CHESTPLATE
+    textura: "Royal Guard Armor Chestplate"
+    aspecto: royal_guard_armor
+    nombre: "<blue><bold>Peto de la Guardia Real"
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Forjada en Altavela para la Guardia Blanca.", "<dark_gray>Conjunto: Armadura de la Guardia Real"]
+    atributos:
+      - {atributo: armor, valor: 9, slot: chest}
+      - {atributo: armor_toughness, valor: 3, slot: chest}
+      - {atributo: max_health, valor: 5, slot: chest}
+    poderes:
+      - {tipo: resistencia, valor: 10, probabilidad: 1}
+      - {tipo: espinas, valor: 20, probabilidad: 1}
+
+  guardia_real_grebas:
+    material: DIAMOND_LEGGINGS
+    textura: "Royal Guard Armor Leggings"
+    aspecto: royal_guard_armor
+    nombre: "<blue><bold>Quijotes de la Guardia Real"
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Forjada en Altavela para la Guardia Blanca.", "<dark_gray>Conjunto: Armadura de la Guardia Real"]
+    atributos:
+      - {atributo: armor, valor: 7, slot: legs}
+      - {atributo: armor_toughness, valor: 3, slot: legs}
+      - {atributo: max_health, valor: 3, slot: legs}
+
+  guardia_real_botas:
+    material: DIAMOND_BOOTS
+    textura: "Royal Guard Armor Boots"
+    aspecto: royal_guard_armor
+    nombre: "<blue><bold>Escarpes de la Guardia Real"
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Forjada en Altavela para la Guardia Blanca.", "<dark_gray>Conjunto: Armadura de la Guardia Real"]
+    atributos:
+      - {atributo: armor, valor: 4, slot: feet}
+      - {atributo: armor_toughness, valor: 3, slot: feet}
+      - {atributo: max_health, valor: 3, slot: feet}
+
+  paladin_solar_casco:
+    material: DIAMOND_HELMET
+    textura: "Sun Paladin Armor Helmet"
+    aspecto: sun_paladin_armor
+    nombre: "<gold><bold>Yelmo del Paladín Solar"
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Guarda un poco de la luz de la Corona Solar.", "<dark_gray>Conjunto: Armadura del Paladín Solar"]
+    atributos:
+      - {atributo: armor, valor: 4, slot: head}
+      - {atributo: armor_toughness, valor: 3, slot: head}
+      - {atributo: max_health, valor: 3, slot: head}
+
+  paladin_solar_pechera:
+    material: DIAMOND_CHESTPLATE
+    textura: "Sun Paladin Armor Chestplate"
+    aspecto: sun_paladin_armor
+    nombre: "<gold><bold>Coraza del Paladín Solar"
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Guarda un poco de la luz de la Corona Solar.", "<dark_gray>Conjunto: Armadura del Paladín Solar"]
+    atributos:
+      - {atributo: armor, valor: 9, slot: chest}
+      - {atributo: armor_toughness, valor: 3, slot: chest}
+      - {atributo: max_health, valor: 5, slot: chest}
+    poderes:
+      - {tipo: regenerar, valor: 3, probabilidad: 0.25}
+      - {tipo: resistencia, valor: 12, probabilidad: 1}
+
+  paladin_solar_grebas:
+    material: DIAMOND_LEGGINGS
+    textura: "Sun Paladin Armor Leggings"
+    aspecto: sun_paladin_armor
+    nombre: "<gold><bold>Grebas del Paladín Solar"
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Guarda un poco de la luz de la Corona Solar.", "<dark_gray>Conjunto: Armadura del Paladín Solar"]
+    atributos:
+      - {atributo: armor, valor: 7, slot: legs}
+      - {atributo: armor_toughness, valor: 3, slot: legs}
+      - {atributo: max_health, valor: 3, slot: legs}
+    poderes:
+      - {tipo: espinas, valor: 25, probabilidad: 1}
+
+  paladin_solar_botas:
+    material: DIAMOND_BOOTS
+    textura: "Sun Paladin Armor Boots"
+    aspecto: sun_paladin_armor
+    nombre: "<gold><bold>Botas del Paladín Solar"
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Guarda un poco de la luz de la Corona Solar.", "<dark_gray>Conjunto: Armadura del Paladín Solar"]
+    atributos:
+      - {atributo: armor, valor: 4, slot: feet}
+      - {atributo: armor_toughness, valor: 3, slot: feet}
+      - {atributo: max_health, valor: 3, slot: feet}
+
+  caminante_sombras_casco:
+    material: NETHERITE_HELMET
+    textura: "Shadow Walker Helmet"
+    aspecto: shadow_walker
+    nombre: "<dark_gray><bold>Capucha del Caminante"
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Quien lo viste se mueve entre las sombras.", "<dark_gray>Conjunto: Ropaje del Caminante de Sombras"]
+    atributos:
+      - {atributo: armor, valor: 4, slot: head}
+      - {atributo: armor_toughness, valor: 3, slot: head}
+      - {atributo: max_health, valor: 3, slot: head}
+
+  caminante_sombras_pechera:
+    material: NETHERITE_CHESTPLATE
+    textura: "Shadow Walker Chestplate"
+    aspecto: shadow_walker
+    nombre: "<dark_gray><bold>Ropaje del Caminante"
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Quien lo viste se mueve entre las sombras.", "<dark_gray>Conjunto: Ropaje del Caminante de Sombras"]
+    atributos:
+      - {atributo: armor, valor: 9, slot: chest}
+      - {atributo: armor_toughness, valor: 3, slot: chest}
+      - {atributo: max_health, valor: 5, slot: chest}
+    poderes:
+      - {tipo: esquivar, valor: 0, probabilidad: 0.12}
+
+  caminante_sombras_grebas:
+    material: NETHERITE_LEGGINGS
+    textura: "Shadow Walker Leggings"
+    aspecto: shadow_walker
+    nombre: "<dark_gray><bold>Calzas del Caminante"
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Quien lo viste se mueve entre las sombras.", "<dark_gray>Conjunto: Ropaje del Caminante de Sombras"]
+    atributos:
+      - {atributo: armor, valor: 7, slot: legs}
+      - {atributo: armor_toughness, valor: 3, slot: legs}
+      - {atributo: max_health, valor: 3, slot: legs}
+
+  caminante_sombras_botas:
+    material: NETHERITE_BOOTS
+    textura: "Shadow Walker Boots"
+    aspecto: shadow_walker
+    nombre: "<dark_gray><bold>Pasos del Caminante"
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Quien lo viste se mueve entre las sombras.", "<dark_gray>Conjunto: Ropaje del Caminante de Sombras"]
+    atributos:
+      - {atributo: armor, valor: 4, slot: feet}
+      - {atributo: armor_toughness, valor: 3, slot: feet}
+      - {atributo: max_health, valor: 3, slot: feet}
+    poderes:
+      - {tipo: esquivar, valor: 0, probabilidad: 0.06}
+
+  escama_dragon_casco:
+    material: NETHERITE_HELMET
+    textura: "Dragon Scale Armor Helmet"
+    aspecto: dragon_scale_armor
+    nombre: "<dark_purple><bold>Yelmo de Escamas"
+    rareza: mitico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Escamas del dragón que vio nacer el Eclipse.", "<dark_gray>Conjunto: Armadura de Escamas de Dragón"]
+    atributos:
+      - {atributo: armor, valor: 4, slot: head}
+      - {atributo: armor_toughness, valor: 3, slot: head}
+      - {atributo: max_health, valor: 3, slot: head}
+    poderes:
+      - {tipo: espinas, valor: 30, probabilidad: 1}
+
+  escama_dragon_pechera:
+    material: NETHERITE_CHESTPLATE
+    textura: "Dragon Scale Armor Chestplate"
+    aspecto: dragon_scale_armor
+    nombre: "<dark_purple><bold>Coraza de Escamas"
+    rareza: mitico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Escamas del dragón que vio nacer el Eclipse.", "<dark_gray>Conjunto: Armadura de Escamas de Dragón"]
+    atributos:
+      - {atributo: armor, valor: 9, slot: chest}
+      - {atributo: armor_toughness, valor: 3, slot: chest}
+      - {atributo: max_health, valor: 5, slot: chest}
+    poderes:
+      - {tipo: resistencia, valor: 15, probabilidad: 1}
+      - {tipo: regenerar, valor: 3, probabilidad: 0.25}
+
+  escama_dragon_grebas:
+    material: NETHERITE_LEGGINGS
+    textura: "Dragon Scale Armor Leggings"
+    aspecto: dragon_scale_armor
+    nombre: "<dark_purple><bold>Grebas de Escamas"
+    rareza: mitico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Escamas del dragón que vio nacer el Eclipse.", "<dark_gray>Conjunto: Armadura de Escamas de Dragón"]
+    atributos:
+      - {atributo: armor, valor: 7, slot: legs}
+      - {atributo: armor_toughness, valor: 3, slot: legs}
+      - {atributo: max_health, valor: 3, slot: legs}
+
+  escama_dragon_botas:
+    material: NETHERITE_BOOTS
+    textura: "Dragon Scale Armor Boots"
+    aspecto: dragon_scale_armor
+    nombre: "<dark_purple><bold>Botas de Escamas"
+    rareza: mitico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Escamas del dragón que vio nacer el Eclipse.", "<dark_gray>Conjunto: Armadura de Escamas de Dragón"]
+    atributos:
+      - {atributo: armor, valor: 4, slot: feet}
+      - {atributo: armor_toughness, valor: 3, slot: feet}
+      - {atributo: max_health, valor: 3, slot: feet}
+
+  # ---------------------------------------------------------------- Armas contra jefes (penetración)
+  cazadora_de_reyes:
+    material: NETHERITE_SWORD
+    textura: "Superboss Slayer"
+    nombre: "<dark_red><bold>Cazadora de Reyes"
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Se forjó para un solo trabajo:", "<gray>derribar a los que se creen reyes."]
+    atributos:
+      - {atributo: attack_damage, valor: 11, slot: mainhand}
+      - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+      - {tipo: penetracion, valor: 25}
+      - {tipo: cazajefes, valor: 30}
+
+  rompeyelmos:
+    material: DIAMOND_AXE
+    textura: "Ultimatum"
+    nombre: "<red><bold>Rompeyelmos"
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>No hay armadura que la detenga."]
+    atributos:
+      - {atributo: attack_damage, valor: 12, slot: mainhand}
+      - {atributo: attack_speed, valor: -3.0, slot: mainhand}
+    poderes:
+      - {tipo: penetracion, valor: 40}
+
+  juramento_del_alba:
+    material: DIAMOND_SWORD
+    textura: "Oathkeeper"
+    nombre: "<yellow><bold>Juramento del Alba"
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>La espada de quien juró", "<gray>devolverle el sol al mundo."]
+    atributos:
+      - {atributo: attack_damage, valor: 9, slot: mainhand}
+      - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+      - {tipo: penetracion, valor: 15}
+      - {tipo: cazajefes, valor: 15}
+      - {tipo: critico, valor: 50, probabilidad: 0.15}
+
+  verdugo:
+    material: NETHERITE_AXE
+    textura: "Executioner"
+    nombre: "<dark_gray><bold>El Verdugo"
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Cuanto más débil está el enemigo,", "<gray>más fuerte cae el hacha."]
+    atributos:
+      - {atributo: attack_damage, valor: 13, slot: mainhand}
+      - {atributo: attack_speed, valor: -3.0, slot: mainhand}
+    poderes:
+      - {tipo: penetracion, valor: 30}
+      - {tipo: ejecutar, valor: 30}
+
+  baluarte_real:
+    material: SHIELD
+    textura: "Royal Guard Shield"
+    nombre: "<blue><bold>Baluarte Real"
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>El escudo de la Guardia Blanca."]
+    atributos:
+      - {atributo: armor, valor: 2, slot: offhand}
+      - {atributo: knockback_resistance, valor: 0.3, slot: offhand}
+    poderes:
+      - {tipo: resistencia, valor: 8}
+
+  corona_del_alba:
+    material: GOLDEN_HELMET
+    textura: "Royal Crown"
+    aspecto: crowns/royal_crown
+    nombre: "<gold><bold>Corona del Alba"
+    rareza: mitico
+    estilo-rpg: true
+    lore: ["<gray>Una copia de la Corona Solar,", "<gray>hecha por Bruno con oro de Altavela."]
+    atributos:
+      - {atributo: armor, valor: 3, slot: head}
+      - {atributo: max_health, valor: 6, slot: head}
+      - {atributo: luck, valor: 2, slot: head}
+

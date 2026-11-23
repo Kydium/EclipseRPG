@@ -179,7 +179,94 @@ public final class SmokeTest {
         check(bad.isEmpty(), "todo el diccionario existe en Minecraft " + Bukkit.getMinecraftVersion() + " (" + bad.size() + " malos)");
     }
 
+    /** Paquete de texturas extra: modelos por nombre (textura:) y aspectos de armadura (aspecto:). */
+    private void checkExtraPack() {
+        var rp = plugin.resourcePack();
+        if (rp == null) return;
+        java.io.File dir = rp.extras().folder();
+        dir.mkdirs();
+        java.io.File zf = new java.io.File(dir, "zz-prueba.zip");
+        try (var z = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(zf))) {
+            z.putNextEntry(new java.util.zip.ZipEntry("pack.mcmeta"));
+            z.write(("{\"pack\":{\"pack_format\":16,\"description\":\"x\"},\"overlays\":{\"entries\":[{\"directory\":\"capa\",\"formats\":[70,500],"
+                    + "\"min_format\":[70,0],\"max_format\":[500,0]},{\"directory\":\"vieja\",\"formats\":[10,20],\"min_format\":[10,0],\"max_format\":[20,0]}]}}").getBytes());
+            z.putNextEntry(new java.util.zip.ZipEntry("capa/assets/minecraft/items/netherite_sword.json"));
+            z.write(("{\"model\":{\"type\":\"minecraft:select\",\"property\":\"minecraft:component\",\"component\":\"minecraft:custom_name\","
+                    + "\"cases\":[{\"when\":\"Superboss Slayer\",\"model\":{\"type\":\"minecraft:model\",\"model\":\"minecraft:item/cit/superboss_slayer\"}}],"
+                    + "\"fallback\":{\"type\":\"minecraft:model\",\"model\":\"minecraft:item/netherite_sword\"}}}").getBytes());
+            z.putNextEntry(new java.util.zip.ZipEntry("vieja/assets/minecraft/items/diamond_axe.json"));
+            z.write(("{\"model\":{\"type\":\"minecraft:select\",\"property\":\"minecraft:component\",\"component\":\"minecraft:custom_name\","
+                    + "\"cases\":[{\"when\":\"Hacha Vieja De Prueba\",\"model\":{\"type\":\"minecraft:model\",\"model\":\"minecraft:item/x\"}}]}}").getBytes());
+            for (String n : new String[]{"champions_armor_1", "champions_armor_2"}) {
+                z.putNextEntry(new java.util.zip.ZipEntry("capa/assets/minecraft/equipment/icons/minecraft_dungeons/" + n + ".json"));
+                z.write("{\"layers\":{}}".getBytes());
+            }
+        } catch (Exception e) {
+            fail("no se pudo crear el paquete extra de prueba: " + e);
+            return;
+        }
+        rp.extras().scan();
+        rp.rebuild();
+        var sword = plugin.items().create("cazadora_de_reyes", 1);
+        var legs = plugin.items().create("campeon_grebas", 1);
+        var chest = plugin.items().create("campeon_pechera", 1);
+        var axe = plugin.items().create("rompeyelmos", 1);
+        check(rp.extras().packs().size() >= 1 && sword != null && sword.getItemMeta().hasItemModel()
+                        && sword.getItemMeta().getItemModel().toString().equals("eclipse:cazadora_de_reyes"),
+                "un arma con «textura:» usa el modelo del paquete extra (" + (sword == null ? "?" : sword.getItemMeta().getItemModel()) + ")");
+        check(rp.extras().model("Hacha Vieja De Prueba", "diamond_axe") == null && rp.extras().model("superboss slayer", "netherite_sword") != null,
+                "las capas del paquete que no son para esta versión se ignoran");
+        check(legs != null && legs.getItemMeta().hasEquippable() && chest != null
+                        && "minecraft:icons/minecraft_dungeons/champions_armor_2".equals(String.valueOf(legs.getItemMeta().getEquippable().getModel()))
+                        && "minecraft:icons/minecraft_dungeons/champions_armor_1".equals(String.valueOf(chest.getItemMeta().getEquippable().getModel())),
+                "las armaduras con «aspecto:» se ven distintas puestas (grebas _2, peto _1)");
+        boolean inZip = false;
+        try (var z = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(rp.bytes()))) {
+            java.util.zip.ZipEntry en;
+            while ((en = z.getNextEntry()) != null) if (en.getName().equals("assets/eclipse/items/cazadora_de_reyes.json")) inZip = true;
+        } catch (Exception ignored) {
+            // se reporta abajo
+        }
+        check(inZip, "el paquete del plugin trae el modelo de los objetos con textura");
+        zf.delete();
+        rp.extras().scan();
+        rp.rebuild();
+    }
+
+    /** Penetración: atraviesa la armadura (también de jefes) y se gana con mejoras y runas. */
+    private void checkPenetration() {
+        check("penetracion".equals(pe.kydium.eclipserpg.items.Powers.normType("penetración")) && "cazajefes".equals(pe.kydium.eclipserpg.items.Powers.normType("cazajefes"))
+                && "perforar".equals(pe.kydium.eclipserpg.items.Powers.normType("perforacion")), "existen los poderes Penetración y Cazajefes");
+        var pen = plugin.penetration();
+        double p10 = pen.of(null, List.of(), 10), pr = pen.of(null, List.of(new pe.kydium.eclipserpg.items.Powers.Power("penetracion", 20, 1)), 5),
+                cap = pen.of(null, List.of(new pe.kydium.eclipserpg.items.Powers.Power("penetracion", 500, 1)), 10);
+        check(Math.abs(p10 - 0.30) < 1e-6 && Math.abs(pr - 0.35) < 1e-6 && Math.abs(cap - 0.8) < 1e-6,
+                "la penetración suma mejora y runas, con tope (" + p10 + " / " + pr + " / " + cap + ")");
+        var rune = pe.kydium.eclipserpg.items.Powers.rune("penetracion:15");
+        check(pe.kydium.eclipserpg.items.Powers.isRune(rune), "se crea la Runa de Penetración");
+        var e = new pe.kydium.eclipserpg.shop.ShopManager.Entry();
+        e.item = "runa:penetracion:10";
+        var d = new pe.kydium.eclipserpg.shop.ShopManager.Entry();
+        d.item = "runa:espinas:15";
+        var t = new pe.kydium.eclipserpg.shop.ShopManager.Entry();
+        t.item = "runa:vetas:16";
+        check("runas-ataque".equals(pe.kydium.eclipserpg.shop.ShopMenu.categoryOf(plugin, e)) && "runas-defensa".equals(pe.kydium.eclipserpg.shop.ShopMenu.categoryOf(plugin, d))
+                && "runas-herramienta".equals(pe.kydium.eclipserpg.shop.ShopMenu.categoryOf(plugin, t)), "la tienda de runas se ordena en ataque, defensa y herramienta");
+        // un jefe con armadura recibe más daño si el golpe tiene penetración
+        var w = plugin.getServer().getWorlds().get(0);
+        var at = w.getSpawnLocation().clone().add(6, 1, 6);
+        var boss = plugin.mobs().spawn("rondador_podrido", at);
+        if (boss != null) {
+            var armor = boss.getAttribute(org.bukkit.attribute.Attribute.ARMOR);
+            double a = armor == null ? 0 : armor.getValue();
+            check(a > 0 && a <= 10 * plugin.getConfig().getDouble("dificultad.jefes.armadura", 0.75) + 0.01, "los jefes tienen menos armadura (" + a + ")");
+            boss.remove();
+        }
+    }
+
     private void checkPack() {
+        checkExtraPack();
+        checkPenetration();
         var rp = plugin.resourcePack();
         check(rp != null && rp.bytes() != null && rp.bytes().length > 10000, "el paquete de skins se armó");
         if (rp == null || rp.bytes() == null) return;

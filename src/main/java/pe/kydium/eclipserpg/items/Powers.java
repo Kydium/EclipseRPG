@@ -70,6 +70,8 @@ public final class Powers implements Listener {
         t("marcar", "<white>◎ Marcar", " s", "8", "0.5", "Brilla y se ve a través de las paredes");
         t("atraer", "<dark_aqua>⇠ Atraer", "", "1", "0.25", "Lo jala hacia ti");
         t("perforar", "<red>➶ Perforar", "% de daño directo", "20", "1", "Daño extra que ignora la armadura");
+        t("penetracion", "<gold>➶ Penetración", "% de armadura ignorada", "20", "1", "Atraviesa la armadura (también la de los jefes)");
+        t("cazajefes", "<dark_red>♛ Cazajefes", "% más daño a jefes", "20", "1", "Pega más fuerte a los jefes de mazmorra");
         t("golpe_doble", "<yellow>⚔ Golpe doble", "", "0", "0.15", "A veces golpea dos veces");
         t("furia", "<red>⚡ Furia", " s", "4", "0.2", "Te da fuerza al golpear");
         t("al_matar_soles", "<yellow>☀ Al matar: soles", " soles", "5", "1", "Ganas dinero extra al matar");
@@ -134,7 +136,9 @@ public final class Powers implements Listener {
             case "hunger" -> "hambre";
             case "glowing", "brillar", "senalar" -> "marcar";
             case "pull", "jalar", "gancho" -> "atraer";
-            case "armor_pierce", "pierce", "penetracion", "perforacion" -> "perforar";
+            case "pierce", "perforacion" -> "perforar";
+            case "penetration", "armor_pen", "armor_pierce", "penetrar", "atravesar" -> "penetracion";
+            case "boss_damage", "matajefes", "caza_jefes", "anti_jefes", "dano_a_jefes" -> "cazajefes";
             case "double_hit", "doble_golpe", "golpe_extra" -> "golpe_doble";
             case "rage", "fury", "fuerza", "ira" -> "furia";
             case "al_matar_dinero", "dinero_al_matar", "soles_al_matar", "gold_on_kill" -> "al_matar_soles";
@@ -187,6 +191,14 @@ public final class Powers implements Listener {
     static final java.util.Set<String> UNIVERSAL = java.util.Set.of("durabilidad", "reparar", "vision");
     static final java.util.Set<String> ARMOR = java.util.Set.of("espinas", "esquivar", "regenerar", "resistencia");
 
+    public static boolean isArmorType(String type) {
+        return ARMOR.contains(type);
+    }
+
+    public static boolean isToolType(String type) {
+        return TOOL.contains(type) && !UNIVERSAL.contains(type);
+    }
+
     // ------------------------------------------------------------------ runas (se forjan en cualquier objeto)
 
     public static NamespacedKey RUNE, RUNES, SHOT;
@@ -197,7 +209,7 @@ public final class Powers implements Listener {
         return sb.toString();
     }
 
-    static List<Power> deser(String s) {
+    public static List<Power> deser(String s) {
         List<Power> out = new java.util.ArrayList<>();
         if (s == null || s.isBlank()) return out;
         for (String part : s.split(";")) {
@@ -252,12 +264,10 @@ public final class Powers implements Listener {
         List<String> lore = new java.util.ArrayList<>(lore(List.of(p)).subList(1, 2));
         lore.add("<gray>" + def[4]);
         lore.add("");
-        lore.add("<yellow>Cómo forjarla:");
-        lore.add("<gray>Arma, herramienta o armadura en la mano y esta");
-        lore.add("<gray>runa en la otra (tecla F). Agáchate y haz clic");
-        lore.add("<gray>derecho en un <white>yunque</white>.");
-        lore.add("<gray>Cuesta <green>5 niveles</green> de experiencia (+3 por");
-        lore.add("<gray>cada runa que el objeto ya tenga).");
+        lore.add("<yellow>Se forja en el Yunque:");
+        lore.add("<gray>el de la herrería o cualquier yunque");
+        lore.add("<gray>(agáchate y haz clic derecho en él).");
+        lore.add("<gray>Cuesta <green>niveles de experiencia</green>.");
         meta.lore(pe.kydium.eclipserpg.util.Txt.lore(lore));
         meta.setEnchantmentGlintOverride(true);
         meta.getPersistentDataContainer().set(RUNE, PersistentDataType.STRING, ser(List.of(p)));
@@ -271,25 +281,20 @@ public final class Powers implements Listener {
                 || m == org.bukkit.Material.ELYTRA || m == org.bukkit.Material.TURTLE_HELMET;
     }
 
+    /**
+     * Agacharse + clic derecho en cualquier yunque abre el mismo Yunque de la herrería
+     * (mejorar, forjar runas y juntar fragmentos), para no tener dos formas distintas de hacer lo mismo.
+     */
     @EventHandler(ignoreCancelled = false)
     public void onForge(org.bukkit.event.player.PlayerInteractEvent e) {
         if (e.getHand() != org.bukkit.inventory.EquipmentSlot.HAND || !e.getPlayer().isSneaking()) return;
-        if (e.getAction() != org.bukkit.event.block.Action.RIGHT_CLICK_AIR && e.getAction() != org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) return;
-        Player p = e.getPlayer();
-        ItemStack main = p.getInventory().getItemInMainHand(), off = p.getInventory().getItemInOffHand();
-        if (!isRune(main) && !isRune(off)) return;
-        boolean anvil = e.getClickedBlock() != null && org.bukkit.Tag.ANVIL.isTagged(e.getClickedBlock().getType());
-        if (plugin.getConfig().getBoolean("poderes.forjar-en-yunque", true) && !anvil) {
-            pe.kydium.eclipserpg.util.Txt.send(p, "<gray>Las runas se forjan en un <white>yunque</white>: agáchate y haz clic derecho en uno.");
-            return;
-        }
-        ItemStack runeIt, target;
-        if (isRune(off) && !isRune(main)) { runeIt = off; target = main; }
-        else if (isRune(main) && !isRune(off)) { runeIt = main; target = off; }
-        else return;
+        if (e.getAction() != org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK || e.getClickedBlock() == null) return;
+        if (!org.bukkit.Tag.ANVIL.isTagged(e.getClickedBlock().getType())) return;
+        if (!plugin.getConfig().getBoolean("poderes.forjar-en-yunque", true)) return;
         e.setCancelled(true);
-        String err = forge(p, target, runeIt);
-        if (err != null) pe.kydium.eclipserpg.util.Txt.send(p, err);
+        Player p = e.getPlayer();
+        long base = plugin.getConfig().getLong("mejoras.precio-base", 300);
+        org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> new pe.kydium.eclipserpg.shop.ForgeMenu(plugin, p, null, base).open());
     }
 
     /** Forja la runa en el objeto (gasta la runa y niveles). Devuelve el error, o null si salió bien. */

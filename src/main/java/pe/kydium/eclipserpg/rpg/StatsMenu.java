@@ -14,12 +14,12 @@ import java.util.List;
 /** Menú /nivel: ver el progreso y repartir puntos. */
 public final class StatsMenu extends Menu {
     private static final int[] STAT_SLOTS = {10, 11, 12, 13, 14, 15, 16, 17};
-    private static final int INFO_SLOT = 4;
-    private static final int RESET_SLOT = 22;
+    private static final int INFO_SLOT = 3, COMBAT_SLOT = 5;
+    private static final int CLOSE_SLOT = 27, RESET_SLOT = 31, WALLET_SLOT = 35;
     private final EclipseRPG plugin;
 
     public StatsMenu(EclipseRPG plugin, Player player) {
-        super(player, 3, "<dark_gray>Nivel y atributos");
+        super(player, 4, "<dark_gray>Personaje · Nivel y atributos");
         this.plugin = plugin;
     }
 
@@ -72,8 +72,25 @@ public final class StatsMenu extends Menu {
         inventory.setItem(INFO_SLOT, icon(Material.EXPERIENCE_BOTTLE, "<gold><bold>Nivel " + d.level, info));
 
         long cost = plugin.getConfig().getLong("stats.costo-reinicio", 500);
-        inventory.setItem(RESET_SLOT, icon(Material.GRINDSTONE, "<red>Reiniciar puntos",
-                List.of("<gray>Te devuelve todos los puntos.", "<gray>Cuesta <yellow>" + Txt.num(cost) + " ☀", "", "<yellow>Clic para reiniciar")));
+        inventory.setItem(RESET_SLOT, pe.kydium.eclipserpg.menu.Ui.button(Material.GRINDSTONE, "<red>Reiniciar puntos",
+                List.of("<gray>Te devuelve todos los puntos.", "<gray>Cuesta <gold>" + Txt.num(cost) + " ☀"), "Clic: reiniciar"));
+        // resumen de combate con el arma de la mano
+        List<String> cb = new ArrayList<>();
+        var hand = player.getInventory().getItemInMainHand();
+        String w = hand.getType().isAir() ? "puños" : Txt.pretty(hand.getType().name());
+        int up = plugin.items().upgradeLevel(hand);
+        cb.add("<gray>Arma en la mano: <white>" + w + (up > 0 ? " <gold>+" + up : ""));
+        double pen = plugin.penetration() == null ? 0 : plugin.penetration().ofHand(player);
+        cb.add("<gray>Penetración: <gold>" + Math.round(pen * 100) + " %  <dark_gray>(ignora armadura)");
+        cb.add("<gray>Hachas y mazas: <white>x" + Txt.dec(lm.heavyMult(player)) + "<gray> · Arcos: <white>x" + Txt.dec(lm.rangedMult(player)));
+        cb.add("<gray>Contra Corrompidos: <white>x" + Txt.dec(lm.holyMult(player)));
+        cb.add("");
+        cb.add("<dark_gray>Más penetración: mejora el arma en el yunque");
+        cb.add("<dark_gray>o fórjale una <light_purple>Runa de Penetración<dark_gray>.");
+        inventory.setItem(COMBAT_SLOT, pe.kydium.eclipserpg.menu.Ui.button(Material.IRON_SWORD, "<red><bold>⚔ Combate", cb));
+        inventory.setItem(CLOSE_SLOT, pe.kydium.eclipserpg.menu.Ui.close());
+        inventory.setItem(WALLET_SLOT, pe.kydium.eclipserpg.menu.Ui.wallet(plugin, player));
+        pe.kydium.eclipserpg.menu.Ui.barRow(inventory, 3);
         fillEmpty();
     }
 
@@ -92,6 +109,10 @@ public final class StatsMenu extends Menu {
     public void onClick(InventoryClickEvent e, int slot) {
         PlayerData d = plugin.data().get(player);
         LevelManager lm = plugin.levels();
+        if (slot == CLOSE_SLOT) {
+            player.closeInventory();
+            return;
+        }
         if (slot == RESET_SLOT) {
             int spent = 0;
             for (int v : d.stats.values()) spent += v;

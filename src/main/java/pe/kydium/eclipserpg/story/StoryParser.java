@@ -417,8 +417,9 @@ public final class StoryParser {
                 String k = Dictionary.norm(val);
                 if (k.startsWith("chic") || k.startsWith("peque")) c.size = "chica";
                 else if (k.startsWith("med")) c.size = "mediana";
-                else if (k.startsWith("gran") || k.startsWith("amur") || k.startsWith("capital")) c.size = "grande";
-                else error(ln, "tamaño: usa chica, mediana o grande");
+                else if (k.startsWith("enor") || k.startsWith("gigan") || k.startsWith("inmen") || k.startsWith("capital") || k.startsWith("metro")) c.size = "enorme";
+                else if (k.startsWith("gran") || k.startsWith("amur")) c.size = "grande";
+                else error(ln, "tamaño: usa chica, mediana, grande o enorme");
             }
             case "estilo" -> c.style = Dictionary.norm(val).replace(' ', '_');
             case "distancia", "lejos", "a" -> {

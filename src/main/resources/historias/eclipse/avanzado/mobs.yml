@@ -464,6 +464,11 @@ mobs:
       - {tipo: TELEPORTE, cada: 12}
       - {tipo: INVOCAR, cada: 22, extra: "enderman_corrompido,sombra_corrompida", cantidad: 3}
     premios:
+      - {item: escama_dragon_casco}
+      - {item: escama_dragon_pechera}
+      - {item: escama_dragon_grebas}
+      - {item: escama_dragon_botas}
+      - {item: corona_del_alba}
       - {item: fragmento_mejora_ancestral}
       - {item: fragmento_mejora_ancestral}
       - {item: fragmento_solar_10}

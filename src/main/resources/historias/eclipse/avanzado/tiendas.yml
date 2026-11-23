@@ -164,8 +164,8 @@ tiendas:
   legendaria:                       # El Errante — Armería legendaria (armas con poderes)
     titulo: "<gold><bold>Armería Legendaria"
     boton: "<gold>⚔ Armería legendaria"
-    descripcion: "Armas únicas con poderes: robo de vida, rayo, congelar…"
-    filas: 3
+    descripcion: "Armas y armaduras únicas con poderes (y armas contra jefes)"
+    filas: 6
     objetos:
       - {tipo: comprar, slot: 10, item: "custom:daga_sangrienta", precio: 2500, nivel: 15, stock: 1}
       - {tipo: comprar, slot: 11, item: "custom:hoja_escarcha", precio: 6000, nivel: 25, stock: 1}
@@ -176,6 +176,17 @@ tiendas:
       - {tipo: comprar, slot: 16, item: "custom:martillo_tormenta", precio: 25000, nivel: 60, stock: 1}
       - {tipo: comprar, slot: 22, item: "custom:guadana_almas", precio: 30000, nivel: 70, stock: 1}
       - {tipo: comprar, slot: 24, item: "custom:mochila_del_viajero", precio: 20000, nivel: 40, stock: 1}
+      - {tipo: comprar, slot: 25, item: "custom:rompeyelmos", precio: 15000, nivel: 35, stock: 1}
+      - {tipo: comprar, slot: 26, item: "custom:verdugo", precio: 40000, nivel: 65, stock: 1}
+      - {tipo: comprar, slot: 27, item: "custom:cazadora_de_reyes", precio: 55000, nivel: 75, stock: 1}
+      - {tipo: comprar, slot: 28, item: "custom:paladin_solar_casco", precio: 9000, nivel: 50}
+      - {tipo: comprar, slot: 29, item: "custom:paladin_solar_pechera", precio: 14000, nivel: 50}
+      - {tipo: comprar, slot: 30, item: "custom:paladin_solar_grebas", precio: 12000, nivel: 50}
+      - {tipo: comprar, slot: 31, item: "custom:paladin_solar_botas", precio: 9000, nivel: 50}
+      - {tipo: comprar, slot: 32, item: "custom:caminante_sombras_casco", precio: 16000, nivel: 65}
+      - {tipo: comprar, slot: 33, item: "custom:caminante_sombras_pechera", precio: 24000, nivel: 65}
+      - {tipo: comprar, slot: 34, item: "custom:caminante_sombras_grebas", precio: 20000, nivel: 65}
+      - {tipo: comprar, slot: 35, item: "custom:caminante_sombras_botas", precio: 16000, nivel: 65}
 
   herramientas_magicas:             # Bruno el Herrero — herramientas con poderes
     titulo: "<gold><bold>Herramientas Mágicas"
@@ -221,6 +232,9 @@ tiendas:
       - {tipo: comprar, slot: 29, item: "runa:resistencia:8", precio: 1500, nivel: 15}
       - {tipo: comprar, slot: 30, item: "runa:regenerar:2:0.2", precio: 1400, nivel: 15}
       - {tipo: comprar, slot: 31, item: "runa:esquivar:0:0.06", precio: 2500, nivel: 25}
+      - {tipo: comprar, slot: 32, item: "runa:penetracion:10", precio: 1500, nivel: 10}
+      - {tipo: comprar, slot: 33, item: "runa:penetracion:20", precio: 4500, nivel: 30}
+      - {tipo: comprar, slot: 34, item: "runa:cazajefes:15", precio: 3500, nivel: 20}
       - {tipo: comprar, slot: 37, item: "runa:area:1", precio: 3500, nivel: 20}
       - {tipo: comprar, slot: 38, item: "runa:vetas:16", precio: 2500, nivel: 15}
       - {tipo: comprar, slot: 39, item: "runa:talador:64", precio: 2000, nivel: 10}
@@ -235,3 +249,26 @@ tiendas:
       - {tipo: comprar, slot: 50, item: "runa:reparar:1:0.3", precio: 2000, nivel: 15}
       - {tipo: comprar, slot: 51, item: "runa:pesca_tesoro:0:0.08", precio: 2500, nivel: 15}
       - {tipo: comprar, slot: 52, item: "runa:vision", precio: 1000, nivel: 8}
+
+  armeria_real:                     # Sir Aldric (Altavela) — equipo de la Guardia Blanca
+    titulo: "<blue><bold>Armería Real de Altavela"
+    boton: "<blue>🛡 Armería real"
+    descripcion: "Armaduras de la Guardia Real, escudos y espadas de juramento"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:campeon_casco", precio: 1800, nivel: 15}
+      - {tipo: comprar, slot: 11, item: "custom:campeon_pechera", precio: 3000, nivel: 15}
+      - {tipo: comprar, slot: 12, item: "custom:campeon_grebas", precio: 2500, nivel: 15}
+      - {tipo: comprar, slot: 13, item: "custom:campeon_botas", precio: 1800, nivel: 15}
+      - {tipo: comprar, slot: 19, item: "custom:guardia_real_casco", precio: 5000, nivel: 30}
+      - {tipo: comprar, slot: 20, item: "custom:guardia_real_pechera", precio: 8000, nivel: 30}
+      - {tipo: comprar, slot: 21, item: "custom:guardia_real_grebas", precio: 7000, nivel: 30}
+      - {tipo: comprar, slot: 22, item: "custom:guardia_real_botas", precio: 5000, nivel: 30}
+      - {tipo: comprar, slot: 28, item: "custom:baluarte_real", precio: 6000, nivel: 30}
+      - {tipo: comprar, slot: 29, item: "custom:juramento_del_alba", precio: 9000, nivel: 30, stock: 2}
+      - {tipo: comprar, slot: 30, item: "runa:penetracion:10", precio: 1600, nivel: 10}
+      - {tipo: comprar, slot: 31, item: "runa:cazajefes:15", precio: 3600, nivel: 20}
+      - {tipo: vender, slot: 40, item: "iron_ingot", cantidad: 4, precio: 12}
+      - {tipo: vender, slot: 41, item: "diamond", cantidad: 1, precio: 45}
+      - {tipo: mejora, slot: 49, precio: 300}
+

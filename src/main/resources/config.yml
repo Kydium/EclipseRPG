@@ -119,6 +119,11 @@ dificultad:
   jefes:
     tope-por-golpe: 0.05        # ningún golpe le quita más de este % de su vida (0.05 = 5 %)
     desviar-flechas: 0.3        # probabilidad de desviar una flecha
+    armadura: 0.75              # armadura y dureza de los jefes (1 = la de mobs.yml)
+  # Penetración: parte de la armadura del enemigo que ignora tu golpe (sirve contra jefes)
+  penetracion-por-mejora: 0.03  # cada +1 del arma ignora 3 % (un arma +10 ignora 30 %)
+  penetracion-base: 0.0
+  penetracion-maxima: 0.8       # tope sumando mejora, runas y poderes
 
 atajos:
   tecla-g: true                 # la tecla "Acciones rápidas" (G) abre el menú (instala un paquete de datos)
@@ -129,7 +134,8 @@ dialogos:
 jefes:
   soles-si-repite: 200          # si un jugador ya tiene el premio único del jefe
 
-mejoras:                        # yunque de Bruno: armas, armaduras y herramientas
+mejoras:                        # yunque: armas, armaduras y herramientas
+  precio-base: 300              # Soles por nivel al mejorar en un yunque cualquiera (agáchate + clic derecho)
   niveles: 10                   # +1 a +5 con Fragmento de Mejora, +6 a +8 con Superior, +9 y +10 con Ancestral
   probabilidad-superior: 0.8    # éxito de +6 a +8 (si falla se pierde el fragmento, no el objeto)
   probabilidad-ancestral: 0.6   # éxito de +9 y +10

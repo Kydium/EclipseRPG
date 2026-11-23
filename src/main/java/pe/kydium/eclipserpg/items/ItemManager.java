@@ -63,6 +63,8 @@ public final class ItemManager implements Listener {
         public final List<Powers.Power> powers = new ArrayList<>();
         public int backpack;          // mochila: cuántos huecos tiene (0 = no es mochila)
         public String model;          // modelo de otro objeto (ej. minecraft:brown_bundle)
+        public String texture;        // textura: nombre de un modelo de un paquete extra ("Hawkbrand")
+        public String look;           // aspecto: cómo se ve la armadura puesta ("champions_armor")
     }
 
     /** Rarezas: color del nombre y etiqueta al final de la descripción. */
@@ -182,6 +184,8 @@ public final class ItemManager implements Listener {
             ci.action = s.getString("accion");
             ci.backpack = Math.max(0, Math.min(10000, s.getInt("mochila", 0)));
             ci.model = s.getString("modelo");
+            ci.texture = s.getString("textura");
+            ci.look = s.getString("aspecto");
             ci.heldEffect = s.getString("efecto-en-mano");
             ci.heldEffectLevel = s.getInt("efecto-nivel", 0);
             ConfigurationSection en = s.getConfigurationSection("encantamientos");
@@ -274,6 +278,19 @@ public final class ItemManager implements Listener {
         if (ci.model != null && !ci.model.isBlank()) {
             NamespacedKey mk = NamespacedKey.fromString(ci.model.toLowerCase(java.util.Locale.ROOT).trim());
             if (mk != null) meta.setItemModel(mk);
+        }
+        var rp = plugin.resourcePack();
+        if (ci.texture != null && rp != null && rp.hasModel(id))
+            meta.setItemModel(new NamespacedKey("eclipse", pe.kydium.eclipserpg.npc.ResourcePack.modelKey(id)));
+        if (ci.look != null && rp != null && isArmor(ci.material)) {
+            String asset = rp.extras().look(ci.look, ci.material.name().endsWith("_LEGGINGS"));
+            NamespacedKey ak = asset == null ? null : NamespacedKey.fromString("minecraft:" + asset);
+            if (ak != null) {
+                var eq = meta.getEquippable();
+                eq.setSlot(ci.material.getEquipmentSlot());
+                eq.setModel(ak);
+                meta.setEquippable(eq);
+            }
         }
         if (ci.backpack > 0) meta.setMaxStackSize(1);
         if (ci.glint) meta.setEnchantmentGlintOverride(true);

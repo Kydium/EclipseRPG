@@ -25,7 +25,7 @@ public final class ForgeMenu extends Menu {
     private boolean done;
 
     public ForgeMenu(EclipseRPG plugin, Player player, ShopManager.Shop shop, long basePrice) {
-        super(player, 5, "<dark_gray>⚒ Yunque de Bruno");
+        super(player, 5, "<dark_gray>⚒ Yunque" + (shop == null ? "" : " · " + pe.kydium.eclipserpg.menu.Ui.plain(shop.title)));
         this.plugin = plugin;
         this.shop = shop;
         this.basePrice = basePrice;
@@ -58,17 +58,21 @@ public final class ForgeMenu extends Menu {
         // marcos de los huecos
         for (int s : new int[]{10, 11, 12, 19, 21, 28, 29, 30}) inventory.setItem(s, icon(Material.ORANGE_STAINED_GLASS_PANE, "<gold>⬇ Objeto a mejorar", List.of("<gray>Arma, armadura o herramienta")));
         for (int s : new int[]{14, 15, 16, 23, 25, 32, 33, 34}) inventory.setItem(s, icon(Material.PURPLE_STAINED_GLASS_PANE, "<light_purple>⬇ Fragmento o runa", List.of("<gray>Fragmento de Mejora / Superior /", "<gray>Ancestral, o una Runa")));
-        List<String> info = new ArrayList<>(List.of("<gray>Haz clic en un objeto de tu inventario", "<gray>para ponerlo en su hueco.",
-                "<gray>Clic en un hueco para sacarlo.", "", "<white>Fragmentos:", "<gray>+1 a +5 · <light_purple>de Mejora",
-                "<gray>+6 a +8 · <aqua>Superior <gray>(80 %)", "<gray>+9 y +10 · <light_purple>Ancestral <gray>(60 %)",
-                "<dark_gray>Si falla, se pierde el fragmento, no el objeto.", "", "<white>Runas: <gray>dan poderes (cuestan niveles de XP).", "<gray>Hasta 5 por objeto, +1 a +5 y +1 a +10.", "<gray>Shift+clic en el botón: forja todas a la vez."));
-        inventory.setItem(INFO, icon(Material.BOOK, "<gold>¿Cómo se usa el yunque?", info));
+        List<String> info = new ArrayList<>(List.of("<gray>Clic en un objeto de tu inventario para", "<gray>ponerlo en su hueco · clic en el hueco: sacarlo.",
+                "", "<white>Mejorar <gray>(fragmentos):", "<gray>+1 a +5 · <light_purple>de Mejora <gray>(siempre sale)",
+                "<gray>+6 a +8 · <aqua>Superior <gray>(" + Math.round(plugin.items().upgradeChance(6) * 100) + " %)",
+                "<gray>+9 y +10 · <light_purple>Ancestral <gray>(" + Math.round(plugin.items().upgradeChance(9) * 100) + " %)",
+                "<dark_gray>Si falla se pierde el fragmento, no el objeto.",
+                "<gray>Cada +1 en un arma da <gold>" + Math.round(plugin.getConfig().getDouble("dificultad.penetracion-por-mejora", 0.03) * 100) + " % de penetración<gray>.",
+                "", "<white>Forjar runas <gray>(niveles de experiencia):", "<gray>Hasta " + plugin.getConfig().getInt("poderes.max-runas", 5) + " por objeto (+1 en +5 y otra en +10).",
+                "<gray>Una runa repetida refuerza la que ya tiene.", "<gray>Shift+clic en el botón: forja todas."));
+        inventory.setItem(INFO, pe.kydium.eclipserpg.menu.Ui.help("Cómo usar el yunque", info));
         inventory.setItem(GO, button());
-        inventory.setItem(COMBINE, icon(Material.AMETHYST_CLUSTER, "<aqua>Juntar fragmentos",
-                List.of("<gray>3 Fragmentos de Mejora → 1 Superior", "<gray>3 Superiores → 1 Ancestral", "", "<yellow>Clic: junta los que tengas en el inventario")));
-        if (shop != null) inventory.setItem(BACK, icon(Material.ARROW, "<gray>◀ Volver a la tienda", List.of()));
-        inventory.setItem(44, icon(Material.SUNFLOWER, "<yellow>Tus Soles: " + Txt.num(plugin.levels().soles(player)) + " ☀",
-                List.of("<gray>Niveles de XP: " + player.getLevel())));
+        inventory.setItem(COMBINE, pe.kydium.eclipserpg.menu.Ui.button(Material.AMETHYST_CLUSTER, "<aqua>Juntar fragmentos",
+                List.of("<gray>3 Fragmentos de Mejora → 1 Superior", "<gray>3 Superiores → 1 Ancestral"), "Clic: juntar los de tu inventario"));
+        inventory.setItem(BACK, shop != null ? pe.kydium.eclipserpg.menu.Ui.back("la tienda") : pe.kydium.eclipserpg.menu.Ui.close());
+        inventory.setItem(44, pe.kydium.eclipserpg.menu.Ui.wallet(plugin, player));
+        pe.kydium.eclipserpg.menu.Ui.barRow(inventory, 4);
         fillEmpty();
     }
 
@@ -94,6 +98,10 @@ public final class ForgeMenu extends Menu {
         List<String> l = new ArrayList<>();
         l.add("<white>+" + lvl + " → " + ItemManager.tierName(t) + " +" + t);
         l.addAll(ItemManager.upgradeLines(k, it.getType(), t));
+        if (k == ItemManager.UpKind.WEAPON) {
+            double per = plugin.getConfig().getDouble("dificultad.penetracion-por-mejora", 0.03);
+            l.add("<gold>Penetración: <white>" + Math.round(lvl * per * 100) + " % → " + Math.round(t * per * 100) + " %");
+        }
         l.add("");
         l.add("<gray>Necesita: <white>1 " + (nd == null ? need : nd.name));
         l.add("<gray>Cuesta: <yellow>" + Txt.num(basePrice * t) + " ☀");
@@ -149,10 +157,11 @@ public final class ForgeMenu extends Menu {
             render();
             return;
         }
-        if (slot == BACK && shop != null) {
+        if (slot == BACK) {
             returnAll();
             done = true;
-            org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> plugin.shops().open(player, shop.id));
+            if (shop != null) org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> plugin.shops().open(player, shop.id));
+            else player.closeInventory();
             return;
         }
         if (slot == COMBINE) {

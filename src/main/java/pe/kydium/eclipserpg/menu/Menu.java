@@ -74,9 +74,10 @@ public abstract class Menu implements InventoryHolder {
 
     /** ¿Es un cristal de relleno de un menú? (nunca debe llegar al inventario de nadie) */
     public static boolean isFiller(ItemStack it) {
-        if (it == null || it.getType() != Material.BLACK_STAINED_GLASS_PANE || !it.hasItemMeta()) return false;
+        if (it == null || !it.hasItemMeta()) return false;
         ItemMeta m = it.getItemMeta();
         if (m.getPersistentDataContainer().has(pe.kydium.eclipserpg.util.Keys.k("relleno"))) return true;
+        if (it.getType() != Material.BLACK_STAINED_GLASS_PANE) return false;
         return Component.text(" ").equals(m.displayName());
     }
 

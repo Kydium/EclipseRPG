@@ -29,7 +29,7 @@ CIUDAD hornoviejo
 
 CIUDAD altavela
   nombre: Altavela
-  tamaño: grande
+  tamaño: enorme
   estilo: llanura
   distancia: 1100-1500
   dirección: norte
@@ -219,7 +219,7 @@ NPC aldric
   lugar: cuartel
   objeto: espada de diamante
   otra mano: escudo
-  servicio: tienda herreria
+  servicio: tienda armeria_real
   charla: Inés fue la mejor de mis guardias. Dile que la puerta sigue abierta.
 
 NPC senna
