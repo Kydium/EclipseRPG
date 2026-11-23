@@ -43,6 +43,7 @@ public final class EclipseRPG extends JavaPlugin {
     private HotkeyMenu hotkeys;
     private pe.kydium.eclipserpg.world.WorldManager world;
     private pe.kydium.eclipserpg.structure.StructureManager structures;
+    private pe.kydium.eclipserpg.city.CityManager cities;
     private pe.kydium.eclipserpg.story.StoryManager story;
     private pe.kydium.eclipserpg.npc.ResourcePack resourcePack;
     private pe.kydium.eclipserpg.web.EditorApi editor;
@@ -100,6 +101,7 @@ public final class EclipseRPG extends JavaPlugin {
         hotkeys = new HotkeyMenu(this);
         world = new pe.kydium.eclipserpg.world.WorldManager(this);
         structures = new pe.kydium.eclipserpg.structure.StructureManager(this);
+        cities = new pe.kydium.eclipserpg.city.CityManager(this);
         specialBlocks = new pe.kydium.eclipserpg.blocks.SpecialBlocks(this);
         loadContent();
 
@@ -107,7 +109,7 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(new MenuListener(), this);
         pm.registerEvents(levels, this);
         pm.registerEvents(items, this);
-        var powers = new pe.kydium.eclipserpg.items.Powers(this);
+        powers = new pe.kydium.eclipserpg.items.Powers(this);
         pm.registerEvents(powers, this);
         pm.registerEvents(new pe.kydium.eclipserpg.items.ToolPowers(this, powers), this);
         pm.registerEvents(mobs, this);
@@ -122,6 +124,8 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(new pe.kydium.eclipserpg.npc.Deaths(this, npcEntities.combat()), this);
         pm.registerEvents(world, this);
         pm.registerEvents(structures, this);
+        pe.kydium.eclipserpg.util.Icons.enabled = getConfig().getBoolean("paquete-recursos.activo", true)
+                && getConfig().getBoolean("paquete-recursos.iconos", true);
         resourcePack = new pe.kydium.eclipserpg.npc.ResourcePack(this);
         resourcePack.start();
         pm.registerEvents(resourcePack, this);
@@ -139,10 +143,18 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(backpacks, this);
         pm.registerEvents(specialBlocks, this);
         pm.registerEvents(new pe.kydium.eclipserpg.dungeon.VillageGuard(this), this);
+        waystones = new pe.kydium.eclipserpg.world.Waystones(this);
+        pm.registerEvents(waystones, this);
+        waystones.startTask();
+        new pe.kydium.eclipserpg.menu.HealthTags(this).start();
+        mobHealth = new pe.kydium.eclipserpg.mobs.MobHealth(this);
+        pm.registerEvents(mobHealth, this);
+        mobHealth.start();
         minimap = new pe.kydium.eclipserpg.menu.Minimap(this);
         try {
             minimap.init();
             pm.registerEvents(minimap, this);
+            minimap.startDeathTask();
         } catch (RuntimeException ex) {
             getLogger().warning("Minimapa no disponible: " + ex.getMessage());
         }
@@ -184,7 +196,9 @@ public final class EclipseRPG extends JavaPlugin {
         items.startHeldEffectTask();
         mobs.startBarTask();
         mobs.startRegenTask();
-        new pe.kydium.eclipserpg.mobs.BossAbilities(this, mobs).start();
+        bossAbilities = new pe.kydium.eclipserpg.mobs.BossAbilities(this, mobs);
+        bossAbilities.start();
+        getServer().getPluginManager().registerEvents(new pe.kydium.eclipserpg.mobs.BossRules(this), this);
         rifts.startTask();
         dungeons.startTask();
         ruins.startTask();
@@ -215,6 +229,7 @@ public final class EclipseRPG extends JavaPlugin {
     @Override
     public void onDisable() {
         if (rifts != null) rifts.stopAll();
+        if (mobHealth != null) mobHealth.restoreAll();
         if (world != null) for (String ev : new java.util.ArrayList<>(world.activeEvents())) world.stop(ev, false);
         if (mobs != null) mobs.cleanup();
         if (data != null) data.saveAll();
@@ -281,6 +296,7 @@ public final class EclipseRPG extends JavaPlugin {
         story.apply(r);
         quests.load(story.doc());
         npcs.load(story.doc());
+        cities.load(story.doc());
         npcEntities.load();
         logStory(r);
     }
@@ -323,6 +339,7 @@ public final class EclipseRPG extends JavaPlugin {
         story.apply(r);
         quests.load(story.doc());
         npcs.load(story.doc());
+        cities.load(story.doc());
         npcEntities.placeStoryNpcs();
         saveConfig();
         logStory(r);
@@ -357,6 +374,14 @@ public final class EclipseRPG extends JavaPlugin {
     public pe.kydium.eclipserpg.menu.Hud hud() { return hud; }
     public pe.kydium.eclipserpg.items.Backpacks backpacks() { return backpacks; }
     private pe.kydium.eclipserpg.menu.Hud hud;
+    private pe.kydium.eclipserpg.world.Waystones waystones;
+    private pe.kydium.eclipserpg.mobs.MobHealth mobHealth;
+    private pe.kydium.eclipserpg.items.Powers powers;
+    public pe.kydium.eclipserpg.items.Powers powers() { return powers; }
+    private pe.kydium.eclipserpg.mobs.BossAbilities bossAbilities;
+    public pe.kydium.eclipserpg.mobs.BossAbilities bossAbilities() { return bossAbilities; }
+    public pe.kydium.eclipserpg.mobs.MobHealth mobHealth() { return mobHealth; }
+    public pe.kydium.eclipserpg.world.Waystones waystones() { return waystones; }
     private pe.kydium.eclipserpg.menu.Minimap minimap;
     public pe.kydium.eclipserpg.menu.Minimap minimap() { return minimap; }
     private pe.kydium.eclipserpg.blocks.SpecialBlocks specialBlocks;
@@ -364,6 +389,7 @@ public final class EclipseRPG extends JavaPlugin {
     private pe.kydium.eclipserpg.items.Backpacks backpacks;
     public pe.kydium.eclipserpg.world.WorldManager world() { return world; }
     public pe.kydium.eclipserpg.structure.StructureManager structures() { return structures; }
+    public pe.kydium.eclipserpg.city.CityManager cities() { return cities; }
     public pe.kydium.eclipserpg.story.StoryManager story() { return story; }
 
     /** Nombre de la historia y de su aldea (para los textos del juego). */

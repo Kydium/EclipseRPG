@@ -16,6 +16,20 @@ public final class StoryDoc {
     public final Map<Integer, String> acts = new TreeMap<>();
     public final Map<String, Npc> npcs = new LinkedHashMap<>();
     public final List<Mission> missions = new ArrayList<>();
+    public final Map<String, City> cities = new LinkedHashMap<>();
+
+    /** Otra ciudad del mundo, lejos de la aldea principal, con sus propios NPCs. */
+    public static final class City {
+        public int line;
+        public String id;
+        public String name;
+        public String size = "mediana";     // chica | mediana | grande
+        public String style = "auto";       // estilo del catálogo o auto (según el bioma)
+        public int distMin = 900, distMax = 1400;
+        public String direction;            // norte | sur | este | oeste (null = cualquiera)
+        public String subtitle = "";
+        public final List<String> lore = new ArrayList<>();
+    }
 
     public static final class Npc {
         public int line;
@@ -29,6 +43,7 @@ public final class StoryDoc {
         public String offhand;
         public String combat;
         public double combatHp, combatDamage;
+        public String city;                  // ciudad donde vive (null = la aldea principal)
         public final List<String> services = new ArrayList<>();
         public final List<String> talk = new ArrayList<>();
     }
@@ -80,5 +95,12 @@ public final class StoryDoc {
         public int waveEvery = 20;
         public String riddle, answer;                           // acertijo
         public final List<String> wrong = new ArrayList<>();
+        // ---- etapas: una misión larga se reparte en pasos, cada uno con su NPC ----
+        public Mission root;                  // primera etapa (la MISIÓN); null si esta ES la misión
+        public String stageName;              // nombre de la etapa (null en la primera)
+        public int stage = 1, stages = 1;     // número de etapa y total
+        public boolean returnTo;              // "vuelve: sí" → hay que volver a hablar con el NPC para cerrarla
+        public String city;                   // ciudad que se descubre al aceptar (brújula + punto)
+        public final Map<String, List<String>> talks = new LinkedHashMap<>(); // conversa: npc | texto
     }
 }

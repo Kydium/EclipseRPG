@@ -15,7 +15,29 @@ items:
   fragmento_mejora:
     material: AMETHYST_SHARD
     nombre: "<light_purple>Fragmento de Mejora"
-    lore: ["<gray>Llévalo a Bruno el Herrero para", "<gray>subir +1 de daño a un arma única."]
+    lore: ["<gray>Llévalo a Bruno el Herrero: sube armas,", "<gray>armaduras y herramientas de <white>+0</white> a <yellow>+5</yellow>.", "<dark_gray>3 de estos = 1 Fragmento Superior (Bruno)."]
+    brillo: true
+  fragmento_mejora_superior:
+    material: PRISMARINE_CRYSTALS
+    nombre: "<aqua>Fragmento de Mejora Superior"
+    lore: ["<gray>Sube armas, armaduras y herramientas", "<gray>de <white>+5</white> hasta <aqua>+8</aqua> (80 % de éxito).", "<dark_gray>Bruno junta 3 Fragmentos de Mejora en uno."]
+    brillo: true
+  fragmento_mejora_ancestral:
+    material: ECHO_SHARD
+    nombre: "<light_purple><bold>Fragmento de Mejora Ancestral"
+    lore: ["<gray>Sube armas, armaduras y herramientas", "<gray>de <white>+8</white> hasta <light_purple>+10</light_purple> (60 % de éxito).", "<dark_gray>Bruno junta 3 Fragmentos Superiores en uno."]
+    brillo: true
+
+  esencia_corrupta:
+    material: PURPLE_DYE
+    nombre: "<light_purple>Esencia Corrupta"
+    lore: ["<gray>Lo que queda de un Corrompido.", "<gray>Pip te la compra: <yellow>8 por 40 ☀", "<gray>Sabina la cambia por cosas raras."]
+    brillo: true
+
+  corazon_corrupto:
+    material: FERMENTED_SPIDER_EYE
+    nombre: "<dark_purple><bold>Corazón Corrupto"
+    lore: ["<gray>Late todavía. Muy pocos Corrompidos", "<gray>lo llevan dentro (más los élites ★).", "<light_purple>Sabina la Coleccionista lo cambia", "<light_purple>por objetos raros y únicos."]
     brillo: true
 
   pergamino_campamento:

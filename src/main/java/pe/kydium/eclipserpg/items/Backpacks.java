@@ -180,7 +180,7 @@ public final class Backpacks implements Listener {
             return;
         }
         String title = it.getItemMeta().hasDisplayName() ? net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText()
-                .serialize(it.getItemMeta().displayName()) : "Mochila";
+                .serialize(it.getItemMeta().displayName()).replaceAll("[\ue100-\ue1ff]", "").trim() : "Mochila";
         Holder h = new Holder(id, slots, title, load(id, slots));
         h.viewer = p.getUniqueId();
         open.put(id, h);

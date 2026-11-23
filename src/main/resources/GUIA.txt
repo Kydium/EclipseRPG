@@ -64,6 +64,7 @@ Las líneas que empiezan con # son comentarios.
       skin: pirata
       oficio: Capitán del puerto   ← aparece debajo del nombre
       lugar: muelle
+      ciudad: puerto_bruma         ← (opcional) vive en otra ciudad; ver sección 23
       objeto: espada de hierro     ← lo que lleva en la mano (opcional)
       otra mano: escudo            (opcional)
       servicio: tienda general     (opcional; ver abajo)
@@ -122,6 +123,8 @@ Se juegan en el orden en que las escribes, una tras otra.
       mazmorra: 2                  ← genera la mazmorra 2 al aceptar
       sin morir: sí                ← si mueres, se reinicia
       elección: Perdonarlo -> premio: 5 diamantes; mensaje: Gracias.; marca: perdono
+      ETAPA <nombre>               ← otro paso de la misma misión (sección 23)
+      conversa: bruno | texto      ← lo que dice Bruno si la misión te manda a hablarle
 
 
 ---------------------------------------------------------------------
@@ -537,3 +540,147 @@ el juego te dice exactamente en qué línea.
  bosques) y golem_eclipse (acto 8+). Salen de noche gracias a las reglas
  de mundo.yml → apariciones.reglas. Con "rol: enemigo" cualquier mob
  (gólem, lobo, allay, aldeano…) ataca a jugadores y aldeanos.
+
+---------------------------------------------------------------------
+ 23. MISIONES LARGAS: ETAPAS, CONVERSACIONES Y OTRAS CIUDADES
+---------------------------------------------------------------------
+ ETAPAS: una misión se reparte en pasos, cada uno con su NPC, su diálogo,
+ sus objetivos y su premio. Van debajo de la MISIÓN:
+
+   MISIÓN El faro apagado
+     npc: maren
+     dice: Enciende el faro y aguanta.
+     objetivo: encuentra la estructura faro
+     ETAPA Lo que se ve desde el faro
+       npc: anselmo                 (si no lo pones, sigue el mismo NPC)
+       dice: Desde arriba se ve el templo hundido…
+       objetivo: habla con Madre Ilse
+       conversa: ilse | ¿Pociones para el mar? Trae los ingredientes.
+     ETAPA Pociones del fondo
+       npc: ilse
+       objetivo: entrega 4 pufferfish
+       premio: 4 pociones de respiracion acuatica
+
+ • Una etapa intermedia se cierra sola al cumplir sus objetivos y te manda
+   con el NPC de la siguiente (punto dorado en la barra). Si tiene "entrega",
+   un acertijo o "vuelve: sí", hay que volver a hablar con su NPC.
+ • Si la siguiente etapa es del mismo NPC, empieza sola.
+ • En el diario sale "Etapa 2/4: nombre"; al terminarlas todas, la misión
+   cuenta como una sola.
+ • conversa: <npc> | <texto>  es lo que dice ese NPC cuando la misión te
+   manda a hablar con él (en vez de su saludo de siempre).
+
+ CIUDADES: otras aldeas lejos de la principal, con sus propios NPCs.
+ Escríbelas ANTES de los NPCs:
+
+   CIUDAD puerto_bruma
+     nombre: Puerto Bruma
+     tamaño: mediana              (chica, mediana o grande)
+     estilo: auto                 (o llanura, taiga, nieve, desierto, oscuro…)
+     distancia: 1200-1600         (bloques desde la aldea)
+     dirección: oeste             (norte, sur, este u oeste; opcional)
+     lema: La niebla nunca se va
+     descripción: Desde que el rey se hundió, la marea sube cada noche.
+
+   NPC maren
+     ciudad: puerto_bruma         (vive allí; "lugar:" es su sitio dentro)
+
+ • La ciudad se construye sola la primera vez que la historia te manda allí
+   (una misión de un NPC de esa ciudad, "habla con" él o "llega a la ciudad").
+   Te llega una brújula y el punto dorado te guía.
+ • Objetivo:  llega a la ciudad Puerto Bruma
+ • En una misión:  ciudad: puerto_bruma   la descubre al aceptar.
+ • Son indestructibles como la aldea y no salen monstruos dentro.
+
+ PELIGRO DE LAS ESTRUCTURAS (config.yml → estructuras.dificultad):
+ cuanto más lejos del spawn, más ☠ (1 a 7): más enemigos, más vida,
+ élites ★ (doble vida, fuerza, resistencia y velocidad) y refuerzos cuando
+ cae la mayoría. Con más jugadores dentro salen más. "peligro: N" en
+ estructuras.yml fija el nivel de una estructura.
+
+
+---------------------------------------------------------------------
+ 24. PIEDRAS DE VIAJE Y COMERCIANTES EN EL MAPA
+---------------------------------------------------------------------
+ • Hay una Piedra de viaje (piedra imán con farolillos y un letrero) en la
+   aldea y en cada ciudad de la historia. Se ponen solas en un sitio plano.
+ • Al acercarte a una la descubres. Clic derecho en cualquier piedra: viajas
+   a otra que ya conozcas. Hay que quedarse quieto unos segundos (si te
+   mueves o te hieren se cancela) y cuesta Soles según la distancia.
+ • config.yml → viajes: costo-por-100-bloques, costo-minimo,
+   segundos-quieto, espera-segundos (o activo: false para quitarlas).
+ • El Mapa del aventurero muestra a los comerciantes con banderas:
+   amarilla = tienda, celeste = contratos, morada = Grieta, y ◎ las piedras.
+   Con el zoom más cercano sale el nombre y lo que venden.
+ • Tecla G → "¿Dónde compro?" (o /g comerciantes): lista de comerciantes del
+   más cercano al más lejano; al tocar uno te da una brújula hacia él.
+
+---------------------------------------------------------------------
+ 25. ATRIBUTOS (ESTILO ELDEN RING) Y VIDA SOBRE LA CABEZA
+---------------------------------------------------------------------
+ Cada nivel da puntos para repartir en /nivel (clic +1, shift+clic +5):
+   ❤ Vigor ........ vida máxima
+   👁 Mente ........ los poderes de armas saltan más y se recargan antes
+   🛡 Aguante ...... armadura, firmeza (menos empuje) y menos hambre
+   ⚔ Fuerza ....... daño cuerpo a cuerpo (más con hachas y mazas)
+   ➶ Destreza ..... velocidad, velocidad de ataque y daño con arcos/tridentes
+   ✦ Inteligencia . daño de poderes mágicos (rayo, cadena, sangrado, perforar)
+   ☀ Fe ........... curación y daño contra Corrompidos
+   💎 Arcano ....... Soles, botín, Corazones Corruptos y suerte
+ Todo se ajusta en config.yml → stats. Puntos por nivel: niveles.puntos-por-nivel.
+ Debajo del nombre de cada jugador se ve su vida ("18/24 ❤");
+ se apaga con hud.vida-sobre-la-cabeza: false.
+
+---------------------------------------------------------------------
+ 26. JEFES DIFÍCILES Y MAZMORRAS GIGANTES
+---------------------------------------------------------------------
+ JEFES (mobs.yml con jefe: true):
+ • No les afectan pociones ni efectos, ni el fuego, la lava, las caídas,
+   la asfixia o las explosiones. Los poderes de las armas no les hacen nada.
+ • Ningún golpe les quita más del 5 % de su vida
+   (config.yml → dificultad.jefes.tope-por-golpe).
+ • Desvían el 30 % de las flechas (dificultad.jefes.desviar-flechas) y si
+   los atacas de lejos sin acercarte, aparecen a tu lado.
+ • Cada jefe es una criatura única: Zoglin, Devastador, Ilusionista, Guardián
+   Anciano, Invocador, Cubo de Magma, Breeze, Warden, Piglin Bruto y Wither.
+ • Habilidades nuevas: EMBESTIDA (carga en línea, se avisa), CLONES (copias
+   falsas de 1 de vida), METEOROS (círculos de fuego en el suelo: ¡sal!),
+   ESCUDO (invulnerable mientras vivan los esbirros que brillan) y
+   CADENAS (te deja sin moverte ni saltar unos segundos).
+ MAZMORRAS (mazmorras.yml):
+ • Varios pisos unidos por escaleras de caracol: 2 en el acto 1, 3 en los
+   actos 2-3, 4 en los 4-5, 5 en los 6-7 y 6 desde el acto 8 ("pisos:" lo
+   cambia, hasta 6).
+ • salas-min / salas-max son POR PISO. Los pasillos dan vueltas y hay
+   callejones sin salida. Salas nuevas: biblioteca, inundada, laberinto,
+   armería, cueva y cruces pequeños. El jefe está en el último piso.
+
+---------------------------------------------------------------------
+ 27. TIENDAS POR CATEGORÍAS, VENDER LO QUE SEA Y MEJORAS HASTA +10
+---------------------------------------------------------------------
+ • Las tiendas grandes tienen pestañas arriba: Comida, Bloques y luz,
+   Herramientas, Armas, Armaduras, Armaduras del día, Pociones y magia,
+   Especiales, Mejoras y forja, Trueque, Te compra y Vender lo que sea.
+   Se adivinan solas; en tiendas.yml "categoria: armas" (etc.) la fija.
+ • Pip compra CUALQUIER objeto ("Vender lo que sea"): pones cosas arriba
+   con clic y confirmas. Nunca paga más del 40 % de lo que cuesta comprarlo.
+   No compra mochilas ni objetos de la historia (fragmentos solares…).
+   config.yml → tiendas.compran-todo y tiendas.venta-general.multiplicador.
+ • Novedades del día (pestaña ✦): cosas únicas al azar que cambian a
+   medianoche, iguales para todos y solo una de cada una:
+   Pip: 5 armaduras y 3 curiosidades (tótems, elitros, plantillas, discos…)
+   Bruno: 4 armas y 2 herramientas (con encantamientos, bonificaciones y a
+   veces un poder de runa) · Fray Odón: 4 elixires y 2 libros (a veces un
+   "libro prohibido" de nivel imposible) · Sabina: 2 reliquias épicas que
+   se pagan con Corazones Corruptos. config.yml → tiendas.novedades.
+ • Yunque de Bruno (ventana propia): pones el objeto en un hueco y el
+   fragmento o la runa en el otro; no hace falta tenerlo en la mano.
+   Botón "Juntar fragmentos": 3 iguales → 1 del siguiente tipo.
+ • Mejoras: armas, armaduras y herramientas hasta +10.
+   +1 a +5: Fragmento de Mejora · +6 a +8: Superior (80 % de éxito) ·
+   +9 y +10: Ancestral (60 %). Si falla se pierde el fragmento, no el objeto.
+   Bruno junta 3 fragmentos en uno del siguiente tipo. Los Superiores y
+   Ancestrales salen de jefes, Corrompidos de tier alto, tesoros, Grietas y
+   contratos de tier 5+.
+ • Mapa del aventurero: una bandera negra marca tu última muerte (se borra
+   al volver a ese lugar).

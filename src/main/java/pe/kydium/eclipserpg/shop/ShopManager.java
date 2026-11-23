@@ -45,6 +45,8 @@ public final class ShopManager {
         public int quest;            // misiones completadas necesarias
         public String payWith;       // se paga con este objeto en vez de dinero (trueque)
         public String key;           // tienda:slot (para el stock)
+        public String category;      // categoría elegida en tiendas.yml (si no, se adivina)
+        public DailyArmor.Piece daily;   // armadura del día ya armada
     }
 
     public static final class Shop {
@@ -85,13 +87,71 @@ public final class ShopManager {
 
     private final EclipseRPG plugin;
     private final Map<String, Shop> shops = new LinkedHashMap<>();
+    private final ItemValues values;
+
+    public ItemValues values() {
+        return values;
+    }
+
+    /** ¿Esta tienda compra cualquier objeto? (por defecto la tienda general de Pip) */
+    public boolean buysAnything(Shop s) {
+        if (s == null) return false;
+        List<String> l = plugin.getConfig().getStringList("tiendas.compran-todo");
+        return l.isEmpty() ? s.id.equals("general") : l.contains(s.id);
+    }
+
+    /** Qué novedades del día trae cada vendedor: tienda → ["tipo:cantidad", …] (config tiendas.novedades). */
+    private List<String> dailyKinds(Shop s) {
+        var sec = plugin.getConfig().getConfigurationSection("tiendas.novedades");
+        if (sec != null) return sec.getStringList(s.id);
+        return switch (s.id) {
+            case "general" -> List.of("armaduras:5", "curiosidades:3");
+            case "herreria" -> List.of("armas:4", "herramientas:2");
+            case "alquimia" -> List.of("pociones:4", "libros:2");
+            case "trueque" -> List.of("reliquias:2");
+            default -> List.of();
+        };
+    }
+
+    /** Las novedades de hoy de esta tienda (cambian a medianoche, iguales para todos, una de cada una). */
+    public List<Entry> dailyArmor(Shop s) {
+        List<Entry> out = new ArrayList<>();
+        if (s == null || s.rotating) return out;
+        ZoneId zone = ZoneId.of(plugin.getConfig().getString("zona-horaria", "America/Lima"));
+        long day = LocalDate.now(zone).toEpochDay();
+        for (String spec : dailyKinds(s)) {
+            String[] a = spec.split(":");
+            String kind = a[0].trim().toLowerCase(Locale.ROOT);
+            int n = a.length > 1 ? Math.max(1, Math.min(9, intOf(a[1], 1))) : 3;
+            for (int i = 0; i < n; i++) {
+                DailyArmor.Piece pc = DailyGoods.make(kind, day, i);
+                if (pc == null) continue;
+                Entry e = new Entry();
+                e.kind = Kind.COMPRAR;
+                e.item = "diario:" + kind + ":" + day + ":" + i;
+                e.price = pc.price();
+                e.amount = pc.item().getAmount();
+                e.minLevel = pc.level();
+                e.stock = 1;
+                e.restock = 24 * 60;
+                e.key = s.id + ":dia:" + kind + ":" + day + ":" + i;
+                e.category = "novedades";
+                e.daily = pc;
+                if (kind.equals("reliquias")) e.payWith = "custom:corazon_corrupto";
+                out.add(e);
+            }
+        }
+        return out;
+    }
 
     public ShopManager(EclipseRPG plugin) {
         this.plugin = plugin;
+        this.values = new ItemValues(plugin);
     }
 
     public void load() {
         shops.clear();
+        values.reset();
         YamlConfiguration y = plugin.story().yaml("tiendas");
         ConfigurationSection root = y.getConfigurationSection("tiendas");
         if (root == null) return;
@@ -135,6 +195,7 @@ public final class ShopManager {
                 e.quest = intOf(m.get("mision"), 0);
                 e.payWith = m.get("paga-con") == null || m.get("paga-con").toString().isBlank() ? null : m.get("paga-con").toString();
                 e.key = id + ":" + e.slot;
+                e.category = m.get("categoria") == null ? null : m.get("categoria").toString().toLowerCase(Locale.ROOT);
                 Object en = m.get("encantamientos");
                 if (en instanceof Map<?, ?> em) {
                     for (Map.Entry<?, ?> x : em.entrySet()) e.enchants.put(x.getKey().toString(), intOf(x.getValue(), 1));
@@ -159,6 +220,10 @@ public final class ShopManager {
 
     public Set<String> ids() {
         return shops.keySet();
+    }
+
+    public Shop shop(String id) {
+        return shops.get(id);
     }
 
     public boolean open(Player p, String id) {
@@ -274,7 +339,13 @@ public final class ShopManager {
 
     /** En tiendas rotativas se muestran unos pocos objetos que cambian cada día. */
     public List<Entry> visibleEntries(Shop s) {
-        if (!s.rotating) return s.entries;
+        if (!s.rotating) {
+            List<Entry> daily = dailyArmor(s);
+            if (daily.isEmpty()) return s.entries;
+            List<Entry> all = new ArrayList<>(s.entries);
+            all.addAll(daily);
+            return all;
+        }
         ZoneId zone = ZoneId.of(plugin.getConfig().getString("zona-horaria", "America/Lima"));
         long day = LocalDate.now(zone).toEpochDay();
         List<Entry> pool = new ArrayList<>(s.entries);
@@ -320,6 +391,23 @@ public final class ShopManager {
                 if (!ids.isEmpty()) it = plugin.items().create(ids.get(java.util.concurrent.ThreadLocalRandom.current().nextInt(ids.size())), 1);
             }
             case "minimapa", "mapa" -> it = plugin.minimap() == null ? null : plugin.minimap().item();
+            case "armadura-dia" -> {
+                String[] p = rest.split(":");
+                try {
+                    it = DailyArmor.make(Long.parseLong(p[0]), Integer.parseInt(p[1])).item();
+                } catch (RuntimeException ex) {
+                    it = null;
+                }
+            }
+            case "diario" -> {
+                String[] p = rest.split(":");
+                try {
+                    DailyArmor.Piece pc = DailyGoods.make(p[0], Long.parseLong(p[1]), Integer.parseInt(p[2]));
+                    it = pc == null ? null : pc.item();
+                } catch (RuntimeException ex) {
+                    it = null;
+                }
+            }
             case "bloque" -> it = plugin.specialBlocks() == null ? null : plugin.specialBlocks().item(rest, Math.max(1, e.amount));
             case "material" -> {
                 Material m = Material.matchMaterial(rest);

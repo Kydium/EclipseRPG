@@ -31,6 +31,35 @@ public final class BossAbilities {
     private final EclipseRPG plugin;
     private final MobManager mobs;
     private final Map<UUID, int[]> cooldowns = new HashMap<>();
+    /** Jefe → esbirros que sostienen su escudo (y hasta cuándo dura). */
+    private final Map<UUID, java.util.Set<UUID>> shields = new HashMap<>();
+    private final Map<UUID, Long> shieldUntil = new HashMap<>();
+    private final java.util.Set<UUID> clones = new java.util.HashSet<>();
+
+    /** ¿Está protegido por su escudo? (mientras vivan los esbirros que invocó) */
+    public boolean shielded(UUID boss) {
+        java.util.Set<UUID> ms = shields.get(boss);
+        if (ms == null) return false;
+        ms.removeIf(u -> {
+            Entity e = Bukkit.getEntity(u);
+            return e == null || e.isDead() || !e.isValid();
+        });
+        if (ms.isEmpty() || System.currentTimeMillis() > shieldUntil.getOrDefault(boss, 0L)) {
+            shields.remove(boss);
+            shieldUntil.remove(boss);
+            Entity b = Bukkit.getEntity(boss);
+            if (b != null) for (Player p : playersNear(b.getLocation(), 40)) {
+                p.sendActionBar(Txt.mm("<yellow>✦ ¡Su escudo se rompió!"));
+                Txt.sound(p, "block.glass.break", 1f, 0.6f);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isClone(Entity e) {
+        return clones.contains(e.getUniqueId());
+    }
 
     public BossAbilities(EclipseRPG plugin, MobManager mobs) {
         this.plugin = plugin;
@@ -76,8 +105,12 @@ public final class BossAbilities {
             MobManager.MobDef d = defId == null ? null : mobs.def(defId);
             if (d == null) continue;
             aura(boss, d);
+            if (shields.containsKey(id) && shielded(id))
+                boss.getWorld().spawnParticle(Particle.END_ROD, boss.getLocation().add(0, boss.getHeight() / 2, 0), 16, boss.getWidth(), boss.getHeight() / 2, boss.getWidth(), 0.01);
+            Player target = nearestTarget(boss, 32);
+            if (target != null && boss instanceof org.bukkit.entity.Warden wd) wd.setAnger(target, 150);   // no se calma ni se entierra
+            if (target != null && boss instanceof org.bukkit.entity.Mob m && (m.getTarget() == null || m.getTarget().isDead())) m.setTarget(target);
             if (d.abilities.isEmpty()) continue;
-            Player target = nearestTarget(boss, 24);
             if (target == null) continue;
             int[] cd = cooldowns.computeIfAbsent(id, k -> initial(d));
             boolean enraged = boss.getPersistentDataContainer().has(Keys.ENRAGED, PersistentDataType.BYTE);
@@ -232,6 +265,127 @@ public final class BossAbilities {
                 for (Player p : playersNear(bl, a.radius())) {
                     w.spawnParticle(Particle.WITCH, p.getLocation().add(0, 1, 0), 30, 0.4, 0.8, 0.4, 0.05);
                     p.addPotionEffect(new PotionEffect(type, seconds * 20, (int) a.power(), false, true));
+                }
+            }
+            case "EMBESTIDA" -> {
+                Location from = bl.clone();
+                Location to = target.getLocation();
+                Vector dir = to.toVector().subtract(from.toVector()).setY(0);
+                if (dir.lengthSquared() < 1) return;
+                dir.normalize();
+                announce(boss, "<red>⚠ " + d.name + "<red> se prepara para embestir… ¡apártate!", "entity.ravager.roar", 0.8f);
+                for (int i = 1; i <= 12; i++) w.spawnParticle(Particle.ANGRY_VILLAGER, from.clone().add(dir.clone().multiply(i)).add(0, 0.3, 0), 1, 0, 0, 0, 0);
+                Vector fd = dir.clone();
+                Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    if (boss.isDead()) return;
+                    boss.setVelocity(fd.clone().multiply(2.6).setY(0.15));
+                    java.util.Set<UUID> hit = new java.util.HashSet<>();
+                    for (int t = 1; t <= 14; t++) {
+                        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                            if (boss.isDead()) return;
+                            for (Player p : playersNear(boss.getLocation(), 2.3)) {
+                                if (!hit.add(p.getUniqueId())) continue;
+                                p.damage(a.power(), boss);
+                                p.setVelocity(fd.clone().multiply(1.6).setY(0.7));
+                                Txt.sound(p, "entity.player.attack.knockback", 1f, 0.6f);
+                            }
+                        }, t);
+                    }
+                }, 20L);
+            }
+            case "CLONES" -> {
+                announce(boss, "<light_purple>⚠ " + d.name + "<light_purple> se multiplica… ¿cuál es el verdadero?", "entity.illusioner.mirror_move", 0.8f);
+                List<Location> spots = new ArrayList<>();
+                for (int i = 0; i < Math.max(2, a.amount()); i++) spots.add(mobs.spawnSpot(target.getLocation(), 7));
+                for (Location sp : spots) {
+                    Entity c = w.spawnEntity(sp, boss.getType());
+                    if (!(c instanceof LivingEntity cl)) { c.remove(); continue; }
+                    cl.customName(boss.customName());
+                    cl.setCustomNameVisible(true);
+                    var sc = cl.getAttribute(org.bukkit.attribute.Attribute.SCALE);
+                    var bsc = boss.getAttribute(org.bukkit.attribute.Attribute.SCALE);
+                    if (sc != null && bsc != null) sc.setBaseValue(bsc.getValue());
+                    var hp = cl.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH);
+                    if (hp != null) hp.setBaseValue(1);
+                    cl.setHealth(1);
+                    var dmg = cl.getAttribute(org.bukkit.attribute.Attribute.ATTACK_DAMAGE);
+                    if (dmg != null) dmg.setBaseValue(a.power());
+                    if (cl.getEquipment() != null && boss.getEquipment() != null) cl.getEquipment().setItemInMainHand(boss.getEquipment().getItemInMainHand());
+                    if (cl instanceof org.bukkit.entity.Mob m) m.setTarget(target);
+                    cl.setPersistent(false);
+                    cl.addScoreboardTag("eclipse_clon");
+                    clones.add(cl.getUniqueId());
+                    w.spawnParticle(Particle.LARGE_SMOKE, sp.clone().add(0, 1, 0), 25, 0.4, 0.8, 0.4, 0.02);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        clones.remove(cl.getUniqueId());
+                        if (cl.isValid()) {
+                            w.spawnParticle(Particle.LARGE_SMOKE, cl.getLocation().add(0, 1, 0), 20, 0.4, 0.8, 0.4, 0.02);
+                            cl.remove();
+                        }
+                    }, 20L * Math.max(8, (int) a.radius()));
+                }
+                // el verdadero cambia de sitio con uno de sus reflejos
+                if (!spots.isEmpty()) {
+                    Location swap = spots.get(ThreadLocalRandom.current().nextInt(spots.size()));
+                    w.spawnParticle(Particle.LARGE_SMOKE, bl.clone().add(0, 1, 0), 25, 0.4, 0.8, 0.4, 0.02);
+                    boss.teleport(swap);
+                }
+            }
+            case "METEOROS" -> {
+                announce(boss, "<gold>⚠ ¡El techo arde! Sal de los círculos de fuego", "entity.blaze.ambient", 0.5f);
+                for (Player p : playersNear(bl, a.radius())) {
+                    for (int i = 0; i < Math.max(2, a.amount()); i++) {
+                        Location c = p.getLocation().add(ThreadLocalRandom.current().nextDouble(-3.5, 3.5), 0, ThreadLocalRandom.current().nextDouble(-3.5, 3.5));
+                        int[] t = {0};
+                        Bukkit.getScheduler().runTaskTimer(plugin, task -> {
+                            if (t[0]++ < 6) {
+                                for (int k = 0; k < 16; k++) {
+                                    double ang = Math.PI * 2 * k / 16;
+                                    w.spawnParticle(Particle.FLAME, c.clone().add(Math.cos(ang) * 2.2, 0.15, Math.sin(ang) * 2.2), 1, 0, 0, 0, 0);
+                                }
+                                return;
+                            }
+                            task.cancel();
+                            w.spawnParticle(Particle.EXPLOSION, c.clone().add(0, 0.5, 0), 3, 0.6, 0.2, 0.6, 0);
+                            w.spawnParticle(Particle.LAVA, c.clone().add(0, 0.5, 0), 20, 1, 0.3, 1, 0);
+                            w.playSound(c, org.bukkit.Sound.ENTITY_GENERIC_EXPLODE, 1f, 1.2f);
+                            for (Player q : playersNear(c, 2.4)) {
+                                q.damage(a.power(), boss);
+                                q.setFireTicks(Math.max(q.getFireTicks(), 60));
+                            }
+                        }, 0L, 5L);
+                    }
+                }
+            }
+            case "ESCUDO" -> {
+                if (shields.containsKey(boss.getUniqueId())) return;
+                List<String> pool = new ArrayList<>();
+                if (a.extra() != null) for (String s2 : a.extra().split(",")) if (!s2.isBlank()) pool.add(s2.trim());
+                if (pool.isEmpty()) pool.addAll(d.minions);
+                if (pool.isEmpty()) return;
+                java.util.Set<UUID> guards = new java.util.HashSet<>();
+                for (int i = 0; i < Math.max(2, a.amount()); i++) {
+                    LivingEntity m = mobs.spawn(pool.get(ThreadLocalRandom.current().nextInt(pool.size())), mobs.spawnSpot(bl, 6));
+                    if (m != null) {
+                        guards.add(m.getUniqueId());
+                        m.setGlowing(true);
+                    }
+                }
+                if (guards.isEmpty()) return;
+                shields.put(boss.getUniqueId(), guards);
+                shieldUntil.put(boss.getUniqueId(), System.currentTimeMillis() + 30_000L);
+                announce(boss, "<aqua>🛡 " + d.name + "<aqua> se cubre con un escudo: <white>mata a los que brillan", "block.beacon.activate", 0.6f);
+            }
+            case "CADENAS" -> {
+                announce(boss, "<gray>⚠ Cadenas te atrapan…", "block.chain.place", 0.5f);
+                int secs = Math.max(2, a.amount());
+                for (Player p : playersNear(bl, a.radius())) {
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, secs * 20, 5, false, true));
+                    PotionEffectType jump = Reg.effect("jump_boost");
+                    if (jump != null) p.addPotionEffect(new PotionEffect(jump, secs * 20, 200, false, false));
+                    for (int k = 0; k < 8; k++) w.spawnParticle(Particle.ITEM, p.getLocation().add(0, 0.2 * k, 0), 3, 0.3, 0.05, 0.3, 0,
+                            new org.bukkit.inventory.ItemStack(org.bukkit.Material.IRON_CHAIN));
+                    if (a.power() > 0) p.damage(a.power(), boss);
                 }
             }
             default -> plugin.getLogger().warning("Habilidad desconocida: " + a.type());

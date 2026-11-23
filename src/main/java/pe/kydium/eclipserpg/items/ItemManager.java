@@ -84,7 +84,7 @@ public final class ItemManager implements Listener {
             Map.entry("mining_efficiency", "<gold>⛏ Eficiencia al minar"), Map.entry("jump_strength", "<green>⤒ Salto"),
             Map.entry("safe_fall_distance", "<green>☁ Caída segura"), Map.entry("oxygen_bonus", "<aqua>≈ Aire bajo el agua"));
 
-    private static String rarityKey(CustomItem ci) {
+    public static String rarityKey(CustomItem ci) {
         return ci.rarity == null ? null : ci.rarity.toLowerCase(java.util.Locale.ROOT).replace(" ", "_").replace("ú", "u").replace("é", "e").replace("í", "i");
     }
 
@@ -100,7 +100,7 @@ public final class ItemManager implements Listener {
         String rk = rarityKey(ci);
         String[] r = rk == null ? null : RARITIES.get(rk);
         if (r != null && !n.trim().startsWith("<")) n = r[0] + n;
-        return lvl > 0 ? n + " <yellow>+" + lvl : n;
+        return lvl > 0 ? n + " " + tierColor(lvl) + "+" + lvl : n;
     }
 
     /** Descripción completa: líneas propias, estadísticas en español (estilo RPG) y la rareza. */
@@ -117,7 +117,7 @@ public final class ItemManager implements Listener {
                 String k = a.attribute().toLowerCase(java.util.Locale.ROOT).replace("generic.", "").replace("minecraft:", "");
                 sum.merge(k, a.value(), Double::sum);
             }
-            if (lvl > 0) sum.merge("attack_damage", (double) lvl, Double::sum);
+            if (lvl > 0 && !isArmor(ci.material) && !isTool(ci.material)) sum.merge("attack_damage", weaponBonus(lvl), Double::sum);
             if (!sum.isEmpty()) {
                 if (!out.isEmpty()) out.add("");
                 out.add("<gray>Estadísticas:");
@@ -136,7 +136,9 @@ public final class ItemManager implements Listener {
             if (!out.isEmpty()) out.add("");
             out.addAll(Powers.lore(ci.powers));
         }
-        if (lvl > 0) out.add("<yellow>✦ Mejorada +" + lvl);
+        if (lvl > 0 && isArmor(ci.material)) out.addAll(upgradeLines(UpKind.ARMOR, ci.material, lvl));
+        else if (lvl > 0 && isTool(ci.material)) out.addAll(upgradeLines(UpKind.TOOL, ci.material, lvl));
+        else if (lvl > 0) out.add(tierColor(lvl) + "✦ " + tierName(lvl).replaceAll("<[^>]+>", "") + " +" + lvl);
         String rk = rarityKey(ci);
         String[] r = rk == null ? null : RARITIES.get(rk);
         if (r != null) {
@@ -303,60 +305,155 @@ public final class ItemManager implements Listener {
         return v == null ? 0 : v;
     }
 
-    /** Sube +1 el daño de un arma única. Devuelve false si no se puede. */
-    /** ¿Se puede mejorar en el yunque de Bruno? Cualquier arma (de Minecraft o de la historia). */
-    public boolean upgradable(ItemStack it) {
-        if (it == null || it.getType().isAir()) return false;
+    // ---------- Mejoras (yunque de Bruno) ----------
+
+    public enum UpKind { WEAPON, ARMOR, TOOL }
+
+    /** Qué se puede mejorar: armas, armaduras y herramientas (de Minecraft o de la historia). Null si no se puede. */
+    public UpKind upKind(ItemStack it) {
+        if (it == null || it.getType().isAir()) return null;
         String id = idOf(it);
         CustomItem ci = id == null ? null : items.get(id);
-        if (ci != null && (ci.upgradable || !ci.powers.isEmpty())) return true;
-        if (ci != null && ci.backpack > 0) return false;
-        return isWeapon(it.getType());
+        if (ci != null && ci.backpack > 0) return null;
+        Material m = it.getType();
+        if (isWeapon(m)) return UpKind.WEAPON;
+        if (isArmor(m)) return UpKind.ARMOR;
+        if (isTool(m)) return UpKind.TOOL;
+        if (ci != null && (ci.upgradable || !ci.powers.isEmpty())) return UpKind.WEAPON;
+        return null;
+    }
+
+    public boolean upgradable(ItemStack it) {
+        return upKind(it) != null;
     }
 
     public static boolean isWeapon(Material m) {
+        if (m == null) return false;
         String n = m.name();
         return n.endsWith("_SWORD") || n.endsWith("_AXE") || n.endsWith("_SPEAR") || m == Material.MACE || m == Material.TRIDENT
                 || m == Material.BOW || m == Material.CROSSBOW;
     }
 
+    public static boolean isArmor(Material m) {
+        if (m == null) return false;
+        String n = m.name();
+        return n.endsWith("_HELMET") || n.endsWith("_CHESTPLATE") || n.endsWith("_LEGGINGS") || n.endsWith("_BOOTS");
+    }
+
+    public static boolean isTool(Material m) {
+        if (m == null) return false;
+        String n = m.name();
+        return n.endsWith("_PICKAXE") || n.endsWith("_SHOVEL") || n.endsWith("_HOE") || m == Material.SHEARS || m == Material.FISHING_ROD;
+    }
+
+    /** Nivel máximo de mejora (+10 por defecto). */
+    public int maxUpgrade() {
+        return Math.max(1, Math.min(15, plugin.getConfig().getInt("mejoras.niveles", 10)));
+    }
+
+    /** Fragmento que pide subir AL nivel indicado: I hasta +5, Superior +6 a +8, Ancestral +9 en adelante. */
+    public static String fragmentFor(int targetLevel) {
+        return targetLevel <= 5 ? "fragmento_mejora" : targetLevel <= 8 ? "fragmento_mejora_superior" : "fragmento_mejora_ancestral";
+    }
+
+    /** Probabilidad de que la mejora salga bien (si falla se pierde el fragmento, el objeto no se rompe). */
+    public double upgradeChance(int targetLevel) {
+        if (targetLevel <= 5) return 1.0;
+        if (targetLevel <= 8) return plugin.getConfig().getDouble("mejoras.probabilidad-superior", 0.8);
+        return plugin.getConfig().getDouble("mejoras.probabilidad-ancestral", 0.6);
+    }
+
+    /** Daño total que da la mejora de un arma: +1 por nivel hasta +5, +1.5 hasta +8 y +2 desde +9. */
+    public static double weaponBonus(int lvl) {
+        double v = 0;
+        for (int i = 1; i <= lvl; i++) v += i <= 5 ? 1 : i <= 8 ? 1.5 : 2;
+        return v;
+    }
+
+    public static String tierName(int lvl) {
+        return lvl >= 9 ? "<light_purple>Ancestral" : lvl >= 6 ? "<aqua>Superior" : "<yellow>Mejorada";
+    }
+
+    private static String tierColor(int lvl) {
+        return lvl >= 9 ? "<light_purple>" : lvl >= 6 ? "<aqua>" : "<yellow>";
+    }
+
+    /** Lo que da la mejora, en una línea por bonificación. */
+    public static List<String> upgradeLines(UpKind k, Material m, int lvl) {
+        List<String> out = new ArrayList<>();
+        if (lvl <= 0 || k == null) return out;
+        String c = tierColor(lvl);
+        out.add(c + "✦ " + tierName(lvl).replaceAll("<[^>]+>", "") + " +" + lvl);
+        switch (k) {
+            case WEAPON -> out.add(" <gray>+" + stat(weaponBonus(lvl)) + " de daño" + (m == Material.BOW || m == Material.CROSSBOW ? " por flecha" : ""));
+            case ARMOR -> {
+                out.add(" <gray>+" + stat(0.5 * lvl) + " de armadura");
+                if (lvl > 5) out.add(" <gray>+" + stat(0.5 * (lvl - 5)) + " de dureza");
+                if (lvl > 8) out.add(" <gray>+" + (lvl - 8) * 2 + " de vida máxima");
+            }
+            case TOOL -> {
+                out.add(" <gray>+" + lvl * 2 + " de eficiencia al picar");
+                if (lvl > 5) out.add(" <gray>+" + (lvl - 5) * 10 + "% de velocidad de rotura");
+            }
+        }
+        return out;
+    }
+
     public boolean upgrade(ItemStack it, int maxLevel) {
         String id = idOf(it);
         CustomItem ci = id == null ? null : items.get(id);
-        if (!upgradable(it)) return false;
+        UpKind kind = upKind(it);
+        if (kind == null) return false;
         int lvl = upgradeLevel(it);
         if (lvl >= maxLevel) return false;
         lvl++;
         ItemMeta meta = it.getItemMeta();
         if (meta == null) return false;
-        // un arma normal no tiene atributos propios: copia los de fábrica antes de sumar la mejora
+        EquipmentSlot slot = kind == UpKind.ARMOR ? it.getType().getEquipmentSlot() : EquipmentSlot.HAND;
+        EquipmentSlotGroup group = kind == UpKind.ARMOR ? slot.getGroup() : EquipmentSlotGroup.MAINHAND;
+        // un objeto normal no tiene atributos propios: copia los de fábrica antes de sumar la mejora
         if (!meta.hasAttributeModifiers()) {
             try {
-                var defs = it.getType().getDefaultAttributeModifiers(EquipmentSlot.HAND);
+                var defs = it.getType().getDefaultAttributeModifiers(slot);
                 for (var en : defs.entries()) meta.addAttributeModifier(en.getKey(), en.getValue());
             } catch (RuntimeException | LinkageError ignored) {
                 // sin datos de fábrica
             }
         }
         NamespacedKey key = pe.kydium.eclipserpg.util.Keys.k("mejora");
-        Collection<AttributeModifier> mods = meta.getAttributeModifiers(Attribute.ATTACK_DAMAGE);
-        if (mods != null) {
-            for (AttributeModifier m : new ArrayList<>(mods)) {
-                if (key.equals(m.getKey())) meta.removeAttributeModifier(Attribute.ATTACK_DAMAGE, m);
+        for (Attribute at : new Attribute[]{Attribute.ATTACK_DAMAGE, Attribute.ARMOR, Attribute.ARMOR_TOUGHNESS, Attribute.MAX_HEALTH,
+                Attribute.MINING_EFFICIENCY, Attribute.BLOCK_BREAK_SPEED}) {
+            Collection<AttributeModifier> mods = meta.getAttributeModifiers(at);
+            if (mods != null) for (AttributeModifier m : new ArrayList<>(mods)) if (key.equals(m.getKey())) meta.removeAttributeModifier(at, m);
+        }
+        switch (kind) {
+            case WEAPON -> meta.addAttributeModifier(Attribute.ATTACK_DAMAGE,
+                    new AttributeModifier(key, weaponBonus(lvl), AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+            case ARMOR -> {
+                meta.addAttributeModifier(Attribute.ARMOR, new AttributeModifier(key, 0.5 * lvl, AttributeModifier.Operation.ADD_NUMBER, group));
+                if (lvl > 5) meta.addAttributeModifier(Attribute.ARMOR_TOUGHNESS, new AttributeModifier(key, 0.5 * (lvl - 5), AttributeModifier.Operation.ADD_NUMBER, group));
+                if (lvl > 8) meta.addAttributeModifier(Attribute.MAX_HEALTH, new AttributeModifier(key, (lvl - 8) * 2, AttributeModifier.Operation.ADD_NUMBER, group));
+            }
+            case TOOL -> {
+                meta.addAttributeModifier(Attribute.MINING_EFFICIENCY, new AttributeModifier(key, lvl * 2, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+                if (lvl > 5) meta.addAttributeModifier(Attribute.BLOCK_BREAK_SPEED, new AttributeModifier(key, (lvl - 5) * 0.1, AttributeModifier.Operation.ADD_SCALAR, EquipmentSlotGroup.MAINHAND));
             }
         }
-        meta.addAttributeModifier(Attribute.ATTACK_DAMAGE,
-                new AttributeModifier(key, lvl, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.MAINHAND));
+        if (lvl >= 9) meta.setEnchantmentGlintOverride(true);
         List<String> ll;
         if (ci != null) {
             meta.displayName(Txt.item(displayName(ci, lvl)));
             ll = loreLines(ci, lvl);
         } else {
-            meta.displayName(net.kyori.adventure.text.Component.translatable(it.getType().translationKey())
-                    .append(net.kyori.adventure.text.Component.text(" +" + lvl))
-                    .color(net.kyori.adventure.text.format.NamedTextColor.YELLOW)
+            var color = lvl >= 9 ? net.kyori.adventure.text.format.NamedTextColor.LIGHT_PURPLE
+                    : lvl >= 6 ? net.kyori.adventure.text.format.NamedTextColor.AQUA : net.kyori.adventure.text.format.NamedTextColor.YELLOW;
+            net.kyori.adventure.text.Component base = meta.hasDisplayName() && meta.getPersistentDataContainer().has(pe.kydium.eclipserpg.util.Keys.k("nombre_base"))
+                    ? net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson().deserialize(meta.getPersistentDataContainer().get(pe.kydium.eclipserpg.util.Keys.k("nombre_base"), PersistentDataType.STRING))
+                    : net.kyori.adventure.text.Component.translatable(it.getType().translationKey());
+            meta.displayName(base.append(net.kyori.adventure.text.Component.text(" +" + lvl)).color(color)
                     .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false));
-            ll = new ArrayList<>(List.of("<yellow>✦ Mejorada +" + lvl + (it.getType() == Material.BOW || it.getType() == Material.CROSSBOW ? " <gray>(+" + lvl + " de daño por flecha)" : "")));
+            ll = new ArrayList<>(extraLore(meta));
+            ll.addAll(upgradeLines(kind, it.getType(), lvl));
         }
         ll.addAll(Powers.runeLore(meta));
         meta.lore(Txt.lore(ll));
@@ -364,6 +461,13 @@ public final class ItemManager implements Listener {
         pdc.set(Keys.UPGRADE, PersistentDataType.INTEGER, lvl);
         it.setItemMeta(meta);
         return true;
+    }
+
+    /** Líneas propias que trae un objeto (armaduras del día de Pip) para no perderlas al mejorarlo. */
+    private static List<String> extraLore(ItemMeta meta) {
+        String raw = meta.getPersistentDataContainer().get(pe.kydium.eclipserpg.util.Keys.k("lore_base"), PersistentDataType.STRING);
+        if (raw == null || raw.isEmpty()) return new ArrayList<>();
+        return new ArrayList<>(List.of(raw.split("\n")));
     }
 
     public int count(Player p, String id) {

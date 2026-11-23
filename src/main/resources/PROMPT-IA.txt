@@ -26,6 +26,17 @@ NPC <id corto sin espacios ni tildes>
   charla: <frase de saludo>
   combate: <opcional: "guardián" si defiende la aldea de los monstruos, "cobarde" si huye>
 
+CIUDAD <id corto>                   (OPCIONAL: otras ciudades lejos de la aldea; escríbelas ANTES de los NPC)
+  nombre: <nombre visible>
+  tamaño: <chica|mediana|grande>
+  estilo: <auto|llanura|taiga|nieve|desierto|sabana|cerezo|pantano|selva|oscuro>
+  distancia: <bloques desde la aldea, ej. 900-1400>
+  dirección: <norte|sur|este|oeste>
+  lema: <frase que sale al llegar>
+  descripción: <historia de la ciudad, 1 o 2 líneas>
+Un NPC que vive en esa ciudad lleva  "ciudad: <id>"  (y su lugar dentro de ella).
+La ciudad aparece sola la primera vez que una misión manda allí al jugador.
+
 ACTO <número>: <nombre del acto>
 
 MISIÓN <título>
@@ -40,6 +51,22 @@ MISIÓN <título>
   final: <lo que dice al entregar>
   clima: <opcional, en momentos dramáticos: despejado, lluvia o tormenta>
   evento: <opcional, solo en misiones clave: luna_sangre>
+
+MISIONES LARGAS CON ETAPAS (recomendado): una misión puede tener varios pasos, cada uno con
+su NPC. Debajo de la MISIÓN escribe "  ETAPA <nombre>" y sus campos con 4 espacios:
+  ETAPA El testigo
+    npc: <id del NPC de este paso>     (si no lo pones, es el mismo de antes)
+    dice: <lo que dice al empezar este paso>
+    objetivo: <frase>
+    premio: <premio de este paso>
+    final: <lo que dice al terminar el paso>
+Las etapas intermedias se cierran solas al cumplir los objetivos y mandan al jugador
+con el NPC de la siguiente (si hay "entrega" o acertijo, hay que volver a hablarle).
+CONVERSA: cuando un objetivo es "habla con <npc>", escribe lo que ese NPC le cuenta:
+  conversa: <id del npc> | <lo que dice>      (puedes poner varias líneas)
+Haz que cada NPC tenga una razón para que lo visiten: un dato, un objeto, un favor.
+Llegar a una ciudad:  objetivo: llega a la ciudad <nombre de la ciudad>
+"vuelve: sí" en una etapa obliga a volver a hablar con su NPC para cerrarla.
 
 FRASES DE OBJETIVO PERMITIDAS (cambia los números y cosas):
   mata 10 zombis | mata 6 esqueletos o arañas | mata 8 corrompidos

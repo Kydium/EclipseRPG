@@ -207,10 +207,11 @@ public final class RiftManager implements Listener {
                         Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(3), Duration.ofMillis(600))));
                 Txt.sound(p, "ui.toast.challenge_complete", 1f, 1f);
                 if (ThreadLocalRandom.current().nextDouble() < cfg().getDouble("prob-fragmento", 0.25) * plugin.levels().lootMultiplier(p)) {
-                    ItemStack frag = plugin.items().create("fragmento_mejora", 1);
+                    boolean better = r.tier >= 6 && ThreadLocalRandom.current().nextDouble() < 0.4;
+                    ItemStack frag = plugin.items().create(better ? "fragmento_mejora_superior" : "fragmento_mejora", 1);
                     if (frag != null) {
                         plugin.items().give(p, frag);
-                        Txt.send(p, "<gold>¡La Grieta dejó un Fragmento de Mejora!");
+                        Txt.send(p, "<gold>¡La Grieta dejó un " + (better ? "Fragmento de Mejora Superior" : "Fragmento de Mejora") + "!");
                     }
                 }
             } else {

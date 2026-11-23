@@ -82,7 +82,8 @@ public final class Minimap extends MapRenderer implements Listener {
             meta.setMapView(view);
             meta.displayName(Txt.item("<gold>🗺 Mapa del aventurero"));
             meta.lore(Txt.lore(List.of("<gray>Llévalo en la otra mano (tecla F):", "<gray>va centrado en ti, como un minimapa.",
-                    "<red>✖ <gray>tu misión · <green>⚑ <gray>la aldea", "<yellow>Clic derecho: acercar / alejar")));
+                    "<red>✖ <gray>tu misión · <green>⚑ <gray>la aldea",
+                    "<yellow>⚑ <gray>tiendas · <aqua>⚑ <gray>contratos · <light_purple>⚑ <gray>Grieta", "<white>◎ <gray>piedra de viaje · <dark_gray>⚑ <gray>tu última muerte", "<yellow>Clic derecho: acercar / alejar")));
             meta.getPersistentDataContainer().set(KEY, PersistentDataType.BYTE, (byte) 1);
             it.setItemMeta(meta);
         }
@@ -172,6 +173,23 @@ public final class Minimap extends MapRenderer implements Listener {
         // aldea
         Location v = plugin.village().center();
         if (v != null && v.getWorld() == p.getWorld()) add(cur, v, cx, cz, s, MapCursor.Type.BANNER_LIME, "Aldea");
+        // piedras de viaje
+        if (plugin.waystones() != null && plugin.waystones().enabled())
+            for (var st : plugin.waystones().all()) {
+                if (!st.world().equals(p.getWorld().getName())) continue;
+                add(cur, new Location(p.getWorld(), st.x(), st.y(), st.z()), cx, cz, s, MapCursor.Type.TARGET_POINT, s == 1 ? "Viaje" : null);
+            }
+        // comerciantes (NPCs con tienda, contratos o Grieta): solo los que caen dentro del mapa
+        for (Trader t : traders(p)) {
+            int mx = (t.at().getBlockX() - cx) * 2 / s, mz = (t.at().getBlockZ() - cz) * 2 / s;
+            if (Math.abs(mx) > 126 || Math.abs(mz) > 126) continue;
+            MapCursor c = new MapCursor((byte) mx, (byte) mz, (byte) 8, t.type(), true);
+            if (s <= 2) c.caption(net.kyori.adventure.text.Component.text(s == 1 ? t.caption() : t.name()));
+            cur.addCursor(c);
+        }
+        // tu última muerte (hasta que vuelvas a ese lugar)
+        Location death = lastDeath(p);
+        if (death != null && death.getWorld() == p.getWorld()) add(cur, death, cx, cz, s, MapCursor.Type.BANNER_BLACK, "Tu muerte");
         // misión
         Location q = plugin.hud() == null ? null : plugin.hud().target(p);
         if (q != null && q.getWorld() == p.getWorld()) add(cur, q, cx, cz, s, MapCursor.Type.RED_X, "Misión");
@@ -196,8 +214,86 @@ public final class Minimap extends MapRenderer implements Listener {
             mz = (int) (mz * k);
         }
         MapCursor c = new MapCursor((byte) mx, (byte) mz, (byte) 8, type, true);
-        if (inside) c.caption(net.kyori.adventure.text.Component.text(label));
+        if (inside && label != null) c.caption(net.kyori.adventure.text.Component.text(label));
         cur.addCursor(c);
+    }
+
+    /** Dónde murió el jugador la última vez (o null si ya volvió a ese lugar). */
+    public static Location lastDeath(Player p) {
+        String raw = p.getPersistentDataContainer().get(Keys.k("ultima_muerte"), PersistentDataType.STRING);
+        if (raw == null) return null;
+        String[] a = raw.split(";");
+        World w = a.length == 4 ? Bukkit.getWorld(a[0]) : null;
+        if (w == null) return null;
+        try {
+            return new Location(w, Double.parseDouble(a[1]), Double.parseDouble(a[2]), Double.parseDouble(a[3]));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onDeath(org.bukkit.event.entity.PlayerDeathEvent e) {
+        Player p = e.getEntity();
+        Location l = p.getLocation();
+        p.getPersistentDataContainer().set(Keys.k("ultima_muerte"), PersistentDataType.STRING,
+                l.getWorld().getName() + ";" + l.getBlockX() + ";" + l.getBlockY() + ";" + l.getBlockZ());
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (p.isOnline()) Txt.send(p, "<gray>☠ Moriste en <white>" + l.getBlockX() + " " + l.getBlockY() + " " + l.getBlockZ()
+                    + "<gray>. Sale en tu <gold>Mapa del aventurero</gold> como una bandera negra.");
+        }, 40L);
+    }
+
+    /** Al volver al lugar donde moriste, la marca se borra. */
+    public void startDeathTask() {
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                Location d = lastDeath(p);
+                if (d == null || d.getWorld() != p.getWorld() || p.isDead()) continue;
+                if (d.distanceSquared(p.getLocation()) < 4 * 4) {
+                    p.getPersistentDataContainer().remove(Keys.k("ultima_muerte"));
+                    p.sendActionBar(Txt.mm("<gray>☠ Llegaste al lugar donde moriste"));
+                }
+            }
+        }, 100L, 40L);
+    }
+
+    /** Un NPC que vende o da servicios: dónde está, su nombre y qué ofrece. */
+    public record Trader(String id, String name, String what, Location at, MapCursor.Type type) {
+        String caption() {
+            return name + ": " + what;
+        }
+    }
+
+    /** Comerciantes en el mundo del jugador (con su sitio aunque no esté cargado). */
+    public List<Trader> traders(Player p) {
+        return traders(p.getWorld());
+    }
+
+    public List<Trader> traders(World world) {
+        List<Trader> out = new java.util.ArrayList<>();
+        for (String id : plugin.npcs().ids()) {
+            var d = plugin.npcs().def(id);
+            if (d == null || d.services.isEmpty()) continue;
+            Location at = plugin.npcEntities().spotOf(id);
+            if (at == null || at.getWorld() != world) continue;
+            String s0 = d.services.get(0);
+            String what;
+            MapCursor.Type type;
+            if (s0.startsWith("tienda:")) {
+                what = plugin.shops().buttonLabel(s0.substring(7)).replaceAll("<[^>]*>", "").replaceAll("^[^\\p{L}]+", "").trim();
+                type = MapCursor.Type.BANNER_YELLOW;
+            } else if (s0.equals("contratos")) {
+                what = "Contratos";
+                type = MapCursor.Type.BANNER_LIGHT_BLUE;
+            } else if (s0.equals("grieta")) {
+                what = "Grieta";
+                type = MapCursor.Type.BANNER_PURPLE;
+            } else continue;
+            if (what.length() > 22) what = what.substring(0, 21) + "…";
+            out.add(new Trader(id, d.plainName, what, at, type));
+        }
+        return out;
     }
 
     private static byte dir(float yaw) {

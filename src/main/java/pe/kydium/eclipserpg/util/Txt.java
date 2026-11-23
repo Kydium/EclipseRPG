@@ -19,12 +19,12 @@ public final class Txt {
     private Txt() {}
 
     public static Component mm(String s) {
-        return MM.deserialize(s == null ? "" : s);
+        return MM.deserialize(s == null ? "" : Icons.apply(s));
     }
 
     /** Texto para nombres y lore de objetos: sin cursiva por defecto. */
     public static Component item(String s) {
-        return MM.deserialize("<!italic>" + (s == null ? "" : s));
+        return MM.deserialize("<!italic>" + (s == null ? "" : Icons.apply(s)));
     }
 
     public static List<Component> lore(List<String> lines) {

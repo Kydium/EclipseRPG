@@ -69,6 +69,22 @@ public final class Quest {
     public int waveEvery = 20;
     public String riddle, answer;
     public final List<String> wrong = new ArrayList<>();
+    // ---- etapas ----
+    public int stage = 1, stages = 1;         // etapa actual / total de la misión
+    public String stageName;                   // null en la primera etapa
+    public boolean auto;                       // la etapa se cierra sola al cumplir los objetivos
+    public String city;                        // ciudad que se descubre al aceptar
+    public final java.util.Map<String, List<String>> talks = new java.util.LinkedHashMap<>();
+
+    public boolean isLastStage() {
+        return stage >= stages;
+    }
+
+    /** "La caída del faro · Etapa 2/4: El testigo" (o solo el nombre si no tiene etapas). */
+    public String title() {
+        if (stages <= 1) return name;
+        return name + " <gray>· " + stage + "/" + stages + (stageName == null ? "" : ": " + stageName);
+    }
 
     private static final java.util.Map<String, String> FUTURE = new java.util.HashMap<>();
 

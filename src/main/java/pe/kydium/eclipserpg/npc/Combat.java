@@ -383,10 +383,33 @@ public final class Combat implements Listener {
         return best;
     }
 
+    /** ¿Es del bando de la corrupción? (Corrompidos, gólems y lobos corrompidos, jefes de la historia) */
+    public boolean corrupted(org.bukkit.entity.Entity en) {
+        if (!(en instanceof LivingEntity le) || en instanceof org.bukkit.entity.Player || en instanceof org.bukkit.entity.Mannequin) return false;
+        String id = le.getPersistentDataContainer().get(pe.kydium.eclipserpg.util.Keys.MOB, org.bukkit.persistence.PersistentDataType.STRING);
+        if (id == null) return false;
+        if (id.equals("natural")) return true;
+        var d = plugin.mobs().def(id);
+        return d == null || d.role == null || d.role.equalsIgnoreCase("enemigo");
+    }
+
+    /** Los Corrompidos no se pegan entre ellos (flechas, golpes ni explosiones). */
+    @EventHandler(priority = org.bukkit.event.EventPriority.LOW, ignoreCancelled = true)
+    public void onAllyHit(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
+        org.bukkit.entity.Entity src = e.getDamager();
+        if (src instanceof org.bukkit.entity.Projectile pr && pr.getShooter() instanceof org.bukkit.entity.Entity sh) src = sh;
+        if (corrupted(src) && corrupted(e.getEntity())) e.setCancelled(true);
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onTarget(EntityTargetLivingEntityEvent e) {
         LivingEntity target = e.getTarget();
         if (target == null) return;
+        // a un cuerpo tendido no se le ataca, y un Corrompido nunca va contra otro
+        if (target.getScoreboardTags().contains(CORPSE) || corrupted(e.getEntity()) && corrupted(target)) {
+            e.setCancelled(true);
+            return;
+        }
         String role = explicitRole(e.getEntity());
         if (role == null) return;
         EntityTargetEvent.TargetReason why = e.getReason();

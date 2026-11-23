@@ -232,6 +232,34 @@ public final class DungeonManager implements Listener {
         return d == null ? null : new int[]{d.ex, d.ey, d.ez};
     }
 
+    /** Para la prueba: cuántas salas, en cuántos pisos, y la caja de la sala del jefe. */
+    public int roomCount(int act) {
+        Dungeon d = dungeons.get(act);
+        return d == null ? 0 : d.rooms.size();
+    }
+
+    public int floorCount(int act) {
+        Dungeon d = dungeons.get(act);
+        if (d == null) return 0;
+        java.util.Set<Integer> ys = new java.util.HashSet<>();
+        for (Room r : d.rooms) ys.add(r.box.y1());
+        return ys.size();
+    }
+
+    public List<Box> roomBoxes(int act) {
+        Dungeon d = dungeons.get(act);
+        List<Box> out = new ArrayList<>();
+        if (d != null) for (Room r : d.rooms) out.add(r.box);
+        return out;
+    }
+
+    public Box bossBox(int act) {
+        Dungeon d = dungeons.get(act);
+        if (d == null) return null;
+        for (Room r : d.rooms) if (r.boss) return r.box;
+        return null;
+    }
+
     public Box bounds(int act) {
         Dungeon d = dungeons.get(act);
         return d == null ? null : d.bounds;
@@ -294,7 +322,8 @@ public final class DungeonManager implements Listener {
                             hMin = Math.min(hMin, b2.getY());
                             hMax = Math.max(hMax, b2.getY());
                         }
-                        if (hMax - hMin > 4 || top.getY() - depth < w.getMinHeight() + 6) ok = false;
+                        int bottom = top.getY() - depth - (levels(act) - 1) * DungeonBuilder.LEVEL_DY - 8;
+                        if (hMax - hMin > 4 || bottom < w.getMinHeight() + 6) ok = false;
                     }
                     if (!ok) {
                         searchSite(act, p, w, camp, r, tries + 1);
@@ -302,6 +331,15 @@ public final class DungeonManager implements Listener {
                     }
                     buildAt(act, p, w, top.getLocation(), top.getY());
                 }));
+    }
+
+    /** Pisos de la mazmorra: "pisos" en el acto o en general; si no, 2 en el acto 1 y uno más cada 2 actos (hasta 6). */
+    public int levels(int act) {
+        ConfigurationSection own = theme(act);
+        if (own != null && own.getInt("pisos", 0) > 0) return Math.min(6, own.getInt("pisos"));
+        ConfigurationSection g = cfg.getConfigurationSection("general");
+        if (g != null && g.getInt("pisos", 0) > 0) return Math.min(6, g.getInt("pisos"));
+        return Math.min(6, 2 + act / 2);   // acto 1: 2 · 2-3: 3 · 4-5: 4 · 6-7: 5 · 8-10: 6
     }
 
     private void buildAt(int act, Player p, World w, Location spot, int surface) {
@@ -325,11 +363,13 @@ public final class DungeonManager implements Listener {
         int floorY = surface - depth;
         DungeonBuilder builder = new DungeonBuilder(w.getSeed() + act, th, spot.getBlockX(), floorY, spot.getBlockZ(), surface);
         ConfigurationSection ownT = theme(act);
-        int rMin = g == null ? 7 : g.getInt("salas-min", 7), rMax = g == null ? 10 : g.getInt("salas-max", 10);
-        if (ownT != null && ownT.getInt("salas-min", 0) > 0) rMin = Math.max(3, Math.min(16, ownT.getInt("salas-min")));
-        if (ownT != null && ownT.getInt("salas-max", 0) > 0) rMax = Math.min(18, ownT.getInt("salas-max"));
+        int rMin = g == null ? 14 : g.getInt("salas-min", 14), rMax = g == null ? 20 : g.getInt("salas-max", 20);
+        if (ownT != null && ownT.getInt("salas-min", 0) > 0) rMin = Math.max(3, Math.min(50, ownT.getInt("salas-min")));
+        if (ownT != null && ownT.getInt("salas-max", 0) > 0) rMax = Math.min(56, ownT.getInt("salas-max"));
+        rMin = Math.min(rMin, 56);
+        rMax = Math.min(rMax, 56);
         rMax = Math.max(rMax, rMin);
-        DungeonBuilder.Result res = builder.build(rMin, rMax);
+        DungeonBuilder.Result res = builder.build(rMin, rMax, levels(act));
 
         Dungeon d = new Dungeon();
         d.act = act;

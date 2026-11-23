@@ -94,6 +94,8 @@ public final class Deaths implements Listener {
             if (snap == null) return;
             Location at = dead.getLocation();
             for (int i = 0; i < 6 && at.getBlockY() > at.getWorld().getMinHeight() && at.clone().subtract(0, 0.2, 0).getBlock().isPassable(); i++) at.subtract(0, 1, 0);
+            // el original se va ya: si no, su animación de caída se ve encima del cuerpo (parpadeo)
+            Bukkit.getScheduler().runTask(plugin, dead::remove);
             Entity c = snap.createEntity(at);
             if (!(c instanceof LivingEntity le)) {
                 if (c != null) c.remove();

@@ -56,7 +56,7 @@ public final class MobManager implements Listener {
 
     public record Drop(String item, int amount, double chance) {}
 
-    /** Habilidad de jefe. tipo: ONDA, SALTO, TELEPORTE, INVOCAR, FLECHAS, FUEGO, RAYO, ATRAER, EFECTO */
+    /** Habilidad de jefe. tipo: ONDA, SALTO, TELEPORTE, INVOCAR, FLECHAS, FUEGO, RAYO, ATRAER, EFECTO, EMBESTIDA, CLONES, METEOROS, ESCUDO, CADENAS */
     public record Ability(String type, int every, double power, double radius, String extra, int amount) {}
 
     public static final class MobDef {
@@ -110,6 +110,20 @@ public final class MobManager implements Listener {
     private final List<Tier> tiers = new ArrayList<>();
     private final Map<String, String> names = new HashMap<>();
     private final Map<UUID, BossBar> bars = new HashMap<>();
+
+    /** ¿Es un jefe? (de mobs.yml con jefe: true, o con barra: Guardián de Grieta…) */
+    public boolean isBoss(Entity e) {
+        if (bars.containsKey(e.getUniqueId())) return true;
+        if (!(e instanceof LivingEntity le)) return false;
+        String id = le.getPersistentDataContainer().get(Keys.MOB, PersistentDataType.STRING);
+        MobDef d = id == null ? null : defs.get(id);
+        return d != null && d.boss;
+    }
+
+    /** ¿Tiene barra de jefe arriba? (esos no muestran la vida en el nombre) */
+    public boolean hasBar(Entity e) {
+        return bars.containsKey(e.getUniqueId());
+    }
     private final Map<UUID, Set<UUID>> barViewers = new HashMap<>();
 
     public MobManager(EclipseRPG plugin) {
@@ -256,6 +270,7 @@ public final class MobManager implements Listener {
             ent.remove();
             return null;
         }
+        if (le instanceof org.bukkit.entity.Slime sl) sl.setSize(d.boss ? 4 : Math.max(1, sl.getSize()));
         String name = nameOverride != null ? nameOverride : d.name;
         le.customName(Txt.mm(name));
         // el nombre solo se ve al mirarlo de cerca (como en Minecraft); los jefes lo muestran siempre
@@ -320,6 +335,12 @@ public final class MobManager implements Listener {
         }
         preventConversion(le);
         le.setRemoveWhenFarAway(false);
+        if (le instanceof org.bukkit.entity.Wither wi) {
+            wi.setInvulnerableTicks(0);
+            var vb = wi.getBossBar();
+            if (vb != null) { vb.setVisible(false); vb.removeAll(); }
+        }
+        if (le instanceof org.bukkit.entity.EnderDragon) le.remove();
         if (le instanceof Mob mob) mob.setCanPickupItems(false);
 
         PersistentDataContainer pdc = le.getPersistentDataContainer();
@@ -374,23 +395,26 @@ public final class MobManager implements Listener {
     public Location spawnSpot(Location center, int radius) {
         World w = center.getWorld();
         ThreadLocalRandom r = ThreadLocalRandom.current();
-        for (int tries = 0; tries < 12; tries++) {
+        for (int tries = 0; tries < 30; tries++) {
             int dx = r.nextInt(-radius, radius + 1);
             int dz = r.nextInt(-radius, radius + 1);
-            if (Math.abs(dx) < 2 && Math.abs(dz) < 2) continue;
+            if (Math.abs(dx) < 2 && Math.abs(dz) < 2 && tries < 20) continue;
             int bx = center.getBlockX() + dx;
             int bz = center.getBlockZ() + dz;
-            for (int dy = 3; dy >= -4; dy--) {
+            for (int dy = 6; dy >= -8; dy--) {
                 int by = center.getBlockY() + dy;
+                if (by <= w.getMinHeight() || by + 1 >= w.getMaxHeight()) continue;
                 Block feet = w.getBlockAt(bx, by, bz);
                 Block head = feet.getRelative(0, 1, 0);
                 Block ground = feet.getRelative(0, -1, 0);
-                if (feet.isPassable() && head.isPassable() && ground.getType().isSolid() && !feet.isLiquid()) {
+                if (feet.isPassable() && head.isPassable() && ground.getType().isSolid() && !feet.isLiquid() && !head.isLiquid()) {
                     return new Location(w, bx + 0.5, by, bz + 0.5);
                 }
             }
         }
-        return center.clone();
+        // nada libre cerca: encima de lo más alto (nunca dentro de un bloque)
+        int top = w.getHighestBlockYAt(center.getBlockX(), center.getBlockZ());
+        return new Location(w, center.getBlockX() + 0.5, top + 1, center.getBlockZ() + 0.5);
     }
 
     // ---------- Barras de jefe ----------
@@ -399,6 +423,7 @@ public final class MobManager implements Listener {
         BossBar.Color c;
         try {
             c = BossBar.Color.valueOf(color.toUpperCase(Locale.ROOT));
+            if (c == BossBar.Color.WHITE) c = BossBar.Color.PINK;   // las blancas son invisibles (panel de misión)
         } catch (IllegalArgumentException e) {
             c = BossBar.Color.RED;
         }
@@ -572,9 +597,9 @@ public final class MobManager implements Listener {
         if (id.equals("natural")) {
             if (killer == null) return;
             Integer t = le.getPersistentDataContainer().get(Keys.TIER, PersistentDataType.INTEGER);
-            Tier tier = tier(t == null ? 1 : t);
-            plugin.levels().reward(killer, tier.xp(), tier.soles());
-            maybeDropFragment(e, killer, plugin.getConfig().getDouble("corrupcion.prob-fragmento", 0.01));
+            int tn = t == null ? 1 : t;
+            Tier tier = tier(tn);
+            corruptReward(e, killer, tn, tier.xp(), tier.soles());
             return;
         }
 
@@ -586,11 +611,14 @@ public final class MobManager implements Listener {
             for (Player p : participants(le, 32, killer)) {
                 plugin.levels().reward(p, d.xp, d.soles);
                 givePrizes(p, d.prizes, d.id);
+                ItemStack hearts = plugin.items().create("corazon_corrupto", plugin.getConfig().getInt("corrupcion.recompensas.corazones-jefe", 2));
+                if (hearts != null) for (ItemStack left : p.getInventory().addItem(hearts).values()) p.getWorld().dropItemNaturally(p.getLocation(), left);
                 Txt.send(p, "<gold>¡Derrotaste a " + d.name + "<gold>!");
                 Txt.sound(p, "ui.toast.challenge_complete", 1f, 1f);
             }
         } else if (killer != null) {
-            plugin.levels().reward(killer, Math.round(d.xp * m), Math.round(d.soles * m));
+            Integer t = le.getPersistentDataContainer().get(Keys.TIER, PersistentDataType.INTEGER);
+            corruptReward(e, killer, t == null ? Math.max(1, plugin.levels().tier(killer)) : t, Math.round(d.xp * m), Math.round(d.soles * m));
         }
         if (killer != null) {
             double luck = plugin.levels().lootMultiplier(killer);
@@ -606,9 +634,105 @@ public final class MobManager implements Listener {
         }
     }
 
+    // ---------------------------------------------------------------- premio por Corrompido
+
+    private record Streak(int count, long until) {}
+
+    private final Map<UUID, Streak> streaks = new HashMap<>();
+
+    /** "Racha x7 · +60 % de soles" mientras dure (para el panel), o null. */
+    public String streakText(Player p) {
+        Streak s = streaks.get(p.getUniqueId());
+        if (s == null || s.count() < 3 || System.currentTimeMillis() > s.until()) return null;
+        return "Racha x" + s.count() + " · +" + streakBonus(s.count()) + "% soles";
+    }
+
+    private int streakBonus(int n) {
+        var c = plugin.getConfig();
+        int per = c.getInt("corrupcion.recompensas.racha-por-muerte", 10), max = c.getInt("corrupcion.recompensas.racha-maxima", 100);
+        return n < 3 ? 0 : Math.min(max, (n - 2) * per);
+    }
+
+    /**
+     * Matar un Corrompido vale la pena: soles y XP (más si es élite o llevas racha), Esencia Corrupta para vender,
+     * a veces un Fragmento de Mejora o una esmeralda, y un "+soles" que flota donde cayó.
+     */
+    private void corruptReward(EntityDeathEvent e, Player killer, int tierNum, long xp, long soles) {
+        var c = plugin.getConfig();
+        LivingEntity le = e.getEntity();
+        boolean elite = le.getScoreboardTags().contains("eclipse_elite");
+        long now = System.currentTimeMillis();
+        Streak old = streaks.get(killer.getUniqueId());
+        int n = old != null && now <= old.until() ? old.count() + 1 : 1;
+        streaks.put(killer.getUniqueId(), new Streak(n, now + c.getLong("corrupcion.recompensas.racha-segundos", 12) * 1000L));
+        double mult = c.getDouble("corrupcion.recompensas.multiplicador-soles", 2.0) * (1 + streakBonus(n) / 100.0) * (elite ? 3 : 1);
+        long gain = Math.max(1, Math.round(soles * mult));
+        long gxp = Math.round(xp * c.getDouble("corrupcion.recompensas.multiplicador-xp", 1.5) * (elite ? 2 : 1));
+        plugin.levels().reward(killer, gxp, gain);
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        double luck = plugin.levels().lootMultiplier(killer);
+        // Esencia Corrupta: se vende en las tiendas (Pip, el mercado del Errante, Zahir y Varo)
+        double pe = c.getDouble("corrupcion.recompensas.prob-esencia", 0.35) + 0.03 * tierNum;
+        if (elite || r.nextDouble() < pe * luck) {
+            ItemStack es = plugin.items().create("esencia_corrupta", elite ? 2 + r.nextInt(2) : 1);
+            if (es != null) e.getDrops().add(es);
+        }
+        // Corazón Corrupto: raro; Sabina la Coleccionista lo cambia por objetos únicos
+        double ph = c.getDouble("corrupcion.recompensas.prob-corazon", 0.03) + 0.005 * tierNum + (elite ? 0.35 : 0);
+        if (r.nextDouble() < ph * luck) dropHeart(e, killer, 1);
+        double pf = c.getDouble("corrupcion.prob-fragmento", 0.01) + 0.003 * tierNum + (elite ? 0.10 : 0);
+        maybeDropFragment(e, killer, pf);
+        if (r.nextDouble() < (0.02 + 0.01 * tierNum + (elite ? 0.25 : 0)) * luck) e.getDrops().add(new ItemStack(Material.EMERALD, 1 + (elite ? r.nextInt(3) : 0)));
+        if (n >= 3 && (n == 3 || n % 5 == 0)) Txt.sound(killer, "entity.experience_orb.pickup", 0.8f, Math.min(2f, 0.8f + n * 0.05f));
+        floatText(le.getLocation().add(0, le.getHeight() + 0.3, 0),
+                "<yellow>+" + gain + " ☀" + (elite ? " <gold>★ Élite" : "") + (n >= 3 ? " <light_purple>x" + n : ""));
+    }
+
+    private void dropHeart(EntityDeathEvent e, Player killer, int n) {
+        ItemStack h = plugin.items().create("corazon_corrupto", n);
+        if (h == null) return;
+        e.getDrops().add(h);
+        Txt.sound(killer, "block.amethyst_block.resonate", 1f, 0.6f);
+        killer.showTitle(net.kyori.adventure.title.Title.title(Txt.mm(""), Txt.mm("<dark_purple>♥ ¡Un Corazón Corrupto!"),
+                net.kyori.adventure.title.Title.Times.times(java.time.Duration.ofMillis(100), java.time.Duration.ofMillis(1500), java.time.Duration.ofMillis(400))));
+        var key = Keys.k("aviso_corazon");
+        if (!killer.getPersistentDataContainer().has(key, PersistentDataType.BYTE)) {
+            killer.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
+            Txt.send(killer, "<light_purple>💎 Sabina la Coleccionista, junto a la fuente de la aldea, cambia Corazones y Esencias Corruptas por objetos raros.");
+        }
+    }
+
+    /** Texto que sube y desaparece (lo ven todos los que están cerca). */
+    private void floatText(Location at, String mini) {
+        if (!plugin.getConfig().getBoolean("corrupcion.recompensas.texto-flotante", true) || at.getWorld() == null) return;
+        org.bukkit.entity.TextDisplay td = at.getWorld().spawn(at, org.bukkit.entity.TextDisplay.class, t -> {
+            t.text(Txt.mm(mini));
+            t.setBillboard(org.bukkit.entity.Display.Billboard.CENTER);
+            t.setPersistent(false);
+            t.setShadowed(true);
+            t.setBackgroundColor(org.bukkit.Color.fromARGB(0, 0, 0, 0));
+            t.setTeleportDuration(3);
+            t.addScoreboardTag("eclipse_flotante");
+        });
+        final int[] k = {0};
+        org.bukkit.Bukkit.getScheduler().runTaskTimer(plugin, task -> {
+            if (!td.isValid() || ++k[0] > 12) {
+                td.remove();
+                task.cancel();
+                return;
+            }
+            td.teleport(td.getLocation().add(0, 0.12, 0));
+        }, 2L, 2L);
+    }
+
     private void maybeDropFragment(EntityDeathEvent e, Player killer, double chance) {
         if (ThreadLocalRandom.current().nextDouble() < chance * plugin.levels().lootMultiplier(killer)) {
-            ItemStack frag = plugin.items().create("fragmento_mejora", 1);
+            // los Corrompidos de tier alto a veces sueltan fragmentos mejores
+            int tier = plugin.levels().tier(killer);
+            double r = ThreadLocalRandom.current().nextDouble();
+            String id = tier >= 8 && r < 0.08 ? "fragmento_mejora_ancestral" : tier >= 5 && r < 0.3 ? "fragmento_mejora_superior" : "fragmento_mejora";
+            ItemStack frag = plugin.items().create(id, 1);
+            if (frag == null) frag = plugin.items().create("fragmento_mejora", 1);
             if (frag != null) e.getDrops().add(frag);
         }
     }

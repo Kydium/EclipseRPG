@@ -224,7 +224,7 @@ public final class Powers implements Listener {
         if (rs.isEmpty()) return out;
         out.add("");
         List<String> l = lore(rs);
-        l.set(0, "<light_purple>Runas forjadas:");
+        l.set(0, "<light_purple>Runas forjadas (" + rs.size() + "):");
         out.addAll(l);
         return out;
     }
@@ -288,55 +288,78 @@ public final class Powers implements Listener {
         else if (isRune(main) && !isRune(off)) { runeIt = main; target = off; }
         else return;
         e.setCancelled(true);
-        if (target == null || target.getType().isAir() || target.getMaxStackSize() > 1) {
-            pe.kydium.eclipserpg.util.Txt.send(p, "<red>Pon un arma, herramienta o armadura en la otra mano.");
-            return;
-        }
+        String err = forge(p, target, runeIt);
+        if (err != null) pe.kydium.eclipserpg.util.Txt.send(p, err);
+    }
+
+    /** Forja la runa en el objeto (gasta la runa y niveles). Devuelve el error, o null si salió bien. */
+    public String forge(Player p, ItemStack target, ItemStack runeIt) {
+        if (target == null || target.getType().isAir() || target.getMaxStackSize() > 1) return "<red>Pon un arma, herramienta o armadura.";
+        if (!isRune(runeIt)) return "<red>Eso no es una runa.";
         Power add = deser(runeIt.getItemMeta().getPersistentDataContainer().get(RUNE, PersistentDataType.STRING)).getFirst();
         boolean armor = isArmor(target.getType());
-        if (!UNIVERSAL.contains(add.type()) && ARMOR.contains(add.type()) != armor) {
-            pe.kydium.eclipserpg.util.Txt.send(p, armor ? "<red>Esta runa es para armas, no para armaduras." : "<red>Esta runa es para armaduras.");
-            return;
-        }
+        if (!UNIVERSAL.contains(add.type()) && ARMOR.contains(add.type()) != armor)
+            return armor ? "<red>Esta runa es para armas, no para armaduras." : "<red>Esta runa es para armaduras.";
         var meta = target.getItemMeta();
         List<Power> rs = new java.util.ArrayList<>(runesOf(meta));
-        int max = plugin.getConfig().getInt("poderes.max-runas", 3);
+        int max = maxRunes(target);
         int found = -1;
         for (int i = 0; i < rs.size(); i++) if (rs.get(i).type().equals(add.type())) found = i;
         if (found >= 0) {
             Power o = rs.get(found);
             rs.set(found, new Power(o.type(), Math.round((o.value() + add.value()) * 10) / 10.0, Math.min(1, Math.max(o.chance(), add.chance()) + (add.chance() < 1 ? 0.05 : 0))));
         } else if (rs.size() >= max) {
-            pe.kydium.eclipserpg.util.Txt.send(p, "<red>Este objeto ya tiene " + max + " runas. Solo puedes reforzar una que ya tenga (misma runa).");
-            return;
+            return "<red>Este objeto ya tiene " + max + " runas (su máximo ahora). Mejóralo en el yunque para abrir más huecos, o refuerza una que ya tenga.";
         } else rs.add(add);
         // cuesta niveles de experiencia: más runas = más caro
         int cost = plugin.getConfig().getInt("poderes.niveles-base", 5) + plugin.getConfig().getInt("poderes.niveles-por-runa", 3) * (rs.size() - 1);
         boolean free = p.getGameMode() == org.bukkit.GameMode.CREATIVE;
         if (!free && p.getLevel() < cost) {
-            pe.kydium.eclipserpg.util.Txt.send(p, "<red>Necesitas <white>" + cost + " niveles</white> de experiencia para forjar esta runa (tienes " + p.getLevel() + ").");
             p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.4f, 1.6f);
-            return;
+            return "<red>Necesitas <white>" + cost + " niveles</white> de experiencia para forjar esta runa (tienes " + p.getLevel() + ").";
         }
         if (!free) p.setLevel(p.getLevel() - cost);
         meta.getPersistentDataContainer().set(RUNES, PersistentDataType.STRING, ser(rs));
-        // descripción: la original del objeto + las runas
-        String id = plugin.items().idOf(target);
-        ItemManager.CustomItem ci = id == null ? null : plugin.items().def(id);
-        int upl = plugin.items().upgradeLevel(target);
-        List<String> base = ci != null ? plugin.items().loreLines(ci, upl) : new java.util.ArrayList<>();
-        if (ci == null && upl > 0) base.add("<yellow>✦ Mejorada +" + upl);
-        base.addAll(runeLore(meta));
-        meta.lore(pe.kydium.eclipserpg.util.Txt.lore(base));
         target.setItemMeta(meta);
+        refreshLore(target);
         runeIt.setAmount(runeIt.getAmount() - 1);
         p.getWorld().spawnParticle(Particle.ENCHANT, p.getLocation().add(0, 1.2, 0), 60, 0.5, 0.6, 0.5, 0.6);
         p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_USE, 1f, 1.1f);
         p.playSound(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1f, 1.2f);
         pe.kydium.eclipserpg.util.Txt.send(p, "<light_purple>¡Runa forjada! " + TYPES.get(add.type())[0] + (free ? "" : " <gray>(-" + cost + " niveles)"));
+        return null;
     }
 
-    private static boolean isRune(ItemStack it) {
+    /** Vuelve a escribir la descripción: la del objeto (o la propia guardada) + mejora + runas. */
+    public void refreshLore(ItemStack target) {
+        var meta = target.getItemMeta();
+        String id = plugin.items().idOf(target);
+        ItemManager.CustomItem ci = id == null ? null : plugin.items().def(id);
+        int upl = plugin.items().upgradeLevel(target);
+        List<String> base = ci != null ? plugin.items().loreLines(ci, upl) : new java.util.ArrayList<>();
+        if (ci == null) {
+            String own = meta.getPersistentDataContainer().get(pe.kydium.eclipserpg.util.Keys.k("lore_base"), PersistentDataType.STRING);
+            if (own != null && !own.isEmpty()) base.addAll(List.of(own.split("\\n")));
+            if (upl > 0) base.addAll(ItemManager.upgradeLines(plugin.items().upKind(target), target.getType(), upl));
+        }
+        base.addAll(runeLore(meta));
+        meta.lore(pe.kydium.eclipserpg.util.Txt.lore(base));
+        target.setItemMeta(meta);
+    }
+
+    /** Huecos de runas: los de config (5) + 1 al llegar a +5 + 1 al llegar a +10. */
+    public int maxRunes(ItemStack target) {
+        int base = Math.max(1, plugin.getConfig().getInt("poderes.max-runas", 5));
+        int up = plugin.items().upgradeLevel(target);
+        return base + (up >= 5 ? 1 : 0) + (up >= 10 ? 1 : 0);
+    }
+
+    /** Pone runas en un objeto ya hecho (armas del día de Bruno). */
+    public static void setRunes(org.bukkit.inventory.meta.ItemMeta meta, List<Power> ps) {
+        meta.getPersistentDataContainer().set(RUNES, PersistentDataType.STRING, ser(ps));
+    }
+
+    public static boolean isRune(ItemStack it) {
         return it != null && it.hasItemMeta() && it.getItemMeta().getPersistentDataContainer().has(RUNE);
     }
 
@@ -363,10 +386,16 @@ public final class Powers implements Listener {
     }
 
     private static boolean roll(Power p) {
-        return p.chance() >= 1 || ThreadLocalRandom.current().nextDouble() < p.chance();
+        return roll(p, 0);
+    }
+
+    /** Con Mente, los poderes saltan más seguido (mind 0.2 = +20 % de su probabilidad). */
+    private static boolean roll(Power p, double mind) {
+        return p.chance() >= 1 || ThreadLocalRandom.current().nextDouble() < p.chance() * (1 + mind);
     }
 
     private boolean ready(Player p, String what, long ms) {
+        ms = Math.round(ms * plugin.levels().cooldownMult(p));
         long now = System.currentTimeMillis();
         UUID k = new UUID(p.getUniqueId().getMostSignificantBits(), what.hashCode());
         Long last = cooldown.get(k);
@@ -401,7 +430,7 @@ public final class Powers implements Listener {
         if (!(e.getEntity() instanceof LivingEntity target) || target instanceof Mannequin) return;
         if (e.getDamager() instanceof Projectile shot && !(shot instanceof org.bukkit.entity.Trident)) {
             Integer up = shot.getPersistentDataContainer().get(Keys.UPGRADE, PersistentDataType.INTEGER);
-            if (up != null && up > 0) e.setDamage(e.getDamage() + up);
+            if (up != null && up > 0) e.setDamage(e.getDamage() + ItemManager.weaponBonus(up));
         }
         // armadura de quien recibe
         if (target instanceof Player victim) armor(e, victim);
@@ -415,10 +444,16 @@ public final class Powers implements Listener {
             ps = deser(pr.getPersistentDataContainer().get(SHOT, PersistentDataType.STRING));
         } else return;
         if (ps.isEmpty() || target == p || e.getCause() == org.bukkit.event.entity.EntityDamageEvent.DamageCause.ENTITY_EXPLOSION) return;
+        // los jefes no se dejan: ningún poder de arma les hace efecto
+        if (plugin.mobs().isBoss(target)) {
+            if (ThreadLocalRandom.current().nextDouble() < 0.15) p.sendActionBar(pe.kydium.eclipserpg.util.Txt.mm("<gray>Los poderes de tu arma no le afectan a un jefe"));
+            return;
+        }
         double dmg = e.getDamage();
         Location at = target.getLocation().add(0, target.getHeight() / 2, 0);
+        double mind = plugin.levels().mind(p), mag = plugin.levels().magic(p);
         for (Power pw : ps) {
-            if (!roll(pw)) continue;
+            if (!roll(pw, mind)) continue;
             double v = pw.value();
             switch (pw.type()) {
                 case "critico" -> {
@@ -447,7 +482,7 @@ public final class Powers implements Listener {
                     var dir = target.getLocation().toVector().subtract(p.getLocation().toVector()).setY(0);
                     if (dir.lengthSquared() > 0) Bukkit.getScheduler().runTask(plugin, () -> target.setVelocity(dir.normalize().multiply(v * 0.6).setY(0.35)));
                 }
-                case "sangrado" -> bleed(target, p, v);
+                case "sangrado" -> bleed(target, p, v * mag);
                 case "aturdir" -> {
                     target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, (int) (v * 20), 9, false, true));
                     target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, (int) (v * 20), 2, false, true));
@@ -462,7 +497,7 @@ public final class Powers implements Listener {
                     if (dir.lengthSquared() > 1) Bukkit.getScheduler().runTask(plugin, () -> target.setVelocity(dir.normalize().multiply(v * 0.7).setY(0.25)));
                 }
                 case "perforar" -> {
-                    double extra = e.getDamage() * v / 100.0;
+                    double extra = e.getDamage() * v / 100.0 * mag;
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         if (target.isValid() && !target.isDead()) target.setHealth(Math.max(0, target.getHealth() - extra));
                     });
@@ -480,7 +515,7 @@ public final class Powers implements Listener {
                 case "rayo" -> {
                     if (!ready(p, "rayo", 1500)) break;
                     target.getWorld().strikeLightningEffect(target.getLocation());
-                    Bukkit.getScheduler().runTask(plugin, () -> { if (target.isValid()) target.damage(v, p); });
+                    Bukkit.getScheduler().runTask(plugin, () -> { if (target.isValid()) target.damage(v * mag, p); });
                 }
                 case "explosion" -> {
                     if (!ready(p, "explosion", 2000)) break;
@@ -489,7 +524,7 @@ public final class Powers implements Listener {
                 }
                 case "cadena" -> {
                     if (!ready(p, "cadena", 600)) break;
-                    double part = e.getDamage() * v / 100.0;
+                    double part = e.getDamage() * v / 100.0 * mag;
                     int n = 0;
                     for (Entity o : target.getNearbyEntities(5, 3, 5)) {
                         if (n >= 3 || !(o instanceof LivingEntity le) || o == p || o instanceof Player || o instanceof Mannequin

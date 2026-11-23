@@ -27,13 +27,11 @@ estructuras:
     aparece: manual
     probabilidad: 0.003
     maximo: 6
-    distancia-min: 200
-    distancia-max: 500
+    distancia-min: 500
+    distancia-max: 900
     biomas: []
     desnivel-max: 4
-    enemigos:
-      - {mob: skeleton, cantidad: 3}
-      - {mob: spider, cantidad: 1}
+    enemigos: [{mob: esqueleto_corrompido, cantidad: 4}, {mob: arana_corrompida, cantidad: 2}]
     reaparicion: 30
     botin: ["ARROW 16 0.8", "IRON_INGOT 4 0.6", "BREAD 5 0.7", "pocion:healing 1 0.4", "DIAMOND 1 0.1", "custom:fragmento_mejora 1 0.1"]
     botin-tiradas: 2
@@ -46,14 +44,13 @@ estructuras:
     aparece: manual
     probabilidad: 0.003
     maximo: 5
-    distancia-min: 250
-    distancia-max: 500
+    distancia-min: 450
+    distancia-max: 850
     biomas: [bosque, plains, savanna, meadow]
     desnivel-max: 3
-    enemigos:
-      - {mob: pillager, cantidad: 4}
+    enemigos: [{mob: saqueador_corrompido, cantidad: 5}, {mob: vindicador_corrompido, cantidad: 1}]
     jefe: vindicator
-    reaparicion: 45
+    reaparicion: 40
     botin: ["EMERALD 6 0.8", "COOKED_BEEF 6 0.7", "GOLD_INGOT 4 0.5", "CROSSBOW 1 0.3", "libro:sharpness:2 1 0.15"]
     botin-tiradas: 2
     anuncio: "<red>Campamento de bandidos"
@@ -66,8 +63,8 @@ estructuras:
     aparece: manual
     probabilidad: 0.0015
     maximo: 4
-    distancia-min: 300
-    distancia-max: 600
+    distancia-min: 600
+    distancia-max: 1100
     biomas: []
     desnivel-max: 3
     botin: ["GOLDEN_APPLE 1 0.6", "EXPERIENCE_BOTTLE 6 0.8", "pocion:regeneration 1 0.5", "custom:fragmento_mejora 1 0.25"]
@@ -83,7 +80,8 @@ estructuras:
     aparece: azar
     probabilidad: 0.0006
     maximo: 3
-    distancia-min: 700
+    distancia-min: 900
+    distancia-max: 1500
     anuncio: "<green>Una aldea"
     subtitulo: "<gray>Gente que sobrevivió lejos del eclipse"
     premio-xp: 80
@@ -93,7 +91,8 @@ estructuras:
     aparece: azar
     probabilidad: 0.0003
     maximo: 1
-    distancia-min: 1200
+    distancia-min: 1700
+    distancia-max: 2400
     anuncio: "<gold>Pueblo amurallado"
     subtitulo: "<gray>Sus muros resistieron la oscuridad"
     premio-xp: 150
@@ -103,8 +102,9 @@ estructuras:
     aparece: azar
     probabilidad: 0.0015
     maximo: 4
-    distancia-min: 300
-    enemigos: [{mob: witch, cantidad: 2}, {mob: skeleton, cantidad: 2}]
+    distancia-min: 800
+    distancia-max: 1300
+    enemigos: [{mob: bruja_corrompida, cantidad: 2}, {mob: esqueleto_corrompido, cantidad: 3}, {mob: vex, cantidad: 2}]
     jefe: evoker
     reaparicion: 40
     anuncio: "<light_purple>Torre del Mago"
@@ -116,7 +116,10 @@ estructuras:
     aparece: azar
     probabilidad: 0.002
     maximo: 6
-    distancia-min: 200
+    distancia-min: 450
+    distancia-max: 900
+    enemigos: [{mob: zombi_corrompido, cantidad: 3}]
+    reaparicion: 30
     biomas: [plains, sunflower_plains, meadow, savanna, cherry_grove, bosque]
     premio-xp: 30
   faro:
@@ -125,7 +128,10 @@ estructuras:
     aparece: azar
     probabilidad: 0.0015
     maximo: 4
-    distancia-min: 250
+    distancia-min: 500
+    distancia-max: 1000
+    enemigos: [{mob: ahogado_corrompido, cantidad: 4}]
+    reaparicion: 30
     biomas: [beach, stony_shore, plains, meadow]
     premio-xp: 40
   ruinas_castillo:
@@ -134,9 +140,10 @@ estructuras:
     aparece: azar
     probabilidad: 0.0012
     maximo: 4
-    distancia-min: 400
-    enemigos: [{mob: zombi_corrompido, cantidad: 4}, {mob: esqueleto_corrompido, cantidad: 3}]
-    jefe: vindicator
+    distancia-min: 950
+    distancia-max: 1500
+    enemigos: [{mob: zombi_corrompido, cantidad: 6}, {mob: esqueleto_corrompido, cantidad: 5}, {mob: vindicador_corrompido, cantidad: 2}]
+    jefe: ravager
     reaparicion: 45
     anuncio: "<gray>Ruinas de castillo"
     subtitulo: "<dark_gray>Algo sigue vigilando entre las piedras"
@@ -148,9 +155,11 @@ estructuras:
     aparece: azar
     probabilidad: 0.0012
     maximo: 4
-    distancia-min: 400
-    enemigos: [{mob: husk, cantidad: 3}]
+    distancia-min: 1000
+    distancia-max: 1600
+    enemigos: [{mob: husk_corrompido, cantidad: 5}, {mob: arana_corrompida, cantidad: 3}]
     jefe: illusioner
+    reaparicion: 45
     anuncio: "<white>Templo antiguo"
     subtitulo: "<gray>Dicen que el altar guarda algo"
     premio-xp: 100
@@ -160,7 +169,10 @@ estructuras:
     aparece: azar
     probabilidad: 0.003
     maximo: 10
-    distancia-min: 150
+    distancia-min: 450
+    distancia-max: 900
+    enemigos: [{mob: bruja_corrompida, cantidad: 2}, {mob: zombi_corrompido, cantidad: 2}]
+    reaparicion: 30
     premio-xp: 15
   granja:
     nombre: "<yellow>Granja"
@@ -168,7 +180,10 @@ estructuras:
     aparece: azar
     probabilidad: 0.002
     maximo: 6
-    distancia-min: 200
+    distancia-min: 450
+    distancia-max: 900
+    enemigos: [{mob: zombi_corrompido, cantidad: 4}, {mob: arana_corrompida, cantidad: 2}]
+    reaparicion: 30
     premio-xp: 20
   cementerio:
     nombre: "<dark_gray>Cementerio"
@@ -176,10 +191,11 @@ estructuras:
     aparece: azar
     probabilidad: 0.0012
     maximo: 4
-    distancia-min: 300
-    enemigos: [{mob: zombie, cantidad: 4}, {mob: skeleton, cantidad: 2}]
+    distancia-min: 800
+    distancia-max: 1300
+    enemigos: [{mob: zombi_corrompido, cantidad: 6}, {mob: esqueleto_corrompido, cantidad: 4}, {mob: sombra_corrompida, cantidad: 1}]
     jefe: zombi_corrompido
-    reaparicion: 30
+    reaparicion: 40
     anuncio: "<dark_gray>Cementerio"
     subtitulo: "<gray>La cripta está abierta…"
     premio-xp: 80
@@ -189,10 +205,11 @@ estructuras:
     aparece: azar
     probabilidad: 0.0018
     maximo: 5
-    distancia-min: 250
-    enemigos: [{mob: pillager, cantidad: 4}]
+    distancia-min: 700
+    distancia-max: 1200
+    enemigos: [{mob: saqueador_corrompido, cantidad: 6}, {mob: vindicador_corrompido, cantidad: 2}]
     jefe: vindicator
-    reaparicion: 45
+    reaparicion: 40
     anuncio: "<red>Campamento de bandidos"
     premio-xp: 60
     premio-dinero: 25
@@ -202,7 +219,10 @@ estructuras:
     aparece: azar
     probabilidad: 0.0012
     maximo: 3
-    distancia-min: 300
+    distancia-min: 600
+    distancia-max: 1100
+    enemigos: [{mob: saqueador_corrompido, cantidad: 3}]
+    reaparicion: 40
     premio-xp: 20
   fortaleza:
     nombre: "<dark_red><bold>Fortaleza Sombría"
@@ -210,8 +230,9 @@ estructuras:
     aparece: azar
     probabilidad: 0.0004
     maximo: 2
-    distancia-min: 800
-    enemigos: [{mob: esqueleto_corrompido, cantidad: 6}, {mob: zombi_corrompido, cantidad: 6}, {mob: pillager, cantidad: 4}]
+    distancia-min: 1800
+    distancia-max: 2500
+    enemigos: [{mob: esqueleto_corrompido, cantidad: 8}, {mob: zombi_corrompido, cantidad: 8}, {mob: saqueador_corrompido, cantidad: 6}, {mob: golem_corrompido, cantidad: 1}]
     jefe: rey_ceniza
     reaparicion: 60
     anuncio: "<dark_red><bold>Fortaleza Sombría"
@@ -224,8 +245,9 @@ estructuras:
     aparece: azar
     probabilidad: 0.0005
     maximo: 2
-    distancia-min: 700
-    enemigos: [{mob: wither_skeleton, cantidad: 6}, {mob: enderman_corrompido, cantidad: 4}]
+    distancia-min: 1900
+    distancia-max: 2600
+    enemigos: [{mob: esqueleto_wither_corrompido, cantidad: 6}, {mob: enderman_corrompido, cantidad: 4}, {mob: sombra_corrompida, cantidad: 3}]
     jefe: guardian_eclipse
     reaparicion: 60
     anuncio: "<dark_purple><bold>Torre Oscura"
@@ -238,10 +260,11 @@ estructuras:
     aparece: azar
     probabilidad: 0.0006
     maximo: 3
-    distancia-min: 500
-    enemigos: [{mob: skeleton, cantidad: 5}, {mob: zombie, cantidad: 5}, {mob: cave_spider, cantidad: 4}]
+    distancia-min: 1300
+    distancia-max: 1900
+    enemigos: [{mob: esqueleto_corrompido, cantidad: 6}, {mob: zombi_corrompido, cantidad: 6}, {mob: cave_spider, cantidad: 5}, {mob: sombra_corrompida, cantidad: 2}]
     jefe: capataz_hueso
-    reaparicion: 45
+    reaparicion: 50
     anuncio: "<gray><bold>Cripta Profunda"
     subtitulo: "<dark_gray>Las catacumbas siguen y siguen"
     premio-xp: 300
@@ -253,8 +276,10 @@ estructuras:
     aparece: azar
     probabilidad: 0.0007
     maximo: 4
-    distancia-min: 400
-    enemigos: [{mob: phantom, cantidad: 3}]
+    distancia-min: 1100
+    distancia-max: 1700
+    enemigos: [{mob: phantom, cantidad: 4}, {mob: breeze_corrompido, cantidad: 2}]
+    reaparicion: 45
     anuncio: "<green>Isla Flotante"
     subtitulo: "<gray>El musgo marca algo enterrado…"
     premio-xp: 150
@@ -264,8 +289,9 @@ estructuras:
     aparece: azar
     probabilidad: 0.0003
     maximo: 1
-    distancia-min: 1000
-    enemigos: [{mob: blaze, cantidad: 4}, {mob: vex, cantidad: 4}, {mob: phantom, cantidad: 3}]
+    distancia-min: 2200
+    distancia-max: 3000
+    enemigos: [{mob: blaze_corrompido, cantidad: 5}, {mob: vex, cantidad: 5}, {mob: phantom, cantidad: 4}, {mob: breeze_corrompido, cantidad: 3}]
     jefe: guardian_eclipse
     reaparicion: 60
     anuncio: "<aqua><bold>Ciudadela Celeste"
@@ -278,8 +304,9 @@ estructuras:
     aparece: azar
     probabilidad: 0.0004
     maximo: 2
-    distancia-min: 700
-    enemigos: [{mob: pillager, cantidad: 5}, {mob: vindicator, cantidad: 2}]
+    distancia-min: 1800
+    distancia-max: 2500
+    enemigos: [{mob: saqueador_corrompido, cantidad: 7}, {mob: vindicador_corrompido, cantidad: 3}]
     jefe: senor_brasas
     reaparicion: 60
     anuncio: "<gold><bold>Galeón Volador"
@@ -292,7 +319,10 @@ estructuras:
     aparece: azar
     probabilidad: 0.0008
     maximo: 3
-    distancia-min: 300
+    distancia-min: 1000
+    distancia-max: 1600
+    enemigos: [{mob: arana_corrompida, cantidad: 5}, {mob: lobo_corrompido, cantidad: 3}]
+    reaparicion: 45
     biomas: [bosque, plains, meadow, cherry_grove, selva]
     anuncio: "<dark_green>Árbol Gigante"
     subtitulo: "<gray>Entre sus raíces crece un hongo raro…"
@@ -303,11 +333,12 @@ estructuras:
     aparece: azar
     probabilidad: 0.0008
     maximo: 3
-    distancia-min: 500
+    distancia-min: 1300
+    distancia-max: 1900
     biomas: [desierto]
-    enemigos: [{mob: husk, cantidad: 6}]
+    enemigos: [{mob: husk_corrompido, cantidad: 8}, {mob: arana_corrompida, cantidad: 3}]
     jefe: bruja_dunas
-    reaparicion: 45
+    reaparicion: 50
     anuncio: "<yellow><bold>Pirámide"
     subtitulo: "<gray>La terracota azul guarda un secreto"
     premio-xp: 500
@@ -318,8 +349,9 @@ estructuras:
     aparece: azar
     probabilidad: 0.0004
     maximo: 2
-    distancia-min: 700
-    enemigos: [{mob: magma_cube, cantidad: 4}, {mob: blaze, cantidad: 3}]
+    distancia-min: 1900
+    distancia-max: 2600
+    enemigos: [{mob: magma_cube, cantidad: 5}, {mob: blaze_corrompido, cantidad: 4}, {mob: esqueleto_wither_corrompido, cantidad: 3}]
     jefe: senor_brasas
     reaparicion: 60
     anuncio: "<red><bold>Volcán"
@@ -332,10 +364,11 @@ estructuras:
     aparece: azar
     probabilidad: 0.0006
     maximo: 3
-    distancia-min: 500
-    enemigos: [{mob: skeleton, cantidad: 4}, {mob: wither_skeleton, cantidad: 2}]
+    distancia-min: 1300
+    distancia-max: 1900
+    enemigos: [{mob: esqueleto_corrompido, cantidad: 6}, {mob: esqueleto_wither_corrompido, cantidad: 3}]
     jefe: capataz_hueso
-    reaparicion: 45
+    reaparicion: 50
     anuncio: "<white><bold>Calavera Gigante"
     subtitulo: "<gray>Mírala a los ojos…"
     premio-xp: 400
@@ -346,10 +379,11 @@ estructuras:
     aparece: azar
     probabilidad: 0.0007
     maximo: 3
-    distancia-min: 400
-    enemigos: [{mob: spider, cantidad: 4}, {mob: zombie, cantidad: 4}]
+    distancia-min: 1100
+    distancia-max: 1700
+    enemigos: [{mob: arana_corrompida, cantidad: 5}, {mob: zombi_corrompido, cantidad: 5}, {mob: sombra_corrompida, cantidad: 2}]
     jefe: rondador_podrido
-    reaparicion: 40
+    reaparicion: 45
     anuncio: "<green><bold>Laberinto"
     subtitulo: "<gray>El premio está en el centro"
     premio-xp: 350
@@ -360,7 +394,10 @@ estructuras:
     aparece: azar
     probabilidad: 0.0008
     maximo: 3
-    distancia-min: 350
+    distancia-min: 1000
+    distancia-max: 1600
+    enemigos: [{mob: golem_corrompido, cantidad: 2}, {mob: esqueleto_corrompido, cantidad: 4}]
+    reaparicion: 45
     anuncio: "<gold>Coloso"
     subtitulo: "<gray>La losa a sus pies suena hueca"
     premio-xp: 200
@@ -370,7 +407,8 @@ estructuras:
     aparece: azar
     probabilidad: 0.0005
     maximo: 3
-    distancia-min: 600
+    distancia-min: 1500
+    distancia-max: 2200
     enemigos: [{mob: wither_skeleton, cantidad: 4}, {mob: blaze, cantidad: 2}]
     jefe: senor_brasas
     reaparicion: 60

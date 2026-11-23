@@ -47,6 +47,7 @@ public final class VillageGuard implements Listener {
 
     public boolean inside(Location l) {
         if (l == null || !on()) return false;
+        if (plugin.cities().inside(l, plugin.getConfig().getInt("aldea.margen-proteccion", 6))) return true;
         Location c = plugin.village().center();
         if (c == null || c.getWorld() == null || !c.getWorld().equals(l.getWorld())) return false;
         int r = plugin.village().radius() + plugin.getConfig().getInt("aldea.margen-proteccion", 6);

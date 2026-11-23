@@ -16,35 +16,57 @@ niveles:
   niveles-por-tier: 5           # niveles 1-5 = tier 1 (Acto 1), 6-10 = tier 2...
   mostrar-en-tab: true          # muestra [nivel] en la lista de jugadores
 
-stats:
+stats:                          # atributos al estilo Elden Ring (se reparten en /nivel)
   costo-reinicio: 500
-  vida:
-    por-punto: 1.0
+  vida:                         # ❤ Vigor
+    por-punto: 1.0              # vida máxima por punto
+    maximo: 30
+  mente:                        # 👁 Mente
+    por-punto: 2.0              # % más de probabilidad de los poderes de armas
+    recarga: 1.5                # % menos de recarga de poderes (máx. 50 %)
     maximo: 20
-    descripcion: "+1 de vida (medio corazón) por punto"
-  fuerza:
-    por-punto: 0.5
+  defensa:                      # 🛡 Aguante
+    por-punto: 0.5              # armadura por punto
+    empuje: 2                   # % de firmeza (menos empuje)
+    hambre: 3                   # % de no gastar hambre (máx. 60 %)
     maximo: 20
-    descripcion: "+0.5 de daño por punto"
-  defensa:
-    por-punto: 0.5
+  fuerza:                       # ⚔ Fuerza
+    por-punto: 0.5              # daño por punto
+    pesadas: 1.5                # % de daño extra con hachas y mazas
     maximo: 20
-    descripcion: "+0.5 de armadura por punto"
-  agilidad:
-    por-punto: 1.0              # en %
+  agilidad:                     # ➶ Destreza
+    por-punto: 1.0              # % de velocidad al moverse
+    ataque: 1.5                 # % de velocidad de ataque
+    distancia: 2                # % de daño con arcos, ballestas y tridentes
     maximo: 15
-    descripcion: "+1% de velocidad por punto"
-  fortuna:
-    por-punto: 3.0              # en %
+  inteligencia:                 # ✦ Inteligencia
+    por-punto: 4.0              # % de daño de poderes mágicos (rayo, cadena, sangrado, perforar)
+    maximo: 20
+  fe:                           # ☀ Fe
+    por-punto: 3.0              # % de curación
+    corrompidos: 2              # % de daño contra Corrompidos
+    maximo: 20
+  fortuna:                      # 💎 Arcano
+    por-punto: 3.0              # % de Soles y botín
+    suerte: 0.1                 # suerte (mejor pesca y cofres)
     maximo: 15
-    descripcion: "+3% de Soles y botín por punto"
 
 # Algunos mobs hostiles que aparecen solos se vuelven Corrompidos
 # con el tier del jugador más cercano.
 corrupcion:
   probabilidad: 0.12
   radio-jugador: 64
-  prob-fragmento: 0.01          # probabilidad de soltar un Fragmento de Mejora
+  prob-fragmento: 0.01          # probabilidad de soltar un Fragmento de Mejora (+0.3 % por tier)
+  recompensas:                  # premio por matar Corrompidos
+    multiplicador-soles: 2.0    # soles del tier × esto
+    multiplicador-xp: 1.5
+    prob-esencia: 0.35          # Esencia Corrupta (+3 % por tier); Pip la compra
+    prob-corazon: 0.03          # Corazón Corrupto, raro (+0.5 % por tier, +35 % élites); Sabina lo cambia
+    corazones-jefe: 2           # corazones que da cada jefe a cada jugador
+    racha-segundos: 12          # matar otro antes de esto sigue la racha
+    racha-por-muerte: 10        # +10 % de soles por cada muerte de la racha (desde la 3.ª)
+    racha-maxima: 100
+    texto-flotante: true        # "+12 ☀" que sube donde cae
   tiers:                        # vida total, daño extra, XP y Soles al matarlo
     - {vida: 40,  danio: 3,  xp: 10, soles: 2}
     - {vida: 60,  danio: 4,  xp: 14, soles: 4}
@@ -94,6 +116,9 @@ dificultad:
   vida-corrompidos: 1.0
   danio-corrompidos: 1.0
   vida-extra-por-jugador: 0.5   # cada jugador extra cerca del jefe le da +50% de vida
+  jefes:
+    tope-por-golpe: 0.05        # ningún golpe le quita más de este % de su vida (0.05 = 5 %)
+    desviar-flechas: 0.3        # probabilidad de desviar una flecha
 
 atajos:
   tecla-g: true                 # la tecla "Acciones rápidas" (G) abre el menú (instala un paquete de datos)
@@ -104,8 +129,20 @@ dialogos:
 jefes:
   soles-si-repite: 200          # si un jugador ya tiene el premio único del jefe
 
-mejoras:
-  maximo: 5                     # +5 de daño máximo en armas únicas
+mejoras:                        # yunque de Bruno: armas, armaduras y herramientas
+  niveles: 10                   # +1 a +5 con Fragmento de Mejora, +6 a +8 con Superior, +9 y +10 con Ancestral
+  probabilidad-superior: 0.8    # éxito de +6 a +8 (si falla se pierde el fragmento, no el objeto)
+  probabilidad-ancestral: 0.6   # éxito de +9 y +10
+
+tiendas:
+  compran-todo: [general]       # tiendas con la pestaña "Vender lo que sea"
+  novedades:                    # cosas únicas al azar que cambian cada día (tipo:cantidad)
+    general: [armaduras:5, curiosidades:3]     # Pip
+    herreria: [armas:4, herramientas:2]        # Bruno
+    alquimia: [pociones:4, libros:2]           # Fray Odón
+    trueque: [reliquias:2]                     # Sabina (se pagan con Corazones Corruptos)
+  venta-general:
+    multiplicador: 1.0          # cuánto se paga en "Vender lo que sea" (1.0 = normal)
 
 grieta:
   costo-por-tier: 50            # Soles para abrirla (x tier)
@@ -179,16 +216,39 @@ mundo:
 # Estructuras propias (se definen en historias/<id>/avanzado/estructuras.yml o en el editor web)
 estructuras:
   bloques-por-tick: 6000        # velocidad de construcción
+  # Dificultad: cuanto más lejos del spawn, más peligroso (1 a 7 ☠). "peligro: N" en estructuras.yml lo fija.
+  dificultad:
+    bloques-por-nivel: 450      # cada 450 bloques desde el spawn sube un nivel de peligro
+    enemigos-por-nivel: 0.35    # +35 % de enemigos por nivel de peligro
+    enemigos-por-jugador: 0.5   # +50 % por cada jugador extra dentro
+    vida-por-nivel: 0.2         # +20 % de vida (enemigos de la historia) por nivel
+    vida-jefe-por-nivel: 0.3    # +30 % de vida del jefe por nivel
+    elite-base: 0.06            # probabilidad de élite (★: doble vida, fuerza, resistencia y velocidad)
+    elite-por-nivel: 0.04       #   +4 % por nivel de peligro
+    refuerzos-desde: 3          # desde este peligro, al caer la mayoría llega una segunda tanda
 
 # Poderes de armas (robo de vida, rayo…) y runas que se forjan en cualquier arma o armadura
 poderes:
-  max-runas: 3                  # cuántas runas distintas puede tener un objeto
+  max-runas: 5                  # runas distintas por objeto (+1 hueco al llegar a +5 y otro a +10)
   forjar-en-yunque: true        # las runas se forjan haciendo clic en un yunque (false = en cualquier parte)
   niveles-base: 5               # niveles de experiencia que cuesta forjar una runa
   niveles-por-runa: 3           # niveles extra por cada runa que el objeto ya tenga
 
 # Lo que ve el jugador en pantalla
+viajes:                         # piedras de viaje: una en la aldea y una en cada ciudad
+  activo: true
+  costo-por-100-bloques: 3      # Soles que cuesta viajar por cada 100 bloques
+  costo-minimo: 5
+  segundos-quieto: 3            # hay que quedarse quieto (sin recibir daño) estos segundos
+  espera-segundos: 20           # tiempo entre un viaje y otro
+
 hud:
+  vida-monstruos: true          # al golpear un monstruo, su vida sale junto a su nombre ("❤ 14/20")
+  vida-monstruos-segundos: 6    # cuánto se ve después del último golpe
+  vida-sobre-la-cabeza: true    # muestra "18/24 ❤" debajo del nombre de cada jugador
+  panel:                        # cuadro de la misión a la izquierda (usa el paquete de recursos)
+    activo: true
+    escala: 2                   # Tamaño de interfaz de Minecraft para el que se acomoda (media altura, a la izquierda); cada jugador lo cambia con /g panel escala <n>
   monedas: true                 # dinero abajo a la derecha, junto a la barra rápida (necesita el paquete de recursos)
   desplazamiento: 100           # cuántos píxeles a la derecha del centro (100 = justo al lado de la barra)
   localizador: true             # puntos en la barra de localización (donde está la experiencia) hacia la misión

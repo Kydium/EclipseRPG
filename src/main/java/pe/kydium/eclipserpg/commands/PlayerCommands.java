@@ -23,6 +23,41 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
+    /** /guardian panel [ocultar|mostrar|izquierda|derecha|arriba|abajo|escala <1-6>|<número>] */
+    private void panel(Player p, String[] args) {
+        var pn = plugin.hud().panel();
+        String a = args.length > 1 ? args[1].toLowerCase() : "";
+        switch (a) {
+            case "ocultar", "off", "no" -> {
+                pn.setOn(p, false);
+                Txt.send(p, "<gray>Panel de misión oculto. Vuelve con <white>/g panel mostrar");
+            }
+            case "mostrar", "on", "si", "sí" -> {
+                pn.setOn(p, true);
+                Txt.send(p, "<green>Panel de misión visible.");
+            }
+            case "izquierda", "izq" -> pn.setOffset(p, pn.offset(p) - 10);
+            case "derecha", "der" -> pn.setOffset(p, pn.offset(p) + 10);
+            case "arriba", "subir" -> pn.setTop(p, pn.top(p) - 12);
+            case "abajo", "bajar" -> pn.setTop(p, pn.top(p) + 12);
+            case "escala", "tamaño", "tamano", "interfaz" -> {
+                try {
+                    pn.setScale(p, Integer.parseInt(args[2]));
+                    Txt.send(p, "<green>Panel acomodado para el tamaño de interfaz " + pn.scale(p) + ".");
+                } catch (RuntimeException e) {
+                    Txt.send(p, "<gray>Usa <white>/g panel escala <1-6></white> con el número de Opciones > Gráficos > Tamaño de interfaz.");
+                }
+            }
+            default -> {
+                try {
+                    pn.setOffset(p, Integer.parseInt(a));
+                } catch (NumberFormatException e) {
+                    plugin.hotkeys().panelMenu(p);
+                }
+            }
+        }
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, @NotNull String[] args) {
         if (!(sender instanceof Player p)) {
@@ -32,8 +67,10 @@ public final class PlayerCommands implements CommandExecutor, TabCompleter {
         switch (cmd.getName().toLowerCase()) {
             case "nivel" -> new StatsMenu(plugin, p).open();
             case "guardian" -> {
-                if (args.length > 0 && args[0].toLowerCase().startsWith("br")) plugin.quests().missionCompass(p);
+                if (args.length > 0 && args[0].toLowerCase().startsWith("pan")) panel(p, args);
+                else if (args.length > 0 && args[0].toLowerCase().startsWith("br")) plugin.quests().missionCompass(p);
                 else if (args.length > 0 && args[0].toLowerCase().startsWith("est")) plugin.hotkeys().status(p);
+                else if (args.length > 0 && (args[0].toLowerCase().startsWith("com") || args[0].toLowerCase().startsWith("tien"))) plugin.hotkeys().traders(p);
                 else plugin.hotkeys().open(p);
             }
             case "misiones" -> pe.kydium.eclipserpg.quests.QuestBook.open(plugin, p);

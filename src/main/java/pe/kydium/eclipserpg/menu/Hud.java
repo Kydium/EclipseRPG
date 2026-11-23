@@ -37,8 +37,15 @@ public final class Hud implements Listener {
     /** jugador → [punto de misión, punto de aldea] */
     private final Map<UUID, UUID[]> marks = new HashMap<>();
 
+    private final QuestPanel panel;
+
     public Hud(EclipseRPG plugin) {
         this.plugin = plugin;
+        this.panel = new QuestPanel(plugin);
+    }
+
+    public QuestPanel panel() {
+        return panel;
     }
 
     public void start() {
@@ -48,6 +55,7 @@ public final class Hud implements Listener {
                 try {
                     money(p);
                     waypoints(p);
+                    panel.update(p);
                 } catch (RuntimeException ex) {
                     plugin.getLogger().fine("HUD: " + ex.getMessage());
                 }
@@ -116,12 +124,14 @@ public final class Hud implements Listener {
                 switch (o.type) {
                     case HABLAR -> {
                         for (String t : o.targets) {
-                            Entity e = plugin.npcEntities().entityOf(t);
-                            if (e != null) return e.getLocation();
+                            Location l = plugin.npcEntities().spotOf(t);
+                            if (l != null) return l;
                         }
                     }
                     case ESTRUCTURA -> {
                         String id = o.targets.isEmpty() ? q.structure : o.targets.get(0);
+                        if (id != null && id.startsWith("ciudad_") && !plugin.cities().isBuilt(id.substring(7)))
+                            plugin.cities().ensure(id.substring(7), p, false);
                         var inst = plugin.structures().nearest(id, p.getLocation());
                         if (inst != null) {
                             int[] en = inst.entrance != null ? inst.entrance : new int[]{inst.x, inst.y, inst.z};
@@ -144,6 +154,10 @@ public final class Hud implements Listener {
                 Location l = plugin.dungeons().entranceLocation(q.dungeon);
                 if (l != null) return l;
             }
+            if (q.city != null) {
+                var ci = plugin.cities().instance(q.city);
+                if (ci != null && Bukkit.getWorld(ci.world) != null) return new Location(Bukkit.getWorld(ci.world), ci.x + 0.5, ci.y + 1, ci.z + 0.5);
+            }
             if (q.structure != null) {
                 var inst = plugin.structures().nearest(q.structure, p.getLocation());
                 if (inst != null && Bukkit.getWorld(inst.world) != null) return new Location(Bukkit.getWorld(inst.world), inst.x + 0.5, inst.y, inst.z + 0.5);
@@ -151,8 +165,7 @@ public final class Hud implements Listener {
             return null;
         }
         // sin aceptar o lista para entregar: el NPC que la da
-        Entity e = plugin.npcEntities().entityOf(q.npc);
-        return e == null ? null : e.getLocation();
+        return plugin.npcEntities().spotOf(q.npc);
     }
 
     private void waypoints(Player p) {
@@ -202,6 +215,7 @@ public final class Hud implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
+        panel.forget(e.getPlayer().getUniqueId());
         UUID[] m = marks.remove(e.getPlayer().getUniqueId());
         if (m != null) for (UUID u : m) {
             Entity en = u == null ? null : Bukkit.getEntity(u);

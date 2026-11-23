@@ -8,69 +8,164 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import pe.kydium.eclipserpg.EclipseRPG;
 import pe.kydium.eclipserpg.data.PlayerData;
+import pe.kydium.eclipserpg.items.ItemManager;
 import pe.kydium.eclipserpg.menu.Menu;
 import pe.kydium.eclipserpg.util.Txt;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-/** Inventario de una tienda. Clic izquierdo = 1 vez, Shift + clic = 4 veces. */
+/**
+ * Inventario de una tienda. Las tiendas grandes se ordenan por categorías (pestañas arriba):
+ * comida, bloques, herramientas, armas, armaduras, armaduras del día, magia, especiales, mejoras,
+ * trueque, lo que te compran y "vender lo que sea". Clic = 1 vez, Shift + clic = 4 veces.
+ */
 public final class ShopMenu extends Menu {
+
+    /** Categorías en el orden de las pestañas. */
+    enum Cat {
+        COMIDA("comida", "<gold>🍖 Comida", Material.BREAD),
+        BLOQUES("bloques", "<white>🧱 Bloques y luz", Material.LANTERN),
+        HERRAMIENTAS("herramientas", "<yellow>⛏ Herramientas", Material.IRON_PICKAXE),
+        ARMAS("armas", "<red>⚔ Armas", Material.IRON_SWORD),
+        ARMADURAS("armaduras", "<aqua>🛡 Armaduras", Material.IRON_CHESTPLATE),
+        ARMADURAS_DIA("novedades", "<light_purple>✦ Novedades del día", Material.NETHER_STAR),
+        MAGIA("magia", "<dark_purple>⚗ Pociones y magia", Material.BREWING_STAND),
+        ESPECIAL("especiales", "<green>🎒 Especiales", Material.BUNDLE),
+        MEJORAS("mejoras", "<gold>⚒ Mejoras y forja", Material.ANVIL),
+        TRUEQUE("trueque", "<light_purple>💎 Trueque", Material.AMETHYST_SHARD),
+        VENDER("vender", "<green>💰 Te compra", Material.GOLD_INGOT),
+        VENDER_TODO("vender-todo", "<yellow>💰 Vender lo que sea", Material.CHEST);
+
+        final String id, label;
+        final Material icon;
+
+        Cat(String id, String label, Material icon) {
+            this.id = id;
+            this.label = label;
+            this.icon = icon;
+        }
+
+        static Cat of(String id) {
+            if (id == null) return null;
+            if (id.equals("armaduras-dia")) return ARMADURAS_DIA;
+            for (Cat c : values()) if (c.id.equals(id) || c.name().equalsIgnoreCase(id)) return c;
+            return null;
+        }
+    }
+
+    private static final int PAGE = 36, FIRST = 9;   // filas 1 a 4
+    private static final int PREV = 45, NEXT = 53, INFO = 49;
+
     private final EclipseRPG plugin;
     private final ShopManager.Shop shop;
     private final Map<Integer, ShopManager.Entry> bySlot = new HashMap<>();
-    private final List<ShopManager.Entry> buys = new ArrayList<>(), sells = new ArrayList<>();
-    private final int infoSlot;
-    /** Si la tienda compra y vende, se separa en dos secciones con pestañas abajo. */
-    private final boolean tabs;
-    private boolean selling;
-    private int tabBuy = -1, tabSell = -1;
+    private final List<ShopManager.Entry> all;
+    /** Modo clásico (tiendas pequeñas o rotativas): cada objeto en su hueco de tiendas.yml. */
+    private final boolean classic;
+    private final Map<Cat, List<ShopManager.Entry>> byCat = new LinkedHashMap<>();
+    private final Map<Integer, Cat> tabs = new HashMap<>();
+    private Cat current;
+    private int page;
 
     public ShopMenu(EclipseRPG plugin, Player player, ShopManager.Shop shop, List<ShopManager.Entry> entries) {
-        super(player, shop.rows, shop.title);
+        super(player, categorized(plugin, shop, entries) ? 6 : shop.rows, shop.title);
         this.plugin = plugin;
         this.shop = shop;
-        for (ShopManager.Entry e : entries) (e.kind == ShopManager.Kind.VENDER ? sells : buys).add(e);
-        this.infoSlot = shop.rows * 9 - 1;
-        this.tabs = !buys.isEmpty() && !sells.isEmpty() && shop.rows >= 2;
-        if (tabs) {
-            // dos huecos libres en la última fila para las pestañas
-            java.util.Set<Integer> used = new java.util.HashSet<>();
-            for (ShopManager.Entry e : buys) used.add(e.slot);
-            int last = (shop.rows - 1) * 9;
-            for (int sl : new int[]{last + 3, last + 5, last + 2, last + 6, last + 1, last + 7, last, last + 4})
-                if (!used.contains(sl) && sl != infoSlot) {
-                    if (tabBuy < 0) tabBuy = sl;
-                    else if (tabSell < 0) {
-                        tabSell = sl;
-                        break;
-                    }
-                }
+        this.all = entries;
+        this.classic = !categorized(plugin, shop, entries);
+        if (!classic) {
+            for (ShopManager.Entry e : entries) byCat.computeIfAbsent(category(plugin, e), k -> new ArrayList<>()).add(e);
+            if (plugin.shops().buysAnything(shop)) byCat.put(Cat.VENDER_TODO, List.of());
+            // ordenar las pestañas como el enum
+            Map<Cat, List<ShopManager.Entry>> sorted = new LinkedHashMap<>();
+            for (Cat c : Cat.values()) if (byCat.containsKey(c)) sorted.put(c, byCat.get(c));
+            byCat.clear();
+            byCat.putAll(sorted);
+            // máximo 9 pestañas: lo que sobre pasa a "Especiales" (la de vender lo que sea siempre queda)
+            while (byCat.size() > 9) {
+                Cat extra = null;
+                for (Cat c : byCat.keySet()) if (c != Cat.VENDER_TODO && c != Cat.ESPECIAL) extra = c;
+                if (extra == null) break;
+                List<ShopManager.Entry> moved = byCat.remove(extra);
+                List<ShopManager.Entry> esp = new ArrayList<>(byCat.getOrDefault(Cat.ESPECIAL, List.of()));
+                esp.addAll(moved);
+                Map<Cat, List<ShopManager.Entry>> re = new LinkedHashMap<>();
+                for (Cat c : Cat.values()) if (byCat.containsKey(c) || c == Cat.ESPECIAL) re.put(c, c == Cat.ESPECIAL ? esp : byCat.get(c));
+                byCat.clear();
+                byCat.putAll(re);
+            }
+            for (Cat c : byCat.keySet()) if (c != Cat.VENDER_TODO) {
+                current = c;
+                break;
+            }
+            if (current == null) current = Cat.VENDER_TODO;
         }
         layout();
     }
 
-    /** Pone en su sitio lo de la sección abierta: lo que vende el NPC en sus huecos, y lo que compra ordenado. */
+    private static boolean categorized(EclipseRPG plugin, ShopManager.Shop shop, List<ShopManager.Entry> entries) {
+        if (shop.rotating) return false;
+        if (plugin.shops().buysAnything(shop)) return true;
+        java.util.Set<Cat> cats = new java.util.HashSet<>();
+        for (ShopManager.Entry e : entries) cats.add(category(plugin, e));
+        return entries.size() >= 10 && cats.size() >= 2;
+    }
+
+    /** Categoría de un objeto: la de tiendas.yml ("categoria:") o la que corresponde a lo que es. */
+    public static String categoryOf(EclipseRPG plugin, ShopManager.Entry e) {
+        return category(plugin, e).id;
+    }
+
+    static Cat category(EclipseRPG plugin, ShopManager.Entry e) {
+        Cat set = Cat.of(e.category);
+        if (set != null) return set;
+        if (e.kind == ShopManager.Kind.MEJORA) return Cat.MEJORAS;
+        if (e.kind == ShopManager.Kind.VENDER) return Cat.VENDER;
+        String spec = e.item == null ? "" : e.item.toLowerCase(Locale.ROOT);
+        if (spec.startsWith("custom:fragmento_mejora")) return Cat.MEJORAS;
+        if (e.payWith != null) return Cat.TRUEQUE;
+        if (spec.startsWith("armadura-dia") || spec.startsWith("diario:")) return Cat.ARMADURAS_DIA;
+        if (spec.startsWith("pocion") || spec.startsWith("libro:") || spec.startsWith("runa:")) return Cat.MAGIA;
+        if (spec.startsWith("minimapa") || spec.startsWith("mapa") || spec.startsWith("bloque:")) return Cat.ESPECIAL;
+        if (spec.startsWith("especial:")) return Cat.ARMAS;
+        Material m = null;
+        if (spec.startsWith("custom:")) {
+            var ci = plugin.items().def(spec.substring(7));
+            if (ci == null) return Cat.ESPECIAL;
+            if (ci.backpack > 0) return Cat.ESPECIAL;
+            m = ci.material;
+        } else {
+            m = Material.matchMaterial(spec.startsWith("material:") ? spec.substring(9) : spec);
+        }
+        if (m == null) return Cat.ESPECIAL;
+        if (ItemManager.isWeapon(m)) return Cat.ARMAS;
+        if (ItemManager.isArmor(m) || m == Material.SHIELD) return Cat.ARMADURAS;
+        if (ItemManager.isTool(m) || m == Material.FLINT_AND_STEEL || m.name().endsWith("BUCKET") || m == Material.COMPASS || m == Material.CLOCK
+                || m == Material.SPYGLASS || m == Material.LEAD || m == Material.NAME_TAG || m == Material.BRUSH) return Cat.HERRAMIENTAS;
+        if (m.isEdible()) return Cat.COMIDA;
+        if (m == Material.ARROW || m == Material.SPECTRAL_ARROW || m == Material.FIREWORK_ROCKET) return Cat.ARMAS;
+        if (m.name().contains("POTION") || m == Material.EXPERIENCE_BOTTLE || m == Material.ENCHANTED_BOOK) return Cat.MAGIA;
+        if (m.isBlock()) return Cat.BLOQUES;
+        return Cat.ESPECIAL;
+    }
+
     private void layout() {
         bySlot.clear();
-        if (!tabs) {
-            for (ShopManager.Entry e : buys) bySlot.put(e.slot, e);
-            for (ShopManager.Entry e : sells) bySlot.put(e.slot, e);
+        tabs.clear();
+        if (classic) {
+            for (ShopManager.Entry e : all) bySlot.put(e.slot, e);
             return;
         }
-        if (!selling) {
-            for (ShopManager.Entry e : buys) bySlot.put(e.slot, e);
-            return;
-        }
-        List<Integer> free = new ArrayList<>();
-        int rows = shop.rows;
-        // primero el centro (sin bordes), luego lo que quede
-        for (int r = 1; r < rows - 1; r++) for (int c = 1; c < 8; c++) free.add(r * 9 + c);
-        for (int sl = 0; sl < (rows - 1) * 9; sl++) if (!free.contains(sl)) free.add(sl);
         int i = 0;
-        for (ShopManager.Entry e : sells) if (i < free.size()) bySlot.put(free.get(i++), e);
+        for (Cat c : byCat.keySet()) if (i < 9) tabs.put(i++, c);
+        List<ShopManager.Entry> list = byCat.getOrDefault(current, List.of());
+        int from = page * PAGE;
+        for (int k = from; k < Math.min(list.size(), from + PAGE); k++) bySlot.put(FIRST + (k - from), list.get(k));
     }
 
     @Override
@@ -78,12 +173,11 @@ public final class ShopMenu extends Menu {
         inventory.clear();
         PlayerData d = plugin.data().get(player);
         ShopManager sm = plugin.shops();
-        for (ShopManager.Entry e : bySlot.values()) {
-            int at = slotOf(e);
+        for (Map.Entry<Integer, ShopManager.Entry> en : bySlot.entrySet()) {
+            int at = en.getKey();
+            ShopManager.Entry e = en.getValue();
             if (at < 0 || at >= inventory.getSize()) continue;
-            ItemStack display = e.kind == ShopManager.Kind.MEJORA
-                    ? new ItemStack(Material.ANVIL)
-                    : sm.build(e);
+            ItemStack display = e.kind == ShopManager.Kind.MEJORA ? new ItemStack(Material.ANVIL) : sm.build(e);
             if (display == null) continue;
             display = display.clone();
             ItemMeta meta = display.getItemMeta();
@@ -93,19 +187,19 @@ public final class ShopMenu extends Menu {
             switch (e.kind) {
                 case COMPRAR -> {
                     if (e.name != null) meta.displayName(Txt.item(e.name));
-                    lore.add(Txt.item("<gray>Cantidad: <white>" + e.amount));
+                    if (e.amount > 1) lore.add(Txt.item("<gray>Cantidad: <white>" + e.amount));
                     lore.add(Txt.item("<gray>Precio: <yellow>" + priceText(e)));
                     if (e.quest > 0 && d.questIndex < e.quest) lore.add(Txt.item("<red>Se desbloquea al avanzar en la historia (misión " + e.quest + ")"));
                     if (e.stock > 0) {
                         int left = sm.stockLeft(e);
                         lore.add(Txt.item(left > 0 ? "<gray>Quedan: <white>" + left + "<gray> de " + e.stock
-                                : "<red>Agotado · se repone en " + sm.restockMinutes(e) + " min"));
+                                : e.daily != null ? "<red>Vendida · mañana habrá otras" : "<red>Agotado · se repone en " + sm.restockMinutes(e) + " min"));
                     }
                     if (e.minLevel > 1) {
                         String c = d.level >= e.minLevel ? "<green>" : "<red>";
                         lore.add(Txt.item("<gray>Nivel requerido: " + c + e.minLevel));
                     }
-                    lore.add(Txt.item("<yellow>Clic: comprar · Shift+clic: x4"));
+                    lore.add(Txt.item(e.daily != null || e.stock == 1 ? "<yellow>Clic: comprar" : "<yellow>Clic: comprar · Shift+clic: x4"));
                 }
                 case VENDER -> {
                     meta.displayName(Txt.item("<green>Vender " + (e.name != null ? e.name : Txt.pretty(display.getType().name()))));
@@ -114,45 +208,76 @@ public final class ShopMenu extends Menu {
                     lore.add(Txt.item("<yellow>Clic: vender · Shift+clic: todo lo posible"));
                 }
                 case MEJORA -> {
-                    int max = plugin.getConfig().getInt("mejoras.maximo", 5);
-                    meta.displayName(Txt.item("<gold>Mejorar arma"));
-                    lore.add(Txt.item("<gray>Ten el arma en la mano (cualquiera:"));
-                    lore.add(Txt.item("<gray>espada, hacha, maza, tridente, arco…)."));
-                    lore.add(Txt.item("<gray>+1 de daño por mejora (máx. +" + max + ")"));
-                    lore.add(Txt.item("<gray>Cuesta: <yellow>" + sm.priceText(e.price) + "</yellow> + 1 Fragmento de Mejora"));
-                    lore.add(Txt.item("<yellow>Clic para mejorar"));
+                    meta.displayName(Txt.item("<gold><bold>⚒ Yunque de Bruno"));
+                    for (String l : List.of("<gray>Mejora armas, armaduras y herramientas", "<gray>hasta +" + plugin.items().maxUpgrade() + " con fragmentos, o forja runas.",
+                            "<gray>Pones el objeto y el fragmento en sus huecos:", "<gray>no hace falta tenerlo en la mano.", "", "<yellow>Clic para abrir el yunque"))
+                        lore.add(Txt.item(l));
                 }
             }
             meta.lore(lore);
             display.setItemMeta(meta);
-            inventory.setItem(slotOf(e), display);
+            inventory.setItem(at, display);
         }
-        if (tabs) {
-            ItemStack b = icon(Material.EMERALD, (selling ? "<gray>" : "<green><bold>") + "🛒 Comprar",
-                    List.of("<gray>Lo que " + "vende la tienda", selling ? "<yellow>Clic para ver" : "<green>▶ Estás aquí"));
-            ItemStack v = icon(Material.GOLD_INGOT, (selling ? "<gold><bold>" : "<gray>") + "💰 Vender",
-                    List.of("<gray>Lo que la tienda te compra", selling ? "<green>▶ Estás aquí" : "<yellow>Clic para ver"));
-            if (!selling) glint(b);
-            else glint(v);
-            inventory.setItem(tabBuy, b);
-            inventory.setItem(tabSell, v);
+        if (!classic) {
+            for (Map.Entry<Integer, Cat> t : tabs.entrySet()) {
+                Cat c = t.getValue();
+                int n = byCat.getOrDefault(c, List.of()).size();
+                List<String> l = new ArrayList<>();
+                if (c == Cat.VENDER_TODO) {
+                    l.add("<gray>Véndele cualquier objeto:");
+                    l.add("<gray>minerales, botín de monstruos, armas…");
+                } else l.add("<gray>" + n + " objeto(s)");
+                l.add(c == current ? "<green>▶ Estás aquí" : "<yellow>Clic para ver");
+                ItemStack ic = icon(c.icon, (c == current ? "<bold>" : "") + c.label, l);
+                if (c == current) glint(ic);
+                inventory.setItem(t.getKey(), ic);
+            }
+            List<ShopManager.Entry> list = byCat.getOrDefault(current, List.of());
+            int pages = Math.max(1, (list.size() + PAGE - 1) / PAGE);
+            if (page > 0) inventory.setItem(PREV, icon(Material.ARROW, "<yellow>◀ Página anterior", List.of("<gray>Página " + page + " de " + pages)));
+            if (page < pages - 1) inventory.setItem(NEXT, icon(Material.ARROW, "<yellow>Página siguiente ▶", List.of("<gray>Página " + (page + 2) + " de " + pages)));
+            if (current == Cat.ARMADURAS_DIA)
+                inventory.setItem(47, icon(Material.CLOCK, "<light_purple>Cambian cada día a medianoche", List.of("<gray>Cosas únicas al azar: encantamientos, poderes,",
+                        "<gray>bonificaciones y nombres distintos cada día.", "<gray>Solo hay una de cada una: ¡el primero se la lleva!")));
         }
-        inventory.setItem(infoSlot, icon(Material.SUNFLOWER, "<yellow>Tus Soles: " + Txt.num(d.soles) + " ☀",
-                List.of("<gray>Nivel " + d.level)));
+        int info = classic ? shop.rows * 9 - 1 : INFO;
+        inventory.setItem(info, icon(Material.SUNFLOWER, "<yellow>Tus Soles: " + Txt.num(d.soles) + " ☀", List.of("<gray>Nivel " + d.level)));
         fillEmpty();
     }
 
     @Override
     public void onClick(InventoryClickEvent e, int slot) {
-        if (tabs && (slot == tabBuy || slot == tabSell)) {
-            boolean want = slot == tabSell;
-            if (want != selling) {
-                selling = want;
-                layout();
-                Txt.sound(player, "item.book.page_turn", 1f, 1.1f);
-                render();
+        if (!classic) {
+            Cat c = tabs.get(slot);
+            if (c != null) {
+                if (c == Cat.VENDER_TODO) {
+                    org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> new SellMenu(plugin, player, shop).open());
+                    return;
+                }
+                if (c != current) {
+                    current = c;
+                    page = 0;
+                    layout();
+                    Txt.sound(player, "item.book.page_turn", 1f, 1.1f);
+                    render();
+                }
+                return;
             }
-            return;
+            if (slot == PREV && page > 0) {
+                page--;
+                layout();
+                render();
+                return;
+            }
+            if (slot == NEXT) {
+                int pages = Math.max(1, (byCat.getOrDefault(current, List.of()).size() + PAGE - 1) / PAGE);
+                if (page < pages - 1) {
+                    page++;
+                    layout();
+                    render();
+                }
+                return;
+            }
         }
         ShopManager.Entry entry = bySlot.get(slot);
         if (entry == null) return;
@@ -160,14 +285,12 @@ public final class ShopMenu extends Menu {
         switch (entry.kind) {
             case COMPRAR -> buy(entry, shift ? 4 : 1);
             case VENDER -> sell(entry, shift);
-            case MEJORA -> upgrade(entry);
+            case MEJORA -> {
+                org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> new ForgeMenu(plugin, player, shop, entry.price).open());
+                return;
+            }
         }
         render();
-    }
-
-    private int slotOf(ShopManager.Entry e) {
-        for (Map.Entry<Integer, ShopManager.Entry> en : bySlot.entrySet()) if (en.getValue() == e) return en.getKey();
-        return e.slot;
     }
 
     private static void glint(ItemStack it) {
@@ -218,7 +341,7 @@ public final class ShopMenu extends Menu {
             bought++;
         }
         if (bought == 0 && soldOut) {
-            Txt.send(player, "<red>Agotado. Se repone en " + sm.restockMinutes(entry) + " min.");
+            Txt.send(player, entry.daily != null ? "<red>Alguien ya compró esa pieza. Mañana habrá otras." : "<red>Agotado. Se repone en " + sm.restockMinutes(entry) + " min.");
             Txt.sound(player, "entity.villager.no", 1f, 1f);
         } else if (bought == 0) {
             Txt.send(player, entry.payWith != null ? "<red>Necesitas " + entry.price + " × " + sm.specName(entry.payWith) + "." : "<red>No te alcanza el dinero.");
@@ -249,32 +372,4 @@ public final class ShopMenu extends Menu {
         }
     }
 
-    private void upgrade(ShopManager.Entry entry) {
-        ItemStack hand = player.getInventory().getItemInMainHand();
-        String id = plugin.items().idOf(hand);
-        var def = id == null ? null : plugin.items().def(id);
-        int max = plugin.getConfig().getInt("mejoras.maximo", 5);
-        if (!plugin.items().upgradable(hand)) {
-            Txt.send(player, "<red>Ten un arma en la mano principal (espada, hacha, maza, tridente, arco…).");
-            return;
-        }
-        if (plugin.items().upgradeLevel(hand) >= max) {
-            Txt.send(player, "<yellow>Esta arma ya está al máximo (+" + max + ").");
-            return;
-        }
-        if (plugin.items().count(player, "fragmento_mejora") < 1) {
-            Txt.send(player, "<red>Necesitas un Fragmento de Mejora.");
-            return;
-        }
-        if (plugin.levels().soles(player) < entry.price) {
-            Txt.send(player, "<red>Necesitas " + plugin.shops().priceText(entry.price) + ".");
-            return;
-        }
-        plugin.levels().takeSoles(player, entry.price);
-        plugin.items().take(player, "fragmento_mejora", 1);
-        plugin.items().upgrade(hand, max);
-        player.getInventory().setItemInMainHand(hand);
-        Txt.send(player, "<gold>¡Bruno mejoró tu arma a +" + plugin.items().upgradeLevel(hand) + "!");
-        Txt.sound(player, "block.anvil.use", 1f, 1f);
-    }
 }

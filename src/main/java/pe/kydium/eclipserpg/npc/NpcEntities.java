@@ -265,6 +265,14 @@ public final class NpcEntities implements Listener {
     public void spawn(String id, Location at) {
         NpcManager.NpcDef def = plugin.npcs().def(id);
         if (def == null || at.getWorld() == null) return;
+        if (!at.getWorld().isChunkLoaded(at.getBlockX() >> 4, at.getBlockZ() >> 4)) {
+            // lejos (otra ciudad): se carga ese pedazo del mundo y luego se crea
+            at.getWorld().getChunkAtAsync(at).thenAccept(c -> Bukkit.getScheduler().runTask(plugin, () -> {
+                spawn(id, at);
+                plugin.saveConfig();
+            }));
+            return;
+        }
         despawn(id);
         String skin = def.skin == null ? "aldeano_1" : def.skin;
         LivingEntity le = summon(safeSpot(at), skin);
@@ -323,6 +331,7 @@ public final class NpcEntities implements Listener {
         for (String id : plugin.npcs().ids()) {
             NpcManager.NpcDef def = plugin.npcs().def(id);
             String k = "npc-lugares." + id;
+            if (def.city != null && !cfg.contains(k + ".x")) continue;   // vive en otra ciudad que aún no existe
             if (cfg.contains(k + ".x")) {
                 World cw = Bukkit.getWorld(cfg.getString(k + ".mundo", w.getName()));
                 spots.put(id, new Location(cw == null ? w : cw, cfg.getDouble(k + ".x"), cfg.getDouble(k + ".y"), cfg.getDouble(k + ".z"),
@@ -351,6 +360,17 @@ public final class NpcEntities implements Listener {
         spawnAll(spots);
         plugin.getConfig().set("npc-firma", signature());
         return spots.size();
+    }
+
+    /** Dónde está (o vive) un NPC aunque su pedazo del mundo no esté cargado. */
+    public Location spotOf(String id) {
+        Entity e = entityOf(id);
+        if (e != null) return e.getLocation();
+        var cfg = plugin.getConfig();
+        String k = "npc-lugares." + id;
+        if (!cfg.contains(k + ".x")) return null;
+        World w = Bukkit.getWorld(cfg.getString(k + ".mundo", "world"));
+        return w == null ? null : new Location(w, cfg.getDouble(k + ".x"), cfg.getDouble(k + ".y"), cfg.getDouble(k + ".z"));
     }
 
     /** Guarda la posición elegida para un NPC (comando /historia colocar). */
@@ -485,7 +505,12 @@ public final class NpcEntities implements Listener {
     public void refreshIfChanged() {
         if (!plugin.village().isGenerated()) return;
         String sig = signature();
-        if (sig.equals(plugin.getConfig().getString("npc-firma")) && npcs.keySet().containsAll(plugin.npcs().ids())) return;
+        java.util.Set<String> expected = new java.util.HashSet<>();
+        for (String id : plugin.npcs().ids()) {
+            NpcManager.NpcDef d = plugin.npcs().def(id);
+            if (d.city == null || plugin.getConfig().contains("npc-lugares." + id + ".x")) expected.add(id);
+        }
+        if (sig.equals(plugin.getConfig().getString("npc-firma")) && npcs.keySet().containsAll(expected)) return;
         int n = placeStoryNpcs();
         plugin.getConfig().set("npc-firma", sig);
         plugin.saveConfig();

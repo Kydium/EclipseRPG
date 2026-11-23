@@ -230,7 +230,7 @@ public final class WorldManager implements Listener {
         }
         if (c.zone != null) {
             Location v = plugin.village().center();
-            boolean in = v != null && v.getWorld() == w && v.distanceSquared(loc) < 70 * 70;
+            boolean in = v != null && v.getWorld() == w && v.distanceSquared(loc) < 70 * 70 || plugin.cities().inside(loc, 10);
             if (in != c.zone.equals("aldea")) return false;
         }
         if (p == null) return true;
@@ -740,15 +740,56 @@ public final class WorldManager implements Listener {
     }
 
     public LivingEntity spawnMob(String mob, Location at) {
-        if (plugin.mobs().def(mob) != null) return plugin.mobs().spawn(mob, at);
+        if (plugin.mobs().def(mob) != null) return roomy(plugin.mobs().spawn(mob, at));
         EntityType t = Reg.entity(mob);
         if (t == null || at.getWorld() == null) return null;
         spawning = true;
         try {
-            return at.getWorld().spawnEntity(at, t) instanceof LivingEntity le ? le : null;
+            return roomy(at.getWorld().spawnEntity(at, t) instanceof LivingEntity le ? le : null);
         } finally {
             spawning = false;
         }
+    }
+
+    /**
+     * Los monstruos altos (gólems…) que salen en cuevas bajas se ahogan en la pared: los mueve a un hueco
+     * donde quepan cerca, y si no hay, no aparecen.
+     */
+    private static LivingEntity roomy(LivingEntity le) {
+        if (le == null || !le.isValid()) return le;
+        int h = (int) Math.ceil(le.getHeight());
+        double w = le.getWidth();
+        if (h <= 2 && w <= 1.01) return le;   // los normales ya los pone bien Minecraft (incluidos los del agua)
+        Location l = le.getLocation();
+        World wd = l.getWorld();
+        if (fits(wd, l.getBlockX(), l.getBlockY(), l.getBlockZ(), h, w)) return le;
+        var r = java.util.concurrent.ThreadLocalRandom.current();
+        for (int t = 0; t < 30; t++) {
+            int x = l.getBlockX() + r.nextInt(-5, 6), z = l.getBlockZ() + r.nextInt(-5, 6);
+            if (!wd.isChunkLoaded(x >> 4, z >> 4)) continue;
+            for (int dy = 3; dy >= -4; dy--) {
+                int y = l.getBlockY() + dy;
+                if (fits(wd, x, y, z, h, w)) {
+                    le.teleport(new Location(wd, x + 0.5, y, z + 0.5, l.getYaw(), 0));
+                    return le;
+                }
+            }
+        }
+        le.remove();
+        return null;
+    }
+
+    private static boolean fits(World w, int x, int y, int z, int h, double width) {
+        if (y <= w.getMinHeight() || y + h >= w.getMaxHeight()) return false;
+        if (!w.getBlockAt(x, y - 1, z).getType().isSolid()) return false;
+        int rad = width > 1.01 ? 1 : 0;   // los anchos (gólem 1.4) necesitan aire alrededor
+        for (int dx = -rad; dx <= rad; dx++)
+            for (int dz = -rad; dz <= rad; dz++)
+                for (int k = 0; k < h; k++) {
+                    var b = w.getBlockAt(x + dx, y + k, z + dz);
+                    if (!b.isPassable() || (dx == 0 && dz == 0 && b.isLiquid())) return false;
+                }
+        return true;
     }
 
     // ------------------------------------------------------------------ Eventos del mundo
@@ -786,6 +827,7 @@ public final class WorldManager implements Listener {
         BossBar.Color c;
         try {
             c = BossBar.Color.valueOf(e.barColor.toUpperCase(Locale.ROOT));
+            if (c == BossBar.Color.WHITE) c = BossBar.Color.PINK;   // las blancas son invisibles (panel de misión)
         } catch (IllegalArgumentException ex) {
             c = BossBar.Color.RED;
         }
@@ -1039,6 +1081,7 @@ public final class WorldManager implements Listener {
             if (w.getDifficulty() == org.bukkit.Difficulty.PEACEFUL || w.getEnvironment() != World.Environment.NORMAL) continue;
             Location v = plugin.village().center();
             if (v != null && v.getWorld() == w && v.distanceSquared(p.getLocation()) < 70 * 70) continue; // la aldea es segura
+            if (plugin.cities().inside(p.getLocation(), 20)) continue;                                  // y las otras ciudades
             int around = 0;
             for (var ent : w.getNearbyEntities(p.getLocation(), 48, 24, 48)) if (ent instanceof Enemy) around++;
             if (around >= Math.min(cap, 14)) continue;

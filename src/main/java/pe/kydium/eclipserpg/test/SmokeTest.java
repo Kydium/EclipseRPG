@@ -69,7 +69,10 @@ public final class SmokeTest {
             public void onTick(com.destroystokyo.paper.event.server.ServerTickEndEvent e) {
                 if (ticks < 3) return; // el arranque no cuenta
                 maxTickMs = Math.max(maxTickMs, e.getTickDuration());
-                if (e.getTickDuration() > 1000) slowTicks++;
+                if (e.getTickDuration() > 1000) {
+                    slowTicks++;
+                    plugin.getLogger().info(String.format(java.util.Locale.ROOT, "[PRUEBA] tick lento: %.0f ms (etapa %d, segundo %d)", e.getTickDuration(), stage, ticks));
+                }
             }
         }, plugin);
         checkStory();
@@ -82,9 +85,35 @@ public final class SmokeTest {
         var st = plugin.story();
         for (var pr : st.problems()) plugin.getLogger().info("[PRUEBA] historia: " + pr);
         check(st.errorCount() == 0, "la historia de ejemplo no tiene errores (" + st.errorCount() + ")");
-        check(st.doc().missions.size() == 110, "la historia tiene 110 misiones (" + st.doc().missions.size() + ")");
-        check(st.doc().npcs.size() == 8 && plugin.npcs().ids().size() == 8, "la historia tiene 8 NPCs");
-        check(plugin.quests().total() == 110, "el motor cargó 110 misiones (" + plugin.quests().total() + ")");
+        long roots = st.doc().missions.stream().filter(m -> m.root == null).count();
+        check(roots >= 70 && st.doc().missions.size() >= 130, "la historia tiene " + roots + " misiones en " + st.doc().missions.size() + " etapas");
+        check(st.doc().npcs.size() == 25 && plugin.npcs().ids().size() == 25, "la historia tiene 25 NPCs (" + st.doc().npcs.size() + ")");
+        check(st.doc().cities.size() == 5 && plugin.cities().ids().size() == 5 && plugin.structures().def("ciudad_hornoviejo") != null,
+                "la historia tiene 5 ciudades registradas como estructuras");
+        check(plugin.quests().total() == st.doc().missions.size() && plugin.quests().missionCount() == roots,
+                "el motor cargó todas las etapas (" + plugin.quests().total() + ")");
+        int multi = 0, autos = 0, talks = 0;
+        for (int i = 1; i <= plugin.quests().total(); i++) {
+            var q = plugin.quests().byNumber(i);
+            if (q.stages > 1 && q.stage == 1) multi++;
+            if (q.auto) autos++;
+            talks += q.talks.size();
+        }
+        check(multi >= 40 && autos >= 20 && talks >= 15, "misiones con etapas, etapas automáticas y conversaciones (" + multi + "/" + autos + "/" + talks + ")");
+        // ETAPA y CIUDAD en una historia pequeña
+        var rsc = new pe.kydium.eclipserpg.story.StoryParser(st.dictionary(), st.catalog()).parse(List.of(
+                "HISTORIA: Etapas", "CIUDAD puerto", "  nombre: Puerto Lejano", "  tamaño: chica", "  distancia: 500-700", "  dirección: sur",
+                "NPC a", "  nombre: Ana", "  skin: anciana", "NPC b", "  nombre: Beto", "  skin: herrero", "  ciudad: puerto",
+                "MISIÓN Larga", "  npc: a", "  dice: Hola", "  objetivo: llega a la ciudad Puerto Lejano", "  conversa: b | Te esperaba",
+                "  ETAPA Segunda", "    npc: b", "    dice: Sigue", "    objetivo: habla con Ana", "    conversa: a | ¡Volviste!",
+                "  ETAPA Tercera", "    objetivo: entrega 3 pan"));
+        for (var pr : rsc.problems()) plugin.getLogger().info("[PRUEBA] etapas: " + pr);
+        var ms = rsc.doc().missions;
+        check(rsc.errors() == 0 && ms.size() == 3 && ms.get(1).root == ms.get(0) && ms.get(2).stage == 3 && ms.get(0).stages == 3
+                        && "a".equals(ms.get(2).npc) && "puerto".equals(rsc.doc().npcs.get("b").city) && ms.get(1).talks.containsKey("a")
+                        && "ESTRUCTURA".equals(ms.get(0).objectives.get(0).type) && ms.get(0).objectives.get(0).targets.contains("ciudad_puerto")
+                        && "sur".equals(rsc.doc().cities.get("puerto").direction),
+                "ETAPA, CONVERSA y CIUDAD se leen bien");
         // la plantilla de /historia nueva
         try (var in = plugin.getResource("motor/plantilla.txt")) {
             var lines = java.util.Arrays.asList(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).split("\\R"));
@@ -194,7 +223,7 @@ public final class SmokeTest {
     private void tick() {
         ticks++;
         try {
-            if (ticks > 1100) {
+            if (ticks > 1400) {
                 fail("tiempo agotado en la etapa " + stage);
                 finish();
                 return;
@@ -228,6 +257,8 @@ public final class SmokeTest {
                     checkDeaths();
                     checkReplies();
                     checkBagsAndBlocks();
+                    checkCitiesBegin();
+                    checkV71();
                     plugin.dungeons().buildForTest(1);
                     stage = 3;
                 }
@@ -245,8 +276,9 @@ public final class SmokeTest {
                     }
                 }
                 case 5 -> {
-                    if ((generatedDone < 6 || !structureDone) && genWait++ < 80) return;
+                    if ((generatedDone < 6 || !structureDone || cityInst == null) && genWait++ < 120) return;
                     checkWorldEnd();
+                    checkCitiesEnd();
                     checkStructuresEnd();
                     checkGeneratorsEnd();
                     finish();
@@ -293,7 +325,7 @@ public final class SmokeTest {
                 if (m.customName() == null) fail("el NPC " + e.getKey() + " no tiene nombre");
             } else fail("el NPC " + e.getKey() + " no existe como maniquí");
         }
-        check(alive == 8, "los 8 NPCs de la historia existen (" + alive + ")");
+        check(alive == 9, "los 9 NPCs de la aldea existen (" + alive + ")");
         int fill = 0;
         for (UUID u : plugin.npcEntities().fillerIds()) {
             Entity en = Bukkit.getEntity(u);
@@ -362,6 +394,87 @@ public final class SmokeTest {
         check(spawners > 0, "la mazmorra tiene generadores (" + spawners + ")");
         Block gate = w.getBlockAt(e[0], e[1], e[2]);
         check(gate.isPassable(), "la entrada de la mazmorra está libre (" + gate.getType() + ")");
+        int rooms = plugin.dungeons().roomCount(1), floors = plugin.dungeons().floorCount(1);
+        plugin.getLogger().info("[PRUEBA] mazmorra: " + rooms + " salas en " + floors + " niveles de suelo, " + (b.x2() - b.x1()) + "x" + (b.z2() - b.z1()) + " bloques");
+        check(rooms >= 25, "la mazmorra es enorme (" + rooms + " salas)");
+        // ¿se puede llegar caminando desde la entrada hasta la sala del jefe?
+        Box boss = plugin.dungeons().bossBox(1);
+        DEBUG_ROOMS = plugin.dungeons().roomBoxes(1);
+        check(boss != null && walkable(w, b, e, boss), "se puede llegar caminando de la entrada a la sala del jefe");
+    }
+
+    /** Búsqueda por anchura sobre lugares donde cabe un jugador: pasos de 1 arriba, caídas de hasta 3. */
+    private static boolean walkable(World w, Box b, int[] e, Box goal) {
+        int sx = b.x2() - b.x1() + 3, sy = b.y2() - b.y1() + 3, sz = b.z2() - b.z1() + 3;
+        int ox = b.x1() - 1, oy = b.y1() - 1, oz = b.z1() - 1;
+        java.util.BitSet seen = new java.util.BitSet(sx * sy * sz);
+        java.util.ArrayDeque<int[]> q = new java.util.ArrayDeque<>();
+        int ey = e[1];
+        while (ey > oy && !stand(w, e[0], ey, e[2])) ey--;
+        q.add(new int[]{e[0], ey, e[2]});
+        while (!q.isEmpty()) {
+            int[] c = q.poll();
+            int idx = ((c[0] - ox) * sy + (c[1] - oy)) * sz + (c[2] - oz);
+            if (c[0] < ox || c[1] < oy || c[2] < oz || c[0] >= ox + sx || c[1] >= oy + sy || c[2] >= oz + sz || seen.get(idx)) continue;
+            seen.set(idx);
+            if (goal.contains(c[0], c[1], c[2]) && !DEBUG_WALK) return true;
+            for (int[] d : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+                int nx = c[0] + d[0], nz = c[2] + d[1];
+                for (int dy = 1; dy >= -3; dy--) {
+                    int ny = c[1] + dy;
+                    if (dy == 1 && !w.getBlockAt(c[0], c[1] + 2, c[2]).isPassable()) continue;   // sin espacio para saltar
+                    if (stand(w, nx, ny, nz)) {
+                        q.add(new int[]{nx, ny, nz});
+                        break;
+                    }
+                    if (!w.getBlockAt(nx, ny, nz).isPassable() || !w.getBlockAt(nx, ny + 1, nz).isPassable()) break;
+                }
+            }
+        }
+        if (DEBUG_WALK) for (Box r : DEBUG_ROOMS) {
+            boolean hit = false;
+            for (int x = r.x1(); x <= r.x2() && !hit; x++)
+                for (int z = r.z1(); z <= r.z2() && !hit; z++)
+                    for (int y = r.y1(); y <= r.y1() + 2 && !hit; y++) {
+                        int idx = ((x - ox) * sy + (y - oy)) * sz + (z - oz);
+                        if (seen.get(idx)) hit = true;
+                    }
+            Bukkit.getLogger().info("[PRUEBA] sala " + r.x1() + "," + r.y1() + "," + r.z1() + " a " + r.x2() + "," + r.y2() + "," + r.z2() + (hit ? " alcanzada" : " NO ALCANZADA"));
+        }
+        if (DEBUG_WALK) try (java.io.PrintWriter pw = new java.io.PrintWriter("debug-mazmorra.txt")) {
+            java.util.TreeSet<Integer> ys = new java.util.TreeSet<>();
+            for (Box r : DEBUG_ROOMS) ys.add(r.y1());
+            for (int y : ys.descendingSet()) {
+                pw.println("Y " + y + " x0=" + b.x1() + " z0=" + b.z1());
+                for (int z = b.z1(); z <= b.z2(); z++) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int x = b.x1(); x <= b.x2(); x++) {
+                        boolean reached = false;
+                        for (int yy = y - 1; yy <= y + 1 && !reached; yy++) {
+                            int idx = ((x - ox) * sy + (yy - oy)) * sz + (z - oz);
+                            if (yy >= oy && seen.get(idx)) reached = true;
+                        }
+                        Block f = w.getBlockAt(x, y, z), bl = w.getBlockAt(x, y - 1, z);
+                        char ch = reached ? '+' : f.getType() == Material.WATER || bl.getType() == Material.WATER ? '~'
+                                : bl.getType() == Material.LAVA || f.getType() == Material.LAVA ? 'L'
+                                : f.getType().name().endsWith("STAIRS") ? 'S' : f.isPassable() ? (bl.getType().isSolid() ? 'o' : ' ') : '#';
+                        sb.append(ch);
+                    }
+                    pw.println(sb);
+                }
+            }
+        } catch (java.io.IOException ignored) {
+        }
+        return false;
+    }
+
+    static boolean DEBUG_WALK = Boolean.getBoolean("eclipse.debugwalk");   // -Declipse.debugwalk=true: dice qué salas no se alcanzan
+    static List<Box> DEBUG_ROOMS = new ArrayList<>();
+
+    private static boolean stand(World w, int x, int y, int z) {
+        Block feet = w.getBlockAt(x, y, z), head = w.getBlockAt(x, y + 1, z), below = w.getBlockAt(x, y - 1, z);
+        return (feet.isPassable() || feet.isLiquid()) && (head.isPassable() || head.isLiquid()) && feet.getType() != Material.LAVA
+                && (below.getType().isSolid() || below.isLiquid() && below.getType() == Material.WATER || feet.getType().name().endsWith("STAIRS"));
     }
 
     /** Revisa que todos los bloques de los 10 temas y de las ruinas existan en esta versión. */
@@ -443,7 +556,7 @@ public final class SmokeTest {
             var rev = http.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + "/api/revisar")).header("X-Token", tok)
                     .POST(java.net.http.HttpRequest.BodyPublishers.ofString(text)).build(), java.net.http.HttpResponse.BodyHandlers.ofString());
             var rj = com.google.gson.JsonParser.parseString(rev.body()).getAsJsonObject();
-            check(rj.get("errores").getAsInt() == 0 && rj.get("misiones").getAsInt() == 110, "el editor revisa la historia (0 errores, 110 misiones)");
+            check(rj.get("errores").getAsInt() == 0 && rj.get("misiones").getAsInt() == plugin.story().doc().missions.size(), "el editor revisa la historia (0 errores, " + rj.get("misiones").getAsInt() + " misiones)");
             var bad = http.send(java.net.http.HttpRequest.newBuilder(java.net.URI.create(base + "/api/revisar")).header("X-Token", tok)
                     .POST(java.net.http.HttpRequest.BodyPublishers.ofString("HISTORIA: x\nMISIÓN y\n  objetivo: bailar\n")).build(),
                     java.net.http.HttpResponse.BodyHandlers.ofString());
@@ -691,6 +804,9 @@ public final class SmokeTest {
         check(legendary > 0, "la forja legendaria trae un arma con poderes en el altar (" + legendary + ")");
         check(rich > 0, "hay botín valioso en los tesoros escondidos (" + rich + " objetos)");
         check(spawners > 0 && typed == spawners, "los generadores de monstruos tienen su criatura (" + typed + "/" + spawners + ")");
+        int stuckM = 0, totalM = 0;
+        for (var i : generated) { int[] r = plugin.structures().testWave(i); stuckM += r[0]; totalM += r[1]; }
+        check(totalM > 0 && stuckM == 0, "los monstruos de las estructuras aparecen en espacio libre (" + stuckM + " atrapados de " + totalM + ")");
         for (var i : generated) {
             World w = Bukkit.getWorld(i.world);
             int solid = 0, chests = 0;
@@ -708,19 +824,25 @@ public final class SmokeTest {
     private void checkReplies() {
         var q1 = plugin.quests().byNumber(1);
         check(q1 != null && q1.replies.size() == 2 && q1.replies.get(0).contains("madera"), "las misiones tienen respuestas propias del jugador");
-        pe.kydium.eclipserpg.quests.Quest boss = null, give = null;
-        for (int i = 1; i <= 200; i++) {
-            var q = plugin.quests().byNumber(i);
-            if (q == null) break;
-            if (q.replies.isEmpty() && q.boss && boss == null) boss = q;
-            if (q.replies.isEmpty() && !q.boss && give == null && !q.objectives.isEmpty() && q.objectives.get(0).type == pe.kydium.eclipserpg.quests.Quest.Type.ENTREGAR) give = q;
-        }
+        var boss = new pe.kydium.eclipserpg.quests.Quest();
+        boss.id = "jefe";
+        boss.boss = true;
+        var bo = new pe.kydium.eclipserpg.quests.Quest.Objective();
+        bo.type = pe.kydium.eclipserpg.quests.Quest.Type.MOB;
+        bo.text = "Derrota al Rey de Ceniza";
+        boss.objectives.add(bo);
+        var give = new pe.kydium.eclipserpg.quests.Quest();
+        give.id = "entrega";
+        var go = new pe.kydium.eclipserpg.quests.Quest.Objective();
+        go.type = pe.kydium.eclipserpg.quests.Quest.Type.ENTREGAR;
+        go.text = "Entrega 20 panes";
+        give.objectives.add(go);
         String br = boss == null ? "" : boss.autoReply(), gr = give == null ? "" : give.autoReply();
         plugin.getLogger().info("[PRUEBA] respuesta automática de jefe: " + br + " | de entrega: " + gr);
         check(br.contains("Derrotaré") && gr.contains("Te traeré"), "si no tiene respuesta, el jugador contesta según el objetivo");
         // misiones variadas: resistir, tesoro, acertijo y tiempo
         int surv = 0, tre = 0, rid = 0, timed = 0;
-        for (int i = 1; i <= 200; i++) {
+        for (int i = 1; i <= 400; i++) {
             var q = plugin.quests().byNumber(i);
             if (q == null) break;
             for (var o : q.objectives) {
@@ -835,10 +957,10 @@ public final class SmokeTest {
     private void checkReload() {
         var before = new java.util.HashMap<>(plugin.npcEntities().storyIds());
         var r = plugin.reloadStory(false);
-        check(r.errors() == 0 && plugin.quests().total() == 110, "/historia recargar funciona");
+        check(r.errors() == 0 && plugin.quests().total() == plugin.story().doc().missions.size(), "/historia recargar funciona");
         int alive = 0;
         for (UUID u : plugin.npcEntities().storyIds().values()) if (Bukkit.getEntity(u) instanceof Mannequin m && m.isValid()) alive++;
-        check(alive == 8, "después de recargar siguen los 8 NPCs (" + alive + ")");
+        check(alive == 9, "después de recargar siguen los 9 NPCs (" + alive + ")");
         int dupes = 0;
         for (UUID u : before.values()) if (Bukkit.getEntity(u) != null && !plugin.npcEntities().storyIds().containsValue(u)) dupes++;
         check(dupes == 0, "recargar no deja NPCs duplicados (" + dupes + ")");
@@ -850,6 +972,218 @@ public final class SmokeTest {
         check(en != null && en.getLocation().distance(to) < 3, "/historia colocar mueve al NPC");
         plugin.getConfig().set("npc-lugares." + id, null);
         plugin.npcEntities().placeStoryNpcs();
+    }
+
+    // ---------------------------------------------------------------- ciudades y peligro
+
+    private pe.kydium.eclipserpg.structure.StructureManager.Inst cityInst;
+
+    private void checkCitiesBegin() {
+        check(!plugin.cities().isBuilt("hornoviejo"), "Hornoviejo no existe hasta que la historia lleva allí");
+        plugin.structures().build("ciudad_hornoviejo", null, inst -> {
+            cityInst = inst;
+            if (inst != null) plugin.cities().placeNpcs("hornoviejo", inst);
+        });
+    }
+
+    private void checkV71() {
+        // íconos dibujados en vez de emojis
+        pe.kydium.eclipserpg.util.Icons.enabled = true;
+        String t = pe.kydium.eclipserpg.util.Icons.apply("<gold>☀ Soles 📖 ⚔");
+        check(t.contains("eclipse:iconos") && !t.contains("📖") && !t.contains("☀"), "los emojis se cambian por íconos dibujados");
+        String fj = pe.kydium.eclipserpg.util.Icons.fontJson();
+        check(new com.google.gson.JsonParser().parse(fj).getAsJsonObject().getAsJsonArray("providers").size() == pe.kydium.eclipserpg.util.Icons.NAMES.size(),
+                "la letra de íconos es JSON válido (" + pe.kydium.eclipserpg.util.Icons.NAMES.size() + " íconos)");
+        int missing = 0;
+        for (String n : pe.kydium.eclipserpg.util.Icons.NAMES) if (plugin.getResource("motor/hud/iconos/" + n + ".png") == null) missing++;
+        check(missing == 0 && plugin.getResource("motor/hud/caja.png") != null && plugin.getResource("motor/hud/barra_vacia.png") != null,
+                "están los dibujos de íconos, el cuadro del panel y la barra invisible");
+        // los Corrompidos no se pegan entre ellos
+        World w = Bukkit.getWorlds().get(0);
+        Location c = plugin.village().center().clone().add(60, 0, 60);
+        c.setY(w.getHighestBlockYAt(c) + 1);
+        LivingEntity a = (LivingEntity) w.spawnEntity(c, org.bukkit.entity.EntityType.ZOMBIE);
+        LivingEntity b = (LivingEntity) w.spawnEntity(c.clone().add(1, 0, 0), org.bukkit.entity.EntityType.SKELETON);
+        LivingEntity g = plugin.mobs().spawn("golem_corrompido", c.clone().add(-1, 0, 0));
+        plugin.mobs().corrupt(a, 2);
+        plugin.mobs().corrupt(b, 2);
+        double ha = a.getHealth(), hb = b.getHealth();
+        a.damage(5, b);
+        b.damage(5, a);
+        boolean golemOk = true;
+        if (g != null) {
+            double hg = g.getHealth();
+            g.damage(5, a);
+            a.damage(5, g);
+            golemOk = g.getHealth() == hg;
+        }
+        check(a.getHealth() == ha && b.getHealth() == hb && golemOk, "los Corrompidos y el gólem corrompido no se hacen daño entre ellos");
+        a.remove();
+        b.remove();
+        if (g != null) g.remove();
+        check(plugin.items().create("esencia_corrupta", 1) != null && plugin.items().create("corazon_corrupto", 1) != null,
+                "existen la Esencia y el Corazón Corrupto (premios por matar Corrompidos)");
+        check(plugin.shops().ids().contains("trueque") && plugin.npcs().def("sabina") != null, "Sabina tiene su tienda de trueque");
+        int effects = 0;
+        for (var st : pe.kydium.eclipserpg.rpg.Stat.values()) if (!plugin.levels().statEffects(st, 3).isEmpty()) effects++;
+        check(pe.kydium.eclipserpg.rpg.Stat.values().length == 8 && effects == 8, "hay 8 atributos estilo Elden Ring y todos explican su efecto (" + effects + ")");
+        check(plugin.levels().perPoint(pe.kydium.eclipserpg.rpg.Stat.INTELIGENCIA) > 0 && plugin.levels().maxPoints(pe.kydium.eclipserpg.rpg.Stat.FE) > 0,
+                "los atributos nuevos tienen valores aunque el config.yml sea viejo");
+        {
+            World tw = Bukkit.getWorlds().get(0);
+            Location tl = plugin.village().center().clone().add(30, 0, 30);
+            tl.setY(tw.getHighestBlockYAt(tl) + 1);
+            var z = (org.bukkit.entity.Zombie) tw.spawnEntity(tl, org.bukkit.entity.EntityType.ZOMBIE);
+            z.damage(4);
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                var n = z.customName();
+                String txt = n == null ? "" : net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(n);
+                check(txt.contains("❤") && txt.contains("/20") && z.isCustomNameVisible(), "al golpear un monstruo se ve su vida (" + txt + ")");
+                z.setHealth(0);
+            }, 2L);
+        }
+        {
+            World tw = Bukkit.getWorlds().get(0);
+            Location base = plugin.village().center().clone().add(60, 0, -60);
+            base.setY(tw.getHighestBlockYAt(base) + 2);
+            java.util.Set<org.bukkit.entity.EntityType> types = new java.util.HashSet<>();
+            int bosses = 0, capped = 0, spawned = 0;
+            java.util.Set<org.bukkit.entity.EntityType> common = new java.util.HashSet<>();
+            for (String id : plugin.mobs().ids()) {
+                var d = plugin.mobs().def(id);
+                if (d != null && !d.boss) common.add(d.type);
+            }
+            boolean clash = false;
+            for (String id : plugin.mobs().ids()) {
+                var d = plugin.mobs().def(id);
+                if (d == null || !d.boss) continue;
+                bosses++;
+                types.add(d.type);
+                if (common.contains(d.type)) clash = true;
+                var le = plugin.mobs().spawn(id, base.clone().add(bosses * 6, 0, 0));
+                if (le == null) continue;
+                spawned++;
+                double before = le.getHealth();
+                le.damage(100000);
+                if (!le.isDead() && le.getHealth() >= before - le.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH).getValue() * 0.051) capped++;
+                le.remove();
+            }
+            check(bosses == 10 && types.size() == 10 && !clash, "los 10 jefes son de criaturas distintas y ningún mob común se les parece (" + types.size() + ")");
+            check(spawned == 10 && capped == 10, "ningún golpe le quita a un jefe más del 5 % de su vida (" + capped + "/" + spawned + ")");
+        }
+        {
+            // tiendas v7.7: vender lo que sea, armaduras del día, categorías, mejoras hasta +10
+            var sm = plugin.shops();
+            var vals = sm.values();
+            double dia = vals.value(new org.bukkit.inventory.ItemStack(Material.DIAMOND, 2)), dirt = vals.value(new org.bukkit.inventory.ItemStack(Material.DIRT, 64));
+            var bread = vals.value(new org.bukkit.inventory.ItemStack(Material.BREAD, 8));
+            check(dia >= 30 && dirt < 3 && bread < 20 * 0.41, "el mercader paga por cualquier cosa, sin dar más de lo que cuesta comprarla (2 diamantes " + (int) dia + ", 64 tierra " + String.format(java.util.Locale.ROOT, "%.1f", dirt) + ", 8 panes " + String.format(java.util.Locale.ROOT, "%.1f", bread) + ")");
+            var solar = plugin.items().create("fragmento_solar_1", 1);
+            var bag = plugin.items().create("mochila_pequena", 1);
+            check(vals.refuse(solar) != null && vals.refuse(bag) != null, "no compra objetos de la historia ni mochilas");
+            var gen = sm.shop("general");
+            var daily = sm.dailyArmor(gen);
+            var again = sm.dailyArmor(gen);
+            boolean same = daily.size() == again.size();
+            for (int i = 0; same && i < daily.size(); i++) same = sm.build(daily.get(i)).isSimilar(sm.build(again.get(i)));
+            java.util.Set<String> names = new java.util.HashSet<>();
+            for (var de : daily) { var bi = sm.build(de); names.add(bi.getItemMeta().hasDisplayName() ? net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(bi.getItemMeta().displayName()) : bi.getType().name()); }
+            check(daily.size() == 8 && same && names.size() == 8, "Pip trae 8 novedades hoy (armaduras y curiosidades), iguales para todos (" + names + ")");
+            int built = 0, total = 0, potions = 0, runes = 0;
+            for (String sid : List.of("herreria", "alquimia", "trueque")) {
+                for (var de : sm.dailyArmor(sm.shop(sid))) {
+                    total++;
+                    var it2 = sm.build(de);
+                    if (it2 != null) built++;
+                    if (it2 != null && it2.getItemMeta() instanceof org.bukkit.inventory.meta.PotionMeta pm && pm.hasCustomEffects()) potions++;
+                    if (it2 != null && !pe.kydium.eclipserpg.items.Powers.runesOf(it2.getItemMeta()).isEmpty()) runes++;
+                }
+            }
+            check(total == 14 && built == 14 && potions >= 3, "Bruno, Fray Odón y Sabina también traen novedades cada día (" + built + "/" + total + ", " + potions + " elixires, " + runes + " con poderes)");
+            java.util.Set<String> cats = new java.util.TreeSet<>();
+            for (var e2 : sm.visibleEntries(gen)) cats.add(pe.kydium.eclipserpg.shop.ShopMenu.categoryOf(plugin, e2));
+            check(cats.size() >= 4 && cats.contains("novedades") && cats.contains("comida"), "la tienda de Pip está ordenada por categorías " + cats);
+            var sword = new org.bukkit.inventory.ItemStack(Material.DIAMOND_SWORD);
+            for (int i = 0; i < 10; i++) plugin.items().upgrade(sword, 10);
+            double extra = 0;
+            for (var m : sword.getItemMeta().getAttributeModifiers(org.bukkit.attribute.Attribute.ATTACK_DAMAGE))
+                if (m.getKey().getKey().equals("mejora")) extra += m.getAmount();
+            var chest = new org.bukkit.inventory.ItemStack(Material.IRON_CHESTPLATE);
+            for (int i = 0; i < 9; i++) plugin.items().upgrade(chest, 10);
+            double armor = 0, hp = 0;
+            for (var m : chest.getItemMeta().getAttributeModifiers(org.bukkit.attribute.Attribute.ARMOR)) armor += m.getAmount();
+            var hpm = chest.getItemMeta().getAttributeModifiers(org.bukkit.attribute.Attribute.MAX_HEALTH);
+            if (hpm != null) for (var m : hpm) hp += m.getAmount();
+            check(plugin.items().upgradeLevel(sword) == 10 && extra == 13.5 && armor >= 6 + 4.5 && hp == 2,
+                    "las mejoras llegan a +10 en armas y armaduras (+" + extra + " daño, armadura " + armor + ", +" + hp + " vida)");
+            check(plugin.items().create("fragmento_mejora_superior", 1) != null && plugin.items().create("fragmento_mejora_ancestral", 1) != null
+                    && "fragmento_mejora_ancestral".equals(pe.kydium.eclipserpg.items.ItemManager.fragmentFor(9)), "existen los fragmentos Superior y Ancestral");
+        }
+        check(pe.kydium.eclipserpg.menu.Menu.isFiller(pe.kydium.eclipserpg.menu.Menu.filler())
+                && !pe.kydium.eclipserpg.menu.Menu.isFiller(new org.bukkit.inventory.ItemStack(Material.BLACK_STAINED_GLASS_PANE)),
+                "los cristales de relleno de los menús se reconocen (y se quitan si llegan al inventario)");
+        {
+            var sw = new org.bukkit.inventory.ItemStack(Material.IRON_SWORD);
+            int r0 = plugin.powers().maxRunes(sw);
+            for (int i = 0; i < 10; i++) plugin.items().upgrade(sw, 10);
+            check(r0 == 5 && plugin.powers().maxRunes(sw) == 7, "se pueden poner varias runas: 5 por objeto y hasta 7 a +10 (" + r0 + " → " + plugin.powers().maxRunes(sw) + ")");
+        }
+        var vida = Bukkit.getScoreboardManager().getMainScoreboard().getObjective("eclipse_vida");
+        check(vida != null && vida.getDisplaySlot() == org.bukkit.scoreboard.DisplaySlot.BELOW_NAME, "la vida se muestra debajo del nombre de los jugadores");
+    }
+
+    private void checkCitiesEnd() {
+        var inst = cityInst;
+        check(inst != null, "se construyó la ciudad Hornoviejo");
+        if (inst == null) return;
+        Location c = plugin.village().center();
+        double dist = Math.hypot(inst.x - c.getX(), inst.z - c.getZ());
+        check(dist >= 500 && inst.x > c.getX(), "Hornoviejo está lejos, al este de la aldea (" + (int) dist + " bloques)");
+        check(inst.places.size() >= 5, "la ciudad guardó lugares para NPCs (" + inst.places.size() + ")");
+        int ok = 0;
+        for (String id : List.of("greta", "tobias", "ilse")) {
+            Location l = plugin.npcEntities().spotOf(id);
+            if (l != null && Math.hypot(l.getX() - inst.x, l.getZ() - inst.z) < Math.max(inst.rx, inst.rz) + 8) ok++;
+        }
+        check(ok == 3, "los 3 NPCs de Hornoviejo viven en la ciudad (" + ok + "/3)");
+        World w = Bukkit.getWorld(inst.world);
+        check(w != null && plugin.cities().inside(new Location(w, inst.x, inst.y + 2, inst.z), 0), "la ciudad está protegida como la aldea");
+        // piedras de viaje: aldea y Hornoviejo
+        if (w != null) {
+            w.getChunkAt(inst.x >> 4, inst.z >> 4);
+            w.getChunkAt(c.getBlockX() >> 4, c.getBlockZ() >> 4);
+        }
+        plugin.waystones().ensureAll();
+        var stones = plugin.waystones().all();
+        int lode = 0;
+        for (var st : stones) {
+            World sw = Bukkit.getWorld(st.world());
+            if (sw != null && sw.getBlockAt(st.x(), st.y(), st.z()).getType() == org.bukkit.Material.LODESTONE) lode++;
+            plugin.getLogger().info("[PRUEBA] piedra de viaje " + st.id() + " en " + st.x() + " " + st.y() + " " + st.z());
+        }
+        boolean both = stones.stream().anyMatch(st -> st.id().equals("aldea")) && stones.stream().anyMatch(st -> st.id().equals("hornoviejo"));
+        check(both && lode == stones.size(), "hay piedras de viaje en la aldea y en Hornoviejo (" + lode + "/" + stones.size() + ")");
+        if (both) {
+            var a1 = stones.stream().filter(st -> st.id().equals("aldea")).findFirst().get();
+            var a2 = stones.stream().filter(st -> st.id().equals("hornoviejo")).findFirst().get();
+            long cost = plugin.waystones().cost(a1, a2);
+            check(cost >= 5 && cost < 200, "viajar de la aldea a Hornoviejo cuesta algo razonable (" + cost + " ☀)");
+        }
+        if (both) {
+            var a1 = stones.stream().filter(st -> st.id().equals("aldea")).findFirst().get();
+            World sw = Bukkit.getWorld(a1.world());
+            sw.getBlockAt(a1.x(), a1.y(), a1.z()).setType(org.bukkit.Material.AIR);
+            plugin.waystones().ensureAll();
+            check(sw.getBlockAt(a1.x(), a1.y(), a1.z()).getType() == org.bukkit.Material.LODESTONE, "si la piedra de viaje desaparece, se vuelve a poner sola");
+        }
+        var golem = w == null ? null : plugin.world().spawnMob("iron_golem", new Location(w, inst.x + 0.5, w.getMinHeight() + 6, inst.z + 0.5));
+        check(golem == null || golem.getLocation().getBlock().isPassable() && golem.getLocation().clone().add(0, 2, 0).getBlock().isPassable(),
+                "un gólem que sale en un hueco bajo se mueve a donde quepa o no aparece");
+        if (golem != null) golem.remove();
+        int traders = w == null ? 0 : plugin.minimap().traders(w).size();
+        check(traders >= 5, "el mapa conoce a los comerciantes (" + traders + ")");
+        int th = plugin.structures().threat(inst, plugin.structures().def("fortaleza"));
+        check(th >= 2, "el peligro sube con la distancia (" + th + " ☠ a " + (int) dist + " bloques)");
     }
 
     private void finish() {

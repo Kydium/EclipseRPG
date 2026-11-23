@@ -56,15 +56,83 @@ public final class LevelManager implements Listener {
     }
 
     public double perPoint(Stat s) {
-        return cfg().getDouble("stats." + s.id + ".por-punto", 1.0);
+        return cfg().getDouble("stats." + s.id + ".por-punto", s.defPerPoint);
     }
 
     public int maxPoints(Stat s) {
-        return cfg().getInt("stats." + s.id + ".maximo", 20);
+        return cfg().getInt("stats." + s.id + ".maximo", s.defMax);
+    }
+
+    /** Valor secundario de un atributo (config stats.<id>.<clave>). */
+    private double extra(Stat s, String key, double def) {
+        return cfg().getDouble("stats." + s.id + "." + key, def);
     }
 
     public String statDescription(Stat s) {
-        return cfg().getString("stats." + s.id + ".descripcion", "");
+        return s.summary;
+    }
+
+    /** Lo que da un atributo con `n` puntos, una línea por efecto. */
+    public java.util.List<String> statEffects(Stat s, int n) {
+        double pp = perPoint(s);
+        return switch (s) {
+            case VIDA -> java.util.List.of("+" + Txt.dec(n * pp) + " de vida máxima");
+            case MENTE -> java.util.List.of("+" + Txt.dec(n * pp) + "% de probabilidad de poderes",
+                    "-" + Txt.dec(Math.min(50, n * extra(s, "recarga", 1.5))) + "% de recarga de poderes");
+            case DEFENSA -> java.util.List.of("+" + Txt.dec(n * pp) + " de armadura",
+                    "+" + Txt.dec(Math.min(100, n * extra(s, "empuje", 2))) + "% de firmeza (menos empuje)",
+                    Txt.dec(Math.min(60, n * extra(s, "hambre", 3))) + "% de no gastar hambre");
+            case FUERZA -> java.util.List.of("+" + Txt.dec(n * pp) + " de daño", "+" + Txt.dec(n * extra(s, "pesadas", 1.5)) + "% con hachas y mazas");
+            case AGILIDAD -> java.util.List.of("+" + Txt.dec(n * pp) + "% de velocidad", "+" + Txt.dec(n * extra(s, "ataque", 1.5)) + "% de velocidad de ataque",
+                    "+" + Txt.dec(n * extra(s, "distancia", 2)) + "% de daño con arcos y tridentes");
+            case INTELIGENCIA -> java.util.List.of("+" + Txt.dec(n * pp) + "% de daño de poderes mágicos");
+            case FE -> java.util.List.of("+" + Txt.dec(n * pp) + "% de curación", "+" + Txt.dec(n * extra(s, "corrompidos", 2)) + "% de daño a Corrompidos");
+            case FORTUNA -> java.util.List.of("+" + Txt.dec(n * pp) + "% de Soles y botín", "+" + Txt.dec(n * extra(s, "suerte", 0.1)) + " de suerte");
+        };
+    }
+
+    private int pts(Player p, Stat s) {
+        return plugin.data().get(p).stat(s.id);
+    }
+
+    /** Mente: cuánto sube la probabilidad de los poderes (0.2 = +20 % relativo). */
+    public double mind(Player p) {
+        return pts(p, Stat.MENTE) * perPoint(Stat.MENTE) / 100.0;
+    }
+
+    /** Mente: multiplicador de las recargas de poderes (1 = normal). */
+    public double cooldownMult(Player p) {
+        return 1 - Math.min(0.5, pts(p, Stat.MENTE) * extra(Stat.MENTE, "recarga", 1.5) / 100.0);
+    }
+
+    /** Inteligencia: multiplicador del daño de poderes mágicos. */
+    public double magic(Player p) {
+        return 1 + pts(p, Stat.INTELIGENCIA) * perPoint(Stat.INTELIGENCIA) / 100.0;
+    }
+
+    /** Fe: multiplicador de curación. */
+    public double healMult(Player p) {
+        return 1 + pts(p, Stat.FE) * perPoint(Stat.FE) / 100.0;
+    }
+
+    /** Fe: multiplicador de daño contra Corrompidos. */
+    public double holyMult(Player p) {
+        return 1 + pts(p, Stat.FE) * extra(Stat.FE, "corrompidos", 2) / 100.0;
+    }
+
+    /** Fuerza: multiplicador con armas pesadas (hachas y mazas). */
+    public double heavyMult(Player p) {
+        return 1 + pts(p, Stat.FUERZA) * extra(Stat.FUERZA, "pesadas", 1.5) / 100.0;
+    }
+
+    /** Destreza: multiplicador de daño a distancia. */
+    public double rangedMult(Player p) {
+        return 1 + pts(p, Stat.AGILIDAD) * extra(Stat.AGILIDAD, "distancia", 2) / 100.0;
+    }
+
+    /** Aguante: probabilidad de no gastar hambre. */
+    public double hungerSave(Player p) {
+        return Math.min(0.6, pts(p, Stat.DEFENSA) * extra(Stat.DEFENSA, "hambre", 3) / 100.0);
     }
 
     /** Tier 1..10 según el nivel: niveles 1-5 = tier 1, 6-10 = tier 2... */
@@ -182,23 +250,23 @@ public final class LevelManager implements Listener {
 
     public void applyStats(Player p) {
         PlayerData d = plugin.data().get(p);
-        for (Stat s : Stat.values()) {
-            Attribute attr = s.attribute();
-            if (attr == null) continue;
-            AttributeInstance inst = p.getAttribute(attr);
-            if (inst == null) continue;
-            NamespacedKey key = pe.kydium.eclipserpg.util.Keys.k("stat_" + s.id);
-            for (AttributeModifier m : new ArrayList<>(inst.getModifiers())) {
-                if (key.equals(m.getKey())) inst.removeModifier(m);
-            }
-            double amount = d.stat(s.id) * perPoint(s);
-            if (s == Stat.AGILIDAD) amount = amount / 100.0; // por-punto está en %
-            if (amount != 0) {
-                inst.addTransientModifier(new AttributeModifier(key, amount, s.operation(), EquipmentSlotGroup.ANY));
-            }
-        }
+        set(p, Attribute.MAX_HEALTH, "vida", d.stat("vida") * perPoint(Stat.VIDA), AttributeModifier.Operation.ADD_NUMBER);
+        set(p, Attribute.ARMOR, "defensa", d.stat("defensa") * perPoint(Stat.DEFENSA), AttributeModifier.Operation.ADD_NUMBER);
+        set(p, Attribute.KNOCKBACK_RESISTANCE, "defensa_firmeza", Math.min(1, d.stat("defensa") * extra(Stat.DEFENSA, "empuje", 2) / 100.0), AttributeModifier.Operation.ADD_NUMBER);
+        set(p, Attribute.ATTACK_DAMAGE, "fuerza", d.stat("fuerza") * perPoint(Stat.FUERZA), AttributeModifier.Operation.ADD_NUMBER);
+        set(p, Attribute.MOVEMENT_SPEED, "agilidad", d.stat("agilidad") * perPoint(Stat.AGILIDAD) / 100.0, AttributeModifier.Operation.ADD_SCALAR);
+        set(p, Attribute.ATTACK_SPEED, "agilidad_ataque", d.stat("agilidad") * extra(Stat.AGILIDAD, "ataque", 1.5) / 100.0, AttributeModifier.Operation.ADD_SCALAR);
+        set(p, Attribute.LUCK, "fortuna", d.stat("fortuna") * extra(Stat.FORTUNA, "suerte", 0.1), AttributeModifier.Operation.ADD_NUMBER);
         AttributeInstance hp = p.getAttribute(Attribute.MAX_HEALTH);
         if (hp != null && p.getHealth() > hp.getValue()) p.setHealth(hp.getValue());
+    }
+
+    private void set(Player p, Attribute attr, String id, double amount, AttributeModifier.Operation op) {
+        AttributeInstance inst = p.getAttribute(attr);
+        if (inst == null) return;
+        NamespacedKey key = pe.kydium.eclipserpg.util.Keys.k("stat_" + id);
+        for (AttributeModifier m : new ArrayList<>(inst.getModifiers())) if (key.equals(m.getKey())) inst.removeModifier(m);
+        if (amount != 0) inst.addTransientModifier(new AttributeModifier(key, amount, op, EquipmentSlotGroup.ANY));
     }
 
     public void updatePermissions(Player p) {
@@ -246,6 +314,39 @@ public final class LevelManager implements Listener {
             }
         }
         plugin.data().unload(e.getPlayer().getUniqueId());
+    }
+
+    // ---------- Efectos de los atributos ----------
+
+    /** Aguante: a veces no gasta hambre. */
+    @EventHandler(ignoreCancelled = true)
+    public void onHunger(org.bukkit.event.entity.FoodLevelChangeEvent e) {
+        if (!(e.getEntity() instanceof Player p) || e.getFoodLevel() >= p.getFoodLevel()) return;
+        if (java.util.concurrent.ThreadLocalRandom.current().nextDouble() < hungerSave(p)) e.setCancelled(true);
+    }
+
+    /** Fe: curas más. */
+    @EventHandler(ignoreCancelled = true)
+    public void onHeal(org.bukkit.event.entity.EntityRegainHealthEvent e) {
+        if (e.getEntity() instanceof Player p) e.setAmount(e.getAmount() * healMult(p));
+    }
+
+    /** Fuerza (hachas y mazas), Destreza (arcos y tridentes) y Fe (contra Corrompidos). */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onHit(org.bukkit.event.entity.EntityDamageByEntityEvent e) {
+        Player p = null;
+        double mult = 1;
+        if (e.getDamager() instanceof Player pl) {
+            p = pl;
+            String w = pl.getInventory().getItemInMainHand().getType().name();
+            if (w.endsWith("_AXE") || w.equals("MACE")) mult *= heavyMult(pl);
+        } else if (e.getDamager() instanceof org.bukkit.entity.Projectile pr && pr.getShooter() instanceof Player pl) {
+            p = pl;
+            if (pr instanceof org.bukkit.entity.AbstractArrow) mult *= rangedMult(pl);
+        }
+        if (p == null || e.getEntity() == p) return;
+        if (plugin.npcEntities() != null && plugin.npcEntities().combat().corrupted(e.getEntity())) mult *= holyMult(p);
+        if (mult != 1) e.setDamage(e.getDamage() * mult);
     }
 
     @EventHandler

@@ -137,10 +137,11 @@ public final class ContractManager implements Listener {
         boolean all = true;
         for (boolean b : d.contractClaimed) all &= b;
         if (all) {
-            var frag = plugin.items().create("fragmento_mejora", 1);
+            boolean better = d.contractTier >= 5;
+            var frag = plugin.items().create(better ? "fragmento_mejora_superior" : "fragmento_mejora", 1);
             if (frag != null) {
                 plugin.items().give(p, frag);
-                Txt.send(p, "<gold>¡Completaste los 3 contratos de hoy! Recibes un Fragmento de Mejora.");
+                Txt.send(p, "<gold>¡Completaste los 3 contratos de hoy! Recibes un " + (better ? "Fragmento de Mejora Superior" : "Fragmento de Mejora") + ".");
             }
         }
     }

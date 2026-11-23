@@ -80,6 +80,25 @@ public final class QuestManager implements Listener {
     private void structureSpawnTick() {
         for (Player p : org.bukkit.Bukkit.getOnlinePlayers()) {
             Quest q = current(p);
+            if (q != null) {
+                PlayerData pd = plugin.data().get(p);
+                // las ciudades se descubren cuando la historia te manda allí
+                String c = cityOf(q.npc);
+                if (c != null && !plugin.cities().isBuilt(c)) plugin.cities().ensure(c, p, false);
+                if (pd.questAccepted) for (Quest.Objective o : q.objectives) {
+                    if (o.type == Quest.Type.HABLAR) for (String t : o.targets) {
+                        String tc = cityOf(t);
+                        if (tc != null && !plugin.cities().isBuilt(tc)) plugin.cities().ensure(tc, p, false);
+                    }
+                    if (o.type == Quest.Type.ESTRUCTURA) for (String t : o.targets)
+                        if (t.startsWith("ciudad_") && !plugin.cities().isBuilt(t.substring(7))) plugin.cities().ensure(t.substring(7), p, false);
+                }
+                // etapa intermedia cumplida: se cierra sola y te manda con el siguiente
+                if (q.auto && pd.questAccepted && !q.objectives.isEmpty() && isComplete(p, q)) {
+                    turnIn(p, q, null, true);
+                    continue;
+                }
+            }
             // si la mazmorra de la misión no llegó a crearse (por ejemplo, el servidor se cerró), se crea y da la brújula
             if (q != null && q.dungeon > 0 && plugin.data().get(p).questAccepted && !plugin.dungeons().isBuilt(q.dungeon)
                     && dungeonChecked.add(p.getUniqueId() + ";" + q.id)) plugin.dungeons().ensure(q.dungeon, p);
@@ -105,6 +124,17 @@ public final class QuestManager implements Listener {
                     Title.Times.times(Duration.ofMillis(150), Duration.ofSeconds(2), Duration.ofMillis(400))));
             Txt.sound(p, "entity.evoker.prepare_attack", 1f, 0.8f);
         }
+    }
+
+    private String cityOf(String npcId) {
+        var d = npcId == null ? null : plugin.npcs().def(npcId);
+        return d == null ? null : d.city;
+    }
+
+    /** " (en Puerto Bruma)" si el NPC vive en otra ciudad. */
+    public String whereIs(String npcId) {
+        String c = cityOf(npcId);
+        return c == null ? "" : " <gray>(en " + plugin.cities().name(c) + "<gray>)";
     }
 
     // ---------- Carga ----------
@@ -169,14 +199,23 @@ public final class QuestManager implements Listener {
                 o.text = "Resuelve el acertijo de " + plugin.npcs().name(q.npc).replaceAll("<[^>]+>", "");
                 q.objectives.add(o);
             }
+            q.stage = m.stage;
+            q.stages = m.root != null ? m.root.stages : m.stages;
+            q.stageName = m.stageName;
+            q.city = m.city;
+            for (var e : m.talks.entrySet()) q.talks.put(e.getKey(), new ArrayList<>(e.getValue()));
             q.giveOnAccept.addAll(m.receive);
             q.rewards.addAll(m.rewards);
             for (pe.kydium.eclipserpg.story.StoryDoc.Choice c : m.choices) {
                 q.choices.add(new Quest.Choice(c.text, new ArrayList<>(c.rewards), c.flag, c.message));
             }
+            // una etapa intermedia se cierra sola al cumplir sus objetivos (si no hay que entregar ni responder nada)
+            q.auto = !q.isLastStage() && !m.returnTo && q.riddle == null && q.choices.isEmpty()
+                    && q.objectives.stream().noneMatch(o -> o.type == Quest.Type.ENTREGAR || o.type == Quest.Type.RESPONDER);
             quests.add(q);
         }
-        plugin.getLogger().info("Misiones cargadas: " + quests.size());
+        long roots = quests.stream().filter(x -> x.stage == 1).count();
+        plugin.getLogger().info("Misiones cargadas: " + roots + " (" + quests.size() + " etapas en total)");
     }
 
     private static int intOf(Object o, int def) {
@@ -190,6 +229,11 @@ public final class QuestManager implements Listener {
 
     public int total() {
         return quests.size();
+    }
+
+    /** Misiones de la historia sin contar sus etapas. */
+    public int missionCount() {
+        return (int) quests.stream().filter(x -> x.stage == 1).count();
     }
 
     public String actName(int act) {
@@ -271,11 +315,13 @@ public final class QuestManager implements Listener {
             if (idx >= 0) {
                 d.questProgress[idx] = q.objectives.get(idx).amount;
                 d.dirty = true;
-                List<String> lines = plugin.npcs().talkLines(npcId);
-                say(p, npcName, lines.isEmpty() ? List.of("Cuenta conmigo para lo que viene.") : lines,
+                List<String> lines = q.talks.getOrDefault(npcId, plugin.npcs().talkLines(npcId));
+                say(p, npcName + " <dark_gray>· <aqua>" + q.name, lines.isEmpty() ? List.of("Cuenta conmigo para lo que viene.") : lines,
                         () -> notifyProgress(p, q));
             } else {
-                say(p, npcName, List.of("Ahora no tengo nada para ti. Te busca " + plugin.npcs().name(q.npc) + "<white>."), null);
+                List<String> extra = q.talks.get(npcId);
+                if (extra != null && d.questAccepted) say(p, npcName, extra, null);
+                else say(p, npcName, List.of("Ahora no tengo nada para ti. Te busca " + plugin.npcs().name(q.npc) + whereIs(q.npc) + "<white>."), null);
             }
             return;
         }
@@ -304,7 +350,7 @@ public final class QuestManager implements Listener {
                     btns.add(new DialogUI.Button("<green>➜ <white>" + r, "<gray>Aceptas la misión · " + actName(q.act), () -> accept(p, q)));
                 btns.add(new DialogUI.Button("<gray>" + (q.decline == null || q.decline.isBlank() ? "Ahora no puedo. Vuelvo luego." : q.decline),
                         "Puedes volver cuando quieras", null));
-                ui.show(p, npcName + " <dark_gray>· <yellow>" + q.name, body, btns, true);
+                ui.show(p, npcName + " <dark_gray>· <yellow>" + q.title(), body, btns, true);
             } else {
                 say(p, npcName, q.start, () -> accept(p, q));
             }
@@ -324,7 +370,7 @@ public final class QuestManager implements Listener {
                     lines.add((have >= o.amount ? "<green>✔ " : "<gray>• ") + "<white>" + o.text + " <gray>" + have + "/" + o.amount);
                 }
                 if (q.noDeath) lines.add("<red>⚠ Si mueres, el progreso se reinicia");
-                ui.show(p, npcName + " <dark_gray>· <yellow>" + q.name, lines,
+                ui.show(p, npcName + " <dark_gray>· <yellow>" + q.title(), lines,
                         List.of(new DialogUI.Button("<yellow>Sigo en ello.", null, null)), true);
             } else {
                 say(p, npcName, lines, () -> showObjectives(p, q));
@@ -336,7 +382,7 @@ public final class QuestManager implements Listener {
             else say(p, npcName, q.end.isEmpty() ? List.of("Es hora de decidir.") : q.end, () -> showChoices(p, q));
             return;
         }
-        turnIn(p, q, null);
+        turnIn(p, q, null, false);
     }
 
     private void accept(Player p, Quest q) {
@@ -353,6 +399,7 @@ public final class QuestManager implements Listener {
         if (q.dungeon > 0) plugin.dungeons().ensure(q.dungeon, p);
         if (q.structure != null && !plugin.structures().ensure(q.structure, p))
             plugin.getLogger().warning("La misión \"" + q.name + "\" pide la estructura '" + q.structure + "', que no existe.");
+        if (q.city != null) plugin.cities().ensure(q.city, p, true);
         if (q.weather != null) plugin.world().setWeather(q.weather, 600);
         if (q.event != null && !plugin.world().start(q.event))
             plugin.getLogger().warning("La misión \"" + q.name + "\" pide el evento '" + q.event + "', que no existe en Mundo vivo.");
@@ -365,18 +412,78 @@ public final class QuestManager implements Listener {
                 plugin.mobs().spawn(sp.mob(), plugin.mobs().spawnSpot(p.getLocation(), 8));
             }
         }
-        p.showTitle(Title.title(Txt.mm("<gold>" + q.name), Txt.mm("<gray>" + actName(q.act)),
+        p.showTitle(Title.title(Txt.mm("<gold>" + q.name), Txt.mm("<gray>" + (q.stages > 1 ? "Etapa " + q.stage + "/" + q.stages
+                        + (q.stageName == null ? "" : " · " + q.stageName) : actName(q.act))),
                 Title.Times.times(Duration.ofMillis(200), Duration.ofSeconds(2), Duration.ofMillis(500))));
         Txt.sound(p, "item.book.page_turn", 1f, 1f);
         if (q.objectives.isEmpty()) {
             if (!q.choices.isEmpty()) showChoices(p, q);
-            else turnIn(p, q, null);
+            else turnIn(p, q, null, false);
             return;
         }
         showObjectives(p, q);
     }
 
     private void turnIn(Player p, Quest q, Quest.Choice choice) {
+        turnIn(p, q, choice, false);
+    }
+
+    /** Cierra una etapa intermedia: premio, y el siguiente paso con su NPC (si es el mismo, la charla sigue). */
+    private void finishStage(Player p, Quest q, boolean auto) {
+        PlayerData d = plugin.data().get(p);
+        extras.clear(p, q);
+        if (!auto) for (Quest.Objective o : q.objectives) if (o.type == Quest.Type.ENTREGAR) takeItems(p, o, o.amount);
+        for (String r : q.rewards) give(p, r);
+        plugin.levels().reward(p, q.xp, q.soles);
+        d.questIndex++;
+        d.questAccepted = false;
+        d.questProgress = new int[0];
+        d.dirty = true;
+        Quest next = current(p);
+        Txt.sound(p, "entity.player.levelup", 0.7f, 1.6f);
+        p.showTitle(Title.title(Txt.mm("<green>✔ " + (q.stageName == null ? q.name : q.stageName)),
+                Txt.mm("<gray>" + q.name + " · " + q.stage + "/" + q.stages),
+                Title.Times.times(Duration.ofMillis(150), Duration.ofMillis(1600), Duration.ofMillis(400))));
+        String npcName = plugin.npcs().name(q.npc);
+        List<String> lines = new ArrayList<>(q.end);
+        if (q.xp > 0 || q.soles > 0 || !q.rewards.isEmpty()) {
+            if (!lines.isEmpty()) lines.add("");
+            lines.addAll(rewardLines(q));
+        }
+        if (next != null) {
+            boolean same = next.npc.equals(q.npc);
+            String go = same ? "<yellow>" + npcName + " <yellow>tiene algo más que decirte." :
+                    "<yellow>➜ Ahora ve con " + plugin.npcs().name(next.npc) + whereIs(next.npc) + "<yellow>.";
+            if (auto) {
+                for (String l : q.end) Txt.send(p, npcName + "<dark_gray>: <white>" + l);
+                for (String l : rewardLines(q)) Txt.send(p, l);
+                if (same && next.minLevel <= d.level) {
+                    // el mismo NPC sigue la historia: la siguiente etapa empieza sola
+                    for (String l : next.start) Txt.send(p, npcName + "<dark_gray>: <white>" + l);
+                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                        if (p.isOnline() && current(p) == next && !plugin.data().get(p).questAccepted) accept(p, next);
+                    }, 30L);
+                    return;
+                }
+                Txt.send(p, go + " <gray>Sigue el punto dorado de la barra.");
+                return;
+            }
+            if (same) {
+                if (lines.isEmpty()) talk(p, next.npc);
+                else say(p, npcName + " <dark_gray>· <green>" + (q.stageName == null ? q.name : q.stageName), lines, () -> talk(p, next.npc));
+                return;
+            }
+            lines.add("");
+            lines.add(go);
+            say(p, npcName + " <dark_gray>· <green>" + (q.stageName == null ? q.name : q.stageName), lines, null);
+        }
+    }
+
+    private void turnIn(Player p, Quest q, Quest.Choice choice, boolean auto) {
+        if (!q.isLastStage() && choice == null) {
+            finishStage(p, q, auto);
+            return;
+        }
         PlayerData d = plugin.data().get(p);
         extras.clear(p, q);
         for (Quest.Objective o : q.objectives) {
@@ -405,7 +512,7 @@ public final class QuestManager implements Listener {
                 Txt.send(p, "<light_purple><bold>Nuevo capítulo: " + actName(next.act));
             }
             String lvl = next.minLevel > d.level ? " <gray>(necesitas nivel " + next.minLevel + ")" : "";
-            Txt.send(p, "<yellow>Siguiente misión: <white>" + next.name + " <gray>· habla con " + plugin.npcs().name(next.npc) + lvl);
+            Txt.send(p, "<yellow>Siguiente misión: <white>" + next.name + " <gray>· habla con " + plugin.npcs().name(next.npc) + whereIs(next.npc) + lvl);
         };
         String npcName = plugin.npcs().name(q.npc);
         // Primero se entregan las recompensas (así cerrar la ventana no las pierde)
@@ -420,7 +527,7 @@ public final class QuestManager implements Listener {
         }
         Quest next = current(p);
         if (next != null && ui.enabled()) {
-            lines.add("<gray>Siguiente: <white>" + next.name + " <gray>· " + plugin.npcs().name(next.npc));
+            lines.add("<gray>Siguiente: <white>" + next.name + " <gray>· " + plugin.npcs().name(next.npc) + whereIs(next.npc));
         }
         say(p, npcName + " <dark_gray>· <green>¡Misión completada!", lines, null);
     }
@@ -485,11 +592,11 @@ public final class QuestManager implements Listener {
     public void showObjectives(Player p, Quest q) {
         if (!plugin.data().get(p).questAccepted) {
             // la misión no se ve hasta aceptarla
-            Txt.send(p, "<gray>No tienes una misión activa. Busca a " + plugin.npcs().name(q.npc)
+            Txt.send(p, "<gray>No tienes una misión activa. Busca a " + plugin.npcs().name(q.npc) + whereIs(q.npc)
                     + " <gray>(tiene un <yellow>❗<gray> encima) para recibir la siguiente.");
             return;
         }
-        p.sendMessage(Txt.mm("<gold>▶ " + q.name));
+        p.sendMessage(Txt.mm("<gold>▶ " + q.title()));
         for (int i = 0; i < q.objectives.size(); i++) {
             Quest.Objective o = q.objectives.get(i);
             int have = progressOf(p, q, i);
@@ -500,10 +607,12 @@ public final class QuestManager implements Listener {
         String left = extras.timeLeft(p, q);
         if (left != null) p.sendMessage(Txt.mm("  <gold>⏳ Te quedan <white>" + left));
         for (String l : rewardLines(q)) p.sendMessage(Txt.mm("  " + l));
-        p.sendMessage(Txt.mm("<gray>Vuelve con " + plugin.npcs().name(q.npc) + " <gray>al terminar. Diario: <white>/misiones"));
+        p.sendMessage(Txt.mm(q.auto ? "<gray>Al cumplirlo, la historia sigue sola. Diario: <white>/misiones"
+                : "<gray>Vuelve con " + plugin.npcs().name(q.npc) + whereIs(q.npc) + " <gray>al terminar. Diario: <white>/misiones"));
     }
 
     private void notifyProgress(Player p, Quest q) {
+        if (q.auto) return;   // se cierra sola en el siguiente segundo
         if (isComplete(p, q)) {
             p.sendActionBar(Txt.mm("<green>✔ Misión lista: vuelve con " + plugin.npcs().name(q.npc)));
             Txt.sound(p, "block.note_block.bell", 1f, 1.4f);
@@ -524,7 +633,8 @@ public final class QuestManager implements Listener {
             if (id != null && !o.matches(id)) continue;
             d.questProgress[i] = Math.min(o.amount, d.questProgress[i] + amount);
             changed = true;
-            p.sendActionBar(Txt.mm("<yellow>" + o.text + " <white>" + d.questProgress[i] + "/" + o.amount));
+            if (plugin.hud() != null && plugin.hud().panel().on(p)) plugin.hud().panel().update(p);
+            else p.sendActionBar(Txt.mm("<yellow>" + o.text + " <white>" + d.questProgress[i] + "/" + o.amount));
         }
         if (changed) {
             d.dirty = true;

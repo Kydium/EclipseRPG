@@ -31,6 +31,7 @@ public final class NpcManager {
         public String offhand;
         public String combat;        // guardian | cobarde | null
         public double combatHp, combatDamage;
+        public String city;          // ciudad donde vive (null = aldea principal)
         public Material icon = Material.PLAYER_HEAD;
         public final List<String> services = new ArrayList<>();
         public final List<String> talk = new ArrayList<>();
@@ -61,6 +62,7 @@ public final class NpcManager {
             n.combat = Combat.normRole(sn.combat);
             n.combatHp = sn.combatHp;
             n.combatDamage = sn.combatDamage;
+            n.city = sn.city;
             n.services.addAll(sn.services);
             n.talk.addAll(sn.talk);
             npcs.put(n.id, n);

@@ -36,6 +36,14 @@ public abstract class Menu implements InventoryHolder {
     /** Clic dentro del inventario superior (ya cancelado). */
     public abstract void onClick(InventoryClickEvent e, int slot);
 
+    /** Clic en el inventario del jugador (abajo) mientras el menú está abierto (ya cancelado). */
+    public void onBottomClick(InventoryClickEvent e, int slot) {
+    }
+
+    /** Al cerrar el menú. */
+    public void onClose() {
+    }
+
     public void open() {
         render();
         player.openInventory(inventory);
@@ -58,14 +66,28 @@ public abstract class Menu implements InventoryHolder {
         ItemMeta meta = it.getItemMeta();
         if (meta != null) {
             meta.displayName(Component.text(" "));
+            meta.getPersistentDataContainer().set(pe.kydium.eclipserpg.util.Keys.k("relleno"), org.bukkit.persistence.PersistentDataType.BYTE, (byte) 1);
             it.setItemMeta(meta);
         }
         return it;
     }
 
+    /** ¿Es un cristal de relleno de un menú? (nunca debe llegar al inventario de nadie) */
+    public static boolean isFiller(ItemStack it) {
+        if (it == null || it.getType() != Material.BLACK_STAINED_GLASS_PANE || !it.hasItemMeta()) return false;
+        ItemMeta m = it.getItemMeta();
+        if (m.getPersistentDataContainer().has(pe.kydium.eclipserpg.util.Keys.k("relleno"))) return true;
+        return Component.text(" ").equals(m.displayName());
+    }
+
+    /** Huecos que el jugador usa para poner sus cosas: no se rellenan con cristal. */
+    protected boolean isInputSlot(int slot) {
+        return false;
+    }
+
     protected void fillEmpty() {
         for (int i = 0; i < inventory.getSize(); i++) {
-            if (inventory.getItem(i) == null) inventory.setItem(i, filler());
+            if (inventory.getItem(i) == null && !isInputSlot(i)) inventory.setItem(i, filler());
         }
     }
 }

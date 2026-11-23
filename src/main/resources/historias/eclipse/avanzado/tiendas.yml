@@ -46,6 +46,7 @@ tiendas:
       - {tipo: vender, slot: 41, item: "material:ENDER_PEARL", cantidad: 4, precio: 20}
       - {tipo: vender, slot: 42, item: "material:BLAZE_ROD", cantidad: 4, precio: 25}
       - {tipo: vender, slot: 43, item: "material:QUARTZ", cantidad: 32, precio: 15}
+      - {tipo: vender, slot: 44, item: "custom:esencia_corrupta", cantidad: 8, precio: 40}
 
   herreria:                         # Bruno el Herrero
     titulo: "<dark_gray>Bruno · Herrería"
@@ -53,6 +54,8 @@ tiendas:
     descripcion: "Armas y armaduras de Bruno; también te compra minerales"
     filas: 6
     objetos:
+      - {tipo: comprar, slot: 33, item: "custom:fragmento_mejora_superior", precio: 3, paga-con: "custom:fragmento_mejora", categoria: mejoras}
+      - {tipo: comprar, slot: 34, item: "custom:fragmento_mejora_ancestral", precio: 3, paga-con: "custom:fragmento_mejora_superior", categoria: mejoras}
       # --- lo que compra (tú le vendes) ---
       - {tipo: vender, slot: 37, item: "material:RAW_IRON", cantidad: 16, precio: 24}
       - {tipo: vender, slot: 38, item: "material:RAW_GOLD", cantidad: 16, precio: 36}
@@ -135,6 +138,28 @@ tiendas:
       - {tipo: comprar, item: "custom:fragmento_mejora", cantidad: 2, precio: 2500, nivel: 40}
       - {tipo: comprar, item: "material:ENCHANTED_GOLDEN_APPLE", precio: 3000}
       - {tipo: comprar, item: "material:TOTEM_OF_UNDYING", precio: 3500}
+
+  trueque:                          # Sabina la Coleccionista — se paga con lo que sueltan los Corrompidos
+    titulo: "<dark_purple>Sabina · Trueque de Corrompidos"
+    boton: "<light_purple>💎 Trueque (esencias y corazones)"
+    descripcion: "Cambia Esencias y Corazones Corruptos por objetos raros"
+    filas: 4
+    objetos:
+      # --- con Esencia Corrupta ---
+      - {tipo: comprar, slot: 10, item: "material:GOLDEN_APPLE", cantidad: 2, paga-con: "custom:esencia_corrupta", precio: 8}
+      - {tipo: comprar, slot: 11, item: "custom:fragmento_mejora", paga-con: "custom:esencia_corrupta", precio: 12}
+      - {tipo: comprar, slot: 12, item: "material:EXPERIENCE_BOTTLE", cantidad: 16, paga-con: "custom:esencia_corrupta", precio: 16}
+      - {tipo: comprar, slot: 13, item: "material:TOTEM_OF_UNDYING", paga-con: "custom:esencia_corrupta", precio: 24}
+      - {tipo: comprar, slot: 15, item: "material:DIAMOND", cantidad: 3, paga-con: "custom:corazon_corrupto", precio: 2}
+      - {tipo: comprar, slot: 16, item: "libro:protection:4", paga-con: "custom:corazon_corrupto", precio: 3}
+      # --- con Corazón Corrupto (objetos únicos) ---
+      - {tipo: comprar, slot: 19, item: "custom:botas_saltarinas", paga-con: "custom:corazon_corrupto", precio: 4, stock: 1}
+      - {tipo: comprar, slot: 20, item: "custom:pata_suerte", paga-con: "custom:corazon_corrupto", precio: 5, stock: 1}
+      - {tipo: comprar, slot: 21, item: "custom:arco_cazador", paga-con: "custom:corazon_corrupto", precio: 6, stock: 1}
+      - {tipo: comprar, slot: 22, item: "custom:daga_sangrienta", paga-con: "custom:corazon_corrupto", precio: 7, stock: 1}
+      - {tipo: comprar, slot: 23, item: "custom:pico_terremoto", paga-con: "custom:corazon_corrupto", precio: 9, stock: 1}
+      - {tipo: comprar, slot: 24, item: "custom:amuleto_vida", paga-con: "custom:corazon_corrupto", precio: 12, stock: 1}
+      - {tipo: comprar, slot: 25, item: "material:ENCHANTED_GOLDEN_APPLE", paga-con: "custom:corazon_corrupto", precio: 15}
 
   legendaria:                       # El Errante — Armería legendaria (armas con poderes)
     titulo: "<gold><bold>Armería Legendaria"

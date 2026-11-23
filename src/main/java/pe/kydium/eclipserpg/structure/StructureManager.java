@@ -96,6 +96,10 @@ public final class StructureManager implements Listener {
         public int rolls = 2;
         public String title, subtitle;
         public long xp, money;
+        public Double angle;                     // dirección desde la aldea (radianes); null = cualquiera
+        public boolean city;                     // es una ciudad de la historia
+        public final List<String> lore = new ArrayList<>();
+        public int threat;                       // 0 = según la distancia; 1-6 fijo
     }
 
     public static final class Inst {
@@ -104,7 +108,10 @@ public final class StructureManager implements Listener {
         public int rx, rz, h;
         public final List<int[]> enemySpots = new ArrayList<>();
         public int[] bossSpot, entrance;
+        public final Map<String, float[]> places = new LinkedHashMap<>();   // lugares para NPCs (x, y, z, yaw)
         long activatedAt;
+        boolean reinforced;
+        int spawned;
         final Set<UUID> mobs = new HashSet<>();
 
         boolean contains(Location l, int pad) {
@@ -192,10 +199,12 @@ public final class StructureManager implements Listener {
             d.subtitle = s.getString("subtitulo", "");
             d.xp = s.getLong("premio-xp", 0);
             d.money = s.getLong("premio-dinero", 0);
+            d.threat = Math.max(0, s.getInt("peligro", 0));
             defs.put(d.id, d);
             if (d.gen == null && plan(d.plan) == null) plugin.getLogger().warning("estructuras.yml: '" + id + "' usa el plano '" + d.plan
                     + "', que no existe. Constrúyelo en el juego y guárdalo con /estructura guardar " + d.plan);
         }
+        for (Def d : plugin.cities().structureDefs()) defs.put(d.id, d);   // las de la historia anterior (se renuevan al leerla)
         loadInstances();
         plugin.getLogger().info("Estructuras: " + defs.size() + " definidas, " + planNames().size() + " planos, " + instances.size() + " en el mundo");
     }
@@ -218,6 +227,12 @@ public final class StructureManager implements Listener {
                 if (m.get("enemigos") instanceof List<?> l) for (Object o : l) i.enemySpots.add(ints(o));
                 if (m.get("jefe") != null) i.bossSpot = ints(m.get("jefe"));
                 if (m.get("entrada") != null) i.entrance = ints(m.get("entrada"));
+                if (m.get("lugares") instanceof Map<?, ?> pl) for (Map.Entry<?, ?> e : pl.entrySet()) {
+                    if (!(e.getValue() instanceof List<?> l) || l.size() < 3) continue;
+                    float[] f = new float[4];
+                    for (int k = 0; k < Math.min(4, l.size()); k++) f[k] = ((Number) l.get(k)).floatValue();
+                    i.places.put(String.valueOf(e.getKey()), f);
+                }
                 instances.add(i);
             } catch (RuntimeException e) {
                 plugin.getLogger().warning("datos-estructuras.yml: entrada dañada, se ignora");
@@ -253,6 +268,12 @@ public final class StructureManager implements Listener {
             m.put("enemigos", es);
             if (i.bossSpot != null) m.put("jefe", list(i.bossSpot));
             if (i.entrance != null) m.put("entrada", list(i.entrance));
+            if (!i.places.isEmpty()) {
+                Map<String, List<Double>> pl = new LinkedHashMap<>();
+                for (Map.Entry<String, float[]> e : i.places.entrySet())
+                    pl.put(e.getKey(), List.of((double) e.getValue()[0], (double) e.getValue()[1], (double) e.getValue()[2], (double) e.getValue()[3]));
+                m.put("lugares", pl);
+            }
             out.add(m);
         }
         y.set("estructuras", out);
@@ -514,7 +535,7 @@ public final class StructureManager implements Listener {
             "ENCHANTED_GOLDEN_APPLE 2 0.3", "TOTEM_OF_UNDYING 1 0.25", "ELYTRA 1 0.06", "EMERALD_BLOCK 3 0.45", "GOLD_BLOCK 3 0.5",
             "DIAMOND_BLOCK 1 0.2", "HEART_OF_THE_SEA 1 0.1", "TRIDENT 1 0.06", "libro:mending:1 1 0.35", "libro:sharpness:5 1 0.3",
             "libro:protection:4 1 0.3", "libro:efficiency:5 1 0.25", "libro:fortune:3 1 0.25", "libro:looting:3 1 0.2", "libro:unbreaking:3 1 0.3",
-            "custom:fragmento_mejora 3 0.5", "especial:epico 1 0.35", "especial:legendario 1 0.12", "runa:azar 2 0.5", "EXPERIENCE_BOTTLE 16 0.7", "SHULKER_SHELL 2 0.12", "NETHER_STAR 1 0.03");
+            "custom:fragmento_mejora 3 0.5", "custom:fragmento_mejora_superior 1 0.25", "custom:fragmento_mejora_ancestral 1 0.05", "especial:epico 1 0.35", "especial:legendario 1 0.12", "runa:azar 2 0.5", "EXPERIENCE_BOTTLE 16 0.7", "SHULKER_SHELL 2 0.12", "NETHER_STAR 1 0.03");
     /** Lo de los cofres comunes de las casas de una aldea. */
     public static final List<String> LOOT_VILLAGE = List.of("BREAD 6 0.8", "APPLE 4 0.5", "COAL 8 0.5", "TORCH 8 0.4", "WHEAT 10 0.4",
             "IRON_INGOT 2 0.25", "EMERALD 2 0.2", "STRING 4 0.3", "LEATHER 3 0.3", "BOOK 2 0.2", "COOKED_PORKCHOP 3 0.3");
@@ -588,6 +609,10 @@ public final class StructureManager implements Listener {
                         case "enemigo" -> inst.enemySpots.add(at);
                         case "jefe" -> inst.bossSpot = at;
                         case "entrada" -> inst.entrance = at;
+                        case "npc" -> {
+                            if (mk.arg() != null && !mk.arg().isBlank() && !inst.places.containsKey(mk.arg()))
+                                inst.places.put(mk.arg(), new float[]{at[0] + 0.5f, at[1], at[2] + 0.5f, mk.yaw()});
+                        }
                         case "villager" -> {
                             if ("aldea".equals(d.category))
                                 plugin.npcEntities().spawnFiller(pe.kydium.eclipserpg.npc.NpcEntities.roleFor(mk.arg() == null || mk.arg().isEmpty() ? null : mk.arg()),
@@ -793,13 +818,25 @@ public final class StructureManager implements Listener {
 
     /** Busca un buen lugar a cierta distancia de la aldea (sin congelar el servidor) y construye. */
     private void search(Def d, Plan p, World w, Location from, Random r, int tries, Player who, Consumer<Inst> done) {
+        if (tries >= 60 && d.city) {
+            // una ciudad de la historia tiene que existir: se pone en el lugar menos malo
+            double ang = d.angle != null ? d.angle : r.nextDouble() * Math.PI * 2, dist = (d.distMin + d.distMax) / 2.0;
+            int x = from.getBlockX() + (int) (Math.cos(ang) * dist), z = from.getBlockZ() + (int) (Math.sin(ang) * dist);
+            AsyncChunks.load(w, chunksFor(p, x, z)).whenComplete((v, ex) -> Bukkit.getScheduler().runTask(plugin, () ->
+                    placeAt(d, w, x, w.getHighestBlockYAt(x, z), z, who, inst -> {
+                        building.remove(d.id);
+                        if (done != null) done.accept(inst);
+                    })));
+            return;
+        }
         if (tries >= 60) {
             building.remove(d.id);
             if (who != null) Txt.send(who, "<red>No encontré un buen lugar para " + d.name + "<red>. Puedes ponerla a mano con /estructura colocar " + d.id);
             if (done != null) done.accept(null);
             return;
         }
-        double ang = r.nextDouble() * Math.PI * 2, dist = d.distMin + r.nextDouble() * (d.distMax - d.distMin);
+        double ang = d.angle != null ? d.angle + (r.nextDouble() - 0.5) * 1.2 : r.nextDouble() * Math.PI * 2,
+                dist = d.distMin + r.nextDouble() * (d.distMax - d.distMin);
         int x = from.getBlockX() + (int) (Math.cos(ang) * dist), z = from.getBlockZ() + (int) (Math.sin(ang) * dist);
         AsyncChunks.load(w, chunksFor(p, x, z)).whenComplete((v, ex) -> Bukkit.getScheduler().runTask(plugin, () -> {
             int g = ex == null ? siteOk(d, p, w, x, z) : Integer.MIN_VALUE;
@@ -842,6 +879,26 @@ public final class StructureManager implements Listener {
         return true;
     }
 
+    /** Construye una estructura sin dar brújula. false si ya se está construyendo o no existe. */
+    public boolean build(String id, Player who, Consumer<Inst> done) {
+        Def d = def(id);
+        Plan plan = d == null ? null : shape(d);
+        if (plan == null || !building.add(d.id)) return false;
+        Location from = plugin.items().campLocation();
+        search(d, plan, from.getWorld(), from, new Random(from.getWorld().getSeed() ^ (d.id.hashCode() * 7919L)), 0, who, done);
+        return true;
+    }
+
+    /** Reemplaza las ciudades de la historia. */
+    public void putCityDefs(java.util.Collection<Def> list) {
+        defs.values().removeIf(d -> d.city);
+        for (Def d : list) defs.put(d.id, d);
+    }
+
+    public boolean isBuilding(String id) {
+        return building.contains(id);
+    }
+
     /** Construye sin jugador (prueba automática). */
     public void buildForTest(String id, Consumer<Inst> done) {
         Def d = def(id);
@@ -868,6 +925,153 @@ public final class StructureManager implements Listener {
         }
         plugin.items().give(p, it);
         Txt.send(p, name(i.id) + " <gray>está en <white>X " + e[0] + ", Z " + e[2] + "<gray>. Sigue la brújula.");
+    }
+
+    // ------------------------------------------------------------------ dificultad
+
+    /**
+     * Un sitio libre cerca del punto marcado: aire para los pies y la cabeza, suelo firme y sin agua.
+     * Así los enemigos no aparecen dentro de paredes o bajo el piso (se ahogaban) ni todos encima del mismo bloque.
+     */
+    private Location safeSpot(World w, int[] sp, Inst i) {
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        int[] dys = {0, 1, -1, 2, -2, 3, -3, 4, -4};
+        for (int ring = 0; ring <= 3; ring++) {
+            for (int t = 0; t < (ring == 0 ? 1 : 6); t++) {
+                int x = sp[0] + (ring == 0 ? 0 : r.nextInt(-ring, ring + 1)), z = sp[2] + (ring == 0 ? 0 : r.nextInt(-ring, ring + 1));
+                for (int dy : dys) {
+                    int y = sp[1] + dy;
+                    if (free(w, x, y, z)) return new Location(w, x + 0.5, y, z + 0.5, r.nextFloat() * 360f, 0);
+                }
+            }
+        }
+        return plugin.mobs().spawnSpot(new Location(w, i.x + 0.5, i.y + 1, i.z + 0.5), Math.max(2, Math.min(i.rx, i.rz)));
+    }
+
+    private static boolean free(World w, int x, int y, int z) {
+        return free(w, x, y, z, 2);
+    }
+
+    private static boolean free(World w, int x, int y, int z, int h) {
+        if (y <= w.getMinHeight() || y + h >= w.getMaxHeight()) return false;
+        if (!w.getBlockAt(x, y - 1, z).getType().isSolid()) return false;
+        for (int k = 0; k < h; k++) {
+            org.bukkit.block.Block b = w.getBlockAt(x, y + k, z);
+            if (!b.isPassable() || b.isLiquid() || b.getType() == org.bukkit.Material.COBWEB) return false;
+        }
+        return true;
+    }
+
+    /** Si quedó atrapado en un bloque (gólems y bichos altos en pasillos bajos), lo mueve a un sitio donde quepa. */
+    private void fit(LivingEntity le, Inst i) {
+        World w = le.getWorld();
+        int h = (int) Math.ceil(le.getHeight());
+        Location l = le.getLocation();
+        if (free(w, l.getBlockX(), l.getBlockY(), l.getBlockZ(), h)) return;
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        int rad = Math.max(3, Math.min(i.rx, i.rz));
+        for (int t = 0; t < 40; t++) {
+            int x = l.getBlockX() + r.nextInt(-rad, rad + 1), z = l.getBlockZ() + r.nextInt(-rad, rad + 1);
+            for (int dy = 4; dy >= -6; dy--) {
+                int y = l.getBlockY() + dy;
+                if (free(w, x, y, z, h)) {
+                    le.teleport(new Location(w, x + 0.5, y, z + 0.5, l.getYaw(), 0));
+                    return;
+                }
+            }
+        }
+        int top = w.getHighestBlockYAt(l.getBlockX(), l.getBlockZ());
+        le.teleport(new Location(w, l.getBlockX() + 0.5, top + 1, l.getBlockZ() + 0.5, l.getYaw(), 0));
+    }
+
+    /** Peligro del lugar (1 a 7): sube con la distancia al spawn. */
+    public int threat(Inst i, Def d) {
+        if (d != null && d.threat > 0) return Math.min(7, d.threat);
+        World w = Bukkit.getWorld(i.world);
+        Location s = w == null ? null : w.getSpawnLocation();
+        double dist = s == null ? 0 : Math.hypot(i.x - s.getX(), i.z - s.getZ());
+        int per = Math.max(100, plugin.getConfig().getInt("estructuras.dificultad.bloques-por-nivel", 450));
+        int t = 1 + (int) (dist / per);
+        if (d != null && ("mazmorra".equals(d.category) || "aerea".equals(d.category))) t++;
+        return Math.max(1, Math.min(7, t));
+    }
+
+    /** Hace aparecer los enemigos del lugar: más cantidad, más vida y élites según el peligro y la gente dentro. */
+    private void spawnWave(Inst i, Def d, World w, List<Player> inside, int th, double share) {
+        var cfg = plugin.getConfig();
+        double perLevel = cfg.getDouble("estructuras.dificultad.enemigos-por-nivel", 0.35);
+        double perPlayer = cfg.getDouble("estructuras.dificultad.enemigos-por-jugador", 0.5);
+        int topTier = 1;
+        for (Player p : inside) topTier = Math.max(topTier, plugin.levels().tier(p));
+        int tier = Math.max(1, Math.min(10, Math.max(topTier, th + 1)));
+        ThreadLocalRandom r = ThreadLocalRandom.current();
+        int k = 0;
+        for (Spawn s : d.enemies) {
+            int n = (int) Math.round(s.amount() * (1 + perLevel * (th - 1)) * (1 + perPlayer * Math.max(0, inside.size() - 1)) * share);
+            for (int c = 0; c < Math.max(1, n); c++) {
+                Location at;
+                if (!i.enemySpots.isEmpty()) {
+                    int[] sp = i.enemySpots.get(k++ % i.enemySpots.size());
+                    at = safeSpot(w, sp, i);
+                } else {
+                    at = plugin.mobs().spawnSpot(new Location(w, i.x + 0.5, i.y + 1, i.z + 0.5), Math.max(2, Math.min(i.rx, i.rz)));
+                }
+                LivingEntity le;
+                if (plugin.mobs().def(s.mob()) != null)
+                    le = plugin.mobs().spawn(s.mob(), at, 1 + cfg.getDouble("estructuras.dificultad.vida-por-nivel", 0.2) * (th - 1), null, false);
+                else {
+                    le = plugin.world().spawnMob(s.mob(), at);
+                    if (le instanceof org.bukkit.entity.Enemy) plugin.mobs().corrupt(le, tier);
+                }
+                if (le == null) continue;
+                fit(le, i);
+                le.setPersistent(true);
+                if (r.nextDouble() < cfg.getDouble("estructuras.dificultad.elite-base", 0.06) + cfg.getDouble("estructuras.dificultad.elite-por-nivel", 0.04) * th)
+                    toughen(le, th, false);
+                i.mobs.add(le.getUniqueId());
+                i.spawned++;
+            }
+        }
+    }
+
+    /** Para la prueba: lanza una oleada y devuelve cuántos quedaron atrapados en bloques / total. */
+    public int[] testWave(Inst i) {
+        Def d = defs.get(i.id);
+        World w = Bukkit.getWorld(i.world);
+        if (d == null || w == null || d.enemies.isEmpty()) return new int[]{0, 0};
+        Set<UUID> before = new HashSet<>(i.mobs);
+        spawnWave(i, d, w, List.of(), Math.max(1, threat(i, d)), 1.0);
+        int stuck = 0, total = 0;
+        for (UUID u : i.mobs) {
+            if (before.contains(u)) continue;
+            org.bukkit.entity.Entity e = Bukkit.getEntity(u);
+            if (!(e instanceof LivingEntity le)) continue;
+            total++;
+            Location l = le.getLocation();
+            if (!free(w, l.getBlockX(), l.getBlockY(), l.getBlockZ(), (int) Math.ceil(le.getHeight()))) stuck++;
+            le.remove();
+        }
+        i.mobs.clear();
+        i.mobs.addAll(before);
+        return new int[]{stuck, total};
+    }
+
+    /** Élite: el doble de vida, fuerza, resistencia y velocidad. */
+    private void toughen(LivingEntity le, int th, boolean boss) {
+        var hp = le.getAttribute(org.bukkit.attribute.Attribute.MAX_HEALTH);
+        if (hp != null) {
+            hp.setBaseValue(Math.min(1024, hp.getBaseValue() * (boss ? 1.5 + 0.3 * th : 2.0)));
+            le.setHealth(hp.getBaseValue());
+        }
+        int amp = th >= 5 ? 1 : 0;
+        le.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.STRENGTH, org.bukkit.potion.PotionEffect.INFINITE_DURATION, amp, false, false));
+        le.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.RESISTANCE, org.bukkit.potion.PotionEffect.INFINITE_DURATION, 0, false, false));
+        le.addPotionEffect(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.SPEED, org.bukkit.potion.PotionEffect.INFINITE_DURATION, 0, false, false));
+        net.kyori.adventure.text.Component cur = le.customName();
+        String plain = cur == null ? Txt.pretty(le.getType().getKey().getKey().toUpperCase(Locale.ROOT))
+                : net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(cur);
+        le.customName(Txt.mm((boss ? "<dark_red><bold>☠ " : "<gold>★ Élite ") + "<reset><yellow>" + plain.replace("☠", "").replaceAll("[\ue100-\ue1ff]", "").trim()));
+        le.addScoreboardTag("eclipse_elite");
     }
 
     // ------------------------------------------------------------------ aparición al azar
@@ -927,9 +1131,14 @@ public final class StructureManager implements Listener {
                 if (!pd.flags.add(flag)) continue;
                 pd.dirty = true;
                 String title = d == null ? i.id : d.title == null || d.title.isBlank() ? d.name : d.title;
-                p.showTitle(Title.title(Txt.mm(title), Txt.mm(d == null || d.subtitle == null ? "" : d.subtitle),
+                int th = threat(i, d);
+                String sub = d == null || d.subtitle == null ? "" : d.subtitle;
+                if (d != null && !d.city && !"aldea".equals(d.category) && !"base".equals(d.category) && (!d.enemies.isEmpty() || d.boss != null))
+                    sub = sub + (sub.isBlank() ? "" : " <dark_gray>· ") + "<dark_red>" + "☠".repeat(th) + "<dark_gray>" + "☠".repeat(Math.max(0, 7 - th));
+                p.showTitle(Title.title(Txt.mm(title), Txt.mm(sub),
                         Title.Times.times(Duration.ofMillis(300), Duration.ofSeconds(2), Duration.ofMillis(600))));
                 Txt.sound(p, "ui.toast.challenge_complete", 0.6f, 1.2f);
+                if (d != null) for (String l : d.lore) Txt.send(p, "<gray><italic>" + l);
                 if (d != null && (d.xp > 0 || d.money > 0)) plugin.levels().reward(p, d.xp, d.money);
             }
             if (d == null) continue;
@@ -937,31 +1146,36 @@ public final class StructureManager implements Listener {
             for (Player p : inside) if (p.getGameMode() != GameMode.CREATIVE) creativeOnly = false;
             if (creativeOnly) continue;
             i.mobs.removeIf(u -> !(Bukkit.getEntity(u) instanceof LivingEntity le) || le.isDead());
+            int th = threat(i, d);
+            // refuerzos: cuando cae la mayoría, llega otra tanda (lugares peligrosos)
+            if (i.activatedAt != 0 && !i.reinforced && th >= plugin.getConfig().getInt("estructuras.dificultad.refuerzos-desde", 3)
+                    && i.spawned > 3 && i.mobs.size() <= i.spawned * 0.35) {
+                i.reinforced = true;
+                for (Player p : inside) {
+                    p.showTitle(Title.title(Txt.mm("<dark_red>⚔ ¡Refuerzos!"), Txt.mm("<gray>El lugar no se rinde tan fácil"),
+                            Title.Times.times(Duration.ofMillis(150), Duration.ofSeconds(2), Duration.ofMillis(400))));
+                    Txt.sound(p, "event.raid.horn", 1f, 1f);
+                }
+                spawnWave(i, d, w, inside, th, 0.6);
+                continue;
+            }
             boolean again = d.respawn > 0 && i.activatedAt > 0 && now - i.activatedAt > d.respawn * 60_000L && i.mobs.isEmpty();
             if (i.activatedAt != 0 && !again) continue;
             i.activatedAt = now;
+            i.reinforced = false;
             dirty = true;
-            int k = 0;
-            for (Spawn s : d.enemies) {
-                for (int n = 0; n < s.amount(); n++) {
-                    Location at;
-                    if (!i.enemySpots.isEmpty()) {
-                        int[] sp = i.enemySpots.get(k++ % i.enemySpots.size());
-                        at = new Location(w, sp[0] + 0.5, sp[1], sp[2] + 0.5);
-                    } else {
-                        at = plugin.mobs().spawnSpot(new Location(w, i.x + 0.5, i.y + 1, i.z + 0.5), Math.max(2, Math.min(i.rx, i.rz)));
-                    }
-                    LivingEntity le = plugin.world().spawnMob(s.mob(), at);
-                    if (le != null) {
-                        le.setPersistent(true);
-                        i.mobs.add(le.getUniqueId());
-                    }
-                }
-            }
+            i.spawned = 0;
+            spawnWave(i, d, w, inside, th, 1.0);
             if (d.boss != null) {
                 int[] sp = i.bossSpot != null ? i.bossSpot : new int[]{i.x, i.y + 1, i.z};
-                LivingEntity le = plugin.world().spawnMob(d.boss, new Location(w, sp[0] + 0.5, sp[1], sp[2] + 0.5));
-                if (le != null) i.mobs.add(le.getUniqueId());
+                Location at = safeSpot(w, sp, i);
+                double hpm = 1 + plugin.getConfig().getDouble("estructuras.dificultad.vida-jefe-por-nivel", 0.3) * (th - 1);
+                LivingEntity le = plugin.mobs().def(d.boss) != null ? plugin.mobs().spawn(d.boss, at, hpm, null, true) : plugin.world().spawnMob(d.boss, at);
+                if (le != null) {
+                    fit(le, i);
+                    if (plugin.mobs().def(d.boss) == null) toughen(le, th, true);
+                    i.mobs.add(le.getUniqueId());
+                }
             }
         }
         if (dirty) save();

@@ -69,6 +69,19 @@ public final class ResourcePack implements Listener {
             // HUD: moneda y letra desplazada para mostrar el dinero junto a la barra rápida
             put(z, "assets/eclipse/font/hud.json", resource("motor/hud/hud.json"));
             put(z, "assets/eclipse/textures/hud/coin.png", resource("motor/hud/coin.png"));
+            put(z, "assets/eclipse/textures/hud/caja.png", resource("motor/hud/caja.png"));
+            // panel de misión: letras bajadas de 6 en 6 píxeles para ponerlo a media pantalla
+            put(z, "assets/eclipse/textures/hud/caja_panel.png", resource("motor/hud/caja_panel.png"));
+            put(z, "assets/eclipse/textures/hud/panel_letras.png", resource("motor/hud/panel_letras.png"));
+            for (int f = 0; f < pe.kydium.eclipserpg.menu.QuestPanel.FONTS; f++)
+                put(z, "assets/eclipse/font/panel_" + f + ".json", pe.kydium.eclipserpg.menu.QuestPanel.fontJson(f * pe.kydium.eclipserpg.menu.QuestPanel.STEP).getBytes(StandardCharsets.UTF_8));
+            // íconos dibujados (reemplazan emojis y símbolos) y barras de jefe blancas invisibles (las usa el panel de misión)
+            put(z, "assets/eclipse/font/iconos.json", pe.kydium.eclipserpg.util.Icons.fontJson().getBytes(StandardCharsets.UTF_8));
+            for (String ic : pe.kydium.eclipserpg.util.Icons.NAMES)
+                put(z, "assets/eclipse/textures/hud/iconos/" + ic + ".png", resource("motor/hud/iconos/" + ic + ".png"));
+            byte[] clear = resource("motor/hud/barra_vacia.png");
+            put(z, "assets/minecraft/textures/gui/sprites/boss_bar/white_background.png", clear);
+            put(z, "assets/minecraft/textures/gui/sprites/boss_bar/white_progress.png", clear);
             // Corrompidos: texturas con venas moradas para los monstruos de Minecraft (todos son Corrompidos en la historia)
             Map<String, byte[]> textures = new java.util.TreeMap<>();
             if (plugin.getConfig().getBoolean("paquete-recursos.monstruos-corrompidos", true)) {

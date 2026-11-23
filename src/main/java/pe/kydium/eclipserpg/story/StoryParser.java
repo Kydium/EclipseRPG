@@ -97,6 +97,7 @@ public final class StoryParser {
     private final List<Problem> problems = new ArrayList<>();
     private final StoryDoc doc = new StoryDoc();
     private final Map<StoryDoc.Objective, String> pendingTalk = new HashMap<>();
+    private int rootCount;
 
     public StoryParser(Dictionary dict, Catalog cat) {
         this.dict = dict;
@@ -114,6 +115,8 @@ public final class StoryParser {
     public Result parse(List<String> lines) {
         StoryDoc.Npc npc = null;
         StoryDoc.Mission mission = null;
+        StoryDoc.Mission root = null;
+        StoryDoc.City city = null;
         int currentAct = 1;
         for (int i = 0; i < lines.size(); i++) {
             int ln = i + 1;
@@ -127,6 +130,7 @@ public final class StoryParser {
                 doc.title = after(t);
                 npc = null;
                 mission = null;
+                city = null;
                 continue;
             }
             if (head.startsWith("descripcion") && t.contains(":")) {
@@ -153,6 +157,49 @@ public final class StoryParser {
                 }
                 npc = null;
                 mission = null;
+                root = null;
+                city = null;
+                continue;
+            }
+            if ((head.startsWith("ciudad ") || head.startsWith("pueblo ")) && !raw.startsWith(" ")) {
+                String rest = t.substring(t.indexOf(' ') + 1).trim();
+                String id = slug(rest.contains(":") ? rest.substring(0, rest.indexOf(':')) : rest);
+                if (id.isEmpty()) {
+                    error(ln, "Falta el nombre corto de la ciudad, por ejemplo:  CIUDAD puerto_bruma");
+                    continue;
+                }
+                if (doc.cities.containsKey(id)) error(ln, "Ya existe una ciudad llamada '" + id + "' (línea " + doc.cities.get(id).line + ")");
+                city = new StoryDoc.City();
+                city.line = ln;
+                city.id = id;
+                city.name = rest.contains(":") ? rest.substring(rest.indexOf(':') + 1).trim() : capital(rest.replace('_', ' '));
+                doc.cities.put(id, city);
+                npc = null;
+                mission = null;
+                root = null;
+                continue;
+            }
+            if (head.startsWith("etapa ") || head.startsWith("etapa:") || head.equals("etapa")) {
+                if (root == null) {
+                    error(ln, "ETAPA tiene que ir debajo de una MISIÓN (es un paso de esa misión)");
+                    continue;
+                }
+                String name = t.length() > 5 ? t.substring(5).replaceFirst("^[:\\s]+", "").trim() : "";
+                StoryDoc.Mission st = new StoryDoc.Mission();
+                st.line = ln;
+                st.root = root;
+                st.name = root.name;
+                root.stages++;
+                st.stage = root.stages;
+                st.stageName = name.isEmpty() ? "Etapa " + st.stage : name;
+                st.act = root.act;
+                st.level = root.level;
+                st.npc = null;
+                st.id = root.id + "e" + st.stage;
+                doc.missions.add(st);
+                mission = st;
+                npc = null;
+                city = null;
                 continue;
             }
             if (head.startsWith("npc ") && !raw.startsWith(" ")) {
@@ -169,6 +216,8 @@ public final class StoryParser {
                 npc.name = rest.contains(":") ? rest.substring(rest.indexOf(':') + 1).trim() : capital(rest);
                 doc.npcs.put(id, npc);
                 mission = null;
+                root = null;
+                city = null;
                 continue;
             }
             if ((head.startsWith("mision ") || head.startsWith("mision:")) && !raw.startsWith(" ")) {
@@ -181,9 +230,11 @@ public final class StoryParser {
                 mission.line = ln;
                 mission.name = name;
                 mission.act = currentAct;
-                mission.id = String.format(Locale.ROOT, "m%03d", doc.missions.size() + 1);
+                mission.id = String.format(Locale.ROOT, "m%03d", ++rootCount);
                 doc.missions.add(mission);
+                root = mission;
                 npc = null;
+                city = null;
                 continue;
             }
 
@@ -197,7 +248,8 @@ public final class StoryParser {
             String val = t.substring(colon + 1).trim();
             if (npc != null) npcField(npc, key, val, ln);
             else if (mission != null) missionField(mission, key, val, ln);
-            else error(ln, "Este campo está fuera de un NPC o MISIÓN: \"" + cut(t) + "\"");
+            else if (city != null) cityField(city, key, val, ln);
+            else error(ln, "Este campo está fuera de un NPC, MISIÓN o CIUDAD: \"" + cut(t) + "\"");
         }
         finish();
         return new Result(doc, problems);
@@ -255,9 +307,10 @@ public final class StoryParser {
                 else if (k.equals("neutral") || k.equals("ninguno") || k.equals("no")) n.combat = null;
                 else error(ln, "combate: no entiendo '" + val + "'. Usa: guardián, cobarde o neutral");
             }
+            case "ciudad", "pueblo", "vive en" -> n.city = slug(val);
             case "vida" -> n.combatHp = Math.max(1, intVal(val, ln, 40));
             case "dano", "danio", "ataque" -> n.combatDamage = Math.max(0, intVal(val, ln, 6));
-            default -> error(ln, "El NPC no tiene un campo '" + key + "'. Campos: nombre, color, skin, oficio, lugar, objeto, servicio, charla, combate, vida, daño");
+            default -> error(ln, "El NPC no tiene un campo '" + key + "'. Campos: nombre, color, skin, oficio, lugar, ciudad, objeto, servicio, charla, combate, vida, daño");
         }
     }
 
@@ -265,7 +318,22 @@ public final class StoryParser {
 
     private void missionField(StoryDoc.Mission m, String key, String val, int ln) {
         switch (key) {
-            case "acto" -> m.act = intVal(val, ln, m.act);
+            case "acto" -> {
+                if (m.root != null) error(ln, "Una ETAPA usa el acto de su misión");
+                else m.act = intVal(val, ln, m.act);
+            }
+            case "conversa", "conversacion", "al hablar", "charla con", "dice al hablar" -> {
+                int bar = val.indexOf('|');
+                if (bar < 0) {
+                    error(ln, "Escribe:  conversa: <npc> | lo que te dice cuando hablas con él");
+                    return;
+                }
+                String who = val.substring(0, bar).trim(), what = val.substring(bar + 1).trim();
+                if (who.isEmpty() || what.isEmpty()) error(ln, "conversa: falta el NPC o el texto");
+                else m.talks.computeIfAbsent("?" + who, k -> new ArrayList<>()).add(what);
+            }
+            case "vuelve", "volver", "regresa" -> m.returnTo = bool(val);
+            case "ciudad", "pueblo" -> m.city = slug(val);
             case "npc", "da", "la da", "lo da", "quien", "quien la da", "personaje" -> m.npc = val;
             case "nivel", "nivel minimo" -> m.level = Math.max(1, intVal(val, ln, 1));
             case "dice", "dialogo", "inicio", "texto" -> m.start.add(val);
@@ -336,7 +404,41 @@ public final class StoryParser {
                 if (k.equals("tormenta") || k.equals("lluvia") || k.equals("despejado")) m.weather = k;
                 else error(ln, "clima: no entiendo '" + val + "'. Usa: despejado, lluvia o tormenta");
             }
-            default -> error(ln, "La misión no tiene un campo '" + key + "'. Campos: npc, acto, nivel, dice, responde, rechaza, final, objetivo, premio, aparecen, recibe, jefe, mazmorra, estructura, eleccion, evento, clima, tiempo, oleadas, acertijo, correcta, incorrecta");
+            default -> error(ln, "La misión no tiene un campo '" + key + "'. Campos: npc, acto, nivel, conversa, ciudad, vuelve, dice, responde, rechaza, final, objetivo, premio, aparecen, recibe, jefe, mazmorra, estructura, eleccion, evento, clima, tiempo, oleadas, acertijo, correcta, incorrecta");
+        }
+    }
+
+    // ---------------------------------------------------------------- CIUDAD
+
+    private void cityField(StoryDoc.City c, String key, String val, int ln) {
+        switch (key) {
+            case "nombre" -> c.name = val;
+            case "tamano", "tamanio", "tipo", "tamaño" -> {
+                String k = Dictionary.norm(val);
+                if (k.startsWith("chic") || k.startsWith("peque")) c.size = "chica";
+                else if (k.startsWith("med")) c.size = "mediana";
+                else if (k.startsWith("gran") || k.startsWith("amur") || k.startsWith("capital")) c.size = "grande";
+                else error(ln, "tamaño: usa chica, mediana o grande");
+            }
+            case "estilo" -> c.style = Dictionary.norm(val).replace(' ', '_');
+            case "distancia", "lejos", "a" -> {
+                java.util.regex.Matcher mm = java.util.regex.Pattern.compile("(\\d+)\\s*(?:-|a|hasta)?\\s*(\\d+)?").matcher(Dictionary.norm(val));
+                if (!mm.find()) {
+                    error(ln, "distancia: escribe bloques, por ejemplo  distancia: 900-1400");
+                    return;
+                }
+                int a = Integer.parseInt(mm.group(1)), b = mm.group(2) == null ? a + 300 : Integer.parseInt(mm.group(2));
+                c.distMin = Math.max(200, Math.min(a, b));
+                c.distMax = Math.max(c.distMin + 50, Math.max(a, b));
+            }
+            case "direccion", "rumbo", "hacia" -> {
+                String k = Dictionary.norm(val);
+                if (Set.of("norte", "sur", "este", "oeste").contains(k)) c.direction = k;
+                else error(ln, "dirección: usa norte, sur, este u oeste");
+            }
+            case "lema", "subtitulo", "frase" -> c.subtitle = val;
+            case "descripcion", "historia", "lore", "cuenta" -> c.lore.add(val);
+            default -> error(ln, "La ciudad no tiene un campo '" + key + "'. Campos: nombre, tamaño, estilo, distancia, dirección, lema, descripción");
         }
     }
 
@@ -397,6 +499,16 @@ public final class StoryParser {
             o.amount = 1;
             o.targets.add("*");
             return o;
+        }
+        if (all.matches("^(a |al |hasta |hacia )?(la )?(ciudad|pueblo) .+")) {
+            // "llega a la ciudad Puerto Bruma" (las CIUDADES se escriben antes que las misiones)
+            String c = cityRef(all.replaceFirst("^(a |al |hasta |hacia )?(la )?(ciudad|pueblo) ", "").trim());
+            if (c != null) {
+                o.type = "ESTRUCTURA";
+                o.amount = 1;
+                o.targets.add("ciudad_" + c);
+                return o;
+            }
         }
         if (Set.of("resuelve", "responde", "adivina", "resolver", "contesta").contains(verb)) {
             o.type = "RESPONDER";
@@ -715,6 +827,8 @@ public final class StoryParser {
     private void finish() {
         // NPCs que dan misiones y a los que hay que hablar
         for (StoryDoc.Mission m : doc.missions) {
+            if (m.npc == null && m.root != null) m.npc = m.root.npc;   // la etapa la da el mismo NPC si no dice otro
+            if (m.root != null) m.stages = m.root.stages;
             if (m.npc == null) {
                 error(m.line, "La misión \"" + m.name + "\" no dice quién la da. Añade:  npc: <nombre del NPC>");
             } else {
@@ -722,7 +836,20 @@ public final class StoryParser {
                 if (id == null) error(m.line, "La misión \"" + m.name + "\" la da '" + m.npc + "', pero no hay un NPC así." + npcHint(m.npc));
                 else m.npc = id;
             }
-            if (m.start.isEmpty()) warn(m.line, "La misión \"" + m.name + "\" no tiene diálogo ('dice:')");
+            if (m.start.isEmpty() && m.root == null) warn(m.line, "La misión \"" + m.name + "\" no tiene diálogo ('dice:')");
+            // conversaciones con otros NPCs
+            if (!m.talks.isEmpty()) {
+                Map<String, List<String>> fixed = new java.util.LinkedHashMap<>();
+                for (Map.Entry<String, List<String>> e : m.talks.entrySet()) {
+                    String ref = e.getKey().startsWith("?") ? e.getKey().substring(1) : e.getKey();
+                    String id = npcRef(ref);
+                    if (id == null) error(m.line, "conversa: no hay un NPC '" + ref + "'." + npcHint(ref));
+                    else fixed.computeIfAbsent(id, k -> new ArrayList<>()).addAll(e.getValue());
+                }
+                m.talks.clear();
+                m.talks.putAll(fixed);
+            }
+            if (m.city != null && !doc.cities.containsKey(m.city)) error(m.line, "No existe la ciudad '" + m.city + "'. Ciudades: " + doc.cities.keySet());
             if (m.boss && m.dungeon == 0 && m.objectives.stream().noneMatch(o -> o.type.equals("MOB") || o.type.equals("MATAR")))
                 warn(m.line, "La misión de jefe \"" + m.name + "\" no tiene un objetivo para derrotar a un jefe");
             if (!doc.acts.containsKey(m.act)) doc.acts.put(m.act, "Acto " + m.act);
@@ -733,6 +860,8 @@ public final class StoryParser {
             else e.getKey().targets.add(id);
         }
         for (StoryDoc.Npc n : doc.npcs.values()) {
+            if (n.city != null && !doc.cities.containsKey(n.city))
+                error(n.line, "El NPC '" + n.id + "' vive en la ciudad '" + n.city + "', que no existe. Ciudades: " + doc.cities.keySet());
             if (n.skin == null) {
                 warn(n.line, "El NPC '" + n.id + "' no tiene skin: usaré una de aldeano");
                 n.skin = cat.skins().contains("aldeano_1") ? "aldeano_1" : cat.skins().stream().findFirst().orElse(null);
@@ -741,6 +870,14 @@ public final class StoryParser {
         if (doc.missions.isEmpty()) error(0, "La historia no tiene ninguna MISIÓN");
         if (doc.npcs.isEmpty()) error(0, "La historia no tiene ningún NPC");
         problems.sort((a, b) -> Integer.compare(a.line(), b.line()));
+    }
+
+    private String cityRef(String ref) {
+        String s = slug(ref);
+        if (doc.cities.containsKey(s)) return s;
+        String k = Dictionary.key(ref);
+        for (StoryDoc.City c : doc.cities.values()) if (Dictionary.key(c.name).equals(k)) return c.id;
+        return null;
     }
 
     private String npcRef(String ref) {

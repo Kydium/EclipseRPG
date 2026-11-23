@@ -77,9 +77,11 @@ public final class QuestBook {
         } else {
             pg.add("<dark_purple>" + qm.actName(cur.act));
             pg.add("<black><bold>" + (d.questAccepted ? cur.name : "❗ Nueva misión"));
+            if (d.questAccepted && cur.stages > 1)
+                pg.add("<dark_gray>Etapa " + cur.stage + "/" + cur.stages + (cur.stageName == null ? "" : ": " + cur.stageName));
             pg.add("");
             if (!d.questAccepted) {
-                pg.add("<dark_gray>Habla con " + strip(plugin.npcs().name(cur.npc)) + " para empezarla.");
+                pg.add("<dark_gray>Habla con " + strip(plugin.npcs().name(cur.npc) + plugin.quests().whereIs(cur.npc)) + (cur.stage > 1 ? " para seguir." : " para empezarla."));
                 if (cur.minLevel > d.level) pg.add("<dark_red>Necesitas nivel " + cur.minLevel + ".");
             } else if (cur.objectives.isEmpty()) {
                 pg.add("<dark_gray>Habla con " + strip(plugin.npcs().name(cur.npc)) + ".");
@@ -94,7 +96,7 @@ public final class QuestBook {
                 }
                 if (qm.isComplete(p, cur)) {
                     pg.add("");
-                    pg.add("<dark_green>Vuelve con " + strip(plugin.npcs().name(cur.npc)) + ".");
+                    pg.add(cur.auto ? "<dark_green>¡Hecho! La historia sigue." : "<dark_green>Vuelve con " + strip(plugin.npcs().name(cur.npc) + plugin.quests().whereIs(cur.npc)) + ".");
                 }
                 if (cur.noDeath) pg.add("<dark_red>Si mueres, se reinicia.");
                 for (String l : qm.rewardLines(cur)) pg.add(l.replace("<gold>", "<dark_red>").replace("<aqua>", "<dark_aqua>").replace("<yellow>", "<gold>").replace("<white>", "<black>").replace("<gray>", "<dark_gray>"));
@@ -112,7 +114,7 @@ public final class QuestBook {
         }
         for (int n = 1; n <= doneCount; n++) {
             Quest q = qm.byNumber(n);
-            if (q == null) continue;
+            if (q == null || !q.isLastStage()) continue;   // una misión con etapas sale una sola vez
             if (q.act != lastAct) {
                 if (lastAct != -1) pg.add("");
                 pg.add(Txt.mm("<dark_purple><bold>" + qm.actName(q.act)), lines(qm.actName(q.act)) );

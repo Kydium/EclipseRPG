@@ -62,11 +62,11 @@ public final class QuestMenu extends Menu {
                 }
                 if (qm.isComplete(player, q)) {
                     lore.add("");
-                    lore.add("<green>¡Lista! Vuelve con " + plugin.npcs().name(q.npc));
+                    lore.add(q.auto ? "<green>¡Lista! La historia sigue en un momento" : "<green>¡Lista! Vuelve con " + plugin.npcs().name(q.npc) + plugin.quests().whereIs(q.npc));
                 }
             }
             Material m = q.boss ? Material.WITHER_SKELETON_SKULL : Material.WRITABLE_BOOK;
-            inventory.setItem(13, icon(m, d.questAccepted ? "<yellow><bold>" + q.name + " <gray>(" + q.number + ")"
+            inventory.setItem(13, icon(m, d.questAccepted ? "<yellow><bold>" + q.title()
                     : "<yellow><bold>❗ Nueva misión disponible", lore));
         }
         inventory.setItem(15, icon(Material.EXPERIENCE_BOTTLE, "<aqua>Nivel " + d.level,
