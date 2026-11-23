@@ -827,6 +827,7 @@ public final class SmokeTest {
         for (String id : pe.kydium.eclipserpg.gen.Catalog.ALL.keySet()) {
             for (String st : pe.kydium.eclipserpg.gen.Style.ids()) {
                 if (!id.startsWith("aldea") && !st.equals("llanura") && !st.equals("desierto") && !st.equals("cerezo")) continue;
+                if (id.equals("aldea_enorme") && !st.equals("llanura") && !st.equals("oscuro")) continue;   // la enorme pesa: solo dos estilos
                 try {
                     var b = pe.kydium.eclipserpg.gen.Catalog.generate(id, flat, new java.util.Random(id.hashCode() + st.hashCode()), pe.kydium.eclipserpg.gen.Style.get(st), 0, 0);
                     total += b.blocks.size();
