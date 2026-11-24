@@ -20,6 +20,21 @@
 #    mensaje: texto que sale al empezar
 # =========================================================
 
+# ---------------------------------------------------------------- TEMA DE LA HISTORIA
+# Cómo se llaman y cómo se ven los monstruos mejorados que salen por el mundo.
+# Aquí NO son los Corrompidos del Eclipse (sin venas moradas): son los Velados.
+tema:
+  venas: false
+  enemigos: Velados
+  masculino: Velado
+  femenino: Velada
+  color: gray
+  icono: "☩"
+  esencia: jiron_de_velo
+  corazon: lagrima_de_corona
+  nombre-corazon: "Lágrima de Corona"
+  aviso-corazon: "<gold>♛ Sabela la Coleccionista, en la torre de la aldea, cambia Lágrimas de Corona y Jirones de Velo por objetos raros."
+
 tiempo:
   minutos-dia: 12          # lo normal de Minecraft es 10
   minutos-noche: 10
@@ -83,7 +98,7 @@ apariciones:
     distancia-min: 24      # bloques (lejos de tu vista, para que no aparezcan en tu cara)
     distancia-max: 44
     de-dia: false          # true = también de día en la superficie (bajo tierra salen siempre)
-    mobs: [zombie, zombie, skeleton, skeleton, spider, creeper, zombi_corrompido]
+    mobs: [zombie, zombie, skeleton, skeleton, spider, creeper, velado_cavador, velado_hueso]
   bloquear: []             # por ejemplo: [phantom, creeper]
   reglas:
     # Las Siete Coronas: los Velados aparecen según el acto y el lugar (la primera regla que toca, gana)
@@ -102,14 +117,6 @@ apariciones:
     - {mob: velado_eco, reemplaza: [enderman], probabilidad: 0.3, cuando: {acto-min: 10}}
     - {mob: velado_caballero, reemplaza: [wither_skeleton, skeleton], probabilidad: 0.1, cuando: {acto-min: 11, momento: [noche], zona: fuera}}
     - {mob: velado_titan, reemplaza: [zombie, skeleton, creeper], probabilidad: 0.02, cuando: {acto-min: 12, momento: [noche], cielo: abierto, zona: fuera}}
-    # La corrupción llega a los gólems y a los lobos (van primero: la primera regla que toca, gana)
-    - {mob: golem_corrompido, reemplaza: [zombie, skeleton, spider, creeper], probabilidad: 0.04, cuando: {acto-min: 3, cielo: abierto, momento: [noche], dimension: [overworld], zona: fuera}}
-    - {mob: lobo_corrompido, reemplaza: [zombie, skeleton, spider], probabilidad: 0.08, grupo: "2-3", cuando: {acto-min: 5, bioma: [bosque, frio], momento: [noche], zona: fuera}}
-    - {mob: golem_eclipse, reemplaza: [zombie, skeleton, creeper], probabilidad: 0.02, cuando: {acto-min: 8, momento: [noche], dimension: [overworld], zona: fuera}}
-    - {mob: zombi_corrompido, reemplaza: [zombie], probabilidad: 0.25, grupo: "1-2", cuando: {luna: [llena], momento: [noche]}}
-    - {mob: esqueleto_corrompido, reemplaza: [skeleton], probabilidad: 0.2, cuando: {clima: [tormenta]}}
-    - {mob: husk_corrompido, reemplaza: [husk, zombie], probabilidad: 0.2, cuando: {bioma: [desierto], acto-min: 4}}
-    - {mob: ahogado_corrompido, reemplaza: [drowned], probabilidad: 0.25, cuando: {clima: [lluvia, tormenta], acto-min: 3}}
 
 eventos:
   luna_sangre:
@@ -120,39 +127,39 @@ eventos:
     cada-dias: 0             # 7 = siempre cada 7 días
     duracion: 0              # segundos · 0 = hasta que amanezca
     anuncio: "<red><bold>Luna de Sangre"
-    subtitulo: "<gray>Los Corrompidos despiertan. Aguanta hasta el amanecer."
+    subtitulo: "<gray>Los Velados salen de sus tumbas. Aguanta hasta el amanecer."
     sonido: entity.wither.spawn
     no-dormir: true
     apariciones: 2.5
     danio-recibido: 1.2
     xp: 1.5
     dinero: 1.5
-    oleadas: {mobs: [zombi_corrompido, esqueleto_corrompido, arana_corrompida], cada: 40, cantidad: 2}
+    oleadas: {mobs: [velado_cavador, velado_hueso, velado_acechador], cada: 40, cantidad: 2}
     mensaje-fin: "<gold>Amanece. Sobreviviste a la Luna de Sangre."
     premio-xp: 150
     premio-dinero: 60
-  tormenta_eclipse:
-    nombre: "<dark_purple><bold>⛈ Tormenta del Eclipse"
-    color-barra: PURPLE
+  tormenta_del_velo:
+    nombre: "<gray><bold>⛈ Tormenta del Velo"
+    color-barra: WHITE
     empieza: cualquiera
     probabilidad: 0.015      # cada hora del juego
     duracion: 300
     clima: tormenta
-    anuncio: "<dark_purple><bold>Tormenta del Eclipse"
-    subtitulo: "<gray>El cielo se rompe. Busca techo."
+    anuncio: "<gray><bold>Tormenta del Velo"
+    subtitulo: "<gray>La tela gris baja del cielo. Busca techo."
     sonido: entity.lightning_bolt.thunder
     apariciones: 1.8
     velocidad: -0.1
     mensaje-fin: "<gray>La tormenta se aleja."
-  bendicion_alba:
-    nombre: "<yellow><bold>☀ Bendición del Alba"
+  bendicion_reinas:
+    nombre: "<gold><bold>♛ Bendición de las Reinas"
     color-barra: YELLOW
     empieza: dia
     probabilidad: 0.08
     duracion: 480
     clima: despejado
-    anuncio: "<yellow><bold>Bendición del Alba"
-    subtitulo: "<gray>Hoy la luz está de tu lado."
+    anuncio: "<gold><bold>Bendición de las Reinas"
+    subtitulo: "<gray>Las siete reinas te miran hoy desde el cielo."
     sonido: block.beacon.activate
     efectos: [{efecto: regeneration, nivel: 1}]
     xp: 1.5

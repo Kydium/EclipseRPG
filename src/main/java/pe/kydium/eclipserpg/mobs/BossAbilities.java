@@ -217,7 +217,7 @@ public final class BossAbilities {
                 if (a.extra() != null) for (String s : a.extra().split(",")) if (!s.isBlank()) pool.add(s.trim());
                 if (pool.isEmpty()) pool.addAll(d.minions);
                 if (pool.isEmpty()) return;
-                announce(boss, "<dark_purple>⚠ " + d.name + "<dark_purple> invoca Corrompidos", "entity.evoker.prepare_summon", 0.8f);
+                announce(boss, "<dark_purple>⚠ " + d.name + "<dark_purple> invoca " + mobs.theme().plural(), "entity.evoker.prepare_summon", 0.8f);
                 for (int i = 0; i < Math.max(1, a.amount()); i++) {
                     mobs.spawn(pool.get(ThreadLocalRandom.current().nextInt(pool.size())), mobs.spawnSpot(bl, 4));
                 }

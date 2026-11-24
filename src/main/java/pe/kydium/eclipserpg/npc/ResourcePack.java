@@ -117,7 +117,8 @@ public final class ResourcePack implements Listener {
             put(z, "assets/minecraft/textures/gui/sprites/boss_bar/white_progress.png", clear);
             // Corrompidos: texturas con venas moradas para los monstruos de Minecraft (todos son Corrompidos en la historia)
             Map<String, byte[]> textures = new java.util.TreeMap<>();
-            if (plugin.getConfig().getBoolean("paquete-recursos.monstruos-corrompidos", true)) {
+            // solo si la historia los usa (mundo.yml > tema > venas); Las Siete Coronas, por ejemplo, no
+            if (plugin.getConfig().getBoolean("paquete-recursos.monstruos-corrompidos", true) && pe.kydium.eclipserpg.story.Theme.read(plugin).veins()) {
                 byte[] list = resource("motor/corrupcion/lista.txt");
                 if (list != null) for (String rel : new String(list, StandardCharsets.UTF_8).split("\\R")) {
                     rel = rel.trim();

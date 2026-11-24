@@ -69,7 +69,7 @@ public final class LevelManager implements Listener {
     }
 
     public String statDescription(Stat s) {
-        return s.summary;
+        return plugin.mobs() == null ? s.summary : plugin.mobs().theme().words(s.summary).replace("Corazones Corruptos", "objetos raros (" + plugin.mobs().theme().heartName() + ")");
     }
 
     /** Lo que da un atributo con `n` puntos, una línea por efecto. */
@@ -86,7 +86,7 @@ public final class LevelManager implements Listener {
             case AGILIDAD -> java.util.List.of("+" + Txt.dec(n * pp) + "% de velocidad", "+" + Txt.dec(n * extra(s, "ataque", 1.5)) + "% de velocidad de ataque",
                     "+" + Txt.dec(n * extra(s, "distancia", 2)) + "% de daño con arcos y tridentes");
             case INTELIGENCIA -> java.util.List.of("+" + Txt.dec(n * pp) + "% de daño de poderes mágicos");
-            case FE -> java.util.List.of("+" + Txt.dec(n * pp) + "% de curación", "+" + Txt.dec(n * extra(s, "corrompidos", 2)) + "% de daño a Corrompidos");
+            case FE -> java.util.List.of("+" + Txt.dec(n * pp) + "% de curación", "+" + Txt.dec(n * extra(s, "corrompidos", 2)) + "% de daño a " + plugin.mobs().theme().plural());
             case FORTUNA -> java.util.List.of("+" + Txt.dec(n * pp) + "% de Soles y botín", "+" + Txt.dec(n * extra(s, "suerte", 0.1)) + " de suerte");
         };
     }

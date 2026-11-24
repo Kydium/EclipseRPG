@@ -83,7 +83,7 @@ public final class StatsMenu extends Menu {
         double pen = plugin.penetration() == null ? 0 : plugin.penetration().ofHand(player);
         cb.add("<gray>Penetración: <gold>" + Math.round(pen * 100) + " %  <dark_gray>(ignora armadura)");
         cb.add("<gray>Hachas y mazas: <white>x" + Txt.dec(lm.heavyMult(player)) + "<gray> · Arcos: <white>x" + Txt.dec(lm.rangedMult(player)));
-        cb.add("<gray>Contra Corrompidos: <white>x" + Txt.dec(lm.holyMult(player)));
+        cb.add("<gray>Contra " + plugin.mobs().theme().plural() + ": <white>x" + Txt.dec(lm.holyMult(player)));
         cb.add("");
         cb.add("<dark_gray>Más penetración: mejora el arma en el yunque");
         cb.add("<dark_gray>o fórjale una <light_purple>Runa de Penetración<dark_gray>.");

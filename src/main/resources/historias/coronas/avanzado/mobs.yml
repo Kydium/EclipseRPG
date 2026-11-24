@@ -1,5 +1,5 @@
 # =========================================================
-#  Las Siete Coronas: Corrompidos (del Eclipse) + Velados y jefes de las coronas
+#  Las Siete Coronas: los Velados y los doce jefes de las coronas
 #  Aparecen con: /eclipse spawn <id> <jugador> [cantidad]
 #  vida: vida total (20 = zombi normal)
 #  danio-extra: se suma al daño normal del mob · danio: reemplaza el daño base
@@ -20,509 +20,26 @@
 mobs:
 
   # ---------------- Acto 1 ----------------
-  zombi_corrompido:
-    tipo: zombie
-    nombre: "<dark_purple>☠ Zombi Corrompido"
-    vida: 45
-    danio-extra: 3
-    armadura: 2
-    xp: 10
-    soles: 2
-    equipo: {casco: LEATHER_HELMET}
-  arana_corrompida:
-    tipo: spider
-    nombre: "<dark_purple>☠ Araña Corrompida"
-    vida: 40
-    danio-extra: 3
-    xp: 10
-    soles: 2
-    velocidad: 0.15
-  rondador_podrido:
-    tipo: zoglin
-    nombre: "<red><bold>Rondador Podrido"
-    jefe: true
-    color-barra: RED
-    vida: 700
-    danio: 12
-    armadura: 10
-    dureza: 4
-    resistencia-empuje: 1
-    escala: 1.6
-    velocidad: 0.05
-    aura: SMOKE
-    xp: 1200
-    soles: 300
-    esbirros: [zombi_corrompido, arana_corrompida]
-    cantidad-esbirros: 4
-    habilidades:
-      - {tipo: EMBESTIDA, cada: 7, potencia: 12}
-      - {tipo: SALTO, cada: 10, potencia: 10, radio: 6}
-      - {tipo: ESCUDO, cada: 30, extra: zombi_corrompido, cantidad: 3}
-      - {tipo: INVOCAR, cada: 20, extra: "zombi_corrompido,arana_corrompida", cantidad: 2}
-    premios:
-      - {item: fragmento_solar_1}
-      - {item: hoja_del_alba}
-      - {item: fragmento_mejora}
-
   # ---------------- Acto 2 ----------------
-  esqueleto_corrompido:
-    tipo: skeleton
-    nombre: "<dark_purple>☠ Esqueleto Corrompido"
-    vida: 65
-    danio-extra: 4
-    armadura: 4
-    xp: 14
-    soles: 4
-    equipo: {mano: BOW, casco: CHAINMAIL_HELMET}
-  creeper_corrompido:
-    tipo: creeper
-    nombre: "<dark_purple>☠ Creeper Corrompido"
-    vida: 60
-    xp: 14
-    soles: 4
-    velocidad: 0.3
-  capataz_hueso:
-    tipo: ravager
-    nombre: "<red><bold>Capataz Hueso"
-    jefe: true
-    color-barra: WHITE
-    vida: 1100
-    danio: 16
-    armadura: 14
-    dureza: 6
-    resistencia-empuje: 1
-    escala: 1.25
-    aura: ASH
-    xp: 2400
-    soles: 600
-    esbirros: [esqueleto_corrompido, saqueador_corrompido]
-    cantidad-esbirros: 4
-    habilidades:
-      - {tipo: EMBESTIDA, cada: 6, potencia: 16}
-      - {tipo: ONDA, cada: 9, potencia: 12, radio: 7}
-      - {tipo: FLECHAS, cada: 12, potencia: 8, radio: 8, cantidad: 8}
-      - {tipo: CADENAS, cada: 16, potencia: 4, radio: 9, cantidad: 2}
-      - {tipo: INVOCAR, cada: 18, extra: "esqueleto_corrompido,saqueador_corrompido", cantidad: 3}
-    premios:
-      - {item: fragmento_solar_2}
-      - {item: pico_minero_perdido}
-
   # ---------------- Acto 3 ----------------
-  saqueador_corrompido:
-    tipo: pillager
-    nombre: "<dark_purple>☠ Saqueador Corrompido"
-    vida: 80
-    danio-extra: 5
-    armadura: 5
-    xp: 18
-    soles: 6
-    equipo: {mano: CROSSBOW}
-  vindicador_corrompido:
-    tipo: vindicator
-    nombre: "<dark_purple>☠ Vindicador Corrompido"
-    vida: 85
-    danio-extra: 6
-    armadura: 6
-    xp: 18
-    soles: 6
-    equipo: {mano: IRON_AXE}
-  heraldo_mancha:
-    tipo: illusioner
-    nombre: "<red><bold>Heraldo de la Mancha"
-    jefe: true
-    color-barra: PURPLE
-    vida: 1300
-    danio: 14
-    armadura: 12
-    dureza: 6
-    resistencia-empuje: 1
-    escala: 1.5
-    velocidad: 0.1
-    aura: WITCH
-    xp: 3600
-    soles: 900
-    equipo: {mano: BOW}
-    esbirros: [vindicador_corrompido, saqueador_corrompido]
-    cantidad-esbirros: 4
-    habilidades:
-      - {tipo: CLONES, cada: 14, potencia: 6, radio: 10, cantidad: 3}
-      - {tipo: TELEPORTE, cada: 9}
-      - {tipo: RAYO, cada: 8, potencia: 14, radio: 3}
-      - {tipo: EFECTO, cada: 16, extra: blindness, potencia: 0, radio: 14, cantidad: 4}
-      - {tipo: ESCUDO, cada: 28, extra: "vindicador_corrompido,saqueador_corrompido", cantidad: 3}
-    premios:
-      - {item: fragmento_solar_3}
-      - {item: ballesta_vigia}
-
   # ---------------- Acto 4 ----------------
-  ahogado_corrompido:
-    tipo: drowned
-    nombre: "<dark_purple>☠ Ahogado Corrompido"
-    vida: 100
-    danio-extra: 7
-    armadura: 7
-    xp: 22
-    soles: 8
-  guardian_corrompido:
-    tipo: guardian
-    nombre: "<dark_purple>☠ Guardián Corrompido"
-    vida: 95
-    danio-extra: 7
-    xp: 22
-    soles: 8
-  ahogado_coronado:
-    tipo: elder_guardian
-    nombre: "<red><bold>Ahogado Coronado"
-    jefe: true
-    color-barra: BLUE
-    vida: 1800
-    danio: 18
-    armadura: 16
-    dureza: 8
-    resistencia-empuje: 1
-    escala: 1.4
-    aura: BUBBLE_POP
-    xp: 4800
-    soles: 1200
-    esbirros: [ahogado_corrompido, guardian_corrompido]
-    cantidad-esbirros: 4
-    habilidades:
-      - {tipo: ATRAER, cada: 8, radio: 14}
-      - {tipo: ONDA, cada: 10, potencia: 16, radio: 6}
-      - {tipo: EFECTO, cada: 14, extra: nausea, potencia: 1, radio: 14, cantidad: 5}
-      - {tipo: ESCUDO, cada: 30, extra: "ahogado_corrompido,guardian_corrompido", cantidad: 3}
-      - {tipo: INVOCAR, cada: 16, extra: ahogado_corrompido, cantidad: 3}
-    premios:
-      - {item: fragmento_mejora_superior}
-      - {item: fragmento_solar_4}
-      - {item: tridente_marea_negra}
-
   # ---------------- Acto 5 ----------------
-  husk_corrompido:
-    tipo: husk
-    nombre: "<dark_purple>☠ Husk Corrompido"
-    vida: 120
-    danio-extra: 8
-    armadura: 8
-    xp: 26
-    soles: 10
-  bruja_corrompida:
-    tipo: witch
-    nombre: "<dark_purple>☠ Bruja Corrompida"
-    vida: 110
-    armadura: 4
-    xp: 26
-    soles: 10
-  bruja_dunas:
-    tipo: evoker
-    nombre: "<red><bold>Bruja de las Dunas"
-    jefe: true
-    color-barra: YELLOW
-    vida: 2000
-    danio: 18
-    armadura: 14
-    dureza: 8
-    resistencia-empuje: 1
-    escala: 1.5
-    velocidad: 0.1
-    aura: WITCH
-    xp: 6000
-    soles: 1500
-    esbirros: [husk_corrompido, bruja_corrompida]
-    cantidad-esbirros: 4
-    habilidades:
-      - {tipo: METEOROS, cada: 10, potencia: 14, radio: 16, cantidad: 2}
-      - {tipo: ESCUDO, cada: 25, extra: "husk_corrompido,bruja_corrompida", cantidad: 3}
-      - {tipo: TELEPORTE, cada: 11}
-      - {tipo: EFECTO, cada: 16, extra: wither, potencia: 1, radio: 12, cantidad: 5}
-      - {tipo: INVOCAR, cada: 20, extra: husk_corrompido, cantidad: 3}
-    premios:
-      - {item: fragmento_mejora_superior}
-      - {item: fragmento_solar_5}
-      - {item: botas_viento_seco}
-
   # ---------------- Acto 6 ----------------
-  blaze_corrompido:
-    tipo: blaze
-    nombre: "<dark_purple>☠ Blaze Corrompido"
-    vida: 140
-    danio-extra: 10
-    armadura: 8
-    xp: 30
-    soles: 12
-  esqueleto_wither_corrompido:
-    tipo: wither_skeleton
-    nombre: "<dark_purple>☠ Esqueleto Wither Corrompido"
-    vida: 150
-    danio-extra: 10
-    armadura: 10
-    xp: 30
-    soles: 12
-    equipo: {mano: STONE_SWORD}
-  senor_brasas:
-    tipo: magma_cube
-    nombre: "<red><bold>Señor de Brasas"
-    jefe: true
-    color-barra: RED
-    vida: 2400
-    danio: 20
-    armadura: 16
-    dureza: 8
-    resistencia-empuje: 1
-    escala: 1.6
-    velocidad: 0.2
-    aura: LAVA
-    xp: 7200
-    soles: 1800
-    esbirros: [blaze_corrompido, esqueleto_wither_corrompido]
-    cantidad-esbirros: 4
-    habilidades:
-      - {tipo: METEOROS, cada: 8, potencia: 16, radio: 16, cantidad: 3}
-      - {tipo: SALTO, cada: 6, potencia: 16, radio: 6}
-      - {tipo: FUEGO, cada: 12, potencia: 10, radio: 10}
-      - {tipo: ESCUDO, cada: 30, extra: "blaze_corrompido,esqueleto_wither_corrompido", cantidad: 3}
-      - {tipo: INVOCAR, cada: 18, extra: "blaze_corrompido,esqueleto_wither_corrompido", cantidad: 2}
-    premios:
-      - {item: fragmento_mejora_superior}
-      - {item: fragmento_mejora_superior}
-      - {item: fragmento_solar_6}
-      - {item: hacha_ignea}
-
   # ---------------- Acto 7 ----------------
-  breeze_corrompido:
-    tipo: stray
-    nombre: "<dark_purple>☠ Arquero del Vendaval"
-    vida: 160
-    armadura: 6
-    xp: 34
-    soles: 14
-  bogged_corrompido:
-    tipo: bogged
-    nombre: "<dark_purple>☠ Bogged Corrompido"
-    vida: 170
-    danio-extra: 11
-    armadura: 10
-    xp: 34
-    soles: 14
-    equipo: {mano: BOW}
-  viento_encadenado:
-    tipo: breeze
-    nombre: "<red><bold>Viento Encadenado"
-    jefe: true
-    color-barra: GREEN
-    vida: 2800
-    danio: 22
-    armadura: 16
-    dureza: 8
-    resistencia-empuje: 1
-    escala: 1.8
-    velocidad: 0.1
-    aura: CLOUD
-    xp: 8400
-    soles: 2100
-    esbirros: [bogged_corrompido, breeze_corrompido]
-    cantidad-esbirros: 4
-    habilidades:
-      - {tipo: CADENAS, cada: 12, potencia: 6, radio: 10, cantidad: 3}
-      - {tipo: ATRAER, cada: 9, radio: 14}
-      - {tipo: ONDA, cada: 8, potencia: 18, radio: 7}
-      - {tipo: RAYO, cada: 10, potencia: 16, radio: 3}
-      - {tipo: FLECHAS, cada: 14, potencia: 10, radio: 10, cantidad: 8}
-      - {tipo: ESCUDO, cada: 30, extra: "bogged_corrompido,breeze_corrompido", cantidad: 3}
-    premios:
-      - {item: fragmento_mejora_superior}
-      - {item: fragmento_mejora_superior}
-      - {item: fragmento_solar_7}
-      - {item: mazo_trueno}
-
   # ---------------- Acto 8 ----------------
-  sombra_corrompida:
-    tipo: skeleton
-    nombre: "<dark_gray>☠ Sombra Corrompida"
-    vida: 200
-    danio-extra: 13
-    armadura: 12
-    xp: 38
-    soles: 16
-    velocidad: 0.15
-    equipo: {mano: IRON_SWORD}
-    efectos: ["invisibility:0"]
-  sombra_velkar:
-    tipo: warden
-    nombre: "<dark_purple><bold>Sombra de Velkar"
-    jefe: true
-    color-barra: PURPLE
-    vida: 3200
-    danio: 24
-    armadura: 18
-    dureza: 10
-    resistencia-empuje: 1
-    escala: 1.1
-    velocidad: 0.1
-    aura: SCULK_SOUL
-    xp: 9600
-    soles: 2400
-    esbirros: [enderman_corrompido, sombra_corrompida]
-    cantidad-esbirros: 4
-    habilidades:
-      - {tipo: EFECTO, cada: 12, extra: darkness, potencia: 0, radio: 20, cantidad: 8}
-      - {tipo: CADENAS, cada: 14, potencia: 8, radio: 10, cantidad: 3}
-      - {tipo: TELEPORTE, cada: 10}
-      - {tipo: ESCUDO, cada: 30, extra: "enderman_corrompido,sombra_corrompida", cantidad: 3}
-      - {tipo: INVOCAR, cada: 22, extra: sombra_corrompida, cantidad: 3}
-    premios:
-      - {item: fragmento_mejora_ancestral}
-      - {item: fragmento_mejora_superior}
-      - {item: fragmento_solar_8}
-      - {item: capa_silencio}
-
   # ---------------- Acto 9 ----------------
-  piglin_bruto_corrompido:
-    tipo: piglin
-    nombre: "<dark_purple>☠ Piglin Corrompido"
-    vida: 240
-    danio-extra: 15
-    armadura: 14
-    xp: 42
-    soles: 18
-    equipo: {mano: GOLDEN_AXE}
-  hoglin_corrompido:
-    tipo: hoglin
-    nombre: "<dark_purple>☠ Hoglin Corrompido"
-    vida: 250
-    danio-extra: 15
-    armadura: 12
-    xp: 42
-    soles: 18
-  rey_ceniza:
-    tipo: piglin_brute
-    nombre: "<dark_red><bold>Rey de Ceniza"
-    jefe: true
-    color-barra: RED
-    vida: 3600
-    danio: 30
-    armadura: 20
-    dureza: 10
-    resistencia-empuje: 1
-    escala: 1.8
-    velocidad: 0.1
-    aura: FLAME
-    xp: 10800
-    soles: 2700
-    equipo: {mano: GOLDEN_AXE, casco: GOLDEN_HELMET, pecho: NETHERITE_CHESTPLATE, piernas: NETHERITE_LEGGINGS, pies: GOLDEN_BOOTS}
-    esbirros: [hoglin_corrompido, piglin_bruto_corrompido]
-    cantidad-esbirros: 4
-    habilidades:
-      - {tipo: SALTO, cada: 7, potencia: 18, radio: 7}
-      - {tipo: EMBESTIDA, cada: 9, potencia: 20}
-      - {tipo: METEOROS, cada: 13, potencia: 16, radio: 16, cantidad: 3}
-      - {tipo: FUEGO, cada: 11, potencia: 14, radio: 10}
-      - {tipo: ESCUDO, cada: 30, extra: "hoglin_corrompido,piglin_bruto_corrompido", cantidad: 3}
-      - {tipo: INVOCAR, cada: 24, extra: piglin_bruto_corrompido, cantidad: 2}
-    premios:
-      - {item: fragmento_mejora_ancestral}
-      - {item: fragmento_mejora_superior}
-      - {item: fragmento_mejora, cantidad: 2}
-
   # ---------------- Acto 10 ----------------
-  enderman_corrompido:
-    tipo: enderman
-    nombre: "<dark_purple>☠ Enderman Corrompido"
-    vida: 280
-    danio-extra: 18
-    armadura: 14
-    xp: 46
-    soles: 20
-  shulker_corrompido:
-    tipo: shulker
-    nombre: "<dark_purple>☠ Shulker Corrompido"
-    vida: 260
-    xp: 46
-    soles: 20
-  guardian_eclipse:
-    tipo: wither
-    nombre: "<black><bold>Guardián del Eclipse"
-    jefe: true
-    color-barra: PURPLE
-    vida: 5000
-    danio: 32
-    armadura: 20
-    dureza: 12
-    resistencia-empuje: 1
-    escala: 1.3
-    aura: SOUL_FIRE_FLAME
-    xp: 16000
-    soles: 5000
-    esbirros: [enderman_corrompido, sombra_corrompida]
-    cantidad-esbirros: 4
-    habilidades:
-      - {tipo: METEOROS, cada: 9, potencia: 18, radio: 18, cantidad: 3}
-      - {tipo: RAYO, cada: 8, potencia: 18, radio: 4}
-      - {tipo: CADENAS, cada: 13, potencia: 10, radio: 12, cantidad: 3}
-      - {tipo: ONDA, cada: 10, potencia: 20, radio: 8}
-      - {tipo: ESCUDO, cada: 28, extra: "enderman_corrompido,sombra_corrompida,golem_eclipse", cantidad: 3}
-      - {tipo: TELEPORTE, cada: 12}
-      - {tipo: INVOCAR, cada: 22, extra: "enderman_corrompido,sombra_corrompida", cantidad: 3}
-    premios:
-      - {item: escama_dragon_casco}
-      - {item: escama_dragon_pechera}
-      - {item: escama_dragon_grebas}
-      - {item: escama_dragon_botas}
-      - {item: corona_del_alba}
-      - {item: fragmento_mejora_ancestral}
-      - {item: fragmento_mejora_ancestral}
-      - {item: fragmento_solar_10}
-
   # ---------------- La corrupción llega a los gólems (acto 3 en adelante) ----------------
-  golem_corrompido:
-    tipo: iron_golem
-    nombre: "<dark_purple>☠ Gólem Corrompido"
-    rol: enemigo                # ataca a jugadores, aldeanos y NPCs
-    vida: 160
-    danio: 9
-    armadura: 6
-    resistencia-empuje: 1
-    vida-inicial: 0.7           # nace agrietado: se le ven las venas moradas
-    velocidad: 0.1
-    aura: WITCH
-    xp: 60
-    soles: 25
-  lobo_corrompido:
-    tipo: wolf
-    nombre: "<dark_purple>☠ Lobo Corrompido"
-    rol: enemigo
-    vida: 40
-    danio-extra: 3
-    velocidad: 0.2
-    aura: WITCH
-    xp: 18
-    soles: 5
-  golem_eclipse:
-    tipo: iron_golem
-    nombre: "<dark_red>☠ Gólem del Eclipse"
-    rol: enemigo
-    vida: 420
-    danio: 16
-    armadura: 12
-    dureza: 4
-    resistencia-empuje: 1
-    escala: 1.35
-    vida-inicial: 0.45          # casi partido en dos por la corrupción
-    aura: SOUL_FIRE_FLAME
-    xp: 250
-    soles: 80
-    efectos: ["fire_resistance:0"]
-
 # Jefes normales de Minecraft que también dan premios
 
   # =================================================================
-  #  LAS SIETE CORONAS — los Velados (Corrompidos que ya tienen dueño)
+  #  LAS SIETE CORONAS — los Velados (muertos que el Velo levantó)
   # =================================================================
   # ---------------- Acto 1 · La Hondonada ----------------
   velado_cavador:
     tipo: zombie
     equipo: {mano: "custom:pala_cavador", casco: "custom:hueso_casco"}
-    nombre: "<dark_purple>☠ Cavador Velado"
+    nombre: "<gray>☩ Cavador Velado"
     vida: 50
     danio-extra: 3
     armadura: 3
@@ -531,7 +48,7 @@ mobs:
   velado_hueso:
     tipo: skeleton
     equipo: {mano: "custom:arco_no_muerto", casco: "custom:hueso_casco"}
-    nombre: "<dark_purple>☠ Hueso Velado"
+    nombre: "<gray>☩ Hueso Velado"
     vida: 55
     danio-extra: 3
     xp: 12
@@ -565,7 +82,7 @@ mobs:
   # ---------------- Acto 2 · Bosque de Fresnoalto ----------------
   velado_lobo:
     tipo: wolf
-    nombre: "<dark_purple>☠ Lobo Velado"
+    nombre: "<gray>☩ Lobo Velado"
     rol: enemigo
     vida: 45
     danio-extra: 3
@@ -575,7 +92,7 @@ mobs:
     soles: 4
   velado_jabali:
     tipo: zoglin
-    nombre: "<dark_purple>☠ Jabalí Velado"
+    nombre: "<gray>☩ Jabalí Velado"
     vida: 70
     danio-extra: 2
     escala: 0.8
@@ -583,7 +100,7 @@ mobs:
     soles: 5
   velado_druida:
     tipo: witch
-    nombre: "<dark_purple>☠ Druida Velado"
+    nombre: "<gray>☩ Druida Velado"
     vida: 60
     xp: 20
     soles: 6
@@ -613,18 +130,20 @@ mobs:
       - {item: corona_bosque}
       - {item: lucero_del_bosque}
       - {item: fragmento_mejora}
+    botin:
+      - {item: hoz_del_musgo, probabilidad: 0.5}
 
   # ---------------- Acto 3 · Cobrepuerta ----------------
   velado_bandido:
     tipo: pillager
-    nombre: "<dark_purple>☠ Bandido Velado"
+    nombre: "<gray>☩ Bandido Velado"
     vida: 70
     danio-extra: 3
     xp: 20
     soles: 7
   velado_maton:
     tipo: vindicator
-    nombre: "<dark_purple>☠ Matón Velado"
+    nombre: "<gray>☩ Matón Velado"
     vida: 90
     danio-extra: 4
     armadura: 4
@@ -657,19 +176,21 @@ mobs:
       - {item: corona_bronce}
       - {item: martillo_de_cobrepuerta}
       - {item: fragmento_mejora}
+    botin:
+      - {item: rompecobre, probabilidad: 0.5}
 
   # ---------------- Acto 4 · Islas de Sal ----------------
   velado_ahogado:
     tipo: drowned
     equipo: {mano: TRIDENT, casco: "custom:coral_casco"}
-    nombre: "<dark_purple>☠ Ahogado Velado"
+    nombre: "<gray>☩ Ahogado Velado"
     vida: 80
     danio-extra: 4
     xp: 24
     soles: 8
   velado_vigia:
     tipo: guardian
-    nombre: "<dark_purple>☠ Vigía de las Mareas"
+    nombre: "<gray>☩ Vigía de las Mareas"
     vida: 70
     xp: 26
     soles: 8
@@ -698,11 +219,17 @@ mobs:
       - {item: corona_coral}
       - {item: hoja_de_coral}
       - {item: fragmento_mejora_superior}
+    botin:
+      - {item: coral_radiante_casco, probabilidad: 0.3}
+      - {item: coral_radiante_pechera, probabilidad: 0.3}
+      - {item: coral_radiante_grebas, probabilidad: 0.3}
+      - {item: coral_radiante_botas, probabilidad: 0.3}
+      - {item: escudo_marea, probabilidad: 0.5}
 
   # ---------------- Acto 5 · Picos de Escarcha ----------------
   velado_yeti:
     tipo: polar_bear
-    nombre: "<dark_purple>☠ Yeti Velado"
+    nombre: "<gray>☩ Yeti Velado"
     rol: enemigo
     vida: 120
     danio-extra: 5
@@ -712,7 +239,7 @@ mobs:
   velado_escarcha:
     tipo: stray
     equipo: {mano: "custom:arco_escarcha", casco: "custom:escarcha_casco"}
-    nombre: "<dark_purple>☠ Errante de Escarcha"
+    nombre: "<gray>☩ Errante de Escarcha"
     vida: 90
     danio-extra: 4
     armadura: 4
@@ -744,12 +271,18 @@ mobs:
       - {item: corona_escarcha}
       - {item: colmillos_de_escarcha}
       - {item: fragmento_mejora_superior}
+    botin:
+      - {item: oso_polar_casco, probabilidad: 0.3}
+      - {item: oso_polar_pechera, probabilidad: 0.3}
+      - {item: oso_polar_grebas, probabilidad: 0.3}
+      - {item: oso_polar_botas, probabilidad: 0.3}
+      - {item: granizo, probabilidad: 0.5}
 
   # ---------------- Acto 6 · Desierto de Vidrio ----------------
   velado_momia:
     tipo: husk
     equipo: {casco: "custom:sol_dormido_casco"}
-    nombre: "<dark_purple>☠ Momia Velada"
+    nombre: "<gray>☩ Momia Velada"
     vida: 110
     danio-extra: 5
     armadura: 5
@@ -757,7 +290,7 @@ mobs:
     soles: 11
   velado_escorpion:
     tipo: cave_spider
-    nombre: "<dark_purple>☠ Escorpión de Vidrio"
+    nombre: "<gray>☩ Escorpión de Vidrio"
     vida: 70
     danio-extra: 4
     escala: 1.8
@@ -790,18 +323,24 @@ mobs:
       - {item: corona_sol}
       - {item: aguja_del_sol}
       - {item: fragmento_mejora_superior}
+    botin:
+      - {item: suerte_faraon_casco, probabilidad: 0.3}
+      - {item: suerte_faraon_pechera, probabilidad: 0.3}
+      - {item: suerte_faraon_grebas, probabilidad: 0.3}
+      - {item: suerte_faraon_botas, probabilidad: 0.3}
+      - {item: defensora_del_desierto, probabilidad: 0.5}
 
   # ---------------- Acto 7 · Pantano de Lodoscuro ----------------
   velado_lodo:
     tipo: slime
-    nombre: "<dark_purple>☠ Lodo Velado"
+    nombre: "<gray>☩ Lodo Velado"
     vida: 60
     escala: 1.2
     xp: 20
     soles: 7
   velado_hechicera:
     tipo: witch
-    nombre: "<dark_purple>☠ Hechicera del Pantano"
+    nombre: "<gray>☩ Hechicera del Pantano"
     vida: 110
     xp: 36
     soles: 12
@@ -831,11 +370,17 @@ mobs:
       - {item: corona_raiz}
       - {item: guja_venenosa}
       - {item: fragmento_mejora_superior}
+    botin:
+      - {item: bruja_cienaga_casco, probabilidad: 0.3}
+      - {item: bruja_cienaga_pechera, probabilidad: 0.3}
+      - {item: bruja_cienaga_grebas, probabilidad: 0.3}
+      - {item: bruja_cienaga_botas, probabilidad: 0.3}
+      - {item: lanza_del_pantano, probabilidad: 0.5}
 
   # ---------------- Acto 8 · Selva de Jade ----------------
   velado_acechador:
     tipo: spider
-    nombre: "<dark_purple>☠ Acechador de Jade"
+    nombre: "<gray>☩ Acechador de Jade"
     vida: 110
     danio-extra: 5
     escala: 1.4
@@ -845,7 +390,7 @@ mobs:
   velado_flechero:
     tipo: bogged
     equipo: {mano: "custom:arco_de_jade", casco: "custom:brote_casco"}
-    nombre: "<dark_purple>☠ Flechero del Templo"
+    nombre: "<gray>☩ Flechero del Templo"
     vida: 100
     danio-extra: 5
     xp: 36
@@ -877,12 +422,18 @@ mobs:
       - {item: guja_de_jade}
       - {item: arco_de_jade}
       - {item: fragmento_mejora_ancestral}
+    botin:
+      - {item: tigre_real_casco, probabilidad: 0.3}
+      - {item: tigre_real_pechera, probabilidad: 0.3}
+      - {item: tigre_real_grebas, probabilidad: 0.3}
+      - {item: tigre_real_botas, probabilidad: 0.3}
+      - {item: escudo_de_jade, probabilidad: 0.5}
 
   # ---------------- Acto 9 · Bastión de Ascua (Nether) ----------------
   velado_bruto:
     tipo: piglin_brute
     equipo: {mano: "custom:mazo_bruto", casco: "custom:magma_casco"}
-    nombre: "<dark_purple>☠ Bruto Velado"
+    nombre: "<gray>☩ Bruto Velado"
     vida: 150
     danio-extra: 6
     armadura: 6
@@ -890,7 +441,7 @@ mobs:
     soles: 15
   velado_magma:
     tipo: magma_cube
-    nombre: "<dark_purple>☠ Magma Velado"
+    nombre: "<gray>☩ Magma Velado"
     vida: 90
     xp: 30
     soles: 10
@@ -918,18 +469,24 @@ mobs:
     premios:
       - {item: mangual_de_magma}
       - {item: fragmento_mejora_ancestral}
+    botin:
+      - {item: tunica_ascua_casco, probabilidad: 0.3}
+      - {item: tunica_ascua_pechera, probabilidad: 0.3}
+      - {item: tunica_ascua_grebas, probabilidad: 0.3}
+      - {item: tunica_ascua_botas, probabilidad: 0.3}
+      - {item: arco_de_ascua, probabilidad: 0.5}
 
   # ---------------- Acto 10 · La Hondura ----------------
   velado_eco:
     tipo: enderman
-    nombre: "<dark_purple>☠ Eco Velado"
+    nombre: "<gray>☩ Eco Velado"
     vida: 140
     danio-extra: 6
     xp: 46
     soles: 16
   velado_susurro:
     tipo: vex
-    nombre: "<dark_purple>☠ Susurro"
+    nombre: "<gray>☩ Susurro"
     vida: 40
     xp: 20
     soles: 6
@@ -962,8 +519,8 @@ mobs:
   # ---------------- Acto 11 · La Torre Sin Rostro (End) ----------------
   velado_caballero:
     tipo: wither_skeleton
-    equipo: {mano: "custom:daga_lunar", casco: "custom:caminante_sombras_casco", pecho: "custom:caminante_sombras_pechera"}
-    nombre: "<dark_purple>☠ Caballero Sin Rostro"
+    equipo: {mano: "custom:daga_lunar", casco: "custom:sin_nombre_casco", pecho: "custom:sin_nombre_pechera"}
+    nombre: "<gray>☩ Caballero Sin Rostro"
     vida: 180
     danio-extra: 7
     armadura: 10
@@ -971,13 +528,13 @@ mobs:
     soles: 20
   velado_vigilante:
     tipo: shulker
-    nombre: "<dark_purple>☠ Vigilante del Vacío"
+    nombre: "<gray>☩ Vigilante del Vacío"
     vida: 90
     xp: 40
     soles: 14
   caballero_sin_rostro:
     tipo: wither_skeleton
-    equipo: {mano: "custom:hoja_del_vacio", mano2: "custom:escudo_del_vacio", casco: "custom:caminante_sombras_casco", pecho: "custom:caminante_sombras_pechera", piernas: "custom:caminante_sombras_grebas", pies: "custom:caminante_sombras_botas"}
+    equipo: {mano: "custom:hoja_del_vacio", mano2: "custom:escudo_del_vacio", casco: "custom:sin_nombre_casco", pecho: "custom:sin_nombre_pechera", piernas: "custom:sin_nombre_grebas", pies: "custom:sin_nombre_botas"}
     nombre: "<light_purple><bold>El Primer Caballero"
     jefe: true
     color-barra: PURPLE
@@ -1001,6 +558,11 @@ mobs:
       - {item: hoja_del_vacio}
       - {item: escudo_del_vacio}
       - {item: fragmento_mejora_ancestral}
+    botin:
+      - {item: sin_nombre_casco, probabilidad: 0.3}
+      - {item: sin_nombre_pechera, probabilidad: 0.3}
+      - {item: sin_nombre_grebas, probabilidad: 0.3}
+      - {item: sin_nombre_botas, probabilidad: 0.3}
 
   # ---------------- Acto 12 · Las Siete Coronas ----------------
   velado_titan:
@@ -1046,6 +608,8 @@ mobs:
       - {item: dragon_ender_grebas}
       - {item: dragon_ender_botas}
       - {item: corona_sin_rostro}
+    botin:
+      - {item: garra_de_dragon, probabilidad: 0.5}
 
 
 jefes-vanilla:
@@ -1054,11 +618,9 @@ jefes-vanilla:
     soles: 1500
     radio: 64
     premios:
-      - {item: fragmento_solar_9}
-      - {item: armadura_ceniza_casco}
-      - {item: armadura_ceniza_pechera}
-      - {item: armadura_ceniza_grebas}
-      - {item: armadura_ceniza_botas}
+      - {item: fragmento_mejora_ancestral}
+      - {item: lagrima_de_corona, cantidad: 3}
+      - {item: pico_coloso_bronce}
   ender_dragon:
     xp: 8000
     soles: 2000

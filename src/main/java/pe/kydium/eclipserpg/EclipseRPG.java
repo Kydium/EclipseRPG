@@ -347,9 +347,10 @@ public final class EclipseRPG extends JavaPlugin {
         saveConfig();
         logStory(r);
         if (resourcePack != null) {
-            String before = resourcePack.sha1();
+            String before = resourcePack.sha1() + resourcePack.extras().packs();
+            resourcePack.extras().scan();   // cada historia puede traer sus propios paquetes (paquetes/<historia>/)
             resourcePack.rebuild();
-            if (!before.equals(resourcePack.sha1())) for (Player p : Bukkit.getOnlinePlayers()) resourcePack.send(p);
+            if (!before.equals(resourcePack.sha1() + resourcePack.extras().packs())) for (Player p : Bukkit.getOnlinePlayers()) resourcePack.send(p);
         }
         return r;
     }

@@ -7,8 +7,8 @@
 # =========================================================
 tiendas:
 
-  general:                          # Pip el Mercader
-    titulo: "<dark_gray>Pip · Tienda general"
+  general:                          # Tilda la Mercader
+    titulo: "<dark_gray>Tilda · Tienda general"
     boton: "🛒 Provisiones y útiles"
     descripcion: "Comida, antorchas, camas y lo básico para sobrevivir"
     filas: 6
@@ -47,12 +47,12 @@ tiendas:
       - {tipo: vender, slot: 41, item: "material:ENDER_PEARL", cantidad: 4, precio: 20}
       - {tipo: vender, slot: 42, item: "material:BLAZE_ROD", cantidad: 4, precio: 25}
       - {tipo: vender, slot: 43, item: "material:QUARTZ", cantidad: 32, precio: 15}
-      - {tipo: vender, slot: 44, item: "custom:esencia_corrupta", cantidad: 8, precio: 40}
+      - {tipo: vender, slot: 44, item: "custom:jiron_de_velo", cantidad: 8, precio: 40}
 
-  herreria:                         # Bruno el Herrero
-    titulo: "<dark_gray>Bruno · Herrería"
+  herreria:                         # Hugo el Herrero
+    titulo: "<dark_gray>Hugo · Herrería"
     boton: "⚔ Armas y armaduras"
-    descripcion: "Armas y armaduras de Bruno; también te compra minerales"
+    descripcion: "Armas y armaduras de Hugo; también te compra minerales"
     filas: 6
     objetos:
       - {tipo: comprar, slot: 33, item: "custom:fragmento_mejora_superior", precio: 3, paga-con: "custom:fragmento_mejora", categoria: mejoras}
@@ -86,8 +86,8 @@ tiendas:
       - {tipo: comprar, slot: 32, item: "material:MACE", precio: 1500}
       - {tipo: mejora, slot: 49, precio: 300}
 
-  alquimia:                         # Fray Odón
-    titulo: "<dark_gray>Fray Odón · Alquimia"
+  alquimia:                         # Hermana Ofelia
+    titulo: "<dark_gray>Hermana Ofelia · Alquimia"
     boton: "⚗ Pociones y alquimia"
     descripcion: "Pociones y libros; también te compra huesos, pólvora y más"
     filas: 6
@@ -122,8 +122,8 @@ tiendas:
       - {tipo: comprar, slot: 34, item: "libro:fortune:3", precio: 700}
       - {tipo: comprar, slot: 40, item: "libro:mending:1", precio: 1500}
 
-  mercado:                          # El Errante — 3 objetos que cambian cada día
-    titulo: "<dark_gray>El Errante · Mercado oscuro"
+  mercado:                          # El Cuervo — 3 objetos que cambian cada día
+    titulo: "<dark_gray>El Cuervo · Mercado oscuro"
     boton: "☾ Mercado oscuro"
     descripcion: "Cosas raras que nadie más vende… a buen precio"
     filas: 3
@@ -131,76 +131,78 @@ tiendas:
     mostrar: 3
     slots-rotativos: [11, 13, 15]
     objetos:
-      - {tipo: comprar, item: "custom:amuleto_vida", precio: 5000, nivel: 40}
-      - {tipo: comprar, item: "custom:pata_suerte", precio: 4000, nivel: 40}
-      - {tipo: comprar, item: "custom:arco_cazador", precio: 4500, nivel: 40}
-      - {tipo: comprar, item: "custom:pico_terremoto", precio: 6000, nivel: 40}
-      - {tipo: comprar, item: "custom:botas_saltarinas", precio: 5500, nivel: 40}
+      - {tipo: comprar, item: "custom:relicario_siete_reinas", precio: 5000, nivel: 40}
+      - {tipo: comprar, item: "custom:moneda_del_bufon", precio: 4000, nivel: 40}
+      - {tipo: comprar, item: "custom:arco_viento_otono", precio: 4500, nivel: 40}
+      - {tipo: comprar, item: "custom:pico_rey_enano", precio: 6000, nivel: 40}
+      - {tipo: comprar, item: "custom:botas_pluma_grifo", precio: 5500, nivel: 40}
       - {tipo: comprar, item: "custom:fragmento_mejora", cantidad: 2, precio: 2500, nivel: 40}
       - {tipo: comprar, item: "material:ENCHANTED_GOLDEN_APPLE", precio: 3000}
       - {tipo: comprar, item: "material:TOTEM_OF_UNDYING", precio: 3500}
 
-  trueque:                          # Sabina la Coleccionista — se paga con lo que sueltan los Corrompidos
-    titulo: "<dark_purple>Sabina · Trueque de Corrompidos"
-    boton: "<light_purple>💎 Trueque (esencias y corazones)"
-    descripcion: "Cambia Esencias y Corazones Corruptos por objetos raros"
+  trueque:                          # Sabela la Coleccionista — se paga con lo que sueltan los Velados
+    titulo: "<gold>Sabela · Trueque de Velados"
+    boton: "<gold>♛ Trueque (jirones y lágrimas)"
+    descripcion: "Cambia Jirones de Velo y Lágrimas de Corona por objetos raros"
     filas: 4
     objetos:
-      # --- con Esencia Corrupta ---
-      - {tipo: comprar, slot: 10, item: "material:GOLDEN_APPLE", cantidad: 2, paga-con: "custom:esencia_corrupta", precio: 8}
-      - {tipo: comprar, slot: 11, item: "custom:fragmento_mejora", paga-con: "custom:esencia_corrupta", precio: 12}
-      - {tipo: comprar, slot: 12, item: "material:EXPERIENCE_BOTTLE", cantidad: 16, paga-con: "custom:esencia_corrupta", precio: 16}
-      - {tipo: comprar, slot: 13, item: "material:TOTEM_OF_UNDYING", paga-con: "custom:esencia_corrupta", precio: 24}
-      - {tipo: comprar, slot: 15, item: "material:DIAMOND", cantidad: 3, paga-con: "custom:corazon_corrupto", precio: 2}
-      - {tipo: comprar, slot: 16, item: "libro:protection:4", paga-con: "custom:corazon_corrupto", precio: 3}
-      # --- con Corazón Corrupto (objetos únicos) ---
-      - {tipo: comprar, slot: 19, item: "custom:botas_saltarinas", paga-con: "custom:corazon_corrupto", precio: 4, stock: 1}
-      - {tipo: comprar, slot: 20, item: "custom:pata_suerte", paga-con: "custom:corazon_corrupto", precio: 5, stock: 1}
-      - {tipo: comprar, slot: 21, item: "custom:arco_cazador", paga-con: "custom:corazon_corrupto", precio: 6, stock: 1}
-      - {tipo: comprar, slot: 22, item: "custom:daga_sangrienta", paga-con: "custom:corazon_corrupto", precio: 7, stock: 1}
-      - {tipo: comprar, slot: 23, item: "custom:pico_terremoto", paga-con: "custom:corazon_corrupto", precio: 9, stock: 1}
-      - {tipo: comprar, slot: 24, item: "custom:amuleto_vida", paga-con: "custom:corazon_corrupto", precio: 12, stock: 1}
-      - {tipo: comprar, slot: 25, item: "material:ENCHANTED_GOLDEN_APPLE", paga-con: "custom:corazon_corrupto", precio: 15}
+      # --- con Jirón de Velo ---
+      - {tipo: comprar, slot: 10, item: "material:GOLDEN_APPLE", cantidad: 2, paga-con: "custom:jiron_de_velo", precio: 8}
+      - {tipo: comprar, slot: 11, item: "custom:fragmento_mejora", paga-con: "custom:jiron_de_velo", precio: 12}
+      - {tipo: comprar, slot: 12, item: "material:EXPERIENCE_BOTTLE", cantidad: 16, paga-con: "custom:jiron_de_velo", precio: 16}
+      - {tipo: comprar, slot: 13, item: "material:TOTEM_OF_UNDYING", paga-con: "custom:jiron_de_velo", precio: 24}
+      - {tipo: comprar, slot: 15, item: "material:DIAMOND", cantidad: 3, paga-con: "custom:lagrima_de_corona", precio: 2}
+      - {tipo: comprar, slot: 16, item: "libro:protection:4", paga-con: "custom:lagrima_de_corona", precio: 3}
+      # --- con Lágrima de Corona (objetos únicos) ---
+      - {tipo: comprar, slot: 19, item: "custom:botas_pluma_grifo", paga-con: "custom:lagrima_de_corona", precio: 4, stock: 1}
+      - {tipo: comprar, slot: 20, item: "custom:moneda_del_bufon", paga-con: "custom:lagrima_de_corona", precio: 5, stock: 1}
+      - {tipo: comprar, slot: 21, item: "custom:arco_viento_otono", paga-con: "custom:lagrima_de_corona", precio: 6, stock: 1}
+      - {tipo: comprar, slot: 22, item: "custom:espina_cienaga", paga-con: "custom:lagrima_de_corona", precio: 7, stock: 1}
+      - {tipo: comprar, slot: 23, item: "custom:pico_rey_enano", paga-con: "custom:lagrima_de_corona", precio: 9, stock: 1}
+      - {tipo: comprar, slot: 24, item: "custom:relicario_siete_reinas", paga-con: "custom:lagrima_de_corona", precio: 12, stock: 1}
+      - {tipo: comprar, slot: 25, item: "material:ENCHANTED_GOLDEN_APPLE", paga-con: "custom:lagrima_de_corona", precio: 15}
+      - {tipo: comprar, slot: 28, item: "custom:garra_de_dragon", paga-con: "custom:lagrima_de_corona", precio: 20, stock: 1}
+      - {tipo: comprar, slot: 29, item: "custom:sin_nombre_casco", paga-con: "custom:lagrima_de_corona", precio: 10, stock: 1}
 
-  legendaria:                       # El Errante — Armería legendaria (armas con poderes)
+  legendaria:                       # El Cuervo — Armería legendaria (armas con poderes)
     titulo: "<gold><bold>Armería Legendaria"
     boton: "<gold>⚔ Armería legendaria"
     descripcion: "Armas y armaduras únicas con poderes (y armas contra jefes)"
     filas: 6
     objetos:
-      - {tipo: comprar, slot: 10, item: "custom:daga_sangrienta", precio: 2500, nivel: 15, stock: 1}
-      - {tipo: comprar, slot: 11, item: "custom:hoja_escarcha", precio: 6000, nivel: 25, stock: 1}
-      - {tipo: comprar, slot: 12, item: "custom:colmillo_vampirico", precio: 12000, nivel: 40, stock: 1}
-      - {tipo: comprar, slot: 13, item: "custom:arco_fenix", precio: 11000, nivel: 40, stock: 1}
-      - {tipo: comprar, slot: 14, item: "custom:tridente_abismo", precio: 12000, nivel: 45, stock: 1}
-      - {tipo: comprar, slot: 15, item: "custom:peto_espinas", precio: 14000, nivel: 50, stock: 1}
-      - {tipo: comprar, slot: 16, item: "custom:martillo_tormenta", precio: 25000, nivel: 60, stock: 1}
-      - {tipo: comprar, slot: 22, item: "custom:guadana_almas", precio: 30000, nivel: 70, stock: 1}
+      - {tipo: comprar, slot: 10, item: "custom:espina_cienaga", precio: 2500, nivel: 15, stock: 1}
+      - {tipo: comprar, slot: 11, item: "custom:aguja_boreal", precio: 6000, nivel: 25, stock: 1}
+      - {tipo: comprar, slot: 12, item: "custom:beso_reina_cienaga", precio: 12000, nivel: 40, stock: 1}
+      - {tipo: comprar, slot: 13, item: "custom:ave_de_ascua", precio: 11000, nivel: 40, stock: 1}
+      - {tipo: comprar, slot: 14, item: "custom:arpon_madre_mareas", precio: 12000, nivel: 45, stock: 1}
+      - {tipo: comprar, slot: 15, item: "custom:coraza_de_zarzas", precio: 14000, nivel: 50, stock: 1}
+      - {tipo: comprar, slot: 16, item: "custom:lucero_cobrizo", precio: 25000, nivel: 60, stock: 1}
+      - {tipo: comprar, slot: 22, item: "custom:segadora_de_velos", precio: 30000, nivel: 70, stock: 1}
       - {tipo: comprar, slot: 24, item: "custom:mochila_del_viajero", precio: 20000, nivel: 40, stock: 1}
-      - {tipo: comprar, slot: 25, item: "custom:rompeyelmos", precio: 15000, nivel: 35, stock: 1}
-      - {tipo: comprar, slot: 26, item: "custom:verdugo", precio: 40000, nivel: 65, stock: 1}
-      - {tipo: comprar, slot: 27, item: "custom:cazadora_de_reyes", precio: 55000, nivel: 75, stock: 1}
-      - {tipo: comprar, slot: 28, item: "custom:paladin_solar_casco", precio: 9000, nivel: 50}
-      - {tipo: comprar, slot: 29, item: "custom:paladin_solar_pechera", precio: 14000, nivel: 50}
-      - {tipo: comprar, slot: 30, item: "custom:paladin_solar_grebas", precio: 12000, nivel: 50}
-      - {tipo: comprar, slot: 31, item: "custom:paladin_solar_botas", precio: 9000, nivel: 50}
-      - {tipo: comprar, slot: 32, item: "custom:caminante_sombras_casco", precio: 16000, nivel: 65}
-      - {tipo: comprar, slot: 33, item: "custom:caminante_sombras_pechera", precio: 24000, nivel: 65}
-      - {tipo: comprar, slot: 34, item: "custom:caminante_sombras_grebas", precio: 20000, nivel: 65}
-      - {tipo: comprar, slot: 35, item: "custom:caminante_sombras_botas", precio: 16000, nivel: 65}
+      - {tipo: comprar, slot: 25, item: "custom:partecoronas", precio: 15000, nivel: 35, stock: 1}
+      - {tipo: comprar, slot: 26, item: "custom:hacha_del_juicio", precio: 40000, nivel: 65, stock: 1}
+      - {tipo: comprar, slot: 27, item: "custom:matarreinas", precio: 55000, nivel: 75, stock: 1}
+      - {tipo: comprar, slot: 28, item: "custom:caballero_dorado_casco", precio: 9000, nivel: 50}
+      - {tipo: comprar, slot: 29, item: "custom:caballero_dorado_pechera", precio: 14000, nivel: 50}
+      - {tipo: comprar, slot: 30, item: "custom:caballero_dorado_grebas", precio: 12000, nivel: 50}
+      - {tipo: comprar, slot: 31, item: "custom:caballero_dorado_botas", precio: 9000, nivel: 50}
+      - {tipo: comprar, slot: 32, item: "custom:sin_nombre_casco", precio: 16000, nivel: 65}
+      - {tipo: comprar, slot: 33, item: "custom:sin_nombre_pechera", precio: 24000, nivel: 65}
+      - {tipo: comprar, slot: 34, item: "custom:sin_nombre_grebas", precio: 20000, nivel: 65}
+      - {tipo: comprar, slot: 35, item: "custom:sin_nombre_botas", precio: 16000, nivel: 65}
 
-  herramientas_magicas:             # Bruno el Herrero — herramientas con poderes
+  herramientas_magicas:             # Hugo el Herrero — herramientas con poderes
     titulo: "<gold><bold>Herramientas Mágicas"
     boton: "<gold>⛏ Herramientas, menas y máquinas"
     descripcion: "Picos 3x3, hacha taladora, menas que se regeneran y máquinas que fabrican solas"
     filas: 3
     objetos:
-      - {tipo: comprar, slot: 10, item: "custom:azada_cosechadora", precio: 2000, nivel: 10, stock: 1}
-      - {tipo: comprar, slot: 11, item: "custom:pala_excavadora", precio: 4500, nivel: 18, stock: 1}
-      - {tipo: comprar, slot: 12, item: "custom:pico_buscador", precio: 6000, nivel: 22, stock: 1}
-      - {tipo: comprar, slot: 13, item: "custom:hacha_lenador", precio: 8000, nivel: 28, stock: 1}
-      - {tipo: comprar, slot: 14, item: "custom:cana_afortunada", precio: 7000, nivel: 25, stock: 1}
-      - {tipo: comprar, slot: 16, item: "custom:pico_titan", precio: 22000, nivel: 50, stock: 1}
+      - {tipo: comprar, slot: 10, item: "custom:hoz_de_jade", precio: 2000, nivel: 10, stock: 1}
+      - {tipo: comprar, slot: 11, item: "custom:pala_de_los_arenales", precio: 4500, nivel: 18, stock: 1}
+      - {tipo: comprar, slot: 12, item: "custom:pico_del_gemologo", precio: 6000, nivel: 22, stock: 1}
+      - {tipo: comprar, slot: 13, item: "custom:hacha_del_fresno", precio: 8000, nivel: 28, stock: 1}
+      - {tipo: comprar, slot: 14, item: "custom:cana_del_farero", precio: 7000, nivel: 25, stock: 1}
+      - {tipo: comprar, slot: 16, item: "custom:pico_coloso_bronce", precio: 22000, nivel: 50, stock: 1}
       # bloques especiales: minerales que se regeneran, experiencia y máquinas
       - {tipo: comprar, slot: 19, item: "bloque:granja_de_trigo", precio: 2500, nivel: 10}
       - {tipo: comprar, slot: 20, item: "bloque:mena_hierro_eterna", precio: 5000, nivel: 15}
@@ -209,7 +211,7 @@ tiendas:
       - {tipo: comprar, slot: 23, item: "bloque:fuente_de_runas", precio: 25000, nivel: 40, stock: 1}
       - {tipo: comprar, slot: 24, item: "bloque:mena_diamante_eterna", precio: 30000, nivel: 50, stock: 1}
 
-  runas:                            # Bruno el Herrero — Runas para forjar poderes en tus armas
+  runas:                            # Hugo el Herrero — Runas para forjar poderes en tus armas
     titulo: "<light_purple><bold>Runas de Forja"
     boton: "<light_purple>✦ Runas de forja"
     descripcion: "Runas para darle poderes a tus armas, armaduras y herramientas"
@@ -257,16 +259,16 @@ tiendas:
     descripcion: "Armaduras de la Guardia Real, escudos y espadas de juramento"
     filas: 6
     objetos:
-      - {tipo: comprar, slot: 10, item: "custom:campeon_casco", precio: 1800, nivel: 15}
-      - {tipo: comprar, slot: 11, item: "custom:campeon_pechera", precio: 3000, nivel: 15}
-      - {tipo: comprar, slot: 12, item: "custom:campeon_grebas", precio: 2500, nivel: 15}
-      - {tipo: comprar, slot: 13, item: "custom:campeon_botas", precio: 1800, nivel: 15}
-      - {tipo: comprar, slot: 19, item: "custom:guardia_real_casco", precio: 5000, nivel: 30}
-      - {tipo: comprar, slot: 20, item: "custom:guardia_real_pechera", precio: 8000, nivel: 30}
-      - {tipo: comprar, slot: 21, item: "custom:guardia_real_grebas", precio: 7000, nivel: 30}
-      - {tipo: comprar, slot: 22, item: "custom:guardia_real_botas", precio: 5000, nivel: 30}
-      - {tipo: comprar, slot: 28, item: "custom:baluarte_real", precio: 6000, nivel: 30}
-      - {tipo: comprar, slot: 29, item: "custom:juramento_del_alba", precio: 9000, nivel: 30, stock: 2}
+      - {tipo: comprar, slot: 10, item: "custom:tierras_altas_casco", precio: 1800, nivel: 15}
+      - {tipo: comprar, slot: 11, item: "custom:tierras_altas_pechera", precio: 3000, nivel: 15}
+      - {tipo: comprar, slot: 12, item: "custom:tierras_altas_grebas", precio: 2500, nivel: 15}
+      - {tipo: comprar, slot: 13, item: "custom:tierras_altas_botas", precio: 1800, nivel: 15}
+      - {tipo: comprar, slot: 19, item: "custom:guardia_torre_casco", precio: 5000, nivel: 30}
+      - {tipo: comprar, slot: 20, item: "custom:guardia_torre_pechera", precio: 8000, nivel: 30}
+      - {tipo: comprar, slot: 21, item: "custom:guardia_torre_grebas", precio: 7000, nivel: 30}
+      - {tipo: comprar, slot: 22, item: "custom:guardia_torre_botas", precio: 5000, nivel: 30}
+      - {tipo: comprar, slot: 28, item: "custom:escudo_de_altavela", precio: 6000, nivel: 30}
+      - {tipo: comprar, slot: 29, item: "custom:promesa_de_elara", precio: 9000, nivel: 30, stock: 2}
       - {tipo: comprar, slot: 30, item: "runa:penetracion:10", precio: 1600, nivel: 10}
       - {tipo: comprar, slot: 31, item: "runa:cazajefes:15", precio: 3600, nivel: 20}
       - {tipo: vender, slot: 40, item: "iron_ingot", cantidad: 4, precio: 12}
@@ -304,7 +306,7 @@ tiendas:
       - {tipo: comprar, slot: 20, item: "custom:coral_pechera", precio: 6400, nivel: 30}
       - {tipo: comprar, slot: 21, item: "custom:coral_grebas", precio: 5600, nivel: 30}
       - {tipo: comprar, slot: 22, item: "custom:coral_botas", precio: 4000, nivel: 30}
-      - {tipo: comprar, slot: 28, item: "custom:rompeyelmos", precio: 15000, nivel: 35, stock: 1}
+      - {tipo: comprar, slot: 28, item: "custom:partecoronas", precio: 15000, nivel: 35, stock: 1}
       - {tipo: comprar, slot: 29, item: "runa:penetracion:10", precio: 1500, nivel: 10}
       - {tipo: comprar, slot: 30, item: "runa:cazajefes:15", precio: 3500, nivel: 20}
       - {tipo: vender, slot: 40, item: "iron_ingot", cantidad: 4, precio: 12}
@@ -344,8 +346,109 @@ tiendas:
       - {tipo: comprar, slot: 13, item: "custom:magma_botas", precio: 16000, nivel: 60}
       - {tipo: comprar, slot: 19, item: "netherite_ingot", precio: 6000, nivel: 55}
       - {tipo: comprar, slot: 20, item: "custom:fragmento_mejora_ancestral", precio: 9000, nivel: 60}
-      - {tipo: comprar, slot: 21, item: "custom:verdugo", precio: 40000, nivel: 65, stock: 1}
+      - {tipo: comprar, slot: 21, item: "custom:hacha_del_juicio", precio: 40000, nivel: 65, stock: 1}
       - {tipo: vender, slot: 40, item: "ancient_debris", cantidad: 1, precio: 400}
       - {tipo: vender, slot: 41, item: "magma_cream", cantidad: 8, precio: 30}
       - {tipo: mejora, slot: 49, precio: 600}
 
+  # ---------------- tiendas de cada reino (armaduras y armas propias de Las Siete Coronas) ----------------
+
+  marea:                         # marisa
+    titulo: "<aqua><bold>Tesoros de la Marea"
+    boton: "<aqua>🐚 Tesoros hundidos"
+    descripcion: "Armadura de Coral Radiante y lo que sale de los naufragios"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:coral_radiante_casco", precio: 5500, nivel: 35}
+      - {tipo: comprar, slot: 11, item: "custom:coral_radiante_pechera", precio: 8800, nivel: 35}
+      - {tipo: comprar, slot: 12, item: "custom:coral_radiante_grebas", precio: 7700, nivel: 35}
+      - {tipo: comprar, slot: 13, item: "custom:coral_radiante_botas", precio: 5500, nivel: 35}
+      - {tipo: comprar, slot: 19, item: "custom:escudo_marea", precio: 9000, nivel: 35, stock: 1}
+      - {tipo: comprar, slot: 20, item: "custom:arpon_madre_mareas", precio: 18000, nivel: 45, stock: 1}
+      - {tipo: comprar, slot: 28, item: "custom:fragmento_mejora", precio: 800}
+      - {tipo: vender, slot: 40, item: "prismarine_shard", cantidad: 16, precio: 30}
+      - {tipo: vender, slot: 41, item: "nautilus_shell", cantidad: 1, precio: 90}
+      - {tipo: vender, slot: 44, item: "custom:jiron_de_velo", cantidad: 8, precio: 40}
+
+  escarcha:                         # tenzo
+    titulo: "<white><bold>Refugio del Monje Tenzo"
+    boton: "<white>❄ Pieles y hielo"
+    descripcion: "Armadura del Oso Polar, Granizo y abrigo"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:oso_polar_casco", precio: 6500, nivel: 40}
+      - {tipo: comprar, slot: 11, item: "custom:oso_polar_pechera", precio: 10400, nivel: 40}
+      - {tipo: comprar, slot: 12, item: "custom:oso_polar_grebas", precio: 9100, nivel: 40}
+      - {tipo: comprar, slot: 13, item: "custom:oso_polar_botas", precio: 6500, nivel: 40}
+      - {tipo: comprar, slot: 19, item: "custom:granizo", precio: 14000, nivel: 45, stock: 1}
+      - {tipo: comprar, slot: 20, item: "custom:escudo_glaciar", precio: 9500, nivel: 40, stock: 1}
+      - {tipo: comprar, slot: 28, item: "custom:fragmento_mejora", precio: 800}
+      - {tipo: vender, slot: 40, item: "packed_ice", cantidad: 32, precio: 24}
+      - {tipo: vender, slot: 41, item: "rabbit_hide", cantidad: 8, precio: 20}
+      - {tipo: vender, slot: 44, item: "custom:jiron_de_velo", cantidad: 8, precio: 40}
+
+  oraculo:                         # sahar
+    titulo: "<yellow><bold>Cámara del Oráculo"
+    boton: "<yellow>🔮 Lo que vio el oráculo"
+    descripcion: "Armadura de la Suerte del Faraón y la Defensora del Desierto"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:suerte_faraon_casco", precio: 8000, nivel: 48}
+      - {tipo: comprar, slot: 11, item: "custom:suerte_faraon_pechera", precio: 12800, nivel: 48}
+      - {tipo: comprar, slot: 12, item: "custom:suerte_faraon_grebas", precio: 11200, nivel: 48}
+      - {tipo: comprar, slot: 13, item: "custom:suerte_faraon_botas", precio: 8000, nivel: 48}
+      - {tipo: comprar, slot: 19, item: "custom:defensora_del_desierto", precio: 22000, nivel: 50, stock: 1}
+      - {tipo: comprar, slot: 28, item: "custom:fragmento_mejora", precio: 800}
+      - {tipo: vender, slot: 40, item: "gold_ingot", cantidad: 8, precio: 60}
+      - {tipo: vender, slot: 44, item: "custom:jiron_de_velo", cantidad: 8, precio: 40}
+
+  ermitano:                         # gus
+    titulo: "<dark_green><bold>Choza de Gus"
+    boton: "<dark_green>🍄 Cosas del pantano"
+    descripcion: "Túnica de la Bruja del Pantano y la Lanza del Pantano"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:bruja_cienaga_casco", precio: 8500, nivel: 52}
+      - {tipo: comprar, slot: 11, item: "custom:bruja_cienaga_pechera", precio: 13600, nivel: 52}
+      - {tipo: comprar, slot: 12, item: "custom:bruja_cienaga_grebas", precio: 11900, nivel: 52}
+      - {tipo: comprar, slot: 13, item: "custom:bruja_cienaga_botas", precio: 8500, nivel: 52}
+      - {tipo: comprar, slot: 19, item: "custom:lanza_del_pantano", precio: 24000, nivel: 55, stock: 1}
+      - {tipo: comprar, slot: 28, item: "custom:fragmento_mejora", precio: 800}
+      - {tipo: vender, slot: 40, item: "slime_ball", cantidad: 16, precio: 40}
+      - {tipo: vender, slot: 41, item: "lily_pad", cantidad: 16, precio: 12}
+      - {tipo: vender, slot: 44, item: "custom:jiron_de_velo", cantidad: 8, precio: 40}
+
+  templos:                         # tome
+    titulo: "<green><bold>Hallazgos de Tomé"
+    boton: "<green>🗿 Reliquias de templo"
+    descripcion: "Armadura del Tigre Real y escudo de jade"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:tigre_real_casco", precio: 12000, nivel: 58}
+      - {tipo: comprar, slot: 11, item: "custom:tigre_real_pechera", precio: 19200, nivel: 58}
+      - {tipo: comprar, slot: 12, item: "custom:tigre_real_grebas", precio: 16800, nivel: 58}
+      - {tipo: comprar, slot: 13, item: "custom:tigre_real_botas", precio: 12000, nivel: 58}
+      - {tipo: comprar, slot: 19, item: "custom:escudo_de_jade", precio: 15000, nivel: 55, stock: 1}
+      - {tipo: comprar, slot: 20, item: "custom:hoz_del_musgo", precio: 20000, nivel: 55, stock: 1}
+      - {tipo: comprar, slot: 28, item: "custom:fragmento_mejora", precio: 800}
+      - {tipo: vender, slot: 40, item: "bamboo", cantidad: 64, precio: 16}
+      - {tipo: vender, slot: 41, item: "cocoa_beans", cantidad: 16, precio: 18}
+      - {tipo: vender, slot: 44, item: "custom:jiron_de_velo", cantidad: 8, precio: 40}
+
+  renegado:                         # kael
+    titulo: "<red><bold>Botín de Kael"
+    boton: "<red>⚔ Lo que se llevó Kael"
+    descripcion: "Túnica de Ascua, Arco de Ascua y armas del Gremio"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:tunica_ascua_casco", precio: 17000, nivel: 65}
+      - {tipo: comprar, slot: 11, item: "custom:tunica_ascua_pechera", precio: 27200, nivel: 65}
+      - {tipo: comprar, slot: 12, item: "custom:tunica_ascua_grebas", precio: 23800, nivel: 65}
+      - {tipo: comprar, slot: 13, item: "custom:tunica_ascua_botas", precio: 17000, nivel: 65}
+      - {tipo: comprar, slot: 19, item: "custom:arco_de_ascua", precio: 26000, nivel: 62, stock: 1}
+      - {tipo: comprar, slot: 20, item: "custom:escudo_de_lava", precio: 16000, nivel: 60, stock: 1}
+      - {tipo: comprar, slot: 21, item: "custom:pincho_brunido", precio: 12000, nivel: 50, stock: 1}
+      - {tipo: comprar, slot: 22, item: "custom:rompecobre", precio: 21000, nivel: 55, stock: 1}
+      - {tipo: comprar, slot: 28, item: "custom:fragmento_mejora", precio: 800}
+      - {tipo: vender, slot: 40, item: "blaze_rod", cantidad: 4, precio: 60}
+      - {tipo: vender, slot: 44, item: "custom:jiron_de_velo", cantidad: 8, precio: 40}

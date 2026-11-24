@@ -11,7 +11,7 @@
 # =====================================================================
 
 HISTORIA: Las Siete Coronas
-DESCRIPCION: Siete reinos, siete coronas y un pacto que mantenía el Velo cerrado. Una noche, un rey sin rostro se llevó la primera. Ahora los muertos caminan con ojos morados y tú eres el único que despertó cuando sonó la campana.
+DESCRIPCION: Siete reinos, siete coronas y un pacto que mantenía el Velo cerrado. Una noche, un rey sin rostro se llevó la primera. Ahora los muertos caminan envueltos en un velo gris y tú eres el único que despertó cuando sonó la campana.
 ALDEA: Hondonada de Valdera
 MONEDA: soles
 
@@ -192,7 +192,7 @@ NPC sabela
   lugar: torre
   objeto: glass_bottle
   servicio: tienda trueque
-  charla: Corazones corruptos, ojos de araña, dientes de jefe… todo sirve para algo.
+  charla: Lágrimas de corona, jirones de velo, dientes de jefe… todo sirve para algo.
 
 # ---------------------------------------------------------------- NPCs · Fresnoalto
 
@@ -280,6 +280,7 @@ NPC marisa
   oficio: Buscadora de naufragios
   ciudad: islas_sal
   lugar: fuente
+  servicio: tienda marea
   objeto: tridente
   charla: Abajo hay más oro que arriba. Y más dientes.
 
@@ -313,6 +314,7 @@ NPC tenzo
   oficio: Monje de la montaña
   ciudad: picos_escarcha
   lugar: torre
+  servicio: tienda escarcha
   charla: El frío no es enemigo. Es maestro.
 
 # ---------------------------------------------------------------- NPCs · Ciudad Espejismo
@@ -343,6 +345,7 @@ NPC sahar
   oficio: Oráculo del vidrio
   ciudad: espejismo
   lugar: fuente
+  servicio: tienda oraculo
   charla: Te diré la verdad si la adivinas primero.
 
 # ---------------------------------------------------------------- NPCs · Lodoscuro
@@ -364,6 +367,7 @@ NPC gus
   oficio: Ermitaño
   ciudad: lodoscuro
   lugar: fuente
+  servicio: tienda ermitano
   charla: Antes era rey de algo. Ya no me acuerdo de qué.
 
 # ---------------------------------------------------------------- NPCs · Santuario de Jade
@@ -384,6 +388,7 @@ NPC tome
   oficio: Explorador de templos
   ciudad: jade
   lugar: mapas
+  servicio: tienda templos
   objeto: catalejo
   charla: ¡Cada trampa que esquivo es una historia para la taberna!
 
@@ -408,7 +413,7 @@ NPC kael
   ciudad: ascua
   lugar: cuartel
   objeto: espada de netherita
-  servicio: grieta
+  servicio: grieta, tienda renegado
   charla: Serví al Rey Sin Rostro un año entero. No le vi la cara ni una vez. Nadie se la ha visto.
 
 # ================================================================ MISIONES
@@ -417,7 +422,7 @@ ACTO 1: La Campana de la Hondonada
 
 MISIÓN La campana sonó a medianoche
   npc: marta
-  dice: ¿Tú también la oíste? La campana sonó sola a medianoche. Desde entonces el cielo tiene una tela morada encima.
+  dice: ¿Tú también la oíste? La campana sonó sola a medianoche. Desde entonces el cielo tiene una tela gris encima.
   dice: Los ancianos lo llaman el Velo. Mi abuela decía que volvería si alguien robaba una corona.
   dice: Primero lo primero: madera y una mesa. Sin refugio no pasamos la noche.
   responde: Madera y mesa. Ya mismo.
@@ -439,7 +444,7 @@ MISIÓN La campana sonó a medianoche
     final: Nada mal. Rurik te espera en el cuartel. Esta noche no duerme nadie.
   ETAPA La primera noche del Velo
     npc: rurik
-    dice: Capitán Rurik. Los muertos salen de la tierra con ojos morados. Les decimos Velados.
+    dice: Capitán Rurik. Los muertos salen de la tierra con un velo gris en la cara. Les decimos Velados.
     dice: Aguanta en la empalizada mientras evacuamos a los niños a la iglesia.
     responde: Nadie entra mientras yo esté aquí.
     objetivo: resiste 90 segundos | Defiende la empalizada
@@ -472,7 +477,7 @@ MISIÓN Pan, luz y una cama
 
 MISIÓN El niño y el gato
   npc: nilo
-  dice: ¡Mi gato Rey se fue al bosque! Lo vi persiguiendo una luz morada.
+  dice: ¡Mi gato Rey se fue al bosque! Lo vi persiguiendo una luz gris.
   dice: Si lo traes te doy mi tesoro. Es un tesoro de verdad. Está enterrado.
   responde: Voy a buscar a Rey. Y al tesoro.
   objetivo: domestica 1 cat | Domestica un gato perdido
@@ -589,7 +594,7 @@ MISIÓN Jabalíes en la cosecha
 
 MISIÓN El druida perdido
   npc: aurelia
-  dice: Mi aprendiz se fue a la cabaña del pantano del bosque. Volvió con ojos morados y se escapó.
+  dice: Mi aprendiz se fue a la cabaña del pantano del bosque. Volvió con un velo en los ojos y se escapó.
   dice: Hay más druidas así. Si los derrotas, el Velo los suelta… a veces.
   responde: Voy a la cabaña.
   estructura: cabana
@@ -685,7 +690,7 @@ MISIÓN Defender la puerta de cobre
   oleadas: velado_bandido 3, velado_maton 1 cada 25
   sin morir: sí
   clima: tormenta
-  premio: 1500 xp, 250 soles, objeto guardia_real_casco
+  premio: 1500 xp, 250 soles, objeto guardia_torre_casco
   final: ¡La puerta aguantó! Y tú también. Ahora, la fundición.
 
 MISIÓN JEFE: El Gólem de Bronce
@@ -1058,7 +1063,7 @@ MISIÓN Acechadores entre lianas
     objetivo: mata 6 velado_flechero | Mata 6 Flecheros del Templo
     aparecen: 6 velado_flechero
     objetivo: busca el tesoro enterrado | Encuentra la ofrenda enterrada
-    premio: 4000 xp, 600 soles, objeto rompeyelmos
+    premio: 4000 xp, 600 soles, objeto partecoronas
     final: ¡Una hacha que rompe yelmos! Para el jaguar te va a venir perfecta.
 
 MISIÓN El laberinto de debajo

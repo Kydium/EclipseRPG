@@ -93,6 +93,8 @@ public final class ExtraPacks {
                           textura: "Hawkbrand"          (el nombre del modelo en el paquete)
                           aspecto: "champions_armor"    (cómo se ve la armadura puesta)
                         Usa /eclipse texturas para ver cuántos modelos y aspectos se encontraron.
+                        Para que un paquete solo se use con UNA historia, ponlo en una carpeta con su id:
+                          paquetes/eclipse/mobs-corrompidos.zip   (solo en Crónicas del Eclipse)
                         Consejo: quita la carpeta assets/minecraft/sounds del .zip si pesa mucho.
                         """, StandardCharsets.UTF_8);
             } catch (IOException ignored) {
@@ -101,9 +103,9 @@ public final class ExtraPacks {
             return;
         }
         if (!plugin.getConfig().getBoolean("paquete-recursos.extra", true)) return;
-        File[] files = dir.listFiles((d, n) -> n.toLowerCase(Locale.ROOT).endsWith(".zip"));
-        if (files == null) return;
-        java.util.Arrays.sort(files);
+        List<File> files = new ArrayList<>(zips(dir));
+        // paquetes solo para una historia: paquetes/<id de la historia>/*.zip (van después, así ganan a los generales)
+        if (plugin.story() != null) files.addAll(zips(new File(dir, plugin.story().id())));
         for (File f : files) {
             try {
                 packs.add(new Pack(f, sha1(f), f.length()));
@@ -114,6 +116,13 @@ public final class ExtraPacks {
         }
         if (!packs.isEmpty())
             plugin.getLogger().info("Paquetes de texturas extra: " + packs.size() + " (" + byName.size() + " modelos con nombre, " + equipment.size() + " aspectos de armadura)");
+    }
+
+    private static List<File> zips(File dir) {
+        File[] fs = dir.listFiles((d, n) -> n.toLowerCase(Locale.ROOT).endsWith(".zip"));
+        if (fs == null) return List.of();
+        java.util.Arrays.sort(fs);
+        return java.util.Arrays.asList(fs);
     }
 
     private static String sha1(File f) throws Exception {

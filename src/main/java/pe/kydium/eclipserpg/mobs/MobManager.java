@@ -132,7 +132,13 @@ public final class MobManager implements Listener {
 
     // ---------- Carga ----------
 
+    private pe.kydium.eclipserpg.story.Theme theme = pe.kydium.eclipserpg.story.Theme.ECLIPSE;
+
+    /** Nombre y aspecto de los monstruos mejorados de la historia (mundo.yml > tema). */
+    public pe.kydium.eclipserpg.story.Theme theme() { return theme; }
+
     public void load() {
+        theme = pe.kydium.eclipserpg.story.Theme.read(plugin);
         defs.clear();
         vanillaBosses.clear();
         tiers.clear();
@@ -356,8 +362,8 @@ public final class MobManager implements Listener {
         Tier t = tier(tierNum);
         String typeKey = le.getType().getKey().getKey().toUpperCase(Locale.ROOT);
         String base = names.getOrDefault(typeKey, Txt.pretty(typeKey));
-        String adj = base.endsWith("a") ? "Corrompida" : "Corrompido";
-        le.customName(Txt.mm("<dark_purple>☠ " + base + " " + adj + " <gray>[T" + tierNum + "]"));
+        String adj = theme.adjective(base);
+        le.customName(Txt.mm("<" + theme.color() + ">" + theme.icon() + " " + base + " " + adj + " <gray>[T" + tierNum + "]"));
         le.setCustomNameVisible(false);
         double hp = Math.min(MAX_HP, t.health() * plugin.getConfig().getDouble("dificultad.vida-corrompidos", 1.0));
         setBase(le, Attribute.MAX_HEALTH, hp);
@@ -612,7 +618,7 @@ public final class MobManager implements Listener {
             for (Player p : participants(le, 32, killer)) {
                 plugin.levels().reward(p, d.xp, d.soles);
                 givePrizes(p, d.prizes, d.id);
-                ItemStack hearts = plugin.items().create("corazon_corrupto", plugin.getConfig().getInt("corrupcion.recompensas.corazones-jefe", 2));
+                ItemStack hearts = plugin.items().create(theme.heart(), plugin.getConfig().getInt("corrupcion.recompensas.corazones-jefe", 2));
                 if (hearts != null) for (ItemStack left : p.getInventory().addItem(hearts).values()) p.getWorld().dropItemNaturally(p.getLocation(), left);
                 Txt.send(p, "<gold>¡Derrotaste a " + d.name + "<gold>!");
                 Txt.sound(p, "ui.toast.challenge_complete", 1f, 1f);
@@ -675,7 +681,7 @@ public final class MobManager implements Listener {
         // Esencia Corrupta: se vende en las tiendas (Pip, el mercado del Errante, Zahir y Varo)
         double pe = c.getDouble("corrupcion.recompensas.prob-esencia", 0.35) + 0.03 * tierNum;
         if (elite || r.nextDouble() < pe * luck) {
-            ItemStack es = plugin.items().create("esencia_corrupta", elite ? 2 + r.nextInt(2) : 1);
+            ItemStack es = plugin.items().create(theme.essence(), elite ? 2 + r.nextInt(2) : 1);
             if (es != null) e.getDrops().add(es);
         }
         // Corazón Corrupto: raro; Sabina la Coleccionista lo cambia por objetos únicos
@@ -690,16 +696,16 @@ public final class MobManager implements Listener {
     }
 
     private void dropHeart(EntityDeathEvent e, Player killer, int n) {
-        ItemStack h = plugin.items().create("corazon_corrupto", n);
+        ItemStack h = plugin.items().create(theme.heart(), n);
         if (h == null) return;
         e.getDrops().add(h);
         Txt.sound(killer, "block.amethyst_block.resonate", 1f, 0.6f);
-        killer.showTitle(net.kyori.adventure.title.Title.title(Txt.mm(""), Txt.mm("<dark_purple>♥ ¡Un Corazón Corrupto!"),
+        killer.showTitle(net.kyori.adventure.title.Title.title(Txt.mm(""), Txt.mm("<" + theme.color() + ">♥ ¡" + theme.heartName() + "!"),
                 net.kyori.adventure.title.Title.Times.times(java.time.Duration.ofMillis(100), java.time.Duration.ofMillis(1500), java.time.Duration.ofMillis(400))));
         var key = Keys.k("aviso_corazon");
         if (!killer.getPersistentDataContainer().has(key, PersistentDataType.BYTE)) {
             killer.getPersistentDataContainer().set(key, PersistentDataType.BYTE, (byte) 1);
-            Txt.send(killer, "<light_purple>💎 Sabina la Coleccionista, junto a la fuente de la aldea, cambia Corazones y Esencias Corruptas por objetos raros.");
+            if (!theme.heartTip().isEmpty()) Txt.send(killer, theme.heartTip());
         }
     }
 

@@ -1149,7 +1149,7 @@ public final class WorldManager implements Listener {
         int wild = 0;
         for (LivingEntity le : w.getLivingEntities()) if (le.getScoreboardTags().contains(WILD)) wild++;
         return "clima " + weatherOf(w) + ", " + momentOf(w) + ", luna " + moonOf(w) + ", día " + (w.getFullTime() / 24000L + 1)
-                + "\nCorrompidos por el mundo: " + wild + " (límite " + wildCap + " cerca de cada jugador) · multiplicador " + spawnMult
-                + "\nDesde que arrancó: " + statNatural + " intentos de Minecraft, " + statReplaced + " cambiados por Corrompidos, " + statCapped + " frenados por el límite";
+                + "\n" + plugin.mobs().theme().plural() + " por el mundo: " + wild + " (límite " + wildCap + " cerca de cada jugador) · multiplicador " + spawnMult
+                + "\nDesde que arrancó: " + statNatural + " intentos de Minecraft, " + statReplaced + " cambiados por " + plugin.mobs().theme().plural() + ", " + statCapped + " frenados por el límite";
     }
 }
