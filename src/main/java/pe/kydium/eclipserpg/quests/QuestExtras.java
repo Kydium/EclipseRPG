@@ -268,11 +268,10 @@ public final class QuestExtras implements Listener {
     }
 
     private void wave(Player p, Quest q) {
-        int n = 0;
-        for (Quest.Spawn sp : q.waves)
-            for (int i = 0; i < sp.amount(); i++, n++) plugin.mobs().spawn(sp.mob(), plugin.mobs().spawnSpot(p.getLocation(), 10 + ThreadLocalRandom.current().nextInt(6)));
-        p.sendActionBar(Txt.mm("<red>⚔ ¡Llega una oleada! <gray>(" + n + " enemigos)"));
-        Txt.sound(p, "event.raid.horn", 0.7f, 1.1f);
+        // como una invasión: aparecen lejos, por un lado, y vienen caminando
+        List<String> ids = new ArrayList<>();
+        for (Quest.Spawn sp : q.waves) for (int i = 0; i < sp.amount(); i++) ids.add(sp.mob());
+        plugin.raids().send(p, ids);
     }
 
     @EventHandler

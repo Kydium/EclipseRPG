@@ -407,10 +407,11 @@ public final class QuestManager implements Listener {
             // los enemigos esperan en la estructura: salen cuando llegues (sigue el punto dorado)
             spawnedAt.remove(p.getUniqueId() + ";" + q.id);
             Txt.send(p, "<gray>Los enemigos te esperan en el lugar marcado. <gold>Sigue el punto dorado</gold> de la barra.");
-        } else for (Quest.Spawn sp : q.spawns) {
-            for (int i = 0; i < sp.amount(); i++) {
-                plugin.mobs().spawn(sp.mob(), plugin.mobs().spawnSpot(p.getLocation(), 8));
-            }
+        } else if (!q.spawns.isEmpty()) {
+            // vienen de lejos hacia el jugador (no aparecen pegados al NPC)
+            java.util.List<String> ids = new java.util.ArrayList<>();
+            for (Quest.Spawn sp : q.spawns) for (int i = 0; i < sp.amount(); i++) ids.add(sp.mob());
+            plugin.raids().send(p, ids);
         }
         p.showTitle(Title.title(Txt.mm("<gold>" + q.name), Txt.mm("<gray>" + (q.stages > 1 ? "Etapa " + q.stage + "/" + q.stages
                         + (q.stageName == null ? "" : " · " + q.stageName) : actName(q.act))),

@@ -1258,6 +1258,10 @@ public final class SmokeTest {
         } catch (Exception ex) {
             fail("no se pudo leer historias/coronas/historia.txt: " + ex);
         }
+        var w0 = plugin.getServer().getWorlds().get(0);
+        check("norte".equals(pe.kydium.eclipserpg.mobs.Raids.direction(new Location(w0, 0, 64, 0), new Location(w0, 0, 64, -40)))
+                && "este".equals(pe.kydium.eclipserpg.mobs.Raids.direction(new Location(w0, 0, 64, 0), new Location(w0, 40, 64, 0)))
+                && plugin.raids() != null, "las oleadas saben por dónde vienen (norte, este…)");
         var wsItem = plugin.items().create(pe.kydium.eclipserpg.world.Waystones.ITEM, 1);
         check(wsItem != null && wsItem.getType() == Material.LODESTONE, "existe la Piedra de viaje comprable");
         plugin.waystones().ensureAll();

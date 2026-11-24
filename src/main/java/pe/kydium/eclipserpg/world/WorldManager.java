@@ -665,9 +665,12 @@ public final class WorldManager implements Listener {
             int near = 0;
             for (var ent : p.getNearbyEntities(32, 16, 32)) if (ent instanceof Enemy) near++;
             if (near >= plugin.getConfig().getInt("mundo.maximo-enemigos-cerca", 30)) continue;
-            for (int i = 0; i < e.waveAmount; i++) {
-                spawnMob(e.waveMobs.get(r.nextInt(e.waveMobs.size())), plugin.mobs().spawnSpot(p.getLocation(), 14));
-            }
+            java.util.List<String> ids = new java.util.ArrayList<>();
+            for (int i = 0; i < e.waveAmount; i++) ids.add(e.waveMobs.get(r.nextInt(e.waveMobs.size())));
+            plugin.raids().send(p, ids, a -> {
+                var le = spawnMob((String) a[0], (Location) a[1]);
+                return le instanceof org.bukkit.entity.LivingEntity l ? l : null;
+            });
         }
     }
 

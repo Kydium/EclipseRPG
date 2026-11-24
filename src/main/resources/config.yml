@@ -241,6 +241,11 @@ poderes:
   niveles-por-runa: 3           # niveles extra por cada runa que el objeto ya tenga
 
 # Lo que ve el jugador en pantalla
+misiones:
+  oleadas:                      # las oleadas y los "aparecen:" llegan como una invasión
+    distancia-min: 34           # aparecen lejos (en la superficie) y vienen caminando hacia ti
+    distancia-max: 46
+
 viajes:                         # piedras de viaje: una en la aldea y una en cada ciudad
   activo: true
   costo-por-100-bloques: 3      # Soles que cuesta viajar por cada 100 bloques

@@ -746,3 +746,9 @@ el juego te dice exactamente en qué línea.
  Mejor en un mundo nuevo: guarda la carpeta world del Eclipse con otro
  nombre y el servidor crea uno nuevo para las Coronas.
 
+ OLEADAS COMO INVASIONES: las "oleadas:" y los "aparecen:" (sin
+ estructura) ya no salen pegados a ti ni al NPC: aparecen lejos (34-46
+ bloques, en la superficie, mejor por fuera de la aldea), brillan unos
+ segundos, suena el cuerno y te dice por dónde vienen ("¡Una oleada viene
+ del noreste!"). Caminan hacia ti. config.yml → misiones.oleadas.
+
