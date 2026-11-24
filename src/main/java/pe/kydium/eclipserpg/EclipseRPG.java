@@ -114,6 +114,9 @@ public final class EclipseRPG extends JavaPlugin {
         pm.registerEvents(new pe.kydium.eclipserpg.items.ToolPowers(this, powers), this);
         penetration = new pe.kydium.eclipserpg.items.Penetration(this);
         pm.registerEvents(penetration, this);
+        armorSets = new pe.kydium.eclipserpg.items.ArmorSets(this);
+        pm.registerEvents(armorSets, this);
+        armorSets.start();
         raids();
         pm.registerEvents(mobs, this);
         pm.registerEvents(contracts, this);
@@ -384,6 +387,9 @@ public final class EclipseRPG extends JavaPlugin {
     public pe.kydium.eclipserpg.items.Powers powers() { return powers; }
 
     private pe.kydium.eclipserpg.items.Penetration penetration;
+    private pe.kydium.eclipserpg.items.ArmorSets armorSets;
+
+    public pe.kydium.eclipserpg.items.ArmorSets armorSets() { return armorSets; }
 
     public pe.kydium.eclipserpg.items.Penetration penetration() { return penetration; }
 

@@ -65,6 +65,7 @@ public final class ItemManager implements Listener {
         public String model;          // modelo de otro objeto (ej. minecraft:brown_bundle)
         public String texture;        // textura: nombre de un modelo de un paquete extra ("Hawkbrand")
         public String look;           // aspecto: cómo se ve la armadura puesta ("champions_armor")
+        public String set;            // conjunto: id del conjunto (objetos.yml > conjuntos)
     }
 
     /** Rarezas: color del nombre y etiqueta al final de la descripción. */
@@ -138,6 +139,17 @@ public final class ItemManager implements Listener {
             if (!out.isEmpty()) out.add("");
             out.addAll(Powers.lore(ci.powers));
         }
+        SetDef sd = set(ci.set);
+        if (sd != null) {
+            out.add("");
+            out.add("<gold>◆ " + sd.name());
+            for (Map.Entry<Integer, List<String[]>> b : sd.bonus().entrySet()) {
+                List<String> ef = new ArrayList<>();
+                for (String[] e : b.getValue()) ef.add(EFFECT_NAMES.getOrDefault(e[0].toLowerCase(java.util.Locale.ROOT), Txt.pretty(e[0].toUpperCase(java.util.Locale.ROOT))) + " " + roman(Integer.parseInt(e[1])));
+                out.add(" <yellow>" + b.getKey() + " piezas: <white>" + String.join(", ", ef));
+            }
+            if (sd.weapon() > 0) out.add(" <yellow>4 piezas + arma o herramienta del conjunto: <white>+" + Math.round(sd.weapon()) + " % de daño");
+        }
         if (lvl > 0 && isArmor(ci.material)) out.addAll(upgradeLines(UpKind.ARMOR, ci.material, lvl));
         else if (lvl > 0 && isTool(ci.material)) out.addAll(upgradeLines(UpKind.TOOL, ci.material, lvl));
         else if (lvl > 0) out.add(tierColor(lvl) + "✦ " + tierName(lvl).replaceAll("<[^>]+>", "") + " +" + lvl);
@@ -157,9 +169,45 @@ public final class ItemManager implements Listener {
         this.plugin = plugin;
     }
 
+    /** Un conjunto: bonos al llevar 2 y 4 piezas, y daño extra con su arma o herramienta llevando las 4. */
+    public record SetDef(String id, String name, Map<Integer, List<String[]>> bonus, double weapon) {}
+
+    private final Map<String, SetDef> sets = new LinkedHashMap<>();
+
+    public SetDef set(String id) { return id == null ? null : sets.get(id); }
+
+    public Map<String, SetDef> sets() { return sets; }
+
+    private void loadSets(YamlConfiguration y) {
+        sets.clear();
+        ConfigurationSection cs = y.getConfigurationSection("conjuntos");
+        if (cs == null) return;
+        for (String id : cs.getKeys(false)) {
+            ConfigurationSection s = cs.getConfigurationSection(id);
+            if (s == null) continue;
+            Map<Integer, List<String[]>> bonus = new java.util.TreeMap<>();
+            for (int n : new int[]{2, 4}) {
+                List<String[]> l = new ArrayList<>();
+                for (Map<?, ?> m : s.getMapList("piezas-" + n)) {
+                    Object ef = m.get("efecto");
+                    if (ef == null) continue;
+                    if (pe.kydium.eclipserpg.util.Reg.effect(ef.toString()) == null) {
+                        plugin.getLogger().warning("objetos.yml: efecto desconocido en el conjunto " + id + ": " + ef);
+                        continue;
+                    }
+                    Object lv = m.get("nivel");
+                    l.add(new String[]{ef.toString(), lv == null ? "1" : lv.toString()});
+                }
+                if (!l.isEmpty()) bonus.put(n, l);
+            }
+            sets.put(id, new SetDef(id, s.getString("nombre", id), bonus, s.getDouble("arma", 0)));
+        }
+    }
+
     public void load() {
         items.clear();
         YamlConfiguration y = plugin.story().yaml("objetos");
+        loadSets(y);
         ConfigurationSection root = y.getConfigurationSection("items");
         if (root == null) return;
         for (String id : root.getKeys(false)) {
@@ -186,6 +234,7 @@ public final class ItemManager implements Listener {
             ci.model = s.getString("modelo");
             ci.texture = s.getString("textura");
             ci.look = s.getString("aspecto");
+            ci.set = s.getString("conjunto");
             ci.heldEffect = s.getString("efecto-en-mano");
             ci.heldEffectLevel = s.getInt("efecto-nivel", 0);
             ConfigurationSection en = s.getConfigurationSection("encantamientos");
@@ -215,6 +264,18 @@ public final class ItemManager implements Listener {
             items.put(id, ci);
         }
         plugin.getLogger().info("Objetos cargados: " + items.size());
+    }
+
+    public static final Map<String, String> EFFECT_NAMES = Map.ofEntries(
+            Map.entry("speed", "Velocidad"), Map.entry("haste", "Prisa minera"), Map.entry("strength", "Fuerza"),
+            Map.entry("resistance", "Resistencia"), Map.entry("regeneration", "Regeneración"), Map.entry("fire_resistance", "Resistencia al fuego"),
+            Map.entry("water_breathing", "Respirar bajo el agua"), Map.entry("night_vision", "Visión nocturna"), Map.entry("jump_boost", "Salto"),
+            Map.entry("luck", "Suerte"), Map.entry("dolphins_grace", "Gracia del delfín"), Map.entry("conduit_power", "Poder del conducto"),
+            Map.entry("absorption", "Absorción"), Map.entry("health_boost", "Vida extra"), Map.entry("slow_falling", "Caída lenta"),
+            Map.entry("hero_of_the_village", "Héroe de la aldea"), Map.entry("invisibility", "Invisibilidad"), Map.entry("saturation", "Saturación"));
+
+    private static String roman(int n) {
+        return switch (n) { case 1 -> "I"; case 2 -> "II"; case 3 -> "III"; case 4 -> "IV"; default -> String.valueOf(n); };
     }
 
     private static double num(Object o, double def) {

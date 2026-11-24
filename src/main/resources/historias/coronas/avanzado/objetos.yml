@@ -409,6 +409,7 @@ items:
       - {tipo: robo_de_vida, valor: 10, probabilidad: 1}
 
   coral_casco:
+    conjunto: coral
     material: DIAMOND_HELMET
     textura: "Coral Armor Helmet"
     aspecto: coral_armor
@@ -425,6 +426,7 @@ items:
       - {tipo: esquivar, valor: 0, probabilidad: 0.05}
 
   coral_pechera:
+    conjunto: coral
     material: DIAMOND_CHESTPLATE
     textura: "Coral Armor Chestplate"
     aspecto: coral_armor
@@ -441,6 +443,7 @@ items:
       - {tipo: resistencia, valor: 10, probabilidad: 1}
 
   coral_grebas:
+    conjunto: coral
     material: DIAMOND_LEGGINGS
     textura: "Coral Armor Leggings"
     aspecto: coral_armor
@@ -455,6 +458,7 @@ items:
       - {atributo: max_health, valor: 2, slot: legs}
 
   coral_botas:
+    conjunto: coral
     material: DIAMOND_BOOTS
     textura: "Coral Armor Boots"
     aspecto: coral_armor
@@ -469,6 +473,7 @@ items:
       - {atributo: max_health, valor: 2, slot: feet}
 
   escarcha_casco:
+    conjunto: escarcha
     material: DIAMOND_HELMET
     textura: "Frost Armor Helmet"
     aspecto: frost_armor
@@ -483,6 +488,7 @@ items:
       - {atributo: max_health, valor: 2, slot: head}
 
   escarcha_pechera:
+    conjunto: escarcha
     material: DIAMOND_CHESTPLATE
     textura: "Frost Armor Chestplate"
     aspecto: frost_armor
@@ -499,6 +505,7 @@ items:
       - {tipo: espinas, valor: 25, probabilidad: 1}
 
   escarcha_grebas:
+    conjunto: escarcha
     material: DIAMOND_LEGGINGS
     textura: "Frost Armor Leggings"
     aspecto: frost_armor
@@ -513,6 +520,7 @@ items:
       - {atributo: max_health, valor: 2, slot: legs}
 
   escarcha_botas:
+    conjunto: escarcha
     material: DIAMOND_BOOTS
     textura: "Frost Armor Boots"
     aspecto: frost_armor
@@ -529,6 +537,7 @@ items:
       - {tipo: esquivar, valor: 0, probabilidad: 0.06}
 
   sol_dormido_casco:
+    conjunto: sol_dormido
     material: DIAMOND_HELMET
     textura: "Dormant Sun Armor Helmet"
     aspecto: dormant_sun_armor
@@ -543,6 +552,7 @@ items:
       - {atributo: max_health, valor: 2, slot: head}
 
   sol_dormido_pechera:
+    conjunto: sol_dormido
     material: DIAMOND_CHESTPLATE
     textura: "Dormant Sun Armor Chestplate"
     aspecto: dormant_sun_armor
@@ -560,6 +570,7 @@ items:
       - {tipo: resistencia, valor: 12, probabilidad: 1}
 
   sol_dormido_grebas:
+    conjunto: sol_dormido
     material: DIAMOND_LEGGINGS
     textura: "Dormant Sun Armor Leggings"
     aspecto: dormant_sun_armor
@@ -574,6 +585,7 @@ items:
       - {atributo: max_health, valor: 2, slot: legs}
 
   sol_dormido_botas:
+    conjunto: sol_dormido
     material: DIAMOND_BOOTS
     textura: "Dormant Sun Armor Boots"
     aspecto: dormant_sun_armor
@@ -588,6 +600,7 @@ items:
       - {atributo: max_health, valor: 2, slot: feet}
 
   magma_casco:
+    conjunto: magma
     material: NETHERITE_HELMET
     textura: "Magma Cube Armor Helmet"
     aspecto: magma_cube_armor
@@ -602,6 +615,7 @@ items:
       - {atributo: max_health, valor: 2, slot: head}
 
   magma_pechera:
+    conjunto: magma
     material: NETHERITE_CHESTPLATE
     textura: "Magma Cube Armor Chestplate"
     aspecto: magma_cube_armor
@@ -619,6 +633,7 @@ items:
       - {tipo: resistencia, valor: 12, probabilidad: 1}
 
   magma_grebas:
+    conjunto: magma
     material: NETHERITE_LEGGINGS
     textura: "Magma Cube Armor Leggings"
     aspecto: magma_cube_armor
@@ -633,6 +648,7 @@ items:
       - {atributo: max_health, valor: 2, slot: legs}
 
   magma_botas:
+    conjunto: magma
     material: NETHERITE_BOOTS
     textura: "Magma Cube Armor Boots"
     aspecto: magma_cube_armor
@@ -647,6 +663,7 @@ items:
       - {atributo: max_health, valor: 2, slot: feet}
 
   lobo_negro_casco:
+    conjunto: lobo_negro
     material: IRON_HELMET
     textura: "Black Wolf Armor Helmet"
     aspecto: black_wolf_armor
@@ -661,6 +678,7 @@ items:
       - {atributo: max_health, valor: 2, slot: head}
 
   lobo_negro_pechera:
+    conjunto: lobo_negro
     material: IRON_CHESTPLATE
     textura: "Black Wolf Armor Chestplate"
     aspecto: black_wolf_armor
@@ -675,6 +693,7 @@ items:
       - {atributo: max_health, valor: 4, slot: chest}
 
   lobo_negro_grebas:
+    conjunto: lobo_negro
     material: IRON_LEGGINGS
     textura: "Black Wolf Armor Leggings"
     aspecto: black_wolf_armor
@@ -689,6 +708,7 @@ items:
       - {atributo: max_health, valor: 2, slot: legs}
 
   lobo_negro_botas:
+    conjunto: lobo_negro
     material: IRON_BOOTS
     textura: "Black Wolf Armor Boots"
     aspecto: black_wolf_armor
@@ -705,6 +725,7 @@ items:
       - {tipo: esquivar, valor: 0, probabilidad: 0.05}
 
   dragon_ender_casco:
+    conjunto: dragon_ender
     material: NETHERITE_HELMET
     textura: "Ender Dragon Armor Helmet"
     aspecto: ender_dragon_armor
@@ -721,6 +742,7 @@ items:
       - {tipo: espinas, valor: 35, probabilidad: 1}
 
   dragon_ender_pechera:
+    conjunto: dragon_ender
     material: NETHERITE_CHESTPLATE
     textura: "Ender Dragon Armor Chestplate"
     aspecto: ender_dragon_armor
@@ -738,6 +760,7 @@ items:
       - {tipo: regenerar, valor: 4, probabilidad: 0.3}
 
   dragon_ender_grebas:
+    conjunto: dragon_ender
     material: NETHERITE_LEGGINGS
     textura: "Ender Dragon Armor Leggings"
     aspecto: ender_dragon_armor
@@ -752,6 +775,7 @@ items:
       - {atributo: max_health, valor: 2, slot: legs}
 
   dragon_ender_botas:
+    conjunto: dragon_ender
     material: NETHERITE_BOOTS
     textura: "Ender Dragon Armor Boots"
     aspecto: ender_dragon_armor
@@ -780,6 +804,7 @@ items:
 
 
   hueso_casco:
+    conjunto: hueso
     material: DIAMOND_HELMET
     textura: "Bone Spider Armor Helmet"
     aspecto: bone_spider_armor
@@ -791,6 +816,7 @@ items:
       - {atributo: armor, valor: 3, slot: head}
 
   hueso_pechera:
+    conjunto: hueso
     material: DIAMOND_CHESTPLATE
     textura: "Bone Spider Armor Chestplate"
     aspecto: bone_spider_armor
@@ -802,6 +828,7 @@ items:
       - {atributo: armor, valor: 7, slot: chest}
 
   hueso_grebas:
+    conjunto: hueso
     material: DIAMOND_LEGGINGS
     textura: "Bone Spider Armor Leggings"
     aspecto: bone_spider_armor
@@ -813,6 +840,7 @@ items:
       - {atributo: armor, valor: 5, slot: legs}
 
   hueso_botas:
+    conjunto: hueso
     material: DIAMOND_BOOTS
     textura: "Bone Spider Armor Boots"
     aspecto: bone_spider_armor
@@ -824,6 +852,7 @@ items:
       - {atributo: armor, valor: 2, slot: feet}
 
   brote_casco:
+    conjunto: brote
     material: IRON_HELMET
     textura: "Sprout Armor Helmet"
     aspecto: sprout_armor
@@ -835,6 +864,7 @@ items:
       - {atributo: armor, valor: 3, slot: head}
 
   brote_pechera:
+    conjunto: brote
     material: IRON_CHESTPLATE
     textura: "Sprout Armor Chestplate"
     aspecto: sprout_armor
@@ -846,6 +876,7 @@ items:
       - {atributo: armor, valor: 7, slot: chest}
 
   brote_grebas:
+    conjunto: brote
     material: IRON_LEGGINGS
     textura: "Sprout Armor Leggings"
     aspecto: sprout_armor
@@ -857,6 +888,7 @@ items:
       - {atributo: armor, valor: 5, slot: legs}
 
   brote_botas:
+    conjunto: brote
     material: IRON_BOOTS
     textura: "Sprout Armor Boots"
     aspecto: sprout_armor
@@ -1252,6 +1284,7 @@ items:
     - {tipo: resistencia, valor: 8}
     textura: Castle Shield
   tierras_altas_casco:
+    conjunto: tierras_altas
     material: DIAMOND_HELMET
     nombre: <aqua><bold>Yelmo de las Tierras Altas
     rareza: raro
@@ -1265,6 +1298,7 @@ items:
     textura: Highland Armor Helmet
     aspecto: highland_armor
   tierras_altas_pechera:
+    conjunto: tierras_altas
     material: DIAMOND_CHESTPLATE
     nombre: <aqua><bold>Coraza de las Tierras Altas
     rareza: raro
@@ -1280,6 +1314,7 @@ items:
     textura: Highland Armor Chestplate
     aspecto: highland_armor
   tierras_altas_grebas:
+    conjunto: tierras_altas
     material: DIAMOND_LEGGINGS
     nombre: <aqua><bold>Grebas de las Tierras Altas
     rareza: raro
@@ -1293,6 +1328,7 @@ items:
     textura: Highland Armor Leggings
     aspecto: highland_armor
   tierras_altas_botas:
+    conjunto: tierras_altas
     material: DIAMOND_BOOTS
     nombre: <aqua><bold>Botas de las Tierras Altas
     rareza: raro
@@ -1308,6 +1344,7 @@ items:
     textura: Highland Armor Boots
     aspecto: highland_armor
   guardia_torre_casco:
+    conjunto: guardia_torre
     material: DIAMOND_HELMET
     nombre: <blue><bold>Yelmo de la Guardia de la Torre
     rareza: epico
@@ -1323,6 +1360,7 @@ items:
     textura: Tower Guard Armor Helmet
     aspecto: tower_guard_armor
   guardia_torre_pechera:
+    conjunto: guardia_torre
     material: DIAMOND_CHESTPLATE
     nombre: <blue><bold>Coraza de la Guardia de la Torre
     rareza: epico
@@ -1339,6 +1377,7 @@ items:
     textura: Tower Guard Armor Chestplate
     aspecto: tower_guard_armor
   guardia_torre_grebas:
+    conjunto: guardia_torre
     material: DIAMOND_LEGGINGS
     nombre: <blue><bold>Grebas de la Guardia de la Torre
     rareza: epico
@@ -1352,6 +1391,7 @@ items:
     textura: Tower Guard Armor Leggings
     aspecto: tower_guard_armor
   guardia_torre_botas:
+    conjunto: guardia_torre
     material: DIAMOND_BOOTS
     nombre: <blue><bold>Botas de la Guardia de la Torre
     rareza: epico
@@ -1365,6 +1405,7 @@ items:
     textura: Tower Guard Armor Boots
     aspecto: tower_guard_armor
   caballero_dorado_casco:
+    conjunto: caballero_dorado
     material: DIAMOND_HELMET
     nombre: <gold><bold>Yelmo del Caballero Dorado
     rareza: legendario
@@ -1378,6 +1419,7 @@ items:
     textura: Golden Knight Armor Helmet
     aspecto: golden_knight_armor
   caballero_dorado_pechera:
+    conjunto: caballero_dorado
     material: DIAMOND_CHESTPLATE
     nombre: <gold><bold>Coraza del Caballero Dorado
     rareza: legendario
@@ -1394,6 +1436,7 @@ items:
     textura: Golden Knight Armor Chestplate
     aspecto: golden_knight_armor
   caballero_dorado_grebas:
+    conjunto: caballero_dorado
     material: DIAMOND_LEGGINGS
     nombre: <gold><bold>Grebas del Caballero Dorado
     rareza: legendario
@@ -1409,6 +1452,7 @@ items:
     textura: Golden Knight Armor Leggings
     aspecto: golden_knight_armor
   caballero_dorado_botas:
+    conjunto: caballero_dorado
     material: DIAMOND_BOOTS
     nombre: <gold><bold>Botas del Caballero Dorado
     rareza: legendario
@@ -1422,6 +1466,7 @@ items:
     textura: Golden Knight Armor Boots
     aspecto: golden_knight_armor
   sin_nombre_casco:
+    conjunto: sin_nombre
     material: NETHERITE_HELMET
     nombre: <dark_gray><bold>Yelmo del Sin Nombre
     rareza: legendario
@@ -1435,6 +1480,7 @@ items:
     textura: Nameless Armor Helmet
     aspecto: nameless_armor
   sin_nombre_pechera:
+    conjunto: sin_nombre
     material: NETHERITE_CHESTPLATE
     nombre: <dark_gray><bold>Coraza del Sin Nombre
     rareza: legendario
@@ -1450,6 +1496,7 @@ items:
     textura: Nameless Armor Chestplate
     aspecto: nameless_armor
   sin_nombre_grebas:
+    conjunto: sin_nombre
     material: NETHERITE_LEGGINGS
     nombre: <dark_gray><bold>Grebas del Sin Nombre
     rareza: legendario
@@ -1463,6 +1510,7 @@ items:
     textura: Nameless Armor Leggings
     aspecto: nameless_armor
   sin_nombre_botas:
+    conjunto: sin_nombre
     material: NETHERITE_BOOTS
     nombre: <dark_gray><bold>Botas del Sin Nombre
     rareza: legendario
@@ -1478,6 +1526,7 @@ items:
     textura: Nameless Armor Boots
     aspecto: nameless_armor
   coral_radiante_casco:
+    conjunto: coral_radiante
     material: DIAMOND_HELMET
     textura: Radiant Coral Armor Helmet
     aspecto: radiant_coral_armor
@@ -1491,6 +1540,7 @@ items:
     - {atributo: max_health, valor: 2, slot: head}
     lore: [<gray>Hecha en Islas de Sal., '<dark_gray>Conjunto: Armadura de Coral Radiante']
   coral_radiante_pechera:
+    conjunto: coral_radiante
     material: DIAMOND_CHESTPLATE
     textura: Radiant Coral Armor Chestplate
     aspecto: radiant_coral_armor
@@ -1504,6 +1554,7 @@ items:
     - {atributo: max_health, valor: 2, slot: chest}
     lore: [<gray>Hecha en Islas de Sal., '<dark_gray>Conjunto: Armadura de Coral Radiante']
   coral_radiante_grebas:
+    conjunto: coral_radiante
     material: DIAMOND_LEGGINGS
     textura: Radiant Coral Armor Leggings
     aspecto: radiant_coral_armor
@@ -1517,6 +1568,7 @@ items:
     - {atributo: max_health, valor: 2, slot: legs}
     lore: [<gray>Hecha en Islas de Sal., '<dark_gray>Conjunto: Armadura de Coral Radiante']
   coral_radiante_botas:
+    conjunto: coral_radiante
     material: DIAMOND_BOOTS
     textura: Radiant Coral Armor Boots
     aspecto: radiant_coral_armor
@@ -1530,6 +1582,7 @@ items:
     - {atributo: max_health, valor: 2, slot: feet}
     lore: [<gray>Hecha en Islas de Sal., '<dark_gray>Conjunto: Armadura de Coral Radiante']
   oso_polar_casco:
+    conjunto: oso_polar
     material: DIAMOND_HELMET
     textura: Polar Bear Armor Helmet
     aspecto: polar_bear_armor
@@ -1543,6 +1596,7 @@ items:
     - {atributo: max_health, valor: 2, slot: head}
     lore: [<gray>Hecha en Picos de Escarcha., '<dark_gray>Conjunto: Armadura del Oso Polar']
   oso_polar_pechera:
+    conjunto: oso_polar
     material: DIAMOND_CHESTPLATE
     textura: Polar Bear Armor Chestplate
     aspecto: polar_bear_armor
@@ -1556,6 +1610,7 @@ items:
     - {atributo: max_health, valor: 2, slot: chest}
     lore: [<gray>Hecha en Picos de Escarcha., '<dark_gray>Conjunto: Armadura del Oso Polar']
   oso_polar_grebas:
+    conjunto: oso_polar
     material: DIAMOND_LEGGINGS
     textura: Polar Bear Armor Leggings
     aspecto: polar_bear_armor
@@ -1569,6 +1624,7 @@ items:
     - {atributo: max_health, valor: 2, slot: legs}
     lore: [<gray>Hecha en Picos de Escarcha., '<dark_gray>Conjunto: Armadura del Oso Polar']
   oso_polar_botas:
+    conjunto: oso_polar
     material: DIAMOND_BOOTS
     textura: Polar Bear Armor Boots
     aspecto: polar_bear_armor
@@ -1582,6 +1638,7 @@ items:
     - {atributo: max_health, valor: 2, slot: feet}
     lore: [<gray>Hecha en Picos de Escarcha., '<dark_gray>Conjunto: Armadura del Oso Polar']
   suerte_faraon_casco:
+    conjunto: suerte_faraon
     material: DIAMOND_HELMET
     textura: Pharaoh's Luck Helmet
     aspecto: pharaohs_luck
@@ -1595,6 +1652,7 @@ items:
     - {atributo: luck, valor: 1, slot: head}
     lore: [<gray>Hecha en Ciudad Espejismo., '<dark_gray>Conjunto: Armadura de la Suerte del Faraón']
   suerte_faraon_pechera:
+    conjunto: suerte_faraon
     material: DIAMOND_CHESTPLATE
     textura: Pharaoh's Luck Chestplate
     aspecto: pharaohs_luck
@@ -1608,6 +1666,7 @@ items:
     - {atributo: luck, valor: 1, slot: chest}
     lore: [<gray>Hecha en Ciudad Espejismo., '<dark_gray>Conjunto: Armadura de la Suerte del Faraón']
   suerte_faraon_grebas:
+    conjunto: suerte_faraon
     material: DIAMOND_LEGGINGS
     textura: Pharaoh's Luck Leggings
     aspecto: pharaohs_luck
@@ -1621,6 +1680,7 @@ items:
     - {atributo: luck, valor: 1, slot: legs}
     lore: [<gray>Hecha en Ciudad Espejismo., '<dark_gray>Conjunto: Armadura de la Suerte del Faraón']
   suerte_faraon_botas:
+    conjunto: suerte_faraon
     material: DIAMOND_BOOTS
     textura: Pharaoh's Luck Boots
     aspecto: pharaohs_luck
@@ -1634,6 +1694,7 @@ items:
     - {atributo: luck, valor: 1, slot: feet}
     lore: [<gray>Hecha en Ciudad Espejismo., '<dark_gray>Conjunto: Armadura de la Suerte del Faraón']
   bruja_cienaga_casco:
+    conjunto: bruja_cienaga
     material: DIAMOND_HELMET
     textura: Witches Robe Helmet
     aspecto: witches_robe
@@ -1647,6 +1708,7 @@ items:
     - {atributo: max_health, valor: 1, slot: head}
     lore: [<gray>Hecha en Lodoscuro., '<dark_gray>Conjunto: Armadura de la Bruja del Pantano']
   bruja_cienaga_pechera:
+    conjunto: bruja_cienaga
     material: DIAMOND_CHESTPLATE
     textura: Witches Robe Chestplate
     aspecto: witches_robe
@@ -1660,6 +1722,7 @@ items:
     - {atributo: max_health, valor: 1, slot: chest}
     lore: [<gray>Hecha en Lodoscuro., '<dark_gray>Conjunto: Armadura de la Bruja del Pantano']
   bruja_cienaga_grebas:
+    conjunto: bruja_cienaga
     material: DIAMOND_LEGGINGS
     textura: Witches Robe Leggings
     aspecto: witches_robe
@@ -1673,6 +1736,7 @@ items:
     - {atributo: max_health, valor: 1, slot: legs}
     lore: [<gray>Hecha en Lodoscuro., '<dark_gray>Conjunto: Armadura de la Bruja del Pantano']
   bruja_cienaga_botas:
+    conjunto: bruja_cienaga
     material: DIAMOND_BOOTS
     textura: Witches Robe Boots
     aspecto: witches_robe
@@ -1686,6 +1750,7 @@ items:
     - {atributo: max_health, valor: 1, slot: feet}
     lore: [<gray>Hecha en Lodoscuro., '<dark_gray>Conjunto: Armadura de la Bruja del Pantano']
   tigre_real_casco:
+    conjunto: tigre_real
     material: NETHERITE_HELMET
     textura: Regal Tiger Armor Helmet
     aspecto: regal_tiger_armor
@@ -1699,6 +1764,7 @@ items:
     - {atributo: movement_speed, valor: 0.01, slot: head}
     lore: [<gray>Hecha en Santuario de Jade., '<dark_gray>Conjunto: Armadura del Tigre Real']
   tigre_real_pechera:
+    conjunto: tigre_real
     material: NETHERITE_CHESTPLATE
     textura: Regal Tiger Armor Chestplate
     aspecto: regal_tiger_armor
@@ -1712,6 +1778,7 @@ items:
     - {atributo: movement_speed, valor: 0.01, slot: chest}
     lore: [<gray>Hecha en Santuario de Jade., '<dark_gray>Conjunto: Armadura del Tigre Real']
   tigre_real_grebas:
+    conjunto: tigre_real
     material: NETHERITE_LEGGINGS
     textura: Regal Tiger Armor Leggings
     aspecto: regal_tiger_armor
@@ -1725,6 +1792,7 @@ items:
     - {atributo: movement_speed, valor: 0.01, slot: legs}
     lore: [<gray>Hecha en Santuario de Jade., '<dark_gray>Conjunto: Armadura del Tigre Real']
   tigre_real_botas:
+    conjunto: tigre_real
     material: NETHERITE_BOOTS
     textura: Regal Tiger Armor Boots
     aspecto: regal_tiger_armor
@@ -1738,6 +1806,7 @@ items:
     - {atributo: movement_speed, valor: 0.01, slot: feet}
     lore: [<gray>Hecha en Santuario de Jade., '<dark_gray>Conjunto: Armadura del Tigre Real']
   tunica_ascua_casco:
+    conjunto: tunica_ascua
     material: NETHERITE_HELMET
     textura: Ember Robe Helmet
     aspecto: ember_robe
@@ -1751,6 +1820,7 @@ items:
     - {atributo: max_health, valor: 2, slot: head}
     lore: [<gray>Hecha en Bastión de Ascua., '<dark_gray>Conjunto: Armadura de Ascua']
   tunica_ascua_pechera:
+    conjunto: tunica_ascua
     material: NETHERITE_CHESTPLATE
     textura: Ember Robe Chestplate
     aspecto: ember_robe
@@ -1764,6 +1834,7 @@ items:
     - {atributo: max_health, valor: 2, slot: chest}
     lore: [<gray>Hecha en Bastión de Ascua., '<dark_gray>Conjunto: Armadura de Ascua']
   tunica_ascua_grebas:
+    conjunto: tunica_ascua
     material: NETHERITE_LEGGINGS
     textura: Ember Robe Leggings
     aspecto: ember_robe
@@ -1777,6 +1848,7 @@ items:
     - {atributo: max_health, valor: 2, slot: legs}
     lore: [<gray>Hecha en Bastión de Ascua., '<dark_gray>Conjunto: Armadura de Ascua']
   tunica_ascua_botas:
+    conjunto: tunica_ascua
     material: NETHERITE_BOOTS
     textura: Ember Robe Boots
     aspecto: ember_robe
@@ -1919,3 +1991,1651 @@ items:
     - {atributo: attack_speed, valor: -1.0, slot: mainhand}
     poderes:
     - {tipo: robo_de_vida, valor: 8}
+
+  # ---------------- CONJUNTOS COMPLETOS: armadura + armas + herramientas (ver "conjuntos:" abajo) ----------------
+  fresno_casco:
+    material: IRON_HELMET
+    textura: Emerald Gear Helmet
+    aspecto: emerald_gear
+    nombre: <green><bold>Yelmo del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    atributos:
+    - {atributo: armor, valor: 2, slot: head}
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+  fresno_pechera:
+    material: IRON_CHESTPLATE
+    textura: Emerald Gear Chestplate
+    aspecto: emerald_gear
+    nombre: <green><bold>Coraza del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    atributos:
+    - {atributo: armor, valor: 6, slot: chest}
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+  fresno_grebas:
+    material: IRON_LEGGINGS
+    textura: Emerald Gear Leggings
+    aspecto: emerald_gear
+    nombre: <green><bold>Grebas del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    atributos:
+    - {atributo: armor, valor: 5, slot: legs}
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+  fresno_botas:
+    material: IRON_BOOTS
+    textura: Emerald Gear Boots
+    aspecto: emerald_gear
+    nombre: <green><bold>Botas del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    atributos:
+    - {atributo: armor, valor: 2, slot: feet}
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+  fresno_espada:
+    material: DIAMOND_SWORD
+    textura: Emerald Sword
+    nombre: <green><bold>Espada del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+    atributos:
+    - {atributo: attack_damage, valor: 7, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  fresno_hacha:
+    material: DIAMOND_AXE
+    textura: Emerald Gandasa
+    nombre: <green><bold>Hacha del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  fresno_pico:
+    material: DIAMOND_PICKAXE
+    textura: Emerald Mandrill
+    nombre: <green><bold>Pico del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  fresno_pala:
+    material: DIAMOND_SHOVEL
+    textura: Emerald Shovel
+    nombre: <green><bold>Pala del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+    poderes:
+    - {tipo: area}
+  fresno_azada:
+    material: DIAMOND_HOE
+    textura: Emerald Duplex
+    nombre: <green><bold>Azada del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  fresno_arco:
+    material: BOW
+    textura: Emerald Shortbow
+    nombre: <green><bold>Arco del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  fresno_escudo:
+    material: SHIELD
+    textura: Evergreen Shield
+    nombre: <green><bold>Escudo del Fresno
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: fresno
+    lore: [<gray>Lo forjan los druidas con madera que no se pudre.]
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+  cobre_casco:
+    material: DIAMOND_HELMET
+    textura: Copper Golem Armor Helmet
+    aspecto: copper_golem_armor
+    nombre: <gold><bold>Yelmo del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    atributos:
+    - {atributo: armor, valor: 2, slot: head}
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+  cobre_pechera:
+    material: DIAMOND_CHESTPLATE
+    textura: Copper Golem Armor Chestplate
+    aspecto: copper_golem_armor
+    nombre: <gold><bold>Coraza del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    atributos:
+    - {atributo: armor, valor: 6, slot: chest}
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+  cobre_grebas:
+    material: DIAMOND_LEGGINGS
+    textura: Copper Golem Armor Leggings
+    aspecto: copper_golem_armor
+    nombre: <gold><bold>Grebas del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    atributos:
+    - {atributo: armor, valor: 5, slot: legs}
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+  cobre_botas:
+    material: DIAMOND_BOOTS
+    textura: Copper Golem Armor Boots
+    aspecto: copper_golem_armor
+    nombre: <gold><bold>Botas del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    atributos:
+    - {atributo: armor, valor: 2, slot: feet}
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+  cobre_espada:
+    material: DIAMOND_SWORD
+    textura: Copper Katana
+    nombre: <gold><bold>Espada del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+    atributos:
+    - {atributo: attack_damage, valor: 7, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  cobre_hacha:
+    material: DIAMOND_AXE
+    textura: Copper Scraper
+    nombre: <gold><bold>Hacha del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  cobre_pico:
+    material: DIAMOND_PICKAXE
+    textura: Copper Pickaxe
+    nombre: <gold><bold>Pico del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  cobre_pala:
+    material: DIAMOND_SHOVEL
+    textura: Warrior Shovel
+    nombre: <gold><bold>Pala del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+    poderes:
+    - {tipo: area}
+  cobre_azada:
+    material: DIAMOND_HOE
+    textura: Copper Cultivator
+    nombre: <gold><bold>Azada del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  cobre_arco:
+    material: BOW
+    textura: Copper Bow
+    nombre: <gold><bold>Arco del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  cobre_escudo:
+    material: SHIELD
+    textura: Russet Copper Shield
+    nombre: <gold><bold>Escudo del Gremio de Cobre
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    conjunto: cobre
+    lore: ['<gray>Cobre verde, remaches de oro y el sello del gremio.']
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+  marea_casco:
+    material: DIAMOND_HELMET
+    textura: Prismarine Soldier Armor Helmet
+    aspecto: prismarine_soldier_armor
+    nombre: <aqua><bold>Yelmo de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    atributos:
+    - {atributo: armor, valor: 3, slot: head}
+    - {atributo: armor_toughness, valor: 2, slot: head}
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+  marea_pechera:
+    material: DIAMOND_CHESTPLATE
+    textura: Prismarine Soldier Armor Chestplate
+    aspecto: prismarine_soldier_armor
+    nombre: <aqua><bold>Coraza de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    atributos:
+    - {atributo: armor, valor: 8, slot: chest}
+    - {atributo: armor_toughness, valor: 2, slot: chest}
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+  marea_grebas:
+    material: DIAMOND_LEGGINGS
+    textura: Prismarine Soldier Armor Leggings
+    aspecto: prismarine_soldier_armor
+    nombre: <aqua><bold>Grebas de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    atributos:
+    - {atributo: armor, valor: 6, slot: legs}
+    - {atributo: armor_toughness, valor: 2, slot: legs}
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+  marea_botas:
+    material: DIAMOND_BOOTS
+    textura: Prismarine Soldier Armor Boots
+    aspecto: prismarine_soldier_armor
+    nombre: <aqua><bold>Botas de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    atributos:
+    - {atributo: armor, valor: 3, slot: feet}
+    - {atributo: armor_toughness, valor: 2, slot: feet}
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+  marea_espada:
+    material: DIAMOND_SWORD
+    textura: Prismarine Soldier Sword
+    nombre: <aqua><bold>Espada de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+    atributos:
+    - {atributo: attack_damage, valor: 8.5, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  marea_hacha:
+    material: DIAMOND_AXE
+    textura: Prismarine Soldier Axe
+    nombre: <aqua><bold>Hacha de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  marea_pico:
+    material: DIAMOND_PICKAXE
+    textura: Prismarine Soldier Pickaxe
+    nombre: <aqua><bold>Pico de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  marea_pala:
+    material: DIAMOND_SHOVEL
+    textura: Prismarine Soldier Shovel
+    nombre: <aqua><bold>Pala de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+    poderes:
+    - {tipo: area}
+  marea_azada:
+    material: DIAMOND_HOE
+    textura: Prismarine Soldier Hoe
+    nombre: <aqua><bold>Azada de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  marea_arco:
+    material: BOW
+    textura: Prismarine Soldier Bow
+    nombre: <aqua><bold>Arco de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  marea_escudo:
+    material: SHIELD
+    textura: Prismarine Shield
+    nombre: <aqua><bold>Escudo de la Marea
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: marea
+    lore: [<gray>Escamas de prismarina cosidas por los soldados de las islas.]
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+  escarcha_eterna_casco:
+    material: DIAMOND_HELMET
+    textura: Frost Bite Helmet
+    aspecto: frost_bite
+    nombre: <aqua><bold>Yelmo de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    atributos:
+    - {atributo: armor, valor: 3, slot: head}
+    - {atributo: armor_toughness, valor: 2, slot: head}
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+  escarcha_eterna_pechera:
+    material: DIAMOND_CHESTPLATE
+    textura: Frost Bite Chestplate
+    aspecto: frost_bite
+    nombre: <aqua><bold>Coraza de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    atributos:
+    - {atributo: armor, valor: 8, slot: chest}
+    - {atributo: armor_toughness, valor: 2, slot: chest}
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+  escarcha_eterna_grebas:
+    material: DIAMOND_LEGGINGS
+    textura: Frost Bite Leggings
+    aspecto: frost_bite
+    nombre: <aqua><bold>Grebas de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    atributos:
+    - {atributo: armor, valor: 6, slot: legs}
+    - {atributo: armor_toughness, valor: 2, slot: legs}
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+  escarcha_eterna_botas:
+    material: DIAMOND_BOOTS
+    textura: Frost Bite Boots
+    aspecto: frost_bite
+    nombre: <aqua><bold>Botas de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    atributos:
+    - {atributo: armor, valor: 3, slot: feet}
+    - {atributo: armor_toughness, valor: 2, slot: feet}
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+  escarcha_eterna_espada:
+    material: DIAMOND_SWORD
+    textura: Frost Slayer
+    nombre: <aqua><bold>Espada de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+    atributos:
+    - {atributo: attack_damage, valor: 8.5, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  escarcha_eterna_hacha:
+    material: DIAMOND_AXE
+    textura: Frost Breaker
+    nombre: <aqua><bold>Hacha de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  escarcha_eterna_pico:
+    material: DIAMOND_PICKAXE
+    textura: Frost Smasher
+    nombre: <aqua><bold>Pico de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  escarcha_eterna_pala:
+    material: DIAMOND_SHOVEL
+    textura: Frost Thrower
+    nombre: <aqua><bold>Pala de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+    poderes:
+    - {tipo: area}
+  escarcha_eterna_azada:
+    material: DIAMOND_HOE
+    textura: Frost Gardener
+    nombre: <aqua><bold>Azada de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  escarcha_eterna_arco:
+    material: BOW
+    textura: Freeze Flare
+    nombre: <aqua><bold>Arco de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  escarcha_eterna_escudo:
+    material: SHIELD
+    textura: Frozen Flame
+    nombre: <aqua><bold>Escudo de la Escarcha Eterna
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: escarcha_eterna
+    lore: [<gray>Hielo que no se derrite ni en el Nether.]
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+  arenas_casco:
+    material: NETHERITE_HELMET
+    textura: Gilded Netherite Helmet
+    aspecto: gilded_netherite_layer
+    nombre: <yellow><bold>Yelmo de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    atributos:
+    - {atributo: armor, valor: 3, slot: head}
+    - {atributo: armor_toughness, valor: 3, slot: head}
+    - {atributo: knockback_resistance, valor: 0.1, slot: head}
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+  arenas_pechera:
+    material: NETHERITE_CHESTPLATE
+    textura: Gilded Netherite Chestplate
+    aspecto: gilded_netherite_layer
+    nombre: <yellow><bold>Coraza de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    atributos:
+    - {atributo: armor, valor: 8, slot: chest}
+    - {atributo: armor_toughness, valor: 3, slot: chest}
+    - {atributo: knockback_resistance, valor: 0.1, slot: chest}
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+  arenas_grebas:
+    material: NETHERITE_LEGGINGS
+    textura: Gilded Netherite Leggings
+    aspecto: gilded_netherite_layer
+    nombre: <yellow><bold>Grebas de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    atributos:
+    - {atributo: armor, valor: 6, slot: legs}
+    - {atributo: armor_toughness, valor: 3, slot: legs}
+    - {atributo: knockback_resistance, valor: 0.1, slot: legs}
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+  arenas_botas:
+    material: NETHERITE_BOOTS
+    textura: Gilded Netherite Boots
+    aspecto: gilded_netherite_layer
+    nombre: <yellow><bold>Botas de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    atributos:
+    - {atributo: armor, valor: 3, slot: feet}
+    - {atributo: armor_toughness, valor: 3, slot: feet}
+    - {atributo: knockback_resistance, valor: 0.1, slot: feet}
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+  arenas_espada:
+    material: NETHERITE_SWORD
+    textura: Gilded Netherite Sword
+    nombre: <yellow><bold>Espada de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+    atributos:
+    - {atributo: attack_damage, valor: 10, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  arenas_hacha:
+    material: NETHERITE_AXE
+    textura: Gilded Netherite Axe
+    nombre: <yellow><bold>Hacha de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  arenas_pico:
+    material: NETHERITE_PICKAXE
+    textura: Gilded Netherite Pickaxe
+    nombre: <yellow><bold>Pico de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  arenas_pala:
+    material: NETHERITE_SHOVEL
+    textura: Gilded Netherite Shovel
+    nombre: <yellow><bold>Pala de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+    poderes:
+    - {tipo: area}
+  arenas_azada:
+    material: NETHERITE_HOE
+    textura: Gilded Netherite Hoe
+    nombre: <yellow><bold>Azada de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  arenas_arco:
+    material: BOW
+    textura: Sunflare Bow
+    nombre: <yellow><bold>Arco de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  arenas_escudo:
+    material: SHIELD
+    textura: Gilded Bastion
+    nombre: <yellow><bold>Escudo de las Arenas Doradas
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: arenas
+    lore: ['<gray>El oro de la Sultana, fundido sobre netherita.']
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+  pantano_casco:
+    material: DIAMOND_HELMET
+    textura: Dark Armor Helmet
+    aspecto: dark_armor
+    nombre: <dark_green><bold>Yelmo del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    atributos:
+    - {atributo: armor, valor: 3, slot: head}
+    - {atributo: armor_toughness, valor: 2, slot: head}
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+  pantano_pechera:
+    material: DIAMOND_CHESTPLATE
+    textura: Dark Armor Chestplate
+    aspecto: dark_armor
+    nombre: <dark_green><bold>Coraza del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    atributos:
+    - {atributo: armor, valor: 8, slot: chest}
+    - {atributo: armor_toughness, valor: 2, slot: chest}
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+  pantano_grebas:
+    material: DIAMOND_LEGGINGS
+    textura: Dark Armor Leggings
+    aspecto: dark_armor
+    nombre: <dark_green><bold>Grebas del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    atributos:
+    - {atributo: armor, valor: 6, slot: legs}
+    - {atributo: armor_toughness, valor: 2, slot: legs}
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+  pantano_botas:
+    material: DIAMOND_BOOTS
+    textura: Dark Armor Boots
+    aspecto: dark_armor
+    nombre: <dark_green><bold>Botas del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    atributos:
+    - {atributo: armor, valor: 3, slot: feet}
+    - {atributo: armor_toughness, valor: 2, slot: feet}
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+  pantano_espada:
+    material: DIAMOND_SWORD
+    textura: Dark Katana
+    nombre: <dark_green><bold>Espada del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+    atributos:
+    - {atributo: attack_damage, valor: 8.5, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  pantano_hacha:
+    material: DIAMOND_AXE
+    textura: Dark Bardiche
+    nombre: <dark_green><bold>Hacha del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  pantano_pico:
+    material: DIAMOND_PICKAXE
+    textura: Dark Long Pick
+    nombre: <dark_green><bold>Pico del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  pantano_pala:
+    material: DIAMOND_SHOVEL
+    textura: Dark Trowel
+    nombre: <dark_green><bold>Pala del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+    poderes:
+    - {tipo: area}
+  pantano_azada:
+    material: DIAMOND_HOE
+    textura: Dark Plow
+    nombre: <dark_green><bold>Azada del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  pantano_ballesta:
+    material: CROSSBOW
+    textura: Dark Crossbow
+    nombre: <dark_green><bold>Ballesta del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  pantano_escudo:
+    material: SHIELD
+    textura: Ancient Darkshield
+    nombre: <dark_green><bold>Escudo del Pantano Negro
+    rareza: epico
+    estilo-rpg: true
+    mejorable: true
+    conjunto: pantano
+    lore: [<gray>Teñido con barro de Lodoscuro. Huele raro.]
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+  jaguar_casco:
+    material: NETHERITE_HELMET
+    textura: Emerald Gale Helmet
+    aspecto: emerald_gale
+    nombre: <green><bold>Yelmo del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    atributos:
+    - {atributo: armor, valor: 3, slot: head}
+    - {atributo: armor_toughness, valor: 3, slot: head}
+    - {atributo: knockback_resistance, valor: 0.1, slot: head}
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+  jaguar_pechera:
+    material: NETHERITE_CHESTPLATE
+    textura: Emerald Gale Chestplate
+    aspecto: emerald_gale
+    nombre: <green><bold>Coraza del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    atributos:
+    - {atributo: armor, valor: 8, slot: chest}
+    - {atributo: armor_toughness, valor: 3, slot: chest}
+    - {atributo: knockback_resistance, valor: 0.1, slot: chest}
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+  jaguar_grebas:
+    material: NETHERITE_LEGGINGS
+    textura: Emerald Gale Leggings
+    aspecto: emerald_gale
+    nombre: <green><bold>Grebas del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    atributos:
+    - {atributo: armor, valor: 6, slot: legs}
+    - {atributo: armor_toughness, valor: 3, slot: legs}
+    - {atributo: knockback_resistance, valor: 0.1, slot: legs}
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+  jaguar_botas:
+    material: NETHERITE_BOOTS
+    textura: Emerald Gale Boots
+    aspecto: emerald_gale
+    nombre: <green><bold>Botas del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    atributos:
+    - {atributo: armor, valor: 3, slot: feet}
+    - {atributo: armor_toughness, valor: 3, slot: feet}
+    - {atributo: knockback_resistance, valor: 0.1, slot: feet}
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+  jaguar_espada:
+    material: NETHERITE_SWORD
+    textura: Jade Falcata
+    nombre: <green><bold>Espada del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+    atributos:
+    - {atributo: attack_damage, valor: 10, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  jaguar_hacha:
+    material: NETHERITE_AXE
+    textura: Jade Butcher
+    nombre: <green><bold>Hacha del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  jaguar_pico:
+    material: NETHERITE_PICKAXE
+    textura: Jade Breaker
+    nombre: <green><bold>Pico del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  jaguar_pala:
+    material: NETHERITE_SHOVEL
+    textura: Jade Shovel
+    nombre: <green><bold>Pala del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+    poderes:
+    - {tipo: area}
+  jaguar_azada:
+    material: NETHERITE_HOE
+    textura: Jade Cultivator
+    nombre: <green><bold>Azada del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  jaguar_arco:
+    material: BOW
+    textura: Jade Bow
+    nombre: <green><bold>Arco del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  jaguar_escudo:
+    material: SHIELD
+    textura: Jade Shield
+    nombre: <green><bold>Escudo del Jaguar
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: jaguar
+    lore: [<gray>Los sacerdotes del jaguar tallaban el jade a mordiscos.]
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+  ascua_casco:
+    material: NETHERITE_HELMET
+    textura: Molten Netherite Helmet
+    aspecto: molten_netherite_layer
+    nombre: <red><bold>Yelmo de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    atributos:
+    - {atributo: armor, valor: 3, slot: head}
+    - {atributo: armor_toughness, valor: 3, slot: head}
+    - {atributo: knockback_resistance, valor: 0.1, slot: head}
+    lore: [<gray>Sale de la forja todavía al rojo.]
+  ascua_pechera:
+    material: NETHERITE_CHESTPLATE
+    textura: Molten Netherite Chestplate
+    aspecto: molten_netherite_layer
+    nombre: <red><bold>Coraza de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    atributos:
+    - {atributo: armor, valor: 8, slot: chest}
+    - {atributo: armor_toughness, valor: 3, slot: chest}
+    - {atributo: knockback_resistance, valor: 0.1, slot: chest}
+    lore: [<gray>Sale de la forja todavía al rojo.]
+  ascua_grebas:
+    material: NETHERITE_LEGGINGS
+    textura: Molten Netherite Leggings
+    aspecto: molten_netherite_layer
+    nombre: <red><bold>Grebas de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    atributos:
+    - {atributo: armor, valor: 6, slot: legs}
+    - {atributo: armor_toughness, valor: 3, slot: legs}
+    - {atributo: knockback_resistance, valor: 0.1, slot: legs}
+    lore: [<gray>Sale de la forja todavía al rojo.]
+  ascua_botas:
+    material: NETHERITE_BOOTS
+    textura: Molten Netherite Boots
+    aspecto: molten_netherite_layer
+    nombre: <red><bold>Botas de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    atributos:
+    - {atributo: armor, valor: 3, slot: feet}
+    - {atributo: armor_toughness, valor: 3, slot: feet}
+    - {atributo: knockback_resistance, valor: 0.1, slot: feet}
+    lore: [<gray>Sale de la forja todavía al rojo.]
+  ascua_espada:
+    material: NETHERITE_SWORD
+    textura: Molten Netherite Sword
+    nombre: <red><bold>Espada de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    lore: [<gray>Sale de la forja todavía al rojo.]
+    atributos:
+    - {atributo: attack_damage, valor: 10, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  ascua_hacha:
+    material: NETHERITE_AXE
+    textura: Molten Netherite Axe
+    nombre: <red><bold>Hacha de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    lore: [<gray>Sale de la forja todavía al rojo.]
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  ascua_pico:
+    material: NETHERITE_PICKAXE
+    textura: Molten Netherite Pickaxe
+    nombre: <red><bold>Pico de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    lore: [<gray>Sale de la forja todavía al rojo.]
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  ascua_pala:
+    material: NETHERITE_SHOVEL
+    textura: Molten Netherite Shovel
+    nombre: <red><bold>Pala de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    lore: [<gray>Sale de la forja todavía al rojo.]
+    poderes:
+    - {tipo: area}
+  ascua_azada:
+    material: NETHERITE_HOE
+    textura: Molten Netherite Hoe
+    nombre: <red><bold>Azada de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    lore: [<gray>Sale de la forja todavía al rojo.]
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  ascua_arco:
+    material: BOW
+    textura: Flame Bow
+    nombre: <red><bold>Arco de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    lore: [<gray>Sale de la forja todavía al rojo.]
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  ascua_escudo:
+    material: SHIELD
+    textura: Flame Shield
+    nombre: <red><bold>Escudo de Ascua
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: ascua
+    lore: [<gray>Sale de la forja todavía al rojo.]
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+  real_casco:
+    material: NETHERITE_HELMET
+    textura: Ornate Netherite Helmet
+    aspecto: ornate_netherite_layer
+    nombre: <blue><bold>Yelmo Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    atributos:
+    - {atributo: armor, valor: 3, slot: head}
+    - {atributo: armor_toughness, valor: 3, slot: head}
+    - {atributo: knockback_resistance, valor: 0.1, slot: head}
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+  real_pechera:
+    material: NETHERITE_CHESTPLATE
+    textura: Ornate Netherite Chestplate
+    aspecto: ornate_netherite_layer
+    nombre: <blue><bold>Coraza Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    atributos:
+    - {atributo: armor, valor: 8, slot: chest}
+    - {atributo: armor_toughness, valor: 3, slot: chest}
+    - {atributo: knockback_resistance, valor: 0.1, slot: chest}
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+  real_grebas:
+    material: NETHERITE_LEGGINGS
+    textura: Ornate Netherite Leggings
+    aspecto: ornate_netherite_layer
+    nombre: <blue><bold>Grebas Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    atributos:
+    - {atributo: armor, valor: 6, slot: legs}
+    - {atributo: armor_toughness, valor: 3, slot: legs}
+    - {atributo: knockback_resistance, valor: 0.1, slot: legs}
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+  real_botas:
+    material: NETHERITE_BOOTS
+    textura: Ornate Netherite Boots
+    aspecto: ornate_netherite_layer
+    nombre: <blue><bold>Botas Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    atributos:
+    - {atributo: armor, valor: 3, slot: feet}
+    - {atributo: armor_toughness, valor: 3, slot: feet}
+    - {atributo: knockback_resistance, valor: 0.1, slot: feet}
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+  real_espada:
+    material: NETHERITE_SWORD
+    textura: Imperial Longsword
+    nombre: <blue><bold>Espada Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+    atributos:
+    - {atributo: attack_damage, valor: 10, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  real_hacha:
+    material: NETHERITE_AXE
+    textura: Imperial Halberd
+    nombre: <blue><bold>Hacha Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  real_pico:
+    material: NETHERITE_PICKAXE
+    textura: Imperial Pickaxe
+    nombre: <blue><bold>Pico Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  real_pala:
+    material: NETHERITE_SHOVEL
+    textura: Imperial Shovel
+    nombre: <blue><bold>Pala Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+    poderes:
+    - {tipo: area}
+  real_azada:
+    material: NETHERITE_HOE
+    textura: Imperial Hoe
+    nombre: <blue><bold>Azada Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  real_arco:
+    material: BOW
+    textura: Imperial Bow
+    nombre: <blue><bold>Arco Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  real_escudo:
+    material: SHIELD
+    textura: Imperial Shield
+    nombre: <blue><bold>Escudo Real de Altavela
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: real
+    lore: [<gray>Solo la llevan los guardias de la princesa.]
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+  velo_casco:
+    material: NETHERITE_HELMET
+    textura: Wraith Cloak Helmet
+    aspecto: wraith_cloak
+    nombre: <gray><bold>Yelmo del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    atributos:
+    - {atributo: armor, valor: 3, slot: head}
+    - {atributo: armor_toughness, valor: 3, slot: head}
+    - {atributo: knockback_resistance, valor: 0.1, slot: head}
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+  velo_pechera:
+    material: NETHERITE_CHESTPLATE
+    textura: Wraith Cloak Chestplate
+    aspecto: wraith_cloak
+    nombre: <gray><bold>Coraza del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    atributos:
+    - {atributo: armor, valor: 8, slot: chest}
+    - {atributo: armor_toughness, valor: 3, slot: chest}
+    - {atributo: knockback_resistance, valor: 0.1, slot: chest}
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+  velo_grebas:
+    material: NETHERITE_LEGGINGS
+    textura: Wraith Cloak Leggings
+    aspecto: wraith_cloak
+    nombre: <gray><bold>Grebas del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    atributos:
+    - {atributo: armor, valor: 6, slot: legs}
+    - {atributo: armor_toughness, valor: 3, slot: legs}
+    - {atributo: knockback_resistance, valor: 0.1, slot: legs}
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+  velo_botas:
+    material: NETHERITE_BOOTS
+    textura: Wraith Cloak Boots
+    aspecto: wraith_cloak
+    nombre: <gray><bold>Botas del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    atributos:
+    - {atributo: armor, valor: 3, slot: feet}
+    - {atributo: armor_toughness, valor: 3, slot: feet}
+    - {atributo: knockback_resistance, valor: 0.1, slot: feet}
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+  velo_espada:
+    material: NETHERITE_SWORD
+    textura: Veiled Broadsword
+    nombre: <gray><bold>Espada del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+    atributos:
+    - {atributo: attack_damage, valor: 10, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  velo_hacha:
+    material: NETHERITE_AXE
+    textura: Veiled Axe
+    nombre: <gray><bold>Hacha del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  velo_pico:
+    material: NETHERITE_PICKAXE
+    textura: Veiled Pickaxe
+    nombre: <gray><bold>Pico del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  velo_pala:
+    material: NETHERITE_SHOVEL
+    textura: Veiled Shovel
+    nombre: <gray><bold>Pala del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+    poderes:
+    - {tipo: area}
+  velo_azada:
+    material: NETHERITE_HOE
+    textura: Veiled Plow
+    nombre: <gray><bold>Azada del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  velo_arco:
+    material: BOW
+    textura: Veiled Bow
+    nombre: <gray><bold>Arco del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  velo_escudo:
+    material: SHIELD
+    textura: Veiled Shield
+    nombre: <gray><bold>Escudo del Velo
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: velo
+    lore: [<gray>Tejido con los jirones de los Velados. Ellos te reconocen.]
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+  sin_nombre_espada:
+    material: NETHERITE_SWORD
+    textura: Nameless Blade
+    nombre: <dark_gray><bold>Espada del Sin Nombre
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: sin_nombre
+    lore: [<gray>Era de alguien que ya no recuerda su nombre.]
+    atributos:
+    - {atributo: attack_damage, valor: 10, slot: mainhand}
+    - {atributo: attack_speed, valor: -2.4, slot: mainhand}
+    poderes:
+    - {tipo: critico, probabilidad: 0.15, valor: 1.5}
+  sin_nombre_hacha:
+    material: NETHERITE_AXE
+    textura: Nameless Axe
+    nombre: <dark_gray><bold>Hacha del Sin Nombre
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: sin_nombre
+    lore: [<gray>Era de alguien que ya no recuerda su nombre.]
+    poderes:
+    - {tipo: talador}
+    - {tipo: penetracion, valor: 15}
+  sin_nombre_pico:
+    material: NETHERITE_PICKAXE
+    textura: Nameless Pickaxe
+    nombre: <dark_gray><bold>Pico del Sin Nombre
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: sin_nombre
+    lore: [<gray>Era de alguien que ya no recuerda su nombre.]
+    poderes:
+    - {tipo: vetas}
+    - {tipo: prisa, valor: 1}
+  sin_nombre_pala:
+    material: NETHERITE_SHOVEL
+    textura: Nameless Spade
+    nombre: <dark_gray><bold>Pala del Sin Nombre
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: sin_nombre
+    lore: [<gray>Era de alguien que ya no recuerda su nombre.]
+    poderes:
+    - {tipo: area}
+  sin_nombre_azada:
+    material: NETHERITE_HOE
+    textura: Nameless Hoe
+    nombre: <dark_gray><bold>Azada del Sin Nombre
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: sin_nombre
+    lore: [<gray>Era de alguien que ya no recuerda su nombre.]
+    poderes:
+    - {tipo: cosecha_area}
+    - {tipo: replantar}
+  sin_nombre_ballesta:
+    material: CROSSBOW
+    textura: Nameless Crossbow
+    nombre: <dark_gray><bold>Ballesta del Sin Nombre
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: sin_nombre
+    lore: [<gray>Era de alguien que ya no recuerda su nombre.]
+    poderes:
+    - {tipo: penetracion, valor: 20}
+  sin_nombre_escudo:
+    material: SHIELD
+    textura: Nameless Shield
+    nombre: <dark_gray><bold>Escudo del Sin Nombre
+    rareza: legendario
+    estilo-rpg: true
+    mejorable: true
+    conjunto: sin_nombre
+    lore: [<gray>Era de alguien que ya no recuerda su nombre.]
+    atributos:
+    - {atributo: armor, valor: 2, slot: offhand}
+
+# =========================================================
+#  CONJUNTOS: bonos por llevar varias piezas del mismo conjunto puestas.
+#  Cada objeto dice a qué conjunto pertenece con  conjunto: <id>
+#    piezas-2 / piezas-4: efectos mientras llevas 2 o 4 piezas (efecto + nivel)
+#    arma: % de daño extra con un arma o herramienta del conjunto si llevas las 4 piezas
+# =========================================================
+conjuntos:
+  fresno:
+    nombre: Conjunto del Fresno
+    piezas-2:
+    - {efecto: speed, nivel: 1}
+    piezas-4:
+    - {efecto: regeneration, nivel: 1}
+    arma: 10
+  cobre:
+    nombre: Conjunto del Gremio de Cobre
+    piezas-2:
+    - {efecto: haste, nivel: 1}
+    piezas-4:
+    - {efecto: resistance, nivel: 1}
+    arma: 12
+  marea:
+    nombre: Conjunto de la Marea
+    piezas-2:
+    - {efecto: water_breathing, nivel: 1}
+    piezas-4:
+    - {efecto: dolphins_grace, nivel: 1}
+    - {efecto: conduit_power, nivel: 1}
+    arma: 12
+  escarcha_eterna:
+    nombre: Conjunto de la Escarcha Eterna
+    piezas-2:
+    - {efecto: speed, nivel: 1}
+    piezas-4:
+    - {efecto: resistance, nivel: 1}
+    - {efecto: strength, nivel: 1}
+    arma: 15
+  arenas:
+    nombre: Conjunto de las Arenas Doradas
+    piezas-2:
+    - {efecto: fire_resistance, nivel: 1}
+    piezas-4:
+    - {efecto: luck, nivel: 2}
+    - {efecto: strength, nivel: 1}
+    arma: 15
+  pantano:
+    nombre: Conjunto del Pantano Negro
+    piezas-2:
+    - {efecto: night_vision, nivel: 1}
+    piezas-4:
+    - {efecto: regeneration, nivel: 1}
+    - {efecto: strength, nivel: 1}
+    arma: 15
+  jaguar:
+    nombre: Conjunto del Jaguar
+    piezas-2:
+    - {efecto: jump_boost, nivel: 2}
+    piezas-4:
+    - {efecto: speed, nivel: 2}
+    - {efecto: strength, nivel: 1}
+    arma: 18
+  ascua:
+    nombre: Conjunto de Ascua
+    piezas-2:
+    - {efecto: fire_resistance, nivel: 1}
+    piezas-4:
+    - {efecto: strength, nivel: 2}
+    arma: 20
+  real:
+    nombre: Conjunto Real de Altavela
+    piezas-2:
+    - {efecto: hero_of_the_village, nivel: 1}
+    piezas-4:
+    - {efecto: health_boost, nivel: 2}
+    - {efecto: resistance, nivel: 1}
+    arma: 18
+  velo:
+    nombre: Conjunto del Velo
+    piezas-2:
+    - {efecto: night_vision, nivel: 1}
+    piezas-4:
+    - {efecto: absorption, nivel: 2}
+    - {efecto: speed, nivel: 1}
+    arma: 22
+  sin_nombre:
+    nombre: Conjunto del Sin Nombre
+    piezas-2:
+    - {efecto: strength, nivel: 1}
+    piezas-4:
+    - {efecto: strength, nivel: 2}
+    - {efecto: resistance, nivel: 2}
+    arma: 25
+  coral:
+    nombre: Conjunto de Coral
+    piezas-2:
+    - {efecto: water_breathing, nivel: 1}
+    piezas-4:
+    - {efecto: dolphins_grace, nivel: 1}
+  escarcha:
+    nombre: Conjunto de Escarcha
+    piezas-2:
+    - {efecto: speed, nivel: 1}
+    piezas-4:
+    - {efecto: resistance, nivel: 1}
+  sol_dormido:
+    nombre: Conjunto del Sol Dormido
+    piezas-2:
+    - {efecto: fire_resistance, nivel: 1}
+    piezas-4:
+    - {efecto: strength, nivel: 1}
+  magma:
+    nombre: Conjunto de Magma
+    piezas-2:
+    - {efecto: fire_resistance, nivel: 1}
+    piezas-4:
+    - {efecto: resistance, nivel: 1}
+    - {efecto: strength, nivel: 1}
+  lobo_negro:
+    nombre: Conjunto del Lobo Negro
+    piezas-2:
+    - {efecto: speed, nivel: 1}
+    piezas-4:
+    - {efecto: strength, nivel: 1}
+  dragon_ender:
+    nombre: Conjunto del Dragón del End
+    piezas-2:
+    - {efecto: slow_falling, nivel: 1}
+    piezas-4:
+    - {efecto: strength, nivel: 2}
+    - {efecto: resistance, nivel: 1}
+  hueso:
+    nombre: Conjunto de Hueso
+    piezas-2:
+    - {efecto: night_vision, nivel: 1}
+    piezas-4:
+    - {efecto: speed, nivel: 1}
+  brote:
+    nombre: Conjunto de Brote
+    piezas-2:
+    - {efecto: jump_boost, nivel: 1}
+    piezas-4:
+    - {efecto: regeneration, nivel: 1}
+  tierras_altas:
+    nombre: Conjunto de las Tierras Altas
+    piezas-2:
+    - {efecto: haste, nivel: 1}
+    piezas-4:
+    - {efecto: health_boost, nivel: 1}
+  guardia_torre:
+    nombre: Conjunto de la Guardia de la Torre
+    piezas-2:
+    - {efecto: resistance, nivel: 1}
+    piezas-4:
+    - {efecto: health_boost, nivel: 2}
+  caballero_dorado:
+    nombre: Conjunto del Caballero Dorado
+    piezas-2:
+    - {efecto: luck, nivel: 1}
+    piezas-4:
+    - {efecto: regeneration, nivel: 1}
+    - {efecto: resistance, nivel: 1}
+  coral_radiante:
+    nombre: Conjunto de Coral Radiante
+    piezas-2:
+    - {efecto: water_breathing, nivel: 1}
+    piezas-4:
+    - {efecto: conduit_power, nivel: 1}
+  oso_polar:
+    nombre: Conjunto del Oso Polar
+    piezas-2:
+    - {efecto: resistance, nivel: 1}
+    piezas-4:
+    - {efecto: strength, nivel: 1}
+  suerte_faraon:
+    nombre: Conjunto de la Suerte del Faraón
+    piezas-2:
+    - {efecto: luck, nivel: 1}
+    piezas-4:
+    - {efecto: luck, nivel: 3}
+    - {efecto: fire_resistance, nivel: 1}
+  bruja_cienaga:
+    nombre: Conjunto de la Bruja del Pantano
+    piezas-2:
+    - {efecto: night_vision, nivel: 1}
+    piezas-4:
+    - {efecto: regeneration, nivel: 2}
+  tigre_real:
+    nombre: Conjunto del Tigre Real
+    piezas-2:
+    - {efecto: speed, nivel: 1}
+    piezas-4:
+    - {efecto: speed, nivel: 2}
+    - {efecto: jump_boost, nivel: 2}
+  tunica_ascua:
+    nombre: Conjunto de Ascua (túnica)
+    piezas-2:
+    - {efecto: fire_resistance, nivel: 1}
+    piezas-4:
+    - {efecto: strength, nivel: 1}
+    - {efecto: regeneration, nivel: 1}

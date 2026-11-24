@@ -452,3 +452,199 @@ tiendas:
       - {tipo: comprar, slot: 28, item: "custom:fragmento_mejora", precio: 800}
       - {tipo: vender, slot: 40, item: "blaze_rod", cantidad: 4, precio: 60}
       - {tipo: vender, slot: 44, item: "custom:jiron_de_velo", cantidad: 8, precio: 40}
+
+  # ---------------- conjuntos completos (armadura + armas + herramientas) ----------------
+
+  conjunto_fresno:                    # bram
+    titulo: "<green><bold>Conjunto del Fresno"
+    boton: "<green>◆ Conjunto del Fresno"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:fresno_casco", precio: 400, nivel: 10}
+      - {tipo: comprar, slot: 11, item: "custom:fresno_pechera", precio: 640, nivel: 10}
+      - {tipo: comprar, slot: 12, item: "custom:fresno_grebas", precio: 560, nivel: 10}
+      - {tipo: comprar, slot: 13, item: "custom:fresno_botas", precio: 400, nivel: 10}
+      - {tipo: comprar, slot: 19, item: "custom:fresno_espada", precio: 600, nivel: 10}
+      - {tipo: comprar, slot: 20, item: "custom:fresno_hacha", precio: 560, nivel: 10}
+      - {tipo: comprar, slot: 21, item: "custom:fresno_arco", precio: 520, nivel: 10}
+      - {tipo: comprar, slot: 22, item: "custom:fresno_escudo", precio: 400, nivel: 10}
+      - {tipo: comprar, slot: 28, item: "custom:fresno_pico", precio: 480, nivel: 10}
+      - {tipo: comprar, slot: 29, item: "custom:fresno_pala", precio: 280, nivel: 10}
+      - {tipo: comprar, slot: 30, item: "custom:fresno_azada", precio: 240, nivel: 10}
+
+  conjunto_cobre:                    # corvo
+    titulo: "<gold><bold>Conjunto del Gremio de Cobre"
+    boton: "<gold>◆ Conjunto del Gremio de Cobre"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:cobre_casco", precio: 700, nivel: 18}
+      - {tipo: comprar, slot: 11, item: "custom:cobre_pechera", precio: 1120, nivel: 18}
+      - {tipo: comprar, slot: 12, item: "custom:cobre_grebas", precio: 980, nivel: 18}
+      - {tipo: comprar, slot: 13, item: "custom:cobre_botas", precio: 700, nivel: 18}
+      - {tipo: comprar, slot: 19, item: "custom:cobre_espada", precio: 1050, nivel: 18}
+      - {tipo: comprar, slot: 20, item: "custom:cobre_hacha", precio: 980, nivel: 18}
+      - {tipo: comprar, slot: 21, item: "custom:cobre_arco", precio: 910, nivel: 18}
+      - {tipo: comprar, slot: 22, item: "custom:cobre_escudo", precio: 700, nivel: 18}
+      - {tipo: comprar, slot: 28, item: "custom:cobre_pico", precio: 840, nivel: 18}
+      - {tipo: comprar, slot: 29, item: "custom:cobre_pala", precio: 490, nivel: 18}
+      - {tipo: comprar, slot: 30, item: "custom:cobre_azada", precio: 420, nivel: 18}
+
+  conjunto_marea:                    # nemo
+    titulo: "<aqua><bold>Conjunto de la Marea"
+    boton: "<aqua>◆ Conjunto de la Marea"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:marea_casco", precio: 1100, nivel: 30}
+      - {tipo: comprar, slot: 11, item: "custom:marea_pechera", precio: 1760, nivel: 30}
+      - {tipo: comprar, slot: 12, item: "custom:marea_grebas", precio: 1540, nivel: 30}
+      - {tipo: comprar, slot: 13, item: "custom:marea_botas", precio: 1100, nivel: 30}
+      - {tipo: comprar, slot: 19, item: "custom:marea_espada", precio: 1650, nivel: 30}
+      - {tipo: comprar, slot: 20, item: "custom:marea_hacha", precio: 1540, nivel: 30}
+      - {tipo: comprar, slot: 21, item: "custom:marea_arco", precio: 1430, nivel: 30}
+      - {tipo: comprar, slot: 22, item: "custom:marea_escudo", precio: 1100, nivel: 30}
+      - {tipo: comprar, slot: 28, item: "custom:marea_pico", precio: 1320, nivel: 30}
+      - {tipo: comprar, slot: 29, item: "custom:marea_pala", precio: 770, nivel: 30}
+      - {tipo: comprar, slot: 30, item: "custom:marea_azada", precio: 660, nivel: 30}
+
+  conjunto_escarcha_eterna:                    # ingrid
+    titulo: "<aqua><bold>Conjunto de la Escarcha Eterna"
+    boton: "<aqua>◆ Conjunto de la Escarcha Eterna"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:escarcha_eterna_casco", precio: 1400, nivel: 38}
+      - {tipo: comprar, slot: 11, item: "custom:escarcha_eterna_pechera", precio: 2240, nivel: 38}
+      - {tipo: comprar, slot: 12, item: "custom:escarcha_eterna_grebas", precio: 1960, nivel: 38}
+      - {tipo: comprar, slot: 13, item: "custom:escarcha_eterna_botas", precio: 1400, nivel: 38}
+      - {tipo: comprar, slot: 19, item: "custom:escarcha_eterna_espada", precio: 2100, nivel: 38}
+      - {tipo: comprar, slot: 20, item: "custom:escarcha_eterna_hacha", precio: 1960, nivel: 38}
+      - {tipo: comprar, slot: 21, item: "custom:escarcha_eterna_arco", precio: 1820, nivel: 38}
+      - {tipo: comprar, slot: 22, item: "custom:escarcha_eterna_escudo", precio: 1400, nivel: 38}
+      - {tipo: comprar, slot: 28, item: "custom:escarcha_eterna_pico", precio: 1680, nivel: 38}
+      - {tipo: comprar, slot: 29, item: "custom:escarcha_eterna_pala", precio: 980, nivel: 38}
+      - {tipo: comprar, slot: 30, item: "custom:escarcha_eterna_azada", precio: 840, nivel: 38}
+
+  conjunto_arenas:                    # yasmin
+    titulo: "<yellow><bold>Conjunto de las Arenas Doradas"
+    boton: "<yellow>◆ Conjunto de las Arenas Doradas"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:arenas_casco", precio: 1800, nivel: 46}
+      - {tipo: comprar, slot: 11, item: "custom:arenas_pechera", precio: 2880, nivel: 46}
+      - {tipo: comprar, slot: 12, item: "custom:arenas_grebas", precio: 2520, nivel: 46}
+      - {tipo: comprar, slot: 13, item: "custom:arenas_botas", precio: 1800, nivel: 46}
+      - {tipo: comprar, slot: 19, item: "custom:arenas_espada", precio: 2700, nivel: 46}
+      - {tipo: comprar, slot: 20, item: "custom:arenas_hacha", precio: 2520, nivel: 46}
+      - {tipo: comprar, slot: 21, item: "custom:arenas_arco", precio: 2340, nivel: 46}
+      - {tipo: comprar, slot: 22, item: "custom:arenas_escudo", precio: 1800, nivel: 46}
+      - {tipo: comprar, slot: 28, item: "custom:arenas_pico", precio: 2160, nivel: 46}
+      - {tipo: comprar, slot: 29, item: "custom:arenas_pala", precio: 1260, nivel: 46}
+      - {tipo: comprar, slot: 30, item: "custom:arenas_azada", precio: 1080, nivel: 46}
+
+  conjunto_pantano:                    # gus
+    titulo: "<dark_green><bold>Conjunto del Pantano Negro"
+    boton: "<dark_green>◆ Conjunto del Pantano Negro"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:pantano_casco", precio: 2000, nivel: 50}
+      - {tipo: comprar, slot: 11, item: "custom:pantano_pechera", precio: 3200, nivel: 50}
+      - {tipo: comprar, slot: 12, item: "custom:pantano_grebas", precio: 2800, nivel: 50}
+      - {tipo: comprar, slot: 13, item: "custom:pantano_botas", precio: 2000, nivel: 50}
+      - {tipo: comprar, slot: 19, item: "custom:pantano_espada", precio: 3000, nivel: 50}
+      - {tipo: comprar, slot: 20, item: "custom:pantano_hacha", precio: 2800, nivel: 50}
+      - {tipo: comprar, slot: 21, item: "custom:pantano_ballesta", precio: 2600, nivel: 50}
+      - {tipo: comprar, slot: 22, item: "custom:pantano_escudo", precio: 2000, nivel: 50}
+      - {tipo: comprar, slot: 28, item: "custom:pantano_pico", precio: 2400, nivel: 50}
+      - {tipo: comprar, slot: 29, item: "custom:pantano_pala", precio: 1400, nivel: 50}
+      - {tipo: comprar, slot: 30, item: "custom:pantano_azada", precio: 1200, nivel: 50}
+
+  conjunto_jaguar:                    # itzel
+    titulo: "<green><bold>Conjunto del Jaguar"
+    boton: "<green>◆ Conjunto del Jaguar"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:jaguar_casco", precio: 2400, nivel: 56}
+      - {tipo: comprar, slot: 11, item: "custom:jaguar_pechera", precio: 3840, nivel: 56}
+      - {tipo: comprar, slot: 12, item: "custom:jaguar_grebas", precio: 3360, nivel: 56}
+      - {tipo: comprar, slot: 13, item: "custom:jaguar_botas", precio: 2400, nivel: 56}
+      - {tipo: comprar, slot: 19, item: "custom:jaguar_espada", precio: 3600, nivel: 56}
+      - {tipo: comprar, slot: 20, item: "custom:jaguar_hacha", precio: 3360, nivel: 56}
+      - {tipo: comprar, slot: 21, item: "custom:jaguar_arco", precio: 3120, nivel: 56}
+      - {tipo: comprar, slot: 22, item: "custom:jaguar_escudo", precio: 2400, nivel: 56}
+      - {tipo: comprar, slot: 28, item: "custom:jaguar_pico", precio: 2880, nivel: 56}
+      - {tipo: comprar, slot: 29, item: "custom:jaguar_pala", precio: 1680, nivel: 56}
+      - {tipo: comprar, slot: 30, item: "custom:jaguar_azada", precio: 1440, nivel: 56}
+
+  conjunto_ascua:                    # brasa
+    titulo: "<red><bold>Conjunto de Ascua"
+    boton: "<red>◆ Conjunto de Ascua"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:ascua_casco", precio: 3000, nivel: 62}
+      - {tipo: comprar, slot: 11, item: "custom:ascua_pechera", precio: 4800, nivel: 62}
+      - {tipo: comprar, slot: 12, item: "custom:ascua_grebas", precio: 4200, nivel: 62}
+      - {tipo: comprar, slot: 13, item: "custom:ascua_botas", precio: 3000, nivel: 62}
+      - {tipo: comprar, slot: 19, item: "custom:ascua_espada", precio: 4500, nivel: 62}
+      - {tipo: comprar, slot: 20, item: "custom:ascua_hacha", precio: 4200, nivel: 62}
+      - {tipo: comprar, slot: 21, item: "custom:ascua_arco", precio: 3900, nivel: 62}
+      - {tipo: comprar, slot: 22, item: "custom:ascua_escudo", precio: 3000, nivel: 62}
+      - {tipo: comprar, slot: 28, item: "custom:ascua_pico", precio: 3600, nivel: 62}
+      - {tipo: comprar, slot: 29, item: "custom:ascua_pala", precio: 2100, nivel: 62}
+      - {tipo: comprar, slot: 30, item: "custom:ascua_azada", precio: 1800, nivel: 62}
+
+  conjunto_real:                    # leona
+    titulo: "<blue><bold>Conjunto Real de Altavela"
+    boton: "<blue>◆ Conjunto Real de Altavela"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:real_casco", precio: 2800, nivel: 60}
+      - {tipo: comprar, slot: 11, item: "custom:real_pechera", precio: 4480, nivel: 60}
+      - {tipo: comprar, slot: 12, item: "custom:real_grebas", precio: 3920, nivel: 60}
+      - {tipo: comprar, slot: 13, item: "custom:real_botas", precio: 2800, nivel: 60}
+      - {tipo: comprar, slot: 19, item: "custom:real_espada", precio: 4200, nivel: 60}
+      - {tipo: comprar, slot: 20, item: "custom:real_hacha", precio: 3920, nivel: 60}
+      - {tipo: comprar, slot: 21, item: "custom:real_arco", precio: 3640, nivel: 60}
+      - {tipo: comprar, slot: 22, item: "custom:real_escudo", precio: 2800, nivel: 60}
+      - {tipo: comprar, slot: 28, item: "custom:real_pico", precio: 3360, nivel: 60}
+      - {tipo: comprar, slot: 29, item: "custom:real_pala", precio: 1960, nivel: 60}
+      - {tipo: comprar, slot: 30, item: "custom:real_azada", precio: 1680, nivel: 60}
+
+  conjunto_velo:                    # cuervo
+    titulo: "<gray><bold>Conjunto del Velo"
+    boton: "<gray>◆ Conjunto del Velo"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 10, item: "custom:velo_casco", precio: 48, paga-con: "custom:jiron_de_velo", nivel: 55}
+      - {tipo: comprar, slot: 11, item: "custom:velo_pechera", precio: 77, paga-con: "custom:jiron_de_velo", nivel: 55}
+      - {tipo: comprar, slot: 12, item: "custom:velo_grebas", precio: 67, paga-con: "custom:jiron_de_velo", nivel: 55}
+      - {tipo: comprar, slot: 13, item: "custom:velo_botas", precio: 48, paga-con: "custom:jiron_de_velo", nivel: 55}
+      - {tipo: comprar, slot: 19, item: "custom:velo_espada", precio: 72, paga-con: "custom:jiron_de_velo", nivel: 55}
+      - {tipo: comprar, slot: 20, item: "custom:velo_hacha", precio: 67, paga-con: "custom:jiron_de_velo", nivel: 55}
+      - {tipo: comprar, slot: 21, item: "custom:velo_arco", precio: 62, paga-con: "custom:jiron_de_velo", nivel: 55}
+      - {tipo: comprar, slot: 22, item: "custom:velo_escudo", precio: 48, paga-con: "custom:jiron_de_velo", nivel: 55}
+      - {tipo: comprar, slot: 28, item: "custom:velo_pico", precio: 58, paga-con: "custom:jiron_de_velo", nivel: 55}
+      - {tipo: comprar, slot: 29, item: "custom:velo_pala", precio: 34, paga-con: "custom:jiron_de_velo", nivel: 55}
+      - {tipo: comprar, slot: 30, item: "custom:velo_azada", precio: 29, paga-con: "custom:jiron_de_velo", nivel: 55}
+
+  conjunto_sin_nombre:                    # sabela
+    titulo: "<dark_gray><bold>Conjunto del Sin Nombre"
+    boton: "<dark_gray>◆ Conjunto del Sin Nombre"
+    descripcion: "Armadura, armas y herramientas del mismo conjunto (bonos con 2 y 4 piezas)"
+    filas: 6
+    objetos:
+      - {tipo: comprar, slot: 19, item: "custom:sin_nombre_espada", precio: 6, paga-con: "custom:lagrima_de_corona", nivel: 70}
+      - {tipo: comprar, slot: 20, item: "custom:sin_nombre_hacha", precio: 6, paga-con: "custom:lagrima_de_corona", nivel: 70}
+      - {tipo: comprar, slot: 21, item: "custom:sin_nombre_ballesta", precio: 5, paga-con: "custom:lagrima_de_corona", nivel: 70}
+      - {tipo: comprar, slot: 22, item: "custom:sin_nombre_escudo", precio: 4, paga-con: "custom:lagrima_de_corona", nivel: 70}
+      - {tipo: comprar, slot: 28, item: "custom:sin_nombre_pico", precio: 5, paga-con: "custom:lagrima_de_corona", nivel: 70}
+      - {tipo: comprar, slot: 29, item: "custom:sin_nombre_pala", precio: 3, paga-con: "custom:lagrima_de_corona", nivel: 70}
+      - {tipo: comprar, slot: 30, item: "custom:sin_nombre_azada", precio: 2, paga-con: "custom:lagrima_de_corona", nivel: 70}

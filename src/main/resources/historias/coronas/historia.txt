@@ -171,7 +171,7 @@ NPC cuervo
   skin: encapuchado
   oficio: ???
   lugar: tienda_negra
-  servicio: tienda mercado, tienda legendaria
+  servicio: tienda mercado, tienda legendaria, tienda conjunto_velo
   charla: Yo no estoy aquí. Tú no me ves. Pero mis precios sí.
   charla: Conozco al Rey Sin Rostro. Bueno… conocí la cara que tenía antes.
 
@@ -191,7 +191,7 @@ NPC sabela
   oficio: Coleccionista de rarezas
   lugar: torre
   objeto: glass_bottle
-  servicio: tienda trueque
+  servicio: tienda trueque, tienda conjunto_sin_nombre
   charla: Lágrimas de corona, jirones de velo, dientes de jefe… todo sirve para algo.
 
 # ---------------------------------------------------------------- NPCs · Fresnoalto
@@ -213,6 +213,7 @@ NPC bram
   oficio: Cazador de lobos
   ciudad: fresnoalto
   lugar: puerta_norte
+  servicio: tienda conjunto_fresno
   objeto: arco
   charla: Un lobo velado no huele miedo. Huele luz.
 
@@ -236,7 +237,7 @@ NPC leona
   lugar: cuartel
   objeto: espada de diamante
   otra mano: escudo
-  servicio: tienda armeria_real
+  servicio: tienda armeria_real, tienda conjunto_real
   charla: Mi espada es del reino, no del gremio. Que no se te olvide.
 
 NPC corvo
@@ -247,7 +248,7 @@ NPC corvo
   ciudad: cobrepuerta
   lugar: herreria
   objeto: hacha de hierro
-  servicio: tienda gremio_cobre
+  servicio: tienda gremio_cobre, tienda conjunto_cobre
   charla: El cobre se pone verde con el tiempo. Como la gente.
 
 NPC elara
@@ -291,6 +292,7 @@ NPC nemo
   oficio: Farero
   ciudad: islas_sal
   lugar: casa
+  servicio: tienda conjunto_marea
   objeto: caña de pescar
   charla: La Madre de las Mareas cantaba de noche. Hace un mes que grita.
 
@@ -303,6 +305,7 @@ NPC ingrid
   oficio: Señora de los Picos
   ciudad: picos_escarcha
   lugar: cuartel
+  servicio: tienda conjunto_escarcha_eterna
   objeto: hacha de diamante
   otra mano: escudo
   charla: En el norte no se pide ayuda. Se acepta.
@@ -326,6 +329,7 @@ NPC yasmin
   oficio: Sultana de Espejismo
   ciudad: espejismo
   lugar: casa
+  servicio: tienda conjunto_arenas
   charla: Mi ciudad brilla para que nadie vea lo que hay debajo.
 
 NPC farid
@@ -367,7 +371,7 @@ NPC gus
   oficio: Ermitaño
   ciudad: lodoscuro
   lugar: fuente
-  servicio: tienda ermitano
+  servicio: tienda ermitano, tienda conjunto_pantano
   charla: Antes era rey de algo. Ya no me acuerdo de qué.
 
 # ---------------------------------------------------------------- NPCs · Santuario de Jade
@@ -379,6 +383,7 @@ NPC itzel
   oficio: Última sacerdotisa del jaguar
   ciudad: jade
   lugar: biblioteca
+  servicio: tienda conjunto_jaguar
   charla: El Sacerdote Jaguar fue mi maestro. El Velo se lo comió por dentro.
 
 NPC tome
@@ -402,7 +407,7 @@ NPC brasa
   ciudad: ascua
   lugar: herreria
   objeto: maza
-  servicio: tienda forja_ascua, tienda runas
+  servicio: tienda forja_ascua, tienda runas, tienda conjunto_ascua
   charla: Mi fuego viene del otro lado del portal. Por eso no se apaga.
 
 NPC kael
