@@ -1757,3 +1757,147 @@ items:
     nombre: "<yellow>Mapa de las Siete Coronas"
     rareza: raro
     lore: ["<gray>Siete marcas. Cinco ya están tachadas."]
+
+  # ---------------- Equipo que llevan los Velados y sus jefes (también se puede vender) ----------------
+
+  hueso_casco:
+    material: DIAMOND_HELMET
+    textura: "Bone Spider Armor Helmet"
+    aspecto: bone_spider_armor
+    nombre: "<gray>Cráneo de Hueso"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    atributos:
+      - {atributo: armor, valor: 3, slot: head}
+
+  hueso_pechera:
+    material: DIAMOND_CHESTPLATE
+    textura: "Bone Spider Armor Chestplate"
+    aspecto: bone_spider_armor
+    nombre: "<gray>Costillar de Hueso"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    atributos:
+      - {atributo: armor, valor: 7, slot: chest}
+
+  hueso_grebas:
+    material: DIAMOND_LEGGINGS
+    textura: "Bone Spider Armor Leggings"
+    aspecto: bone_spider_armor
+    nombre: "<gray>Grebas de Hueso"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    atributos:
+      - {atributo: armor, valor: 5, slot: legs}
+
+  hueso_botas:
+    material: DIAMOND_BOOTS
+    textura: "Bone Spider Armor Boots"
+    aspecto: bone_spider_armor
+    nombre: "<gray>Botas de Hueso"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    atributos:
+      - {atributo: armor, valor: 2, slot: feet}
+
+  brote_casco:
+    material: IRON_HELMET
+    textura: "Sprout Armor Helmet"
+    aspecto: sprout_armor
+    nombre: "<green>Capucha de Brote"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    atributos:
+      - {atributo: armor, valor: 3, slot: head}
+
+  brote_pechera:
+    material: IRON_CHESTPLATE
+    textura: "Sprout Armor Chestplate"
+    aspecto: sprout_armor
+    nombre: "<green>Túnica de Brote"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    atributos:
+      - {atributo: armor, valor: 7, slot: chest}
+
+  brote_grebas:
+    material: IRON_LEGGINGS
+    textura: "Sprout Armor Leggings"
+    aspecto: sprout_armor
+    nombre: "<green>Calzas de Brote"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    atributos:
+      - {atributo: armor, valor: 5, slot: legs}
+
+  brote_botas:
+    material: IRON_BOOTS
+    textura: "Sprout Armor Boots"
+    aspecto: sprout_armor
+    nombre: "<green>Sandalias de Brote"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    atributos:
+      - {atributo: armor, valor: 2, slot: feet}
+
+  arco_escarcha:
+    material: BOW
+    textura: "Winter's Touch"
+    nombre: "<aqua>Arco del Invierno"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Las flechas salen frías."]
+
+  arco_no_muerto:
+    material: BOW
+    textura: "Undead Bow"
+    nombre: "<gray>Arco No Muerto"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Cuerda de tendón seco."]
+
+  mazo_bruto:
+    material: GOLDEN_AXE
+    textura: "Morningstar"
+    nombre: "<gold>Lucero del Bruto"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Pesado como un cerdo dormido."]
+    atributos:
+      - {atributo: attack_damage, valor: 9, slot: mainhand}
+      - {atributo: attack_speed, valor: -3.0, slot: mainhand}
+
+  daga_lunar:
+    material: NETHERITE_SWORD
+    textura: "Moon Dagger"
+    nombre: "<light_purple>Daga Lunar"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Brilla con una luna que ya no existe."]
+    atributos:
+      - {atributo: attack_damage, valor: 9, slot: mainhand}
+      - {atributo: attack_speed, valor: -2.2, slot: mainhand}
+
+  pala_cavador:
+    material: IRON_SHOVEL
+    textura: "Ocean Shovel"
+    nombre: "<dark_purple>Pala del Cavador"
+    rareza: raro
+    estilo-rpg: true
+    mejorable: true
+    lore: ["<gray>Con ella abrían sus propias tumbas."]
+    atributos:
+      - {atributo: attack_damage, valor: 4, slot: mainhand}
+      - {atributo: attack_speed, valor: -3.0, slot: mainhand}

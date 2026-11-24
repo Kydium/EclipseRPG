@@ -521,23 +521,24 @@ mobs:
   # ---------------- Acto 1 · La Hondonada ----------------
   velado_cavador:
     tipo: zombie
+    equipo: {mano: "custom:pala_cavador", casco: "custom:hueso_casco"}
     nombre: "<dark_purple>☠ Cavador Velado"
     vida: 50
     danio-extra: 3
     armadura: 3
     xp: 12
     soles: 3
-    equipo: {mano: IRON_SHOVEL, casco: LEATHER_HELMET}
   velado_hueso:
     tipo: skeleton
+    equipo: {mano: "custom:arco_no_muerto", casco: "custom:hueso_casco"}
     nombre: "<dark_purple>☠ Hueso Velado"
     vida: 55
     danio-extra: 3
     xp: 12
     soles: 3
-    equipo: {mano: BOW}
   pastor_huesos:
     tipo: skeleton
+    equipo: {mano: "custom:arco_del_pastor", casco: "custom:hueso_casco", pecho: "custom:hueso_pechera", piernas: "custom:hueso_grebas", pies: "custom:hueso_botas"}
     nombre: "<gray><bold>El Pastor de Huesos"
     jefe: true
     color-barra: WHITE
@@ -551,7 +552,6 @@ mobs:
     aura: SOUL
     xp: 1400
     soles: 350
-    equipo: {mano: BOW, casco: CHAINMAIL_HELMET, pecho: CHAINMAIL_CHESTPLATE}
     esbirros: [velado_hueso, velado_cavador]
     cantidad-esbirros: 4
     habilidades:
@@ -661,12 +661,12 @@ mobs:
   # ---------------- Acto 4 · Islas de Sal ----------------
   velado_ahogado:
     tipo: drowned
+    equipo: {mano: TRIDENT, casco: "custom:coral_casco"}
     nombre: "<dark_purple>☠ Ahogado Velado"
     vida: 80
     danio-extra: 4
     xp: 24
     soles: 8
-    equipo: {mano: TRIDENT}
   velado_vigia:
     tipo: guardian
     nombre: "<dark_purple>☠ Vigía de las Mareas"
@@ -711,15 +711,16 @@ mobs:
     soles: 10
   velado_escarcha:
     tipo: stray
+    equipo: {mano: "custom:arco_escarcha", casco: "custom:escarcha_casco"}
     nombre: "<dark_purple>☠ Errante de Escarcha"
     vida: 90
     danio-extra: 4
     armadura: 4
     xp: 28
     soles: 9
-    equipo: {mano: BOW, casco: IRON_HELMET}
   rey_escarcha:
     tipo: stray
+    equipo: {mano: "custom:arco_escarcha", casco: "custom:corona_escarcha", pecho: "custom:escarcha_pechera", piernas: "custom:escarcha_grebas", pies: "custom:escarcha_botas"}
     nombre: "<aqua><bold>El Rey Escarcha"
     jefe: true
     color-barra: WHITE
@@ -732,7 +733,6 @@ mobs:
     aura: SNOWFLAKE
     xp: 4200
     soles: 950
-    equipo: {mano: BOW, casco: DIAMOND_HELMET, pecho: DIAMOND_CHESTPLATE}
     esbirros: [velado_escarcha, velado_yeti]
     cantidad-esbirros: 3
     habilidades:
@@ -748,6 +748,7 @@ mobs:
   # ---------------- Acto 6 · Desierto de Vidrio ----------------
   velado_momia:
     tipo: husk
+    equipo: {casco: "custom:sol_dormido_casco"}
     nombre: "<dark_purple>☠ Momia Velada"
     vida: 110
     danio-extra: 5
@@ -765,6 +766,7 @@ mobs:
     soles: 10
   faraon_velado:
     tipo: husk
+    equipo: {mano: "custom:aguja_del_sol", casco: "custom:corona_sol", pecho: "custom:sol_dormido_pechera", piernas: "custom:sol_dormido_grebas", pies: "custom:sol_dormido_botas"}
     nombre: "<gold><bold>El Faraón Velado"
     jefe: true
     color-barra: YELLOW
@@ -777,7 +779,6 @@ mobs:
     aura: WHITE_ASH
     xp: 4800
     soles: 1100
-    equipo: {mano: GOLDEN_SWORD, casco: GOLDEN_HELMET, pecho: GOLDEN_CHESTPLATE}
     esbirros: [velado_momia, velado_escorpion]
     cantidad-esbirros: 4
     habilidades:
@@ -805,7 +806,8 @@ mobs:
     xp: 36
     soles: 12
   reina_cienaga:
-    tipo: witch
+    tipo: zombie_villager
+    equipo: {mano: "custom:guja_venenosa", casco: "custom:corona_raiz"}
     nombre: "<dark_green><bold>La Reina Ciénaga"
     jefe: true
     color-barra: GREEN
@@ -842,14 +844,15 @@ mobs:
     soles: 12
   velado_flechero:
     tipo: bogged
+    equipo: {mano: "custom:arco_de_jade", casco: "custom:brote_casco"}
     nombre: "<dark_purple>☠ Flechero del Templo"
     vida: 100
     danio-extra: 5
     xp: 36
     soles: 12
-    equipo: {mano: BOW}
   sacerdote_jaguar:
-    tipo: evoker
+    tipo: bogged
+    equipo: {mano: "custom:guja_de_jade", casco: "custom:corona_jade", pecho: "custom:brote_pechera", piernas: "custom:brote_grebas", pies: "custom:brote_botas"}
     nombre: "<green><bold>El Sacerdote Jaguar"
     jefe: true
     color-barra: GREEN
@@ -878,13 +881,13 @@ mobs:
   # ---------------- Acto 9 · Bastión de Ascua (Nether) ----------------
   velado_bruto:
     tipo: piglin_brute
+    equipo: {mano: "custom:mazo_bruto", casco: "custom:magma_casco"}
     nombre: "<dark_purple>☠ Bruto Velado"
     vida: 150
     danio-extra: 6
     armadura: 6
     xp: 44
     soles: 15
-    equipo: {mano: GOLDEN_AXE}
   velado_magma:
     tipo: magma_cube
     nombre: "<dark_purple>☠ Magma Velado"
@@ -959,13 +962,13 @@ mobs:
   # ---------------- Acto 11 · La Torre Sin Rostro (End) ----------------
   velado_caballero:
     tipo: wither_skeleton
+    equipo: {mano: "custom:daga_lunar", casco: "custom:caminante_sombras_casco", pecho: "custom:caminante_sombras_pechera"}
     nombre: "<dark_purple>☠ Caballero Sin Rostro"
     vida: 180
     danio-extra: 7
     armadura: 10
     xp: 55
     soles: 20
-    equipo: {mano: NETHERITE_SWORD, casco: NETHERITE_HELMET}
   velado_vigilante:
     tipo: shulker
     nombre: "<dark_purple>☠ Vigilante del Vacío"
@@ -974,6 +977,7 @@ mobs:
     soles: 14
   caballero_sin_rostro:
     tipo: wither_skeleton
+    equipo: {mano: "custom:hoja_del_vacio", mano2: "custom:escudo_del_vacio", casco: "custom:caminante_sombras_casco", pecho: "custom:caminante_sombras_pechera", piernas: "custom:caminante_sombras_grebas", pies: "custom:caminante_sombras_botas"}
     nombre: "<light_purple><bold>El Primer Caballero"
     jefe: true
     color-barra: PURPLE
@@ -986,7 +990,6 @@ mobs:
     aura: PORTAL
     xp: 9000
     soles: 2000
-    equipo: {mano: NETHERITE_SWORD, casco: NETHERITE_HELMET, pecho: NETHERITE_CHESTPLATE}
     esbirros: [velado_caballero, velado_vigilante]
     cantidad-esbirros: 4
     habilidades:
@@ -1014,7 +1017,8 @@ mobs:
     xp: 200
     soles: 60
   rey_sin_rostro:
-    tipo: evoker
+    tipo: zombie
+    equipo: {mano: "custom:dragon_nacido", casco: "custom:corona_sin_rostro", pecho: "custom:dragon_ender_pechera", piernas: "custom:dragon_ender_grebas", pies: "custom:dragon_ender_botas"}
     nombre: "<dark_purple><bold>El Rey Sin Rostro"
     jefe: true
     color-barra: PURPLE
