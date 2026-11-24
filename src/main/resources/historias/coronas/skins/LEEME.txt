@@ -1,0 +1,13 @@
+SKINS PROPIAS
+=============
+Pon aquí imágenes PNG de skins de Minecraft (64x64), por ejemplo:
+
+    capitan_rojo.png
+
+y en historia.txt escribe:   skin: capitan_rojo
+
+Puedes bajar skins de sitios como namemc.com o crearlas en un editor de skins
+(por ejemplo, el editor de skins de minecraft.novaskin.me). El servidor las
+añade solo al paquete que reciben los jugadores. Usa /historia recargar.
+
+Si no quieres hacer skins, usa las que trae el plugin: /historia skins

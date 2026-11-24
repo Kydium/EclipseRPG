@@ -87,6 +87,11 @@ public final class StoryManager {
         }
         File eclipse = new File(root(), "eclipse");
         for (String f : BUNDLED) copy("historias/eclipse/" + f, new File(eclipse, f), false);
+        // segunda historia incluida: Las Siete Coronas (se juega con /historia usar coronas confirmar)
+        File coronas = new File(root(), "coronas");
+        for (String f : new String[]{"historia.txt", "avanzado/objetos.yml", "avanzado/mobs.yml", "avanzado/tiendas.yml",
+                "avanzado/mazmorras.yml", "avanzado/mundo.yml", "skins/LEEME.txt"})
+            copy("historias/coronas/" + f, new File(coronas, f), false);
         // la guía y el texto para IA se actualizan siempre
         copy("GUIA.txt", new File(data, "GUIA.txt"), true);
         copy("PROMPT-IA.txt", new File(data, "PROMPT-IA.txt"), true);

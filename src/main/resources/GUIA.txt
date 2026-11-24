@@ -732,3 +732,17 @@ el juego te dice exactamente en qué línea.
  ponerla para darle nombre. Solo su dueño puede romperla (y se la lleva).
  viajes.maximo-por-jugador (5) · viajes.piedras-de-jugadores-publicas.
 
+---------------------------------------------------------------------
+ 29. SEGUNDA HISTORIA: LAS SIETE CORONAS
+---------------------------------------------------------------------
+ Viene en historias/coronas/. 12 actos, 60 misiones (91 pasos), 29 NPCs,
+ 8 ciudades (Cobrepuerta es enorme), 12 mazmorras con jefe, coronas que
+ se llevan puestas, armas contra jefes y conjuntos con texturas únicas.
+ Usa todo: emboscadas en estructuras (galeón volador, pirámide, volcán,
+ laberinto, ciudadela celeste, coloso…), defensas con oleadas, tesoros,
+ acertijos del oráculo, contrarreloj, sin morir, tormentas y decisiones
+ con tres finales.
+   /historia usar coronas confirmar     (reinicia las misiones)
+ Mejor en un mundo nuevo: guarda la carpeta world del Eclipse con otro
+ nombre y el servidor crea uno nuevo para las Coronas.
+

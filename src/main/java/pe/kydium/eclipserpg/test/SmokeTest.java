@@ -1249,6 +1249,15 @@ public final class SmokeTest {
             w.getChunkAt(inst.x >> 4, inst.z >> 4);
             w.getChunkAt(c.getBlockX() >> 4, c.getBlockZ() >> 4);
         }
+        java.io.File cor = new java.io.File(plugin.story().root(), "coronas/historia.txt");
+        try {
+            var lines = java.nio.file.Files.readAllLines(cor.toPath());
+            var rc = new pe.kydium.eclipserpg.story.StoryParser(plugin.story().dictionary(), plugin.story().catalog()).parse(lines);
+            check(rc.doc().missions.size() >= 60 && rc.doc().npcs.size() >= 25 && rc.doc().cities.size() >= 8,
+                    "viene la segunda historia, Las Siete Coronas (" + rc.doc().missions.size() + " misiones, " + rc.errors() + " errores con los datos de Eclipse)");
+        } catch (Exception ex) {
+            fail("no se pudo leer historias/coronas/historia.txt: " + ex);
+        }
         var wsItem = plugin.items().create(pe.kydium.eclipserpg.world.Waystones.ITEM, 1);
         check(wsItem != null && wsItem.getType() == Material.LODESTONE, "existe la Piedra de viaje comprable");
         plugin.waystones().ensureAll();

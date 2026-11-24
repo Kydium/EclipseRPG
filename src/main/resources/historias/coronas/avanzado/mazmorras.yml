@@ -1,0 +1,293 @@
+# =========================================================
+#  Mazmorras de Las Siete Coronas (una por acto) y ruinas al azar.
+#  La mazmorra de un acto se construye la primera vez que alguien acepta
+#  la misión del jefe de ese acto, a cierta distancia del campamento.
+#  Bloques: ids de Minecraft. botin: "spec cantidad probabilidad(0-1)"
+#  escalera/losa/muro: bloques de la escalera de entrada, arcos y barandas
+#  peligro: lo que hay al fondo de los abismos · luz-tenue: faroles colgantes
+#  sangre: manchas del suelo · tesoro: bloques de la sala del tesoro y el trono
+# =========================================================
+general:
+  distancia-min: 250            # bloques desde el campamento
+  distancia-max: 450
+  profundidad: 18               # bloques bajo la superficie
+  salas-min: 20                 # salas POR PISO (cuadrícula de 8×7 celdas por piso)
+  salas-max: 30
+  # pisos: 4                    # si no se pone: 2 pisos en el acto 1 y uno más cada 2 actos (6 desde el acto 8)
+                                #   (también se puede poner "pisos:" dentro de cada mazmorra)
+  bloques-por-tick: 6000        # velocidad de construcción
+  reaparicion-minutos: 15       # las salas vuelven a llenarse de enemigos
+  enemigos-por-sala: 3          # + 1 por cada 3 tiers + 1 por jugador extra
+  biomas-prohibidos: [ocean, river, frozen, ice, snowy, beach, swamp, mangrove, peaks, jagged, stony, grove, desert, badlands]
+
+ruinas:
+  activas: true
+  probabilidad: 0.004           # por cada chunk nuevo (≈ 1 de cada 250)
+  distancia-min-spawn: 150      # no aparecen cerca del spawn
+  radio-activacion: 8
+
+mazmorras:
+  1:
+    nombre: "<gray>Osario de la Hondonada"
+    jefe: pastor_huesos
+    suelo: [polished_andesite, cobblestone, bone_block]
+    pared: [cobblestone, andesite, mossy_cobblestone]
+    techo: [cobblestone]
+    acento: [bone_block, chiseled_stone_bricks]
+    luz: soul_lantern
+    decoracion: [cobweb, skeleton_skull, bone_block]
+    escalera: cobblestone_stairs
+    losa: cobblestone_slab
+    muro: cobblestone_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: redstone_block
+    tesoro: bone_block
+    botin:
+      - "BREAD 6 0.8"
+      - "IRON_INGOT 4 0.7"
+      - "ARROW 24 0.6"
+      - "BONE 8 0.7"
+      - "custom:fragmento_mejora 1 0.2"
+  2:
+    nombre: "<dark_green>Raíces de Fresnoalto"
+    jefe: bestia_fresno
+    suelo: [moss_block, rooted_dirt, mossy_cobblestone]
+    pared: [spruce_log, mossy_stone_bricks, stripped_spruce_log]
+    techo: [spruce_planks]
+    acento: [moss_block, azalea_leaves]
+    luz: shroomlight
+    decoracion: [moss_carpet, brown_mushroom, sweet_berry_bush]
+    escalera: spruce_stairs
+    losa: spruce_slab
+    muro: mossy_stone_brick_wall
+    peligro: water
+    luz-tenue: lantern
+    sangre: nether_wart_block
+    tesoro: emerald_block
+    botin:
+      - "IRON_INGOT 6 0.7"
+      - "GOLD_INGOT 4 0.5"
+      - "SWEET_BERRIES 16 0.6"
+      - "pocion:regeneration 1 0.3"
+      - "custom:fragmento_mejora 1 0.3"
+  3:
+    nombre: "<gold>Fundición Abandonada"
+    jefe: golem_bronce
+    suelo: [cut_copper, waxed_exposed_cut_copper, polished_andesite]
+    pared: [copper_block, exposed_copper, weathered_copper, bricks]
+    techo: [cut_copper]
+    acento: [copper_grate, chiseled_copper]
+    luz: copper_lantern
+    decoracion: [iron_chain, anvil, copper_bulb]
+    escalera: cut_copper_stairs
+    losa: cut_copper_slab
+    muro: brick_wall
+    peligro: lava
+    luz-tenue: copper_lantern
+    sangre: redstone_block
+    tesoro: gold_block
+    botin:
+      - "COPPER_INGOT 24 0.8"
+      - "IRON_INGOT 8 0.7"
+      - "GOLD_INGOT 6 0.6"
+      - "DIAMOND 2 0.3"
+      - "custom:fragmento_mejora 2 0.3"
+  4:
+    nombre: "<dark_aqua>Abismo de las Mareas"
+    jefe: madre_mareas
+    suelo: [prismarine_bricks, dark_prismarine, prismarine]
+    pared: [prismarine, dark_prismarine, prismarine_bricks]
+    techo: [dark_prismarine]
+    acento: [sea_lantern, chiseled_stone_bricks]
+    luz: sea_lantern
+    decoracion: [kelp, sea_pickle, tube_coral_block]
+    escalera: prismarine_brick_stairs
+    losa: prismarine_brick_slab
+    muro: prismarine_wall
+    peligro: water
+    luz-tenue: sea_lantern
+    sangre: red_concrete
+    tesoro: diamond_block
+    botin:
+      - "PRISMARINE_SHARD 16 0.7"
+      - "DIAMOND 3 0.4"
+      - "HEART_OF_THE_SEA 1 0.05"
+      - "pocion:water_breathing 1 0.5"
+      - "custom:fragmento_mejora_superior 1 0.2"
+  5:
+    nombre: "<aqua>Palacio de Hielo Eterno"
+    jefe: rey_escarcha
+    suelo: [packed_ice, blue_ice, snow_block]
+    pared: [packed_ice, polished_diorite, blue_ice]
+    techo: [packed_ice]
+    acento: [blue_ice, chiseled_quartz_block]
+    luz: sea_lantern
+    decoracion: [powder_snow, ice, white_carpet]
+    escalera: quartz_stairs
+    losa: quartz_slab
+    muro: diorite_wall
+    peligro: powder_snow
+    luz-tenue: lantern
+    sangre: red_wool
+    tesoro: diamond_block
+    botin:
+      - "DIAMOND 3 0.5"
+      - "IRON_INGOT 10 0.7"
+      - "SPECTRAL_ARROW 16 0.5"
+      - "pocion:fire_resistance 1 0.3"
+      - "custom:fragmento_mejora_superior 1 0.3"
+  6:
+    nombre: "<yellow>Tumba del Faraón"
+    jefe: faraon_velado
+    suelo: [smooth_sandstone, cut_sandstone, chiseled_sandstone]
+    pared: [sandstone, cut_sandstone, smooth_sandstone]
+    techo: [smooth_sandstone]
+    acento: [chiseled_sandstone, orange_terracotta]
+    luz: redstone_lamp
+    decoracion: [dead_bush, decorated_pot, cobweb]
+    escalera: sandstone_stairs
+    losa: sandstone_slab
+    muro: sandstone_wall
+    peligro: sand
+    luz-tenue: lantern
+    sangre: red_terracotta
+    tesoro: gold_block
+    botin:
+      - "GOLD_INGOT 12 0.8"
+      - "EMERALD 8 0.6"
+      - "DIAMOND 3 0.4"
+      - "pocion:strength 1 0.3"
+      - "custom:fragmento_mejora_superior 1 0.3"
+  7:
+    nombre: "<dark_green>Corazón de la Ciénaga"
+    jefe: reina_cienaga
+    suelo: [mud_bricks, packed_mud, mud]
+    pared: [mud_bricks, mangrove_planks, mangrove_log]
+    techo: [mangrove_planks]
+    acento: [muddy_mangrove_roots, moss_block]
+    luz: ochre_froglight
+    decoracion: [mangrove_roots, lily_pad, brown_mushroom]
+    escalera: mud_brick_stairs
+    losa: mud_brick_slab
+    muro: mud_brick_wall
+    peligro: water
+    luz-tenue: lantern
+    sangre: slime_block
+    tesoro: emerald_block
+    botin:
+      - "SLIME_BALL 16 0.7"
+      - "GOLD_INGOT 8 0.6"
+      - "DIAMOND 3 0.4"
+      - "pocion:poison 1 0.3"
+      - "custom:fragmento_mejora_superior 1 0.35"
+  8:
+    nombre: "<green>Templo del Jaguar"
+    jefe: sacerdote_jaguar
+    suelo: [mossy_cobblestone, mossy_stone_bricks, green_terracotta]
+    pared: [jungle_log, mossy_stone_bricks, chiseled_stone_bricks]
+    techo: [jungle_planks]
+    acento: [emerald_block, chiseled_stone_bricks]
+    luz: jack_o_lantern
+    decoracion: [vine, cocoa, bamboo]
+    escalera: jungle_stairs
+    losa: jungle_slab
+    muro: mossy_cobblestone_wall
+    peligro: lava
+    luz-tenue: lantern
+    sangre: redstone_block
+    tesoro: emerald_block
+    botin:
+      - "EMERALD 16 0.8"
+      - "DIAMOND 4 0.5"
+      - "GOLD_INGOT 10 0.6"
+      - "pocion:leaping 1 0.3"
+      - "custom:fragmento_mejora_ancestral 1 0.15"
+  9:
+    nombre: "<red>Bastión del Magma"
+    jefe: senor_magma
+    suelo: [polished_blackstone_bricks, blackstone, magma_block]
+    pared: [nether_bricks, polished_blackstone_bricks, gilded_blackstone]
+    techo: [blackstone]
+    acento: [gilded_blackstone, crying_obsidian]
+    luz: shroomlight
+    decoracion: [iron_chain, soul_fire, magma_block]
+    escalera: blackstone_stairs
+    losa: blackstone_slab
+    muro: blackstone_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: nether_wart_block
+    tesoro: gold_block
+    botin:
+      - "GOLD_INGOT 16 0.8"
+      - "NETHERITE_SCRAP 2 0.3"
+      - "DIAMOND 4 0.5"
+      - "pocion:fire_resistance 2 0.6"
+      - "custom:fragmento_mejora_ancestral 1 0.25"
+  10:
+    nombre: "<dark_aqua>La Hondura"
+    jefe: el_que_escucha
+    suelo: [deepslate_tiles, sculk, polished_deepslate]
+    pared: [deepslate_bricks, sculk, reinforced_deepslate]
+    techo: [deepslate_tiles]
+    acento: [sculk_catalyst, sculk_sensor]
+    luz: soul_lantern
+    decoracion: [sculk_vein, candle, skeleton_skull]
+    escalera: deepslate_tile_stairs
+    losa: deepslate_tile_slab
+    muro: deepslate_tile_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: sculk
+    tesoro: diamond_block
+    botin:
+      - "ECHO_SHARD 2 0.5"
+      - "DIAMOND 5 0.5"
+      - "EXPERIENCE_BOTTLE 16 0.6"
+      - "pocion:night_vision 1 0.5"
+      - "custom:fragmento_mejora_ancestral 1 0.3"
+  11:
+    nombre: "<light_purple>Torre Sin Rostro"
+    jefe: caballero_sin_rostro
+    suelo: [end_stone_bricks, purpur_block, obsidian]
+    pared: [purpur_block, end_stone_bricks, purpur_pillar]
+    techo: [purpur_block]
+    acento: [crying_obsidian, end_rod]
+    luz: end_rod
+    decoracion: [chorus_flower, dragon_head, purple_carpet]
+    escalera: purpur_stairs
+    losa: purpur_slab
+    muro: end_stone_brick_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: crimson_nylium
+    tesoro: diamond_block
+    botin:
+      - "DIAMOND 6 0.6"
+      - "NETHERITE_INGOT 1 0.2"
+      - "SHULKER_SHELL 2 0.3"
+      - "ENDER_PEARL 8 0.6"
+      - "custom:fragmento_mejora_ancestral 1 0.35"
+  12:
+    nombre: "<dark_purple>Trono de las Siete Coronas"
+    jefe: rey_sin_rostro
+    suelo: [polished_blackstone_bricks, obsidian, crying_obsidian]
+    pared: [obsidian, polished_blackstone_bricks, crying_obsidian]
+    techo: [obsidian]
+    acento: [gold_block, crying_obsidian]
+    luz: soul_lantern
+    decoracion: [iron_chain, candle, wither_skeleton_skull]
+    escalera: polished_blackstone_brick_stairs
+    losa: polished_blackstone_brick_slab
+    muro: polished_blackstone_brick_wall
+    peligro: lava
+    luz-tenue: soul_lantern
+    sangre: redstone_block
+    tesoro: netherite_block
+    botin:
+      - "NETHERITE_INGOT 2 0.4"
+      - "DIAMOND 8 0.7"
+      - "TOTEM_OF_UNDYING 1 0.3"
+      - "ENCHANTED_GOLDEN_APPLE 1 0.2"
+      - "custom:fragmento_mejora_ancestral 2 0.4"

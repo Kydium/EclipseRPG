@@ -1,0 +1,1334 @@
+# =====================================================================
+#  LAS SIETE CORONAS — segunda historia de Aventura Maker
+#  Edítala con el Bloc de notas y usa /historia recargar.
+#  Para jugarla:  /historia usar coronas confirmar   (mejor en un mundo nuevo)
+#
+#  Usa TODO lo del motor: 8 ciudades (una enorme), 12 mazmorras con jefe,
+#  emboscadas en estructuras, defensas con oleadas, tesoros enterrados,
+#  acertijos, misiones contrarreloj, sin morir, tormentas, decisiones con
+#  finales distintos, coronas que se llevan puestas, armas contra jefes
+#  (penetración) y equipo con texturas únicas.
+# =====================================================================
+
+HISTORIA: Las Siete Coronas
+DESCRIPCION: Siete reinos, siete coronas y un pacto que mantenía el Velo cerrado. Una noche, un rey sin rostro se llevó la primera. Ahora los muertos caminan con ojos morados y tú eres el único que despertó cuando sonó la campana.
+ALDEA: Hondonada de Valdera
+MONEDA: soles
+
+# ---------------------------------------------------------------- CIUDADES
+
+CIUDAD fresnoalto
+  nombre: Fresnoalto
+  tamaño: chica
+  estilo: taiga
+  distancia: 600-900
+  dirección: este
+  lema: Aldea de leñadores y druidas · el bosque tiene memoria
+  descripción: Los fresnos de Fresnoalto son más viejos que cualquier reino. Los druidas dicen que hablan.
+  descripción: Desde que robaron la Corona del Bosque, los lobos ya no aúllan: susurran.
+
+CIUDAD cobrepuerta
+  nombre: Cobrepuerta
+  tamaño: enorme
+  estilo: llanura
+  distancia: 1000-1400
+  dirección: norte
+  lema: Capital del comercio · todo tiene precio, incluso una corona
+  descripción: Murallas de cobre verde, ochenta tiendas y un gremio que manda más que el rey.
+  descripción: Aquí se firmó el Pacto de las Siete Coronas. Aquí también se rompió.
+
+CIUDAD islas_sal
+  nombre: Islas de Sal
+  tamaño: mediana
+  distancia: 1200-1600
+  dirección: oeste
+  lema: Puerto libre · la marea manda
+  descripción: Piratas, pescadores y contrabandistas comparten el mismo muelle y la misma taberna.
+  descripción: La Madre de las Mareas dormía bajo las islas. Ya no duerme.
+
+CIUDAD picos_escarcha
+  nombre: Picos de Escarcha
+  tamaño: mediana
+  estilo: nieve
+  distancia: 1400-1900
+  dirección: norte
+  lema: Fortaleza del norte · el frío no perdona a los blandos
+  descripción: Los jarls del norte guardaban la Corona de Escarcha en un palacio de hielo que nunca se derrite.
+  descripción: Ahora el palacio tiene un rey nuevo. Y no respira.
+
+CIUDAD espejismo
+  nombre: Ciudad Espejismo
+  tamaño: grande
+  estilo: desierto
+  distancia: 1700-2200
+  dirección: sur
+  lema: Ciudad de vidrio y caravanas · nada es lo que parece
+  descripción: Construida sobre arena fundida por un rayo antiguo, brilla tanto que se ve desde el horizonte.
+  descripción: Sus oráculos hablan en acertijos. Sus faraones, en maldiciones.
+
+CIUDAD lodoscuro
+  nombre: Lodoscuro
+  tamaño: chica
+  estilo: pantano
+  distancia: 1800-2300
+  dirección: oeste
+  lema: Aldea de brujas buenas · casi todas
+  descripción: Casas sobre pilotes, ranas del tamaño de un perro y pociones que curan… o no.
+  descripción: La Reina Ciénaga era la mejor curandera del reino. Algo la cambió.
+
+CIUDAD jade
+  nombre: Santuario de Jade
+  tamaño: mediana
+  estilo: selva
+  distancia: 2200-2800
+  dirección: sur
+  lema: Templo de la selva · el jaguar vigila
+  descripción: Los sacerdotes del jaguar tallaron la Corona de Jade de una sola piedra.
+  descripción: Debajo del templo hay un laberinto. Nadie que haya bajado sabe contar cuántas salas tiene.
+
+CIUDAD ascua
+  nombre: Bastión de Ascua
+  tamaño: grande
+  estilo: oscuro
+  distancia: 2600-3200
+  dirección: este
+  lema: Última frontera · aquí la tierra se abrió al fuego
+  descripción: Herreros, mercenarios y desterrados vigilan la Puerta Roja, el portal más grande de Valdera.
+  descripción: Del otro lado, el Señor del Magma prepara un ejército para el Rey Sin Rostro.
+
+# ---------------------------------------------------------------- NPCs · Hondonada de Valdera
+
+NPC marta
+  nombre: Alcaldesa Marta
+  color: verde
+  skin: anciana
+  oficio: Alcaldesa de la Hondonada
+  lugar: casa
+  objeto: libro
+  charla: La Hondonada es pequeña, pero siempre ha resistido. Siempre.
+  charla: Mi abuela firmó el Pacto en Cobrepuerta. Decía que las coronas no eran joyas: eran cerraduras.
+
+NPC hugo
+  nombre: Hugo el Herrero
+  color: dorado
+  skin: herrero
+  oficio: Herrero de la Hondonada
+  lugar: herreria
+  objeto: maza
+  servicio: tienda herreria, tienda runas, tienda herramientas_magicas
+  charla: Si quieres pegarle a un jefe, mejora el arma. El filo atraviesa, el hierro bruto rebota.
+  charla: Las runas de penetración son caras. Morir es más caro.
+
+NPC rurik
+  nombre: Capitán Rurik
+  color: rojo
+  skin: soldado
+  oficio: Capitán de la milicia
+  lugar: cuartel
+  objeto: hacha de hierro
+  otra mano: escudo
+  servicio: contratos
+  servicio: grieta
+  charla: Un buen soldado duerme con las botas puestas.
+  charla: Perdí a mi hermano en la primera noche del Velo. No pienso perder a nadie más.
+
+NPC tilda
+  nombre: Tilda la Mercader
+  color: amarillo
+  skin: mercader
+  oficio: Mercader
+  lugar: tienda
+  objeto: esmeralda
+  servicio: tienda general
+  charla: ¡Compro, vendo y no pregunto! Bueno, pregunto un poquito.
+  charla: Si ves algo brillante en una mazmorra, tráemelo. Yo le pongo precio.
+
+NPC elio
+  nombre: Elio el Cartógrafo
+  color: celeste
+  skin: erudito_2
+  oficio: Cartógrafo y viajero
+  lugar: mapas
+  objeto: mapa
+  servicio: tienda cartografo
+  charla: Una piedra de viaje en cada ciudad y otra donde tú quieras. Así se recorre un reino.
+  charla: Mis mapas tienen siete marcas. Una por corona.
+
+NPC ofelia
+  nombre: Hermana Ofelia
+  color: blanco
+  skin: monja
+  oficio: Curandera y erudita
+  lugar: biblioteca
+  objeto: libro y pluma
+  servicio: tienda alquimia
+  charla: El Velo es una tela entre los vivos y algo que no tiene nombre. Las coronas la cosían.
+  charla: Cada corona que recuperas cierra un poco la herida.
+
+NPC cuervo
+  nombre: El Cuervo
+  color: gris oscuro
+  skin: encapuchado
+  oficio: ???
+  lugar: tienda_negra
+  servicio: tienda mercado, tienda legendaria
+  charla: Yo no estoy aquí. Tú no me ves. Pero mis precios sí.
+  charla: Conozco al Rey Sin Rostro. Bueno… conocí la cara que tenía antes.
+
+NPC nilo
+  nombre: Nilo
+  color: verde
+  skin: nino_1
+  oficio: Niño de la aldea
+  lugar: fuente
+  charla: ¡Cuando sea grande voy a matar un jefe con una cuchara!
+  charla: Mi gato se llama Rey. Pero tiene cara.
+
+NPC sabela
+  nombre: Sabela la Coleccionista
+  color: rosa
+  skin: bruja
+  oficio: Coleccionista de rarezas
+  lugar: torre
+  objeto: glass_bottle
+  servicio: tienda trueque
+  charla: Corazones corruptos, ojos de araña, dientes de jefe… todo sirve para algo.
+
+# ---------------------------------------------------------------- NPCs · Fresnoalto
+
+NPC aurelia
+  nombre: Druida Aurelia
+  color: verde oscuro
+  skin: druida
+  oficio: Guardiana de los fresnos
+  ciudad: fresnoalto
+  lugar: casa
+  objeto: azalea
+  charla: Los árboles recuerdan quién los quemó. Y quién los plantó.
+
+NPC bram
+  nombre: Bram el Cazador
+  color: naranja
+  skin: cazador
+  oficio: Cazador de lobos
+  ciudad: fresnoalto
+  lugar: puerta_norte
+  objeto: arco
+  charla: Un lobo velado no huele miedo. Huele luz.
+
+# ---------------------------------------------------------------- NPCs · Cobrepuerta
+
+NPC orsino
+  nombre: Gran Maestre Orsino
+  color: dorado
+  skin: noble
+  oficio: Gran Maestre del Gremio
+  ciudad: cobrepuerta
+  lugar: casa
+  charla: En Cobrepuerta todo se negocia. Incluso la paz.
+
+NPC leona
+  nombre: Comandante Leona
+  color: blanco
+  skin: caballero
+  oficio: Comandante de la Guardia de Cobre
+  ciudad: cobrepuerta
+  lugar: cuartel
+  objeto: espada de diamante
+  otra mano: escudo
+  servicio: tienda armeria_real
+  charla: Mi espada es del reino, no del gremio. Que no se te olvide.
+
+NPC corvo
+  nombre: Maese Corvo
+  color: naranja
+  skin: cantero_2
+  oficio: Armero del Gremio
+  ciudad: cobrepuerta
+  lugar: herreria
+  objeto: hacha de hierro
+  servicio: tienda gremio_cobre
+  charla: El cobre se pone verde con el tiempo. Como la gente.
+
+NPC elara
+  nombre: Princesa Elara
+  color: rosa
+  skin: princesa
+  oficio: Heredera de Valdera
+  ciudad: cobrepuerta
+  lugar: biblioteca
+  objeto: libro
+  charla: Mi padre llevaba la Corona de Bronce. Ahora lleva una venda en los ojos y no habla.
+
+# ---------------------------------------------------------------- NPCs · Islas de Sal
+
+NPC bartolo
+  nombre: Capitán Bartolo
+  color: rojo oscuro
+  skin: pirata
+  oficio: Capitán del puerto libre
+  ciudad: islas_sal
+  lugar: muelle
+  objeto: espada de hierro
+  servicio: tienda general
+  charla: ¡Arr! En las islas no hay ley. Solo hay marea.
+
+NPC marisa
+  nombre: Marisa la Buzo
+  color: azul
+  skin: pirata_mujer
+  oficio: Buscadora de naufragios
+  ciudad: islas_sal
+  lugar: fuente
+  objeto: tridente
+  charla: Abajo hay más oro que arriba. Y más dientes.
+
+NPC nemo
+  nombre: Viejo Nemo
+  color: turquesa
+  skin: pescador_2
+  oficio: Farero
+  ciudad: islas_sal
+  lugar: casa
+  objeto: caña de pescar
+  charla: La Madre de las Mareas cantaba de noche. Hace un mes que grita.
+
+# ---------------------------------------------------------------- NPCs · Picos de Escarcha
+
+NPC ingrid
+  nombre: Jarl Ingrid
+  color: celeste
+  skin: vikingo
+  oficio: Señora de los Picos
+  ciudad: picos_escarcha
+  lugar: cuartel
+  objeto: hacha de diamante
+  otra mano: escudo
+  charla: En el norte no se pide ayuda. Se acepta.
+
+NPC tenzo
+  nombre: Monje Tenzo
+  color: blanco
+  skin: monje_1
+  oficio: Monje de la montaña
+  ciudad: picos_escarcha
+  lugar: torre
+  charla: El frío no es enemigo. Es maestro.
+
+# ---------------------------------------------------------------- NPCs · Ciudad Espejismo
+
+NPC yasmin
+  nombre: Sultana Yasmin
+  color: dorado
+  skin: reina
+  oficio: Sultana de Espejismo
+  ciudad: espejismo
+  lugar: casa
+  charla: Mi ciudad brilla para que nadie vea lo que hay debajo.
+
+NPC farid
+  nombre: Farid el Mercader
+  color: amarillo
+  skin: noble
+  oficio: Señor del Bazar
+  ciudad: espejismo
+  lugar: tienda
+  servicio: tienda bazar_espejismo
+  charla: ¿Agua? Cara. ¿Armadura de escarcha en el desierto? Carísima. ¿Tu vida? Eso no lo vendo.
+
+NPC sahar
+  nombre: Oráculo Sahar
+  color: morado
+  skin: druida
+  oficio: Oráculo del vidrio
+  ciudad: espejismo
+  lugar: fuente
+  charla: Te diré la verdad si la adivinas primero.
+
+# ---------------------------------------------------------------- NPCs · Lodoscuro
+
+NPC mirta
+  nombre: Mirta la Bruja Buena
+  color: verde
+  skin: bruja
+  oficio: Bruja del pantano
+  ciudad: lodoscuro
+  lugar: casa
+  servicio: tienda alquimia
+  charla: Yo hago pociones buenas. Casi siempre. Tú no preguntes por las otras.
+
+NPC gus
+  nombre: Gus el Ermitaño
+  color: gris
+  skin: mendigo
+  oficio: Ermitaño
+  ciudad: lodoscuro
+  lugar: fuente
+  charla: Antes era rey de algo. Ya no me acuerdo de qué.
+
+# ---------------------------------------------------------------- NPCs · Santuario de Jade
+
+NPC itzel
+  nombre: Sacerdotisa Itzel
+  color: verde
+  skin: monje_2
+  oficio: Última sacerdotisa del jaguar
+  ciudad: jade
+  lugar: biblioteca
+  charla: El Sacerdote Jaguar fue mi maestro. El Velo se lo comió por dentro.
+
+NPC tome
+  nombre: Tomé el Explorador
+  color: naranja
+  skin: exploradora
+  oficio: Explorador de templos
+  ciudad: jade
+  lugar: mapas
+  objeto: catalejo
+  charla: ¡Cada trampa que esquivo es una historia para la taberna!
+
+# ---------------------------------------------------------------- NPCs · Bastión de Ascua
+
+NPC brasa
+  nombre: Brasa la Herrera
+  color: rojo
+  skin: vikingo
+  oficio: Maestra de la Forja de Ascua
+  ciudad: ascua
+  lugar: herreria
+  objeto: maza
+  servicio: tienda forja_ascua, tienda runas
+  charla: Mi fuego viene del otro lado del portal. Por eso no se apaga.
+
+NPC kael
+  nombre: Kael el Renegado
+  color: rojo oscuro
+  skin: soldado
+  oficio: Mercenario arrepentido
+  ciudad: ascua
+  lugar: cuartel
+  objeto: espada de netherita
+  servicio: grieta
+  charla: Serví al Rey Sin Rostro un año entero. No le vi la cara ni una vez. Nadie se la ha visto.
+
+# ================================================================ MISIONES
+
+ACTO 1: La Campana de la Hondonada
+
+MISIÓN La campana sonó a medianoche
+  npc: marta
+  dice: ¿Tú también la oíste? La campana sonó sola a medianoche. Desde entonces el cielo tiene una tela morada encima.
+  dice: Los ancianos lo llaman el Velo. Mi abuela decía que volvería si alguien robaba una corona.
+  dice: Primero lo primero: madera y una mesa. Sin refugio no pasamos la noche.
+  responde: Madera y mesa. Ya mismo.
+  responde: ¿Una corona? … Primero el refugio, después las preguntas.
+  objetivo: tala 24 troncos
+  objetivo: ten una mesa de trabajo
+  premio: 250 xp, 40 soles, 10 pan
+  final: Bien. Hugo quiere verte en la herrería. Dice que el que despertó con la campana tiene que ir armado.
+  ETAPA El yunque de Hugo
+    npc: hugo
+    dice: Así que tú despertaste con la campana. Los que la oyen dormidos no despiertan nunca más.
+    dice: Pico, hacha y espada de piedra. Y carbón para la forja.
+    responde: Pico, hacha, espada y carbón.
+    objetivo: ten un pico de piedra
+    objetivo: ten un hacha de piedra
+    objetivo: ten una espada de piedra
+    objetivo: entrega 8 carbones
+    premio: 200 xp, 40 soles
+    final: Nada mal. Rurik te espera en el cuartel. Esta noche no duerme nadie.
+  ETAPA La primera noche del Velo
+    npc: rurik
+    dice: Capitán Rurik. Los muertos salen de la tierra con ojos morados. Les decimos Velados.
+    dice: Aguanta en la empalizada mientras evacuamos a los niños a la iglesia.
+    responde: Nadie entra mientras yo esté aquí.
+    objetivo: resiste 90 segundos | Defiende la empalizada
+    oleadas: velado_cavador 2 cada 20
+    objetivo: mata 6 velado_cavador | Mata 6 Cavadores Velados
+    sin morir: sí
+    premio: 400 xp, 60 soles, 1 escudo
+    final: Aguantaste sin caer. Eso no lo hace cualquiera. Quédate el escudo.
+
+MISIÓN Pan, luz y una cama
+  npc: marta
+  dice: La luz los mantiene lejos. Casi siempre.
+  dice: Antorchas, una cama y algo de carne. No te quiero ver dormir en el barro.
+  responde: Antorchas, cama y carne. Entendido.
+  objetivo: ten una cama
+  objetivo: ten 16 antorchas
+  objetivo: mata 8 cow o pig o sheep o chicken | Caza 8 animales
+  premio: 300 xp, 50 soles, 3 manzana
+  final: Así me gusta. Ofelia, la curandera, encontró algo en la biblioteca que tienes que ver.
+  ETAPA El libro de las cerraduras
+    npc: ofelia
+    dice: Mira este grabado: siete coronas alrededor de un ojo cerrado. Es el Pacto de Valdera.
+    dice: Cada reino guardaba una corona. Juntas cosían el Velo. Si una se pierde, se abre un poco. Si se pierden las siete…
+    dice: Para leer el resto necesito tinta y papel. El libro está podrido por dentro.
+    responde: Tinta y papel. Te los traigo.
+    objetivo: entrega 8 sacos de tinta
+    objetivo: entrega 12 papel
+    premio: 400 xp, 60 soles, 3 pociones de curacion
+    final: Aquí dice algo más… «El primero en caer será el Pastor, que cuida los huesos de la Hondonada». Eso está debajo de nosotros.
+
+MISIÓN El niño y el gato
+  npc: nilo
+  dice: ¡Mi gato Rey se fue al bosque! Lo vi persiguiendo una luz morada.
+  dice: Si lo traes te doy mi tesoro. Es un tesoro de verdad. Está enterrado.
+  responde: Voy a buscar a Rey. Y al tesoro.
+  objetivo: domestica 1 cat | Domestica un gato perdido
+  objetivo: busca el tesoro enterrado | Desentierra el tesoro de Nilo
+  premio: 300 xp, 60 soles, 1 diamante
+  final: ¡No es Rey, pero también es bonito! Lo voy a llamar Rey Dos.
+
+MISIÓN Hierro para la milicia
+  npc: hugo
+  dice: Con piedra no se para a un Velado. Necesito hierro. Mucho.
+  dice: Funde veinte lingotes y hazte una armadura entera. Tengo prisa: el Velo crece cada noche.
+  responde: Veinte lingotes y armadura completa.
+  objetivo: funde 20 lingotes de hierro
+  objetivo: ten 1 iron_helmet | Casco de hierro
+  objetivo: ten 1 iron_chestplate | Pechera de hierro
+  objetivo: ten 1 iron_leggings | Grebas de hierro
+  objetivo: ten 1 iron_boots | Botas de hierro
+  tiempo: 25 min
+  premio: 600 xp, 90 soles, objeto fragmento_mejora
+  final: A tiempo. Ese fragmento llévalo al yunque: el arma mejorada atraviesa armaduras. Contra un jefe es lo que cuenta.
+
+MISIÓN Huesos en el cementerio
+  npc: rurik
+  dice: El cementerio viejo se está vaciando. Las tumbas están abiertas desde dentro.
+  dice: Ve y limpia. Si hay alguien dando órdenes a los muertos, quiero saberlo.
+  responde: Voy al cementerio.
+  estructura: cementerio
+  objetivo: encuentra la estructura cementerio | Llega al cementerio viejo
+  objetivo: mata 8 velado_hueso | Mata 8 Huesos Velados
+  aparecen: 6 velado_hueso
+  premio: 500 xp, 80 soles, 1 arco, 32 flecha
+  final: ¿Un silbido? ¿Como de pastor? Entonces la leyenda es cierta. El Pastor de Huesos está despierto.
+  ETAPA El acertijo de la lápida
+    npc: ofelia
+    dice: En la lápida más vieja hay una pregunta. Si la respondes, la tumba te deja entrar al Osario.
+    acertijo: Mientras más le quitas, más grande se hace. ¿Qué es?
+    correcta: Un hoyo
+    incorrecta: Una montaña / Una sombra / Una deuda
+    responde: Tengo la respuesta.
+    premio: 300 xp, 50 soles
+    final: Exacto. El Osario está abierto. Ahora sí: prepárate.
+
+MISIÓN JEFE: El Pastor de Huesos
+  npc: rurik
+  nivel: 6
+  jefe: sí
+  mazmorra: 1
+  dice: Bajo la Hondonada hay un osario más viejo que el pueblo. El Pastor de Huesos lo cuida.
+  dice: No robó una corona, pero la está esperando: dicen que el Rey Sin Rostro le prometió la del Bosque.
+  dice: Toma la brújula. Lleva pociones. Y amigos, si tienes.
+  responde: Voy al Osario.
+  objetivo: encuentra Osario de la Hondonada
+  objetivo: derrota a pastor_huesos | Derrota al Pastor de Huesos
+  final: Lo hiciste. Y mira esto: en su capa hay un mapa con siete marcas. Llévaselo a Marta.
+  ETAPA El mapa de las siete marcas
+    npc: marta
+    dice: Siete marcas… Fresnoalto, Cobrepuerta, las Islas, los Picos, Espejismo, Lodoscuro y Jade.
+    dice: Seis ya están tachadas con tinta morada. Solo queda una sin tachar: Cobrepuerta.
+    dice: Eso significa que el Rey Sin Rostro ya tiene seis coronas. O casi.
+    responde: Entonces hay que quitárselas. Una por una.
+    premio: 1200 xp, 200 soles, objeto mapa_de_las_coronas, objeto fragmento_mejora
+    final: Empieza por Fresnoalto, al este. Elio tiene piedras de viaje: llévate una.
+
+ACTO 2: Los Lobos de Fresnoalto
+
+MISIÓN El camino al este
+  npc: elio
+  dice: Fresnoalto está al este, pasando el río. Seis días a pie, tres si no paras a comer.
+  dice: Llévate comida. Y si quieres volver rápido, cómprame una piedra de viaje y ponla allá.
+  responde: Comida y camino. Vamos.
+  objetivo: ten 16 pan
+  objetivo: llega a la ciudad Fresnoalto | Llega a Fresnoalto (sigue el punto dorado)
+  premio: 500 xp, 80 soles
+  final: La druida Aurelia te espera. Allá los árboles hablan… y no siempre bien.
+  ETAPA La druida
+    npc: aurelia
+    dice: Te esperaba. Los fresnos me dijeron que alguien vendría del oeste con un mapa morado.
+    dice: La Corona del Bosque la robó una bestia. Antes era el ciervo blanco que la cuidaba.
+    dice: Planta conmigo. Si el bosque no crece, la bestia gana.
+    responde: Planto contigo.
+    objetivo: entrega 16 oak_sapling | Entrega 16 retoños de roble
+    objetivo: entrega 32 harina de hueso
+    premio: 500 xp, 80 soles
+    final: Gracias. Bram, el cazador, sabe dónde se esconden los lobos. Habla con él.
+
+MISIÓN Los que susurran
+  npc: bram
+  dice: Los lobos velados cazan en manada. Y no huyen del fuego.
+  dice: Esta noche atacan el aserradero. Si aguantamos, sabré a dónde vuelven.
+  responde: Al aserradero.
+  objetivo: resiste 2 minutos | Defiende el aserradero
+  oleadas: velado_lobo 3 cada 20
+  objetivo: mata 10 velado_lobo | Mata 10 Lobos Velados
+  premio: 700 xp, 100 soles, objeto lobo_negro_botas
+  final: Volvieron hacia el norte, hacia el fresno partido. Ahí está la guarida.
+  ETAPA Piel de lobo negro
+    npc: bram
+    dice: Con la piel de los lobos hago armaduras. Ligeras y calientes. Tráeme cuero.
+    objetivo: entrega 16 cuero
+    premio: 400 xp, 60 soles, objeto lobo_negro_casco
+    final: Te queda bien. Ahora pareces de aquí.
+
+MISIÓN Jabalíes en la cosecha
+  npc: aurelia
+  dice: Los jabalíes velados destrozan los campos. Si no cosechamos esta semana, no comemos en invierno.
+  dice: Caza los jabalíes y cosecha lo que quede. Rápido.
+  responde: Cazo y cosecho.
+  objetivo: mata 8 velado_jabali | Caza 8 Jabalíes Velados
+  aparecen: 4 velado_jabali
+  objetivo: entrega 32 trigo
+  tiempo: 15 min
+  premio: 700 xp, 120 soles, objeto lobo_negro_grebas
+  final: A tiempo. Los fresnos te dan las gracias. Yo también.
+
+MISIÓN El druida perdido
+  npc: aurelia
+  dice: Mi aprendiz se fue a la cabaña del pantano del bosque. Volvió con ojos morados y se escapó.
+  dice: Hay más druidas así. Si los derrotas, el Velo los suelta… a veces.
+  responde: Voy a la cabaña.
+  estructura: cabana
+  objetivo: encuentra la estructura cabana | Encuentra la cabaña del bosque
+  objetivo: mata 4 velado_druida | Derrota 4 Druidas Velados
+  aparecen: 4 velado_druida
+  premio: 800 xp, 120 soles, objeto lobo_negro_pechera
+  elección: Llevarlos con Aurelia -> premio: 3 pociones de curacion; mensaje: Aurelia los cuida. Uno de ellos abre los ojos: son verdes otra vez.; marca: salvo_druidas
+  elección: Dejarlos en el bosque -> premio: 8 esmeraldas; mensaje: El bosque se los queda. Aurelia no dice nada, pero no te mira igual.; marca: abandono_druidas
+  final: Lo que hiciste, el bosque lo recuerda.
+
+MISIÓN JEFE: La Bestia de Fresnoalto
+  npc: bram
+  nivel: 14
+  jefe: sí
+  mazmorra: 2
+  dice: El fresno partido tiene raíces que bajan hasta las cuevas. Ahí duerme la Bestia.
+  dice: Era el ciervo blanco. Ahora es una montaña de músculo y espinas con la Corona del Bosque en la frente.
+  dice: Mejora tu arma. Contra eso, lo que no atraviesa, rebota.
+  responde: Voy por la Corona del Bosque.
+  objetivo: encuentra Raíces de Fresnoalto
+  objetivo: derrota a bestia_fresno | Derrota a la Bestia de Fresnoalto
+  final: La primera corona. ¡Póntela! No es solo un adorno: cura.
+  ETAPA La corona del bosque
+    npc: aurelia
+    dice: La Corona del Bosque… los fresnos están cantando. ¿Lo oyes?
+    dice: Llévasela a Marta. No. Mejor: llévatela tú. Las coronas eligen a quién quieren encima.
+    responde: La cuidaré.
+    premio: 2000 xp, 300 soles, objeto fragmento_mejora
+    final: La siguiente marca sin tachar es Cobrepuerta. Ve antes que el Rey Sin Rostro.
+
+ACTO 3: El Gremio de Cobrepuerta
+
+MISIÓN La capital de cobre
+  npc: marta
+  dice: Cobrepuerta es la única corona que el Rey Sin Rostro no tachó. Eso significa que todavía está allí… o que alguien la vendió.
+  dice: Ve a la capital. Busca a la princesa Elara: su padre era el rey.
+  responde: Voy a Cobrepuerta.
+  objetivo: llega a la ciudad Cobrepuerta | Llega a Cobrepuerta (es enorme: sigue el punto dorado)
+  premio: 800 xp, 120 soles
+  final: Cuidado con el gremio. Allá los mercaderes tienen más guardias que el rey.
+  ETAPA La princesa
+    npc: elara
+    dice: ¿Vienes por la corona? Todos vienen por la corona.
+    dice: Mi padre la llevaba hasta hace un mes. Ahora está ciego y no habla. Y la corona no está.
+    dice: El Gran Maestre Orsino dice que se la robaron. Yo creo que la vendió.
+    responde: Voy a averiguarlo.
+    objetivo: habla con Gran Maestre Orsino
+    conversa: orsino | ¿Una corona robada? Qué terrible. El gremio está desolado, desolado.
+    conversa: orsino | Si quieres ayudar, ayuda al comercio. Los bandidos atacan nuestras caravanas.
+    premio: 500 xp, 80 soles
+    final: Orsino miente. Pero hagamos lo que pide: así entramos en su casa.
+
+MISIÓN Caravanas quemadas
+  npc: orsino
+  dice: Los bandidos velados tienen un campamento en el camino del norte. Quiero ese camino limpio.
+  dice: Te pagaré bien. El gremio siempre paga. A su manera.
+  responde: Limpio el camino.
+  estructura: campamento_bandidos
+  objetivo: encuentra la estructura campamento_bandidos | Encuentra el campamento
+  objetivo: mata 8 velado_bandido | Mata 8 Bandidos Velados
+  objetivo: mata 2 velado_maton | Mata 2 Matones Velados
+  aparecen: 6 velado_bandido
+  premio: 1000 xp, 200 soles, objeto sello_real
+  final: Excelente. Toma este sello: te abre puertas. Muchas puertas. No todas.
+  ETAPA Lo que había en el campamento
+    npc: leona
+    dice: ¿Esto estaba en el campamento? Es una carta con el sello del gremio. Les pagaban para atacar las caravanas.
+    dice: Orsino se roba a sí mismo para cobrar el seguro… y para algo más.
+    responde: ¿Qué más?
+    objetivo: entrega 1 sello_real | Muéstrale el sello a Leona
+    premio: 600 xp, 100 soles
+    final: Para comprar algo muy caro. Una alianza. Con alguien que no tiene cara.
+
+MISIÓN La subasta secreta
+  npc: leona
+  dice: Esta noche hay una subasta en la Fundición Abandonada. Orsino va a vender la Corona de Bronce.
+  dice: Antes necesito saber si eres listo. Los guardias de la subasta piden una contraseña en forma de acertijo.
+  acertijo: Tengo ciudades sin casas, ríos sin agua y bosques sin árboles. ¿Qué soy?
+  correcta: Un mapa
+  incorrecta: Un sueño / Un desierto / Un libro de cuentos
+  objetivo: ten 32 lingotes de cobre | Consigue 32 lingotes de cobre (para entrar como comprador)
+  responde: Tengo el cobre y la respuesta.
+  premio: 800 xp, 150 soles
+  final: Entras como comprador. Cuando veas la corona, no compres: rompe.
+
+MISIÓN Defender la puerta de cobre
+  npc: leona
+  dice: ¡Orsino huyó con la corona a la fundición y soltó a los matones contra la puerta!
+  dice: Aguanta la puerta con la Guardia. Si cae, cae la ciudad.
+  responde: La puerta no cae.
+  objetivo: resiste 3 minutos | Defiende la Puerta de Cobre
+  oleadas: velado_bandido 3, velado_maton 1 cada 25
+  sin morir: sí
+  clima: tormenta
+  premio: 1500 xp, 250 soles, objeto guardia_real_casco
+  final: ¡La puerta aguantó! Y tú también. Ahora, la fundición.
+
+MISIÓN JEFE: El Gólem de Bronce
+  npc: leona
+  nivel: 22
+  jefe: sí
+  mazmorra: 3
+  dice: Orsino le dio la Corona de Bronce al gólem guardián de la fundición. Ahora el gólem es suyo… o del Velo.
+  dice: Es de metal. Las flechas rebotan. Necesitas penetración: mejora tu arma o fórjale una runa.
+  responde: Voy a la fundición.
+  objetivo: encuentra Fundición Abandonada
+  objetivo: derrota a golem_bronce | Derrota al Gólem de Bronce
+  final: El gólem cayó. Y Orsino también: lo encontramos atrapado bajo su propio guardián.
+  ETAPA El juicio de Orsino
+    npc: elara
+    dice: Orsino está aquí, encadenado. Dice que el Rey Sin Rostro le prometió hacerlo rey de Cobrepuerta.
+    dice: Tú recuperaste la corona. Tú decides qué hacemos con él.
+    elección: Juicio justo -> premio: 16 experience_bottle; mensaje: Orsino irá a juicio. Elara te nombra Caballero de Cobre.; marca: juicio_orsino
+    elección: Que trabaje en las minas -> premio: 8 gold_ingot; mensaje: Orsino pica piedra en las minas del gremio. El gremio te paga su "deuda".; marca: minas_orsino
+    elección: Dejarlo ir a cambio de información -> premio: objeto fragmento_mejora_superior; mensaje: Orsino habla: las Islas de Sal tienen la siguiente corona. Luego desaparece en la noche.; marca: libero_orsino
+    premio: 3000 xp, 500 soles, objeto fragmento_mejora
+    final: Dos coronas. Mi padre abrió los ojos cuando le pusieron la de bronce cerca. Gracias.
+
+ACTO 4: La Marea de las Islas de Sal
+
+MISIÓN Barco al oeste
+  npc: elio
+  dice: Las Islas de Sal están al oeste. Necesitarás un bote: el puerto está en la isla grande.
+  responde: Bote y al oeste.
+  objetivo: ten un bote
+  objetivo: llega a la ciudad Islas de Sal | Llega a las Islas de Sal
+  premio: 1000 xp, 150 soles
+  final: El capitán Bartolo manda en el puerto. Bueno, manda cuando está sobrio.
+  ETAPA El capitán
+    npc: bartolo
+    dice: ¿Una corona? ¡Ja! La Corona de Coral se la tragó la Madre de las Mareas hace un mes.
+    dice: Desde entonces los ahogados salen cada marea alta. Si quieres que te lleve al abismo, ayúdame con el puerto.
+    responde: ¿Qué necesita el puerto?
+    objetivo: mata 10 velado_ahogado | Mata 10 Ahogados Velados
+    premio: 800 xp, 150 soles
+    final: ¡Arr! Eso sí es un marinero. Marisa la buzo sabe dónde está el abismo.
+
+MISIÓN El faro apagado
+  npc: nemo
+  dice: Mi faro se apagó y los barcos chocan. Algo apagó la luz desde dentro.
+  dice: Ve al faro viejo. Y lleva luz.
+  responde: Enciendo el faro.
+  estructura: faro
+  objetivo: encuentra la estructura faro | Llega al faro viejo
+  objetivo: mata 6 velado_ahogado | Limpia el faro
+  aparecen: 6 velado_ahogado
+  objetivo: entrega 16 glowstone_dust | Entrega 16 polvo de piedra luminosa
+  premio: 1000 xp, 180 soles
+  final: ¡Luz! Mira el agua… ¿ves esa sombra bajo las islas? Es ella. La Madre.
+
+MISIÓN Pesca en aguas veladas
+  npc: nemo
+  dice: Para entender el mar hay que pescar en él. Los peces de las islas saben cosas.
+  dice: Pesca veinte veces antes de que suba la marea.
+  objetivo: pesca 20 veces
+  tiempo: 8 min
+  premio: 700 xp, 120 soles, 1 caña de pescar
+  final: Los peces nadan hacia el oeste, todos. Huyen de algo.
+
+MISIÓN El galeón del cielo
+  npc: marisa
+  dice: Hay un galeón pirata flotando en el cielo, ¡en el cielo! Dicen que tiene el mapa del abismo.
+  dice: Sube por la columna de escaleras. Y busca el tesoro: siempre hay tesoro.
+  responde: Al galeón.
+  estructura: galeon_volador
+  objetivo: encuentra la estructura galeon_volador | Sube al Galeón Volador
+  objetivo: busca el tesoro enterrado | Desentierra el tesoro del capitán del galeón
+  premio: 1500 xp, 250 soles, objeto coral_botas
+  final: ¡El mapa! El abismo está bajo la isla del norte. Prepárate: allá abajo no se respira.
+
+MISIÓN Defensa del muelle
+  npc: bartolo
+  dice: ¡La marea alta! ¡Vienen todos a la vez! Defiende el muelle hasta que baje.
+  responde: El muelle aguanta.
+  objetivo: resiste 3 minutos | Aguanta la marea alta
+  oleadas: velado_ahogado 3, velado_vigia 1 cada 25
+  clima: tormenta
+  premio: 1500 xp, 250 soles, objeto coral_casco
+  final: ¡Bajó la marea! Ahora es el momento: el abismo está abierto.
+
+MISIÓN JEFE: La Madre de las Mareas
+  npc: marisa
+  nivel: 30
+  jefe: sí
+  mazmorra: 4
+  dice: El Abismo de las Mareas. Llévate pociones de respiración y todo lo que corte.
+  dice: La Madre te va a pegar fatiga: mata a sus vigías primero.
+  responde: Al abismo.
+  objetivo: encuentra Abismo de las Mareas
+  objetivo: derrota a madre_mareas | Derrota a la Madre de las Mareas
+  final: La Corona de Coral… está fría y huele a tormenta. Tres coronas.
+  ETAPA Lo que cantaba la Madre
+    npc: nemo
+    dice: Ya no grita. Escucha… canta otra vez. Pero distinto.
+    dice: Dice un nombre: "Ingrid". La jarl del norte. Algo pasa en los Picos.
+    premio: 3500 xp, 600 soles, objeto coral_pechera, objeto coral_grebas
+    final: Al norte, entonces. Abrígate.
+
+ACTO 5: El Rey Escarcha
+
+MISIÓN Rumbo al norte
+  npc: marta
+  dice: Los Picos de Escarcha están al norte, detrás de las montañas. Allá el agua se congela en el aire.
+  dice: Necesitas ropa de abrigo. Y fuego. Mucho fuego.
+  responde: Abrigo y fuego.
+  objetivo: ten 32 carbones
+  objetivo: ten 1 leather_chestplate | Una chaqueta de cuero
+  objetivo: llega a la ciudad Picos de Escarcha | Llega a los Picos de Escarcha
+  premio: 1500 xp, 200 soles
+  final: La jarl Ingrid no habla con extranjeros. Haz que te respete.
+  ETAPA La prueba del norte
+    npc: ingrid
+    dice: ¿Un sureño? En el norte se gana la palabra. Mata yetis velados y hablamos.
+    objetivo: mata 6 velado_yeti | Mata 6 Yetis Velados
+    aparecen: 3 velado_yeti
+    sin morir: sí
+    premio: 1500 xp, 200 soles, objeto escarcha_botas
+    final: Hm. Ahora puedes hablar. Pero rápido: aquí el aliento se congela.
+
+MISIÓN El palacio de hielo
+  npc: ingrid
+  dice: Mi padre, el jarl, guardaba la Corona de Escarcha en el Palacio de Hielo Eterno.
+  dice: Un mes atrás se encerró dentro con ella. Lo que salió ya no era mi padre: es el Rey Escarcha.
+  dice: Primero necesito saber si puedes subir. Hay una torre de vigía en el paso: desde ahí se ve la entrada.
+  responde: Subo a la torre.
+  estructura: torre_vigia
+  objetivo: encuentra la estructura torre_vigia | Sube a la Torre de Vigía del paso
+  objetivo: mata 6 velado_escarcha | Mata 6 Errantes de Escarcha
+  aparecen: 5 velado_escarcha
+  premio: 2000 xp, 250 soles
+  final: Desde la torre se ve el palacio. Y algo más: el monje Tenzo te hace señas desde su templo.
+
+MISIÓN Las palabras del monje
+  npc: tenzo
+  dice: El frío es maestro. Escucha su lección antes de enfrentarte a un rey de hielo.
+  acertijo: Soy agua pero no se me bebe, soy blanco pero no soy leche, me pisas y crujo. ¿Qué soy?
+  correcta: La nieve
+  incorrecta: La sal / La harina / Una nube
+  objetivo: entrega 16 bolas de nieve
+  responde: Escucho, maestro.
+  premio: 1500 xp, 200 soles, 2 pociones de resistencia al fuego
+  final: Bien. El Rey Escarcha teme al fuego y a los que no tienen miedo. Lleva ambas cosas.
+
+MISIÓN Avalancha
+  npc: ingrid
+  dice: ¡El Rey Escarcha desató una avalancha de errantes sobre el pueblo!
+  dice: Tres minutos. Hasta que mis guerreros bajen de la montaña.
+  responde: Tres minutos. Ni uno más.
+  objetivo: resiste 3 minutos | Aguanta la avalancha
+  oleadas: velado_escarcha 3, velado_yeti 1 cada 25
+  clima: tormenta
+  premio: 2500 xp, 300 soles, objeto escarcha_casco
+  final: ¡Los guerreros bajaron! Y tú sigues en pie. Ahora entendemos por qué te eligieron las coronas.
+
+MISIÓN Pieles para el invierno
+  npc: ingrid
+  dice: Mis guerreros necesitan armaduras. Tráeme diamantes y te forjo la de escarcha.
+  objetivo: entrega 8 diamantes
+  premio: 2000 xp, 300 soles, objeto escarcha_pechera, objeto escarcha_grebas
+  final: Hielo que no se derrite. Te va a hacer falta.
+
+MISIÓN JEFE: El Rey Escarcha
+  npc: ingrid
+  nivel: 38
+  jefe: sí
+  mazmorra: 5
+  dice: El Palacio de Hielo Eterno. Mi padre está ahí dentro… o lo que queda de él.
+  dice: Dispara flechas como lluvia. Acércate rápido y no dejes de moverte.
+  responde: Te traigo la corona. Y a tu padre, si se puede.
+  objetivo: encuentra Palacio de Hielo Eterno
+  objetivo: derrota a rey_escarcha | Derrota al Rey Escarcha
+  final: El hielo se derrite… y debajo, un hombre viejo que respira. Mi padre está vivo.
+  ETAPA El jarl despierta
+    npc: ingrid
+    dice: Dice que la voz que lo controlaba hablaba desde el sur. Desde un lugar de vidrio.
+    dice: Toma la corona. Y esto: el norte te debe una.
+    premio: 4000 xp, 700 soles, objeto fragmento_mejora_superior
+    final: Cuatro coronas. Ciudad Espejismo, al sur. Ahí está la voz.
+
+ACTO 6: Arena y Vidrio
+
+MISIÓN La ciudad que brilla
+  npc: elio
+  dice: Ciudad Espejismo está al sur, al otro lado del gran desierto. Brilla tanto que la ves antes de llegar.
+  dice: Lleva agua. Bueno, pociones. El desierto no perdona.
+  objetivo: llega a la ciudad Ciudad Espejismo | Llega a Ciudad Espejismo
+  premio: 2000 xp, 300 soles
+  final: La Sultana Yasmin te espera. Dicen que no ha dormido desde que robaron la Corona del Sol.
+  ETAPA La sultana
+    npc: yasmin
+    dice: El Faraón Velado salió de su tumba la noche del Velo y se llevó la Corona del Sol.
+    dice: Mis oráculos dicen que solo quien resuelva los tres acertijos del vidrio encontrará la tumba.
+    objetivo: habla con Oráculo Sahar
+    conversa: sahar | Ah, el de las coronas. Tres preguntas. Tres respuestas. Ni una más.
+    premio: 1000 xp, 150 soles
+    final: Sahar tiene las preguntas. Yo tengo paciencia. Ve.
+
+MISIÓN El primer acertijo del vidrio
+  npc: sahar
+  dice: Primer acertijo. Piénsalo bien: si fallas, el vidrio se ríe.
+  acertijo: Cuanto más seco estoy, más mojado dejo todo. ¿Qué soy?
+  correcta: Una toalla
+  incorrecta: El sol / La arena / Una esponja
+  responde: Ya lo sé.
+  premio: 1000 xp, 150 soles
+  final: Bien. Segunda pregunta, mañana. O ahora, si eres impaciente.
+  ETAPA El segundo acertijo
+    npc: sahar
+    dice: Segundo acertijo.
+    acertijo: Tiene ojos y no ve, tiene agua y no la bebe, tiene una corona y no es rey. ¿Qué es?
+    correcta: Una piña
+    incorrecta: Una papa / Un coco / Una cebolla
+    premio: 1000 xp, 150 soles
+    final: Eres listo. El último es el difícil.
+  ETAPA El tercer acertijo
+    npc: sahar
+    dice: Último acertijo. Si aciertas, te digo dónde está la tumba.
+    acertijo: Si me nombras, desaparezco. ¿Qué soy?
+    correcta: El silencio
+    incorrecta: Un secreto / Un fantasma / Un sueño
+    premio: 2000 xp, 300 soles, objeto sol_dormido_casco
+    final: La tumba está bajo la pirámide del este. Y la pirámide… tiene un tesoro antes de la tumba.
+
+MISIÓN La pirámide
+  npc: sahar
+  dice: La pirámide tiene trampas, momias y un tesoro de los sacerdotes. Llévate todo.
+  estructura: piramide
+  objetivo: encuentra la estructura piramide | Llega a la pirámide
+  objetivo: mata 8 velado_momia | Mata 8 Momias Veladas
+  aparecen: 6 velado_momia
+  objetivo: busca el tesoro enterrado | Desentierra el tesoro de los sacerdotes
+  premio: 2500 xp, 400 soles, objeto sol_dormido_botas
+  final: El tesoro tiene un sello con un escarabajo… la llave de la tumba.
+
+MISIÓN Caravana bajo el sol
+  npc: farid
+  dice: Mi caravana tiene que cruzar el desierto antes de la tormenta de arena. Escórtala.
+  dice: Los escorpiones de vidrio atacan en las dunas. Rápido, la tormenta llega en diez minutos.
+  responde: Escolto la caravana.
+  objetivo: mata 10 velado_escorpion | Mata 10 Escorpiones de Vidrio
+  aparecen: 5 velado_escorpion
+  objetivo: entrega 32 arena | Entrega 32 arena para la caravana
+  tiempo: 10 min
+  premio: 2500 xp, 400 soles, objeto sol_dormido_grebas
+  final: ¡Llegamos! Y la tormenta nos pasó por encima. Toma, un regalo del bazar.
+
+MISIÓN JEFE: El Faraón Velado
+  npc: yasmin
+  nivel: 46
+  jefe: sí
+  mazmorra: 6
+  dice: La Tumba del Faraón. Hace clones de sí mismo: ataca al que brille más.
+  dice: Llama meteoros. No te quedes quieto.
+  responde: Por la Corona del Sol.
+  objetivo: encuentra Tumba del Faraón
+  objetivo: derrota a faraon_velado | Derrota al Faraón Velado
+  final: La Corona del Sol… caliente como un mediodía. Cinco coronas.
+  ETAPA La voz en el vidrio
+    npc: sahar
+    dice: Ahora que tienes cinco, puedo decirte lo que veo en el vidrio.
+    dice: El Rey Sin Rostro no robó las coronas para tenerlas. Las robó para fundirlas en una sola. La octava corona.
+    dice: Si la forja, el Velo no se cerrará nunca. Corre. Lodoscuro es la siguiente.
+    premio: 5000 xp, 800 soles, objeto sol_dormido_pechera
+    final: El vidrio no miente. Bueno, casi nunca.
+
+ACTO 7: La Reina del Pantano
+
+MISIÓN Lodo hasta las rodillas
+  npc: marta
+  dice: Lodoscuro es un pueblo de brujas buenas. O lo era. Al oeste, en el pantano grande.
+  objetivo: llega a la ciudad Lodoscuro | Llega a Lodoscuro
+  premio: 2500 xp, 350 soles
+  final: Mirta es la bruja que manda allá. No le aceptes té.
+  ETAPA La bruja buena
+    npc: mirta
+    dice: ¿Vienes por la Corona de Raíz? Te la vendo. Ah, no, que no la tengo. La tiene la Reina Ciénaga.
+    dice: Era mi maestra. La mejor curandera de Valdera. El Velo la convenció de que el pantano entero era suyo.
+    dice: Para entrar a su corazón necesito una poción. Tráeme lo que te pido.
+    objetivo: entrega 8 bolas de slime
+    objetivo: entrega 4 fermented_spider_eye
+    objetivo: entrega 8 verrugas del nether
+    premio: 2500 xp, 350 soles, 3 pociones de curacion
+    final: La poción está lista. Bébela solo cuando la Reina te envenene.
+
+MISIÓN Lodos que saltan
+  npc: gus
+  dice: Los lodos velados se comieron mi casa. Bueno, mi caja. Vivía en una caja.
+  dice: Si los matas, te cuento un secreto de la Reina.
+  objetivo: mata 15 velado_lodo | Mata 15 Lodos Velados
+  aparecen: 6 velado_lodo
+  premio: 2500 xp, 350 soles
+  final: El secreto: la Reina le tiene miedo a su propio reflejo. Por eso no hay espejos en Lodoscuro.
+
+MISIÓN El aquelarre del pantano
+  npc: mirta
+  dice: Las hechiceras de la Reina se reúnen en la cabaña de los pilotes. Interrumpe el ritual antes de que termine.
+  estructura: cabana
+  objetivo: encuentra la estructura cabana | Encuentra el aquelarre
+  objetivo: mata 5 velado_hechicera | Derrota 5 Hechiceras del Pantano
+  aparecen: 5 velado_hechicera
+  tiempo: 12 min
+  premio: 3000 xp, 400 soles, objeto guja_venenosa
+  final: Ritual roto. La Reina estará furiosa. Bien: los furiosos se equivocan.
+
+MISIÓN Ranas de la suerte
+  npc: gus
+  dice: En el pantano hay ranas que dan suerte. Domestica dos gatos para que las espanten… no, espera, al revés.
+  dice: Ya no sé. Tráeme pescado, que tengo hambre.
+  objetivo: pesca 10 veces
+  objetivo: entrega 8 bacalao cocido
+  premio: 2000 xp, 300 soles, libro luck_of_the_sea 3
+  final: ¡Gracias! Antes era rey de algo. Creo que de un pantano. Pero mejor no.
+
+MISIÓN JEFE: La Reina Ciénaga
+  npc: mirta
+  nivel: 52
+  jefe: sí
+  mazmorra: 7
+  dice: El Corazón de la Ciénaga. Envenena, se teletransporta y encadena.
+  dice: Bebe la poción cuando te envenene. Y no la mires a los ojos.
+  responde: Por la Corona de Raíz.
+  objetivo: encuentra Corazón de la Ciénaga
+  objetivo: derrota a reina_cienaga | Derrota a la Reina Ciénaga
+  final: Cayó… y la Corona de Raíz tiene raíces nuevas, verdes. Seis coronas.
+  ETAPA La curandera
+    npc: mirta
+    dice: Mi maestra murió. Pero antes de irse me dijo algo: "Jade. El jaguar guarda la última".
+    elección: Enterrarla en el pantano -> premio: 2 pociones de regeneracion; mensaje: Mirta llora. Las ranas cantan toda la noche.; marca: entierro_reina
+    elección: Llevar su bastón a Ofelia -> premio: objeto fragmento_mejora_ancestral; mensaje: Ofelia guarda el bastón: con él puede leer el resto del libro de las cerraduras.; marca: baston_reina
+    premio: 5000 xp, 900 soles
+    final: Solo queda una corona libre. La de Jade.
+
+ACTO 8: El Templo del Jaguar
+
+MISIÓN La selva que respira
+  npc: elio
+  dice: El Santuario de Jade está en lo más profundo de la selva, al sur. Hay un árbol gigante en el camino: úsalo para ver.
+  estructura: arbol_gigante
+  objetivo: encuentra la estructura arbol_gigante | Sube al Árbol Gigante
+  objetivo: llega a la ciudad Santuario de Jade | Llega al Santuario de Jade
+  premio: 3000 xp, 400 soles
+  final: La sacerdotisa Itzel es la última del templo. Los demás… mejor que ella te lo cuente.
+  ETAPA La última sacerdotisa
+    npc: itzel
+    dice: El Sacerdote Jaguar fue mi maestro. Abrió la puerta del templo al Rey Sin Rostro por miedo.
+    dice: Ahora protege la Corona de Jade para él. Antes de bajar, prueba que entiendes al jaguar.
+    acertijo: Camino sin pies, rujo sin boca y mi rugido llega antes que yo. ¿Qué soy?
+    correcta: El trueno
+    incorrecta: El viento / Un jaguar / Un volcán
+    premio: 2500 xp, 400 soles
+    final: El trueno, sí. El jaguar y el trueno eran hermanos en la leyenda.
+
+MISIÓN Acechadores entre lianas
+  npc: tome
+  dice: ¡Arañas del tamaño de un caballo! Vamos a limpiar el camino al templo.
+  objetivo: mata 12 velado_acechador | Mata 12 Acechadores de Jade
+  aparecen: 5 velado_acechador
+  premio: 3000 xp, 450 soles
+  final: ¡Ja! Otra historia para la taberna.
+  ETAPA El templo antiguo
+    npc: tome
+    dice: Hay un templo antiguo sobre el principal. Ahí estudiaban los sacerdotes. Y escondían cosas.
+    estructura: templo_antiguo
+    objetivo: encuentra la estructura templo_antiguo | Explora el templo antiguo
+    objetivo: mata 6 velado_flechero | Mata 6 Flecheros del Templo
+    aparecen: 6 velado_flechero
+    objetivo: busca el tesoro enterrado | Encuentra la ofrenda enterrada
+    premio: 4000 xp, 600 soles, objeto rompeyelmos
+    final: ¡Una hacha que rompe yelmos! Para el jaguar te va a venir perfecta.
+
+MISIÓN El laberinto de debajo
+  npc: itzel
+  dice: Para llegar al corazón del templo hay que cruzar el laberinto. Nadie sabe cuántas salas tiene.
+  dice: Encuéntralo y sobrevive. Sin morir: el laberinto se reinicia si caes.
+  estructura: laberinto
+  objetivo: encuentra la estructura laberinto | Cruza el Laberinto de Jade
+  objetivo: mata 10 monstruos
+  sin morir: sí
+  premio: 4000 xp, 600 soles
+  final: Saliste. Eso ya es más de lo que hicieron mis hermanos.
+
+MISIÓN El templo bajo asedio
+  npc: itzel
+  dice: ¡El Sacerdote soltó a todas sus bestias contra el santuario! Defiende la puerta.
+  objetivo: resiste 3 minutos | Defiende el santuario
+  oleadas: velado_acechador 2, velado_flechero 2 cada 25
+  premio: 4000 xp, 650 soles
+  final: El santuario aguanta. Ahora ve tú por él.
+
+MISIÓN JEFE: El Sacerdote Jaguar
+  npc: itzel
+  nivel: 60
+  jefe: sí
+  mazmorra: 8
+  dice: El Templo del Jaguar. Hace clones y encadena. El verdadero tiene la Corona de Jade.
+  responde: Por la última corona libre.
+  objetivo: encuentra Templo del Jaguar
+  objetivo: derrota a sacerdote_jaguar | Derrota al Sacerdote Jaguar
+  final: Siete coronas… no. Seis. El Sacerdote dice algo antes de morir: "La séptima ya la tiene. La octava… casi".
+  ETAPA La séptima corona
+    npc: marta
+    dice: Seis coronas aquí. Bosque, Bronce, Coral, Escarcha, Sol, Raíz… y Jade. Son siete. ¿Qué falta?
+    dice: Ah. Ya entiendo. La octava. La que forja con todas. Él no necesita las siete: necesita su poder. Y lo está sacando del Nether.
+    premio: 6000 xp, 1000 soles, objeto fragmento_mejora_ancestral
+    final: El Bastión de Ascua vigila la Puerta Roja. Ahí está el camino al fuego.
+
+ACTO 9: La Puerta Roja
+
+MISIÓN El bastión de la frontera
+  npc: rurik
+  dice: El Bastión de Ascua está al este, más allá de Fresnoalto. Mercenarios, herreros y un portal enorme.
+  dice: Ahí aprendí a pelear. Saluda a Brasa de mi parte. O no: me debe dinero.
+  objetivo: llega a la ciudad Bastión de Ascua | Llega al Bastión de Ascua
+  premio: 4000 xp, 600 soles
+  final: Kael, el renegado, sirvió al Rey Sin Rostro. Escúchalo antes de cruzar.
+  ETAPA El renegado
+    npc: kael
+    dice: Un año a su servicio. Nunca le vi la cara. Nadie se la ha visto. Habla por los muertos.
+    dice: Del otro lado de la Puerta Roja, el Señor del Magma funde el poder de las coronas para él.
+    dice: Si quieres cruzar, primero aprende a no quemarte.
+    responde: Enséñame.
+    objetivo: ten 4 magma_cream | Consigue 4 cremas de magma (para las pociones)
+    objetivo: ten 1 obsidian | Consigue obsidiana
+    premio: 3000 xp, 500 soles
+    final: Con eso no te vas a cocinar. Mucho.
+
+MISIÓN Más allá de la Puerta Roja
+  npc: kael
+  dice: Cruza. Ve al Nether y mata a los brutos velados que custodian el camino.
+  responde: Cruzo la Puerta Roja.
+  objetivo: ve al nether
+  objetivo: mata 8 velado_bruto | Mata 8 Brutos Velados
+  premio: 4500 xp, 700 soles
+  final: Sigues vivo. Brasa quiere hablar contigo: tiene algo para ti.
+  ETAPA La forja que no se apaga
+    npc: brasa
+    dice: Mi fuego viene del otro lado. Tráeme escombros antiguos y te forjo algo que el magma no derrita.
+    objetivo: entrega 4 ancient_debris | Entrega 4 escombros antiguos
+    premio: 5000 xp, 800 soles, objeto magma_casco, objeto magma_botas
+    final: Armadura de magma. Caliente siempre. Nada la quema.
+
+MISIÓN El volcán despierto
+  npc: brasa
+  dice: Hay un volcán que no estaba ayer. El Señor del Magma lo levantó para forjar.
+  dice: Sube, mata lo que haya y apaga la forja con agua… no, mejor rómpela.
+  estructura: volcan
+  objetivo: encuentra la estructura volcan | Sube al volcán
+  objetivo: mata 8 velado_magma | Mata 8 Magmas Velados
+  aparecen: 6 velado_magma
+  tiempo: 15 min
+  premio: 5000 xp, 900 soles, objeto magma_grebas
+  final: ¡La forja del volcán está rota! El Señor del Magma tendrá que salir de su bastión.
+
+MISIÓN El asedio de Ascua
+  npc: kael
+  dice: ¡Viene todo su ejército contra el bastión! Brutos, magmas y caballeros. Aguanta la muralla.
+  objetivo: resiste 4 minutos | Defiende el Bastión de Ascua
+  oleadas: velado_bruto 2, velado_magma 2 cada 25
+  sin morir: sí
+  premio: 6000 xp, 1000 soles, objeto magma_pechera
+  final: ¡Aguantamos! Ahora sí: el Bastión del Magma está desprotegido.
+
+MISIÓN JEFE: El Señor del Magma
+  npc: brasa
+  nivel: 68
+  jefe: sí
+  mazmorra: 9
+  dice: El Bastión del Magma. Fuego, meteoros y saltos que rompen el suelo.
+  dice: Usa la penetración. Ese bicho tiene más armadura que mi yunque.
+  responde: Lo apago.
+  objetivo: encuentra Bastión del Magma
+  objetivo: derrota a senor_magma | Derrota al Señor del Magma
+  final: El fuego se apagó. Y entre las cenizas hay una carta con el sello del Rey Sin Rostro: "La Hondura".
+  ETAPA La carta
+    npc: ofelia
+    dice: La Hondura… es la ciudad que está debajo de todas las ciudades. Donde el Velo es más fino.
+    dice: Si el Rey forja la octava corona ahí, el Velo se rompe entero.
+    premio: 7000 xp, 1200 soles, objeto fragmento_mejora_ancestral
+    final: Baja a la Hondura. Y no hagas ruido: algo ahí abajo escucha.
+
+ACTO 10: La Hondura
+
+MISIÓN Silencio
+  npc: ofelia
+  dice: En la Hondura vive El Que Escucha. Cualquier ruido lo atrae.
+  dice: Antes de bajar, necesitas aprender a moverte sin ruido. Tráeme lana: alfombras para tus botas.
+  objetivo: entrega 32 lana
+  objetivo: encanta 3 objetos
+  premio: 6000 xp, 1000 soles, libro swift_sneak 3
+  final: Con esto tus pasos no suenan. Casi.
+
+MISIÓN Ecos en la oscuridad
+  npc: kael
+  dice: Los ecos velados son endermans que el Velo vació por dentro. Mátalos sin mirarlos a los ojos.
+  objetivo: mata 10 velado_eco | Mata 10 Ecos Velados
+  aparecen: 4 velado_eco
+  premio: 6500 xp, 1100 soles
+  final: Cada eco que muere suelta un susurro. Escúchalo: dice dónde está la entrada.
+  ETAPA Los susurros
+    npc: ofelia
+    dice: Los susurros repiten una adivinanza. Es la llave de la Hondura.
+    acertijo: Me rompes sin tocarme, me guardas sin manos, y si me das, ya no me tienes. ¿Qué soy?
+    correcta: Una promesa
+    incorrecta: Un vaso / Un secreto / Un regalo
+    premio: 5000 xp, 900 soles
+    final: Una promesa. El Pacto de las Siete Coronas era eso: una promesa. Y alguien la rompió.
+
+MISIÓN El tesoro de la Hondura
+  npc: tome
+  dice: ¿Una ciudad debajo de todas las ciudades? ¡Tiene que haber tesoros!
+  dice: Encontré un mapa en el templo de Jade: marca un cofre enterrado cerca de la entrada.
+  objetivo: busca el tesoro enterrado | Desentierra el tesoro de la Hondura
+  objetivo: ten 2 echo_shard | Consigue 2 fragmentos de eco
+  premio: 7000 xp, 1200 soles, objeto fragmento_mejora_ancestral
+  final: ¡Ja! Lo sabía. Comparte, ¿no?
+
+MISIÓN JEFE: El Que Escucha
+  npc: ofelia
+  nivel: 76
+  jefe: sí
+  mazmorra: 10
+  dice: La Hondura. Él no ve: escucha. Y cuando te oye, su grito te tira al suelo.
+  dice: Lleva leche contra la oscuridad. Y pega fuerte.
+  responde: En silencio.
+  objetivo: encuentra La Hondura
+  objetivo: derrota a el_que_escucha | Derrota a El Que Escucha
+  final: Silencio. Por fin. En el suelo hay una corona de sculk… y una escalera que sube hacia el End.
+  ETAPA La octava corona
+    npc: marta
+    dice: El Rey ya forjó la octava corona. La Corona Sin Rostro. Está en su torre, al otro lado del End.
+    dice: Necesitas los ojos para el portal. Doce.
+    objetivo: ten 12 ender_eye | Consigue 12 ojos de ender
+    premio: 9000 xp, 1500 soles
+    final: Doce ojos. Hay un portal en algún lugar del mundo. Encuéntralo.
+
+ACTO 11: La Torre Sin Rostro
+
+MISIÓN El portal del fin
+  npc: elio
+  dice: El portal está bajo una fortaleza antigua. Los ojos de ender te llevarán.
+  dice: Del otro lado, la torre del Rey Sin Rostro flota sobre el vacío.
+  objetivo: entra al end
+  premio: 9000 xp, 1500 soles
+  final: Estás en el End. El dragón ya no está: el Rey lo hizo su caballo. O algo peor.
+
+MISIÓN Los caballeros sin rostro
+  npc: kael
+  dice: Sus caballeros eran mis compañeros. Ya no tienen cara. Libéralos.
+  objetivo: mata 10 velado_caballero | Derrota 10 Caballeros Sin Rostro
+  aparecen: 5 velado_caballero
+  sin morir: sí
+  premio: 9000 xp, 1600 soles
+  final: Gracias. Uno me reconoció antes de caer. Sonrió. Creo que sonrió.
+
+MISIÓN La ciudadela del cielo
+  npc: kael
+  dice: La torre tiene un puesto avanzado: una ciudadela flotando en el cielo. Los vigilantes del vacío disparan desde ahí.
+  estructura: ciudadela_celeste
+  objetivo: encuentra la estructura ciudadela_celeste | Sube a la Ciudadela Celeste
+  objetivo: mata 6 velado_vigilante | Mata 6 Vigilantes del Vacío
+  aparecen: 6 velado_vigilante
+  premio: 10000 xp, 1700 soles
+  final: El puesto cayó. La torre está abierta.
+
+MISIÓN JEFE: El Primer Caballero
+  npc: kael
+  nivel: 84
+  jefe: sí
+  mazmorra: 11
+  dice: La Torre Sin Rostro. El Primer Caballero cuida la escalera al trono.
+  dice: Era mi capitán. Si puedes… no, mátalo. Él lo hubiera querido.
+  responde: Por Kael.
+  objetivo: encuentra Torre Sin Rostro
+  objetivo: derrota a caballero_sin_rostro | Derrota al Primer Caballero
+  final: El Primer Caballero cae de rodillas y dice tu nombre. ¿Cómo lo sabe?
+  ETAPA El nombre
+    npc: cuervo
+    dice: Porque el Rey Sin Rostro te conoce. Muy bien.
+    dice: El Rey Sin Rostro era el guardián de las coronas. El que las cuidaba. El que despertó cuando sonó la campana… la primera vez.
+    dice: Hace cien años, alguien como tú. Las coronas lo eligieron. Y las coronas lo vaciaron.
+    responde: ¿Me va a pasar lo mismo?
+    premio: 12000 xp, 2000 soles, objeto fragmento_mejora_ancestral
+    final: Depende de lo que hagas con ellas. Sube al trono.
+
+ACTO 12: Las Siete Coronas
+
+MISIÓN La llamada de las coronas
+  npc: marta
+  dice: Las siete coronas brillan a la vez. Elara, Ingrid, Yasmin, Mirta, Itzel, Aurelia… todos vienen a la Hondonada.
+  dice: Necesitan saber que estás listo. Ve a hablar con cada uno. Bueno, con los que puedas.
+  objetivo: habla con Princesa Elara
+  objetivo: habla con Jarl Ingrid
+  objetivo: habla con Sultana Yasmin
+  conversa: elara | Cobrepuerta está contigo. Toda la Guardia de Cobre.
+  conversa: ingrid | El norte paga sus deudas. Mis guerreros marchan.
+  conversa: yasmin | El vidrio ya me mostró cómo termina. No te lo voy a decir.
+  premio: 12000 xp, 2000 soles
+  final: Ahora sí. Los siete reinos contigo.
+
+MISIÓN Los titanes del Velo
+  npc: rurik
+  dice: ¡Gólems enormes salen del Velo! Titanes. Atacan las siete ciudades a la vez.
+  dice: Aguanta la Hondonada mientras los demás defienden las suyas.
+  objetivo: resiste 5 minutos | Defiende la Hondonada del asedio final
+  oleadas: velado_titan 1, velado_caballero 2, velado_susurro 2 cada 30
+  clima: tormenta
+  premio: 15000 xp, 2500 soles
+  final: ¡La Hondonada sigue en pie! Rurik sonríe por primera vez desde la primera noche.
+
+MISIÓN El coloso de la frontera
+  npc: hugo
+  dice: Hay un coloso de piedra en la frontera. El Rey lo despertó para aplastar las ciudades.
+  dice: Llévate todo lo que tengas mejorado. Esto es lo último antes del trono.
+  estructura: coloso
+  objetivo: encuentra la estructura coloso | Llega al Coloso
+  objetivo: mata 3 velado_titan | Derriba 3 Titanes Velados
+  aparecen: 3 velado_titan
+  premio: 15000 xp, 2500 soles, objeto fragmento_mejora_ancestral
+  final: Las armas que te hice aguantaron. Estoy orgulloso, chico.
+
+MISIÓN JEFE: El Rey Sin Rostro
+  npc: marta
+  nivel: 92
+  jefe: sí
+  mazmorra: 12
+  dice: El Trono de las Siete Coronas. Está debajo de la Hondonada, donde empezó todo.
+  dice: Clones, meteoros, rayos y cadenas. Y titanes que lo protegen.
+  dice: Ve. Te estaremos esperando con la campana.
+  responde: Lo termino.
+  objetivo: encuentra Trono de las Siete Coronas
+  objetivo: derrota a rey_sin_rostro | Derrota al Rey Sin Rostro
+  final: El Rey Sin Rostro cae. Por un momento, ves su cara. Es la tuya. Más vieja.
+  ETAPA La campana
+    npc: marta
+    dice: La campana suena otra vez. Pero esta vez es de día.
+    dice: Tienes la Corona Sin Rostro en las manos. Puedes cerrar el Velo para siempre… o usar las coronas.
+    elección: Cerrar el Velo -> premio: objeto dragon_nacido; mensaje: Las siete coronas se funden en luz y el Velo se cierra. Los muertos descansan. Valdera amanece.; marca: final_cerrar
+    elección: Devolver las coronas a los reinos -> premio: 4 diamond_block; mensaje: Cada reino recupera su corona. El Pacto se firma otra vez, con tu nombre debajo.; marca: final_pacto
+    elección: Ponerte la Corona Sin Rostro -> premio: objeto corona_sin_rostro; mensaje: Te la pones. Las coronas te eligieron. Esta vez no te vas a vaciar… ¿verdad?; marca: final_rey
+    premio: 30000 xp, 5000 soles
+    final: Gracias por despertar cuando sonó la campana. Valdera te debe todo.

@@ -1,0 +1,190 @@
+# =========================================================
+#  MUNDO VIVO — clima, hora, luna y biomas que cambian el juego
+#  Es más cómodo editarlo desde el editor web (/historia editor > «Mundo vivo»).
+#
+#  cuando: (todo es opcional; lo que no pongas no se revisa)
+#    clima: despejado | lluvia | tormenta        momento: dia | noche | amanecer | atardecer
+#    luna: llena | menguante | nueva | creciente bioma: id de bioma o grupo
+#        (grupos: frio, calido, desierto, selva, oceano, montana, pantano, bosque, cuevas)
+#    dimension: overworld | nether | end         altura-min / altura-max
+#    cielo: abierto | techo                      luz-max: 0 a 15 (oscuridad)
+#    en-agua: true/false                         zona: aldea | fuera
+#    armadura: ninguna | alguna | cuero | sin_cuero | metal
+#    tiene / no-tiene: objeto (material o id especial)
+#    nivel-min, nivel-max, acto-min, acto-max    evento: id de un evento activo
+#
+#  efectos de una regla o evento:
+#    efectos: [{efecto: slowness, nivel: 1}]     danio / curar / hambre  + cada: segundos
+#    fuego: segundos · congelar: true            vida-maxima: -4 · velocidad: -0.15
+#    danio-hecho / danio-recibido / xp / dinero / apariciones: multiplicadores (1 = normal)
+#    mensaje: texto que sale al empezar
+# =========================================================
+
+tiempo:
+  minutos-dia: 12          # lo normal de Minecraft es 10
+  minutos-noche: 10
+  dormir: si               # si | no  (los eventos con "no-dormir" lo impiden igual)
+
+reglas:
+  frio_extremo:
+    nombre: "Frío extremo"
+    cuando: {bioma: [frio], cielo: abierto, armadura: sin_cuero, momento: [noche]}
+    congelar: true
+    efectos: [{efecto: slowness, nivel: 1}]
+    mensaje: "<aqua>❄ El frío te cala los huesos. Ponte algo de cuero o busca refugio."
+  calor_desierto:
+    nombre: "Calor del desierto"
+    cuando: {bioma: [desierto], momento: [dia], cielo: abierto, armadura: metal, clima: [despejado]}
+    hambre: -1
+    cada: 20
+    efectos: [{efecto: weakness, nivel: 1}]
+    mensaje: "<gold>☀ El metal arde bajo el sol. La armadura te agota."
+  tormenta_electrica:
+    nombre: "Tormenta"
+    cuando: {clima: [tormenta], cielo: abierto, dimension: [overworld]}
+    danio-recibido: 1.15
+    velocidad: -0.08
+    apariciones: 1.5
+    mensaje: "<gray>⛈ La tormenta te empapa: te mueves peor y los monstruos salen de día."
+  lluvia_fertil:
+    nombre: "Lluvia"
+    cuando: {clima: [lluvia], zona: fuera}
+    xp: 1.1
+  luna_llena:
+    nombre: "Luna llena"
+    cuando: {luna: [llena], momento: [noche], dimension: [overworld]}
+    apariciones: 1.6
+    xp: 1.25
+    mensaje: "<yellow>🌕 Luna llena: hay más monstruos… y dan más experiencia."
+  luna_nueva:
+    nombre: "Noche sin luna"
+    cuando: {luna: [nueva], momento: [noche], cielo: abierto, zona: fuera, no-tiene: torch}
+    efectos: [{efecto: darkness, nivel: 1}]
+    mensaje: "<dark_gray>🌑 Noche sin luna: sin una antorcha no ves nada."
+  refugio_aldea:
+    nombre: "Refugio de la aldea"
+    cuando: {zona: aldea}
+    curar: 1
+    cada: 6
+    danio-recibido: 0.8
+  profundidades:
+    nombre: "Las profundidades"
+    cuando: {altura-max: 0, dimension: [overworld]}
+    apariciones: 1.3
+    dinero: 1.25
+    mensaje: "<dark_purple>⛏ Las profundidades: más peligro, más recompensa."
+
+apariciones:
+  multiplicador: 1.3       # 2.0 = el doble de monstruos · 0.5 = la mitad
+  extra:                   # además de los de Minecraft, el plugin trae monstruos cerca de ti
+    activo: true
+    cada: 15               # segundos entre cada tanda
+    cantidad: "1-3"        # cuántos por tanda
+    distancia-min: 24      # bloques (lejos de tu vista, para que no aparezcan en tu cara)
+    distancia-max: 44
+    de-dia: false          # true = también de día en la superficie (bajo tierra salen siempre)
+    mobs: [zombie, zombie, skeleton, skeleton, spider, creeper, zombi_corrompido]
+  bloquear: []             # por ejemplo: [phantom, creeper]
+  reglas:
+    # Las Siete Coronas: los Velados aparecen según el acto y el lugar (la primera regla que toca, gana)
+    - {mob: velado_cavador, reemplaza: [zombie], probabilidad: 0.25, cuando: {acto-min: 1, momento: [noche]}}
+    - {mob: velado_hueso, reemplaza: [skeleton], probabilidad: 0.2, cuando: {acto-min: 1}}
+    - {mob: velado_lobo, reemplaza: [zombie, skeleton, spider], probabilidad: 0.1, grupo: "2-3", cuando: {acto-min: 2, bioma: [bosque, frio], momento: [noche], zona: fuera}}
+    - {mob: velado_bandido, reemplaza: [skeleton, zombie], probabilidad: 0.06, grupo: "2-3", cuando: {acto-min: 3, momento: [noche], cielo: abierto, zona: fuera}}
+    - {mob: velado_ahogado, reemplaza: [drowned], probabilidad: 0.4, cuando: {acto-min: 4}}
+    - {mob: velado_yeti, reemplaza: [stray, zombie], probabilidad: 0.15, cuando: {acto-min: 5, bioma: [frio], zona: fuera}}
+    - {mob: velado_escarcha, reemplaza: [stray], probabilidad: 0.3, cuando: {acto-min: 5}}
+    - {mob: velado_momia, reemplaza: [husk], probabilidad: 0.35, cuando: {acto-min: 6}}
+    - {mob: velado_escorpion, reemplaza: [spider, husk], probabilidad: 0.15, cuando: {acto-min: 6, bioma: [desierto]}}
+    - {mob: velado_hechicera, reemplaza: [witch, zombie], probabilidad: 0.1, cuando: {acto-min: 7, bioma: [pantano]}}
+    - {mob: velado_acechador, reemplaza: [spider], probabilidad: 0.3, cuando: {acto-min: 8, bioma: [selva]}}
+    - {mob: velado_bruto, reemplaza: [piglin, zombified_piglin], probabilidad: 0.15, cuando: {acto-min: 9, dimension: [nether]}}
+    - {mob: velado_eco, reemplaza: [enderman], probabilidad: 0.3, cuando: {acto-min: 10}}
+    - {mob: velado_caballero, reemplaza: [wither_skeleton, skeleton], probabilidad: 0.1, cuando: {acto-min: 11, momento: [noche], zona: fuera}}
+    - {mob: velado_titan, reemplaza: [zombie, skeleton, creeper], probabilidad: 0.02, cuando: {acto-min: 12, momento: [noche], cielo: abierto, zona: fuera}}
+    # La corrupción llega a los gólems y a los lobos (van primero: la primera regla que toca, gana)
+    - {mob: golem_corrompido, reemplaza: [zombie, skeleton, spider, creeper], probabilidad: 0.04, cuando: {acto-min: 3, cielo: abierto, momento: [noche], dimension: [overworld], zona: fuera}}
+    - {mob: lobo_corrompido, reemplaza: [zombie, skeleton, spider], probabilidad: 0.08, grupo: "2-3", cuando: {acto-min: 5, bioma: [bosque, frio], momento: [noche], zona: fuera}}
+    - {mob: golem_eclipse, reemplaza: [zombie, skeleton, creeper], probabilidad: 0.02, cuando: {acto-min: 8, momento: [noche], dimension: [overworld], zona: fuera}}
+    - {mob: zombi_corrompido, reemplaza: [zombie], probabilidad: 0.25, grupo: "1-2", cuando: {luna: [llena], momento: [noche]}}
+    - {mob: esqueleto_corrompido, reemplaza: [skeleton], probabilidad: 0.2, cuando: {clima: [tormenta]}}
+    - {mob: husk_corrompido, reemplaza: [husk, zombie], probabilidad: 0.2, cuando: {bioma: [desierto], acto-min: 4}}
+    - {mob: ahogado_corrompido, reemplaza: [drowned], probabilidad: 0.25, cuando: {clima: [lluvia, tormenta], acto-min: 3}}
+
+eventos:
+  luna_sangre:
+    nombre: "<red><bold>☾ Luna de Sangre"
+    color-barra: RED
+    empieza: noche           # noche | dia | cualquiera | manual
+    probabilidad: 0.12       # cada noche
+    cada-dias: 0             # 7 = siempre cada 7 días
+    duracion: 0              # segundos · 0 = hasta que amanezca
+    anuncio: "<red><bold>Luna de Sangre"
+    subtitulo: "<gray>Los Corrompidos despiertan. Aguanta hasta el amanecer."
+    sonido: entity.wither.spawn
+    no-dormir: true
+    apariciones: 2.5
+    danio-recibido: 1.2
+    xp: 1.5
+    dinero: 1.5
+    oleadas: {mobs: [zombi_corrompido, esqueleto_corrompido, arana_corrompida], cada: 40, cantidad: 2}
+    mensaje-fin: "<gold>Amanece. Sobreviviste a la Luna de Sangre."
+    premio-xp: 150
+    premio-dinero: 60
+  tormenta_eclipse:
+    nombre: "<dark_purple><bold>⛈ Tormenta del Eclipse"
+    color-barra: PURPLE
+    empieza: cualquiera
+    probabilidad: 0.015      # cada hora del juego
+    duracion: 300
+    clima: tormenta
+    anuncio: "<dark_purple><bold>Tormenta del Eclipse"
+    subtitulo: "<gray>El cielo se rompe. Busca techo."
+    sonido: entity.lightning_bolt.thunder
+    apariciones: 1.8
+    velocidad: -0.1
+    mensaje-fin: "<gray>La tormenta se aleja."
+  bendicion_alba:
+    nombre: "<yellow><bold>☀ Bendición del Alba"
+    color-barra: YELLOW
+    empieza: dia
+    probabilidad: 0.08
+    duracion: 480
+    clima: despejado
+    anuncio: "<yellow><bold>Bendición del Alba"
+    subtitulo: "<gray>Hoy la luz está de tu lado."
+    sonido: block.beacon.activate
+    efectos: [{efecto: regeneration, nivel: 1}]
+    xp: 1.5
+    danio-hecho: 1.15
+    apariciones: 0.5
+    mensaje-fin: "<gray>La bendición se desvanece."
+
+roles:
+  guardias:
+    pelean: true
+    vida: 40
+    danio: 6
+    vision: 14               # a cuántos bloques ven a un hostil
+    persecucion: 24          # cuánto se alejan de su puesto
+    recuperacion: 45         # segundos que quedan heridos si los vencen
+  aldeanos-huyen: true
+  enemigos-atacan: todos     # todos = aldeanos, NPCs, animales, gólems y jugadores | guardianes = solo guardianes y jugadores
+  npcs-pueden-caer: true     # los enemigos pueden derribar a los NPCs y aldeanos (no mueren: caen y vuelven)
+  vida-npc: 20               # vida de los NPCs que no son guardias
+  # rol de las criaturas normales de Minecraft: enemigo | neutral | pacifico | guardian
+  mobs:
+    iron_golem: guardian
+
+# ---------------------------------------------------------------- MUERTES
+muerte:
+  cuerpos: true              # al caer, los NPCs quedan tendidos en el suelo (false = desaparecen al momento)
+  cuerpos-criaturas: true    # también los mobs y animales dejan su cuerpo un rato
+  cuerpo-segundos: 10        # cuánto se queda el cuerpo
+  reaparicion:
+    npcs: 120                # segundos hasta que un NPC o aldeano vuelve a su casa (los guardias usan "recuperacion")
+    animales-aldea: 300      # animales y gatos de la aldea y campamentos (0 = no vuelven)
+  # Enemigos de mazmorras: mazmorras.yml > general.reaparicion-minutos
+  # Enemigos de estructuras: estructuras.yml > reaparicion (minutos) en cada estructura
+  # Cada enemigo de mobs.yml puede llevar "cuerpo: false" para desaparecer al morir
+
