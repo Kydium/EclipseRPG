@@ -1867,7 +1867,7 @@ items:
     lore: ["<gray>Cuerda de tendón seco."]
 
   mazo_bruto:
-    material: GOLDEN_AXE
+    material: IRON_AXE
     textura: "Morningstar"
     nombre: "<gold>Lucero del Bruto"
     rareza: raro
@@ -1891,7 +1891,7 @@ items:
       - {atributo: attack_speed, valor: -2.2, slot: mainhand}
 
   pala_cavador:
-    material: IRON_SHOVEL
+    material: DIAMOND_SHOVEL
     textura: "Ocean Shovel"
     nombre: "<dark_purple>Pala del Cavador"
     rareza: raro
@@ -1899,5 +1899,5 @@ items:
     mejorable: true
     lore: ["<gray>Con ella abrían sus propias tumbas."]
     atributos:
-      - {atributo: attack_damage, valor: 4, slot: mainhand}
+      - {atributo: attack_damage, valor: 5.5, slot: mainhand}
       - {atributo: attack_speed, valor: -3.0, slot: mainhand}
