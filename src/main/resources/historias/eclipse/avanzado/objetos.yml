@@ -619,6 +619,12 @@ items:
 
 
   # ================= MOCHILAS (mochila: número de huecos; con más de 54 se usan páginas) =================
+  piedra_viaje:
+    material: LODESTONE
+    nombre: "<aqua>✦ Piedra de viaje"
+    rareza: raro
+    lore: ["<gray>Ponla en el suelo y podrás viajar a ella", "<gray>desde cualquier otra piedra de viaje.", "",
+           "<dark_gray>Renómbrala en un yunque para ponerle nombre.", "<dark_gray>Rómpela para llevártela a otro sitio."]
   mochila_pequena:
     material: LEATHER
     modelo: minecraft:bundle

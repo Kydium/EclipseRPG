@@ -1249,6 +1249,8 @@ public final class SmokeTest {
             w.getChunkAt(inst.x >> 4, inst.z >> 4);
             w.getChunkAt(c.getBlockX() >> 4, c.getBlockZ() >> 4);
         }
+        var wsItem = plugin.items().create(pe.kydium.eclipserpg.world.Waystones.ITEM, 1);
+        check(wsItem != null && wsItem.getType() == Material.LODESTONE, "existe la Piedra de viaje comprable");
         plugin.waystones().ensureAll();
         var stones = plugin.waystones().all();
         int lode = 0;

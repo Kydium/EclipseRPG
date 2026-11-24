@@ -726,3 +726,9 @@ el juego te dice exactamente en qué línea.
  construiraldea enorme): gran plaza, mercado de 8 puestos y más de 60
  construcciones con murallas y torres.
 
+ PIEDRA DE VIAJE COMPRABLE: Pip la vende (custom:piedra_viaje). Ponla en
+ el suelo y queda como piedra de viaje (con su letrero): puedes viajar a
+ ella desde cualquier otra piedra. Renómbrala en un yunque antes de
+ ponerla para darle nombre. Solo su dueño puede romperla (y se la lleva).
+ viajes.maximo-por-jugador (5) · viajes.piedras-de-jugadores-publicas.
+

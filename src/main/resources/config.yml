@@ -247,6 +247,8 @@ viajes:                         # piedras de viaje: una en la aldea y una en cad
   costo-minimo: 5
   segundos-quieto: 3            # hay que quedarse quieto (sin recibir daño) estos segundos
   espera-segundos: 20           # tiempo entre un viaje y otro
+  maximo-por-jugador: 5         # piedras de viaje compradas que puede tener puestas cada jugador
+  piedras-de-jugadores-publicas: true   # los demás pueden viajar a tus piedras (al descubrirlas)
 
 hud:
   vida-monstruos: true          # al golpear un monstruo, su vida sale junto a su nombre ("❤ 14/20")

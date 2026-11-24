@@ -17,6 +17,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -46,7 +48,16 @@ public final class Waystones implements Listener {
 
     public static final String VILLAGE = "aldea";
 
-    public record Stone(String id, String world, int x, int y, int z) {
+    /** owner/label: solo en las piedras que pone un jugador (null en las de la aldea y ciudades). */
+    public record Stone(String id, String world, int x, int y, int z, String owner, String label) {
+        Stone(String id, String world, int x, int y, int z) {
+            this(id, world, x, y, z, null, null);
+        }
+
+        public boolean placed() {
+            return owner != null;
+        }
+
         Location loc(World w) {
             return new Location(w, x + 0.5, y, z + 0.5);
         }
@@ -71,7 +82,8 @@ public final class Waystones implements Listener {
         var sec = y.getConfigurationSection("piedras");
         if (sec != null) for (String id : sec.getKeys(false)) {
             var s = sec.getConfigurationSection(id);
-            if (s != null) stones.put(id, new Stone(id, s.getString("mundo", "world"), s.getInt("x"), s.getInt("y"), s.getInt("z")));
+            if (s != null) stones.put(id, new Stone(id, s.getString("mundo", "world"), s.getInt("x"), s.getInt("y"), s.getInt("z"),
+                    s.getString("dueno"), s.getString("nombre")));
         }
     }
 
@@ -84,6 +96,8 @@ public final class Waystones implements Listener {
     }
 
     public String name(String id) {
+        Stone st = stones.get(id);
+        if (st != null && st.placed()) return st.label();
         return id.equals(VILLAGE) ? plugin.villageName() : plugin.cities().name(id).replaceAll("<[^>]*>", "");
     }
 
@@ -95,6 +109,10 @@ public final class Waystones implements Listener {
             y.set(k + ".x", s.x());
             y.set(k + ".y", s.y());
             y.set(k + ".z", s.z());
+            if (s.placed()) {
+                y.set(k + ".dueno", s.owner());
+                y.set(k + ".nombre", s.label());
+            }
         }
         try {
             y.save(file);
@@ -154,9 +172,16 @@ public final class Waystones implements Listener {
      * la vuelve a poner en su sitio, con su letrero.
      */
     private void repair() {
-        for (Stone s : stones.values()) {
+        for (Stone s : new ArrayList<>(stones.values())) {
             World w = Bukkit.getWorld(s.world());
             if (w == null || !w.isChunkLoaded(s.x() >> 4, s.z() >> 4)) continue;
+            if (s.placed() && w.getBlockAt(s.x(), s.y(), s.z()).getType() != Material.LODESTONE) {
+                // la de un jugador que ya no está (explosión, comando…): se borra, no se reconstruye
+                stones.remove(s.id());
+                removeLabel(s, w);
+                save();
+                continue;
+            }
             if (w.getBlockAt(s.x(), s.y(), s.z()).getType() != Material.LODESTONE) {
                 build(w, s.x(), s.y(), s.z());
                 label(s, w);
@@ -181,12 +206,18 @@ public final class Waystones implements Listener {
             w.getBlockAt(x + c[0], y, z + c[1]).setType(Material.SOUL_LANTERN, false);
     }
 
-    private void label(Stone s, World w) {
+    private static void removeLabel(Stone s, World w) {
         Location l = s.loc(w).add(0, 1.6, 0);
         for (Entity e : w.getNearbyEntities(l, 1, 2, 1))
             if (e instanceof TextDisplay && e.getPersistentDataContainer().has(Keys.k("piedra_viaje"))) e.remove();
+    }
+
+    private void label(Stone s, World w) {
+        Location l = s.loc(w).add(0, 1.6, 0);
+        removeLabel(s, w);
         w.spawn(l, TextDisplay.class, t -> {
-            t.text(Txt.mm("<aqua>✦ Piedra de viaje ✦\n<white>" + name(s.id()) + "\n<gray>Clic derecho para viajar"));
+            t.text(Txt.mm("<aqua>✦ Piedra de viaje ✦\n<white>" + name(s.id())
+                    + (s.placed() ? "\n<dark_gray>de " + ownerName(s) : "") + "\n<gray>Clic derecho para viajar"));
             t.setBillboard(Display.Billboard.CENTER);
             t.setPersistent(true);
             t.getPersistentDataContainer().set(Keys.k("piedra_viaje"), PersistentDataType.STRING, s.id());
@@ -300,7 +331,25 @@ public final class Waystones implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onBreak(BlockBreakEvent e) {
         Block b = e.getBlock();
+        Stone own = at(b);
+        if (own != null && own.placed()) {
+            Player p = e.getPlayer();
+            if (!p.getUniqueId().toString().equals(own.owner()) && !p.hasPermission("eclipse.admin")) {
+                e.setCancelled(true);
+                p.sendActionBar(Txt.mm("<red>Esta piedra de viaje es de " + ownerName(own) + "."));
+                return;
+            }
+            e.setDropItems(false);
+            stones.remove(own.id());
+            removeLabel(own, b.getWorld());
+            save();
+            ItemStack it = plugin.items().create(ITEM, 1);
+            if (it != null) b.getWorld().dropItemNaturally(b.getLocation().add(0.5, 0.5, 0.5), it);
+            Txt.send(p, "<aqua>✦ Recogiste tu piedra de viaje <white>" + own.label() + "<aqua>. Ponla donde quieras.");
+            return;
+        }
         for (Stone s : stones.values()) {
+            if (s.placed()) continue;
             if (!b.getWorld().getName().equals(s.world())) continue;
             if (Math.abs(b.getX() - s.x()) <= 1 && Math.abs(b.getZ() - s.z()) <= 1 && b.getY() >= s.y() - 1 && b.getY() <= s.y()) {
                 e.setCancelled(true);
@@ -332,17 +381,27 @@ public final class Waystones implements Listener {
         body.add("<gray>Estás en <white>" + name(from.id()) + "<gray>. Elige a dónde viajar.");
         body.add("<dark_gray>Las piedras se descubren al acercarte a ellas.");
         List<DialogUI.Button> b = new ArrayList<>();
-        for (Stone to : stones.values()) {
+        List<Stone> order = new ArrayList<>();
+        String me = p.getUniqueId().toString();
+        for (Stone st : stones.values()) if (!st.placed()) order.add(st);
+        for (Stone st : stones.values()) if (st.placed() && me.equals(st.owner())) order.add(st);
+        for (Stone st : stones.values()) if (st.placed() && !me.equals(st.owner())) order.add(st);
+        for (Stone to : order) {
             if (to.id().equals(from.id())) continue;
+            if (to.placed() && !me.equals(to.owner()) && !plugin.getConfig().getBoolean("viajes.piedras-de-jugadores-publicas", true)) continue;
             if (!k.contains(to.id())) {
                 b.add(new DialogUI.Button("<dark_gray>🔒 " + name(to.id()), "Ve una vez hasta allí para descubrir su piedra", null));
                 continue;
             }
             long c = cost(from, to);
             int dist = (int) Math.hypot(from.x() - to.x(), from.z() - to.z());
-            b.add(new DialogUI.Button("<aqua>✦ <white>" + name(to.id()) + " <gray>(" + c + " ☀)", dist + " bloques de aquí", () -> start(p, from, to, c)));
+            String icon = !to.placed() ? "<aqua>✦ " : me.equals(to.owner()) ? "<green>⌂ " : "<yellow>⌂ ";
+            String who = to.placed() && !me.equals(to.owner()) ? " · de " + ownerName(to) : "";
+            b.add(new DialogUI.Button(icon + "<white>" + name(to.id()) + " <gray>(" + c + " ☀)", dist + " bloques de aquí" + who, () -> start(p, from, to, c)));
         }
-        if (b.isEmpty()) body.add("<yellow>Todavía no hay otras piedras. Cada ciudad nueva que se abra tendrá la suya.");
+        if (b.isEmpty()) body.add("<yellow>Todavía no hay otras piedras. Cada ciudad tendrá la suya, y puedes comprar una en la tienda de Pip.");
+        if (from.placed() && me.equals(from.owner()))
+            body.add("<dark_gray>Es tuya: rómpela para llevártela. Renómbrala en un yunque antes de ponerla.");
         b.add(new DialogUI.Button("<gray>Cerrar", null, null));
         new DialogUI(plugin).show(p, "<aqua>✦ Piedra de viaje", body, b, true);
     }
@@ -389,7 +448,7 @@ public final class Waystones implements Listener {
                 return;
             }
             cooldown.put(u, System.currentTimeMillis());
-            Location dest = to.loc(w).add(1, 0, 0);   // al lado de la piedra, sobre el piso que puso la piedra
+            Location dest = to.placed() ? safeNear(w, to) : to.loc(w).add(1, 0, 0);   // al lado de la piedra
             dest.setYaw(90f);
             p.teleportAsync(dest).thenRun(() -> {
                 Txt.sound(p, "entity.enderman.teleport", 1f, 1f);
@@ -398,5 +457,82 @@ public final class Waystones implements Listener {
             });
         }, 0L, 20L).getTaskId();
         channel.put(u, task);
+    }
+
+    // ---------------------------------------------------------------- piedras que compra el jugador
+
+    /** Id del objeto en objetos.yml. */
+    public static final String ITEM = "piedra_viaje";
+
+    private String ownerName(Stone s) {
+        if (s.owner() == null) return "";
+        try {
+            String n = Bukkit.getOfflinePlayer(UUID.fromString(s.owner())).getName();
+            return n == null ? "alguien" : n;
+        } catch (IllegalArgumentException ex) {
+            return "alguien";
+        }
+    }
+
+    public int countOf(Player p) {
+        String me = p.getUniqueId().toString();
+        int n = 0;
+        for (Stone s : stones.values()) if (me.equals(s.owner())) n++;
+        return n;
+    }
+
+    /** Poner una Piedra de viaje comprada: queda registrada con el nombre que tenga (o uno automático). */
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlace(BlockPlaceEvent e) {
+        ItemStack it = e.getItemInHand();
+        if (!ITEM.equals(plugin.items().idOf(it))) return;
+        Player p = e.getPlayer();
+        if (!enabled()) {
+            e.setCancelled(true);
+            Txt.send(p, "<red>Los viajes están desactivados en este servidor.");
+            return;
+        }
+        int max = plugin.getConfig().getInt("viajes.maximo-por-jugador", 5);
+        if (countOf(p) >= max && !p.hasPermission("eclipse.admin")) {
+            e.setCancelled(true);
+            Txt.send(p, "<red>Ya tienes " + max + " piedras de viaje. Rompe una para llevártela a otro sitio.");
+            return;
+        }
+        Block b = e.getBlockPlaced();
+        String label = null;
+        var meta = it.getItemMeta();
+        if (meta != null && meta.hasCustomName()) {
+            String plain = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(meta.customName()).trim();
+            if (!plain.isEmpty() && !plain.equalsIgnoreCase("Piedra de viaje")) label = plain;
+        }
+        if (label == null) {
+            String biome = Txt.pretty(b.getBiome().getKey().getKey());
+            label = p.getName() + " · " + biome;
+        }
+        if (label.length() > 28) label = label.substring(0, 28);
+        String id = "j-" + p.getUniqueId().toString().substring(0, 8) + "-" + Long.toString(System.currentTimeMillis(), 36);
+        Stone s = new Stone(id, b.getWorld().getName(), b.getX(), b.getY(), b.getZ(), p.getUniqueId().toString(), label);
+        stones.put(id, s);
+        save();
+        World w = b.getWorld();
+        String fl = label;
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            label(s, w);
+            learn(p, id);
+            Txt.send(p, "<aqua>✦ Pusiste la piedra de viaje <white>" + fl + "<aqua>. Clic derecho en ella para viajar.");
+            Txt.sound(p, "block.respawn_anchor.set_spawn", 0.8f, 1.2f);
+        });
+    }
+
+    /** Un sitio seguro junto a una piedra de jugador (si no hay, encima de ella). */
+    private Location safeNear(World w, Stone s) {
+        int[][] around = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}, {1, -1}, {-1, 1}};
+        for (int[] d : around)
+            for (int dy = -1; dy <= 1; dy++) {
+                Block feet = w.getBlockAt(s.x() + d[0], s.y() + dy, s.z() + d[1]);
+                if (feet.isPassable() && feet.getRelative(0, 1, 0).isPassable() && feet.getRelative(0, -1, 0).getType().isSolid() && !feet.isLiquid())
+                    return feet.getLocation().add(0.5, 0, 0.5);
+            }
+        return new Location(w, s.x() + 0.5, s.y() + 1, s.z() + 0.5);
     }
 }
