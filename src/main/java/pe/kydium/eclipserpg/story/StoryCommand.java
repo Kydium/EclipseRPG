@@ -21,7 +21,7 @@ import java.util.Locale;
 public final class StoryCommand implements org.bukkit.command.CommandExecutor, TabCompleter, Listener {
 
     private static final List<String> SUBS = List.of("info", "editor", "recargar", "revisar", "errores", "colocar", "skins", "lugares",
-            "lista", "nueva", "usar");
+            "lista", "nueva", "usar", "quitar", "poner", "exportar");
     private final EclipseRPG plugin;
 
     public StoryCommand(EclipseRPG plugin) {
@@ -114,10 +114,58 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
                 Txt.send(s, "<gray>O párate en cualquier sitio y usa <white>/historia colocar <npc>");
             }
             case "lista" -> {
+                for (String n : st.installZips()) Txt.send(s, "<green>✔ Instalé la historia <white>" + n + " <green>(venía en un .zip)");
                 Txt.send(s, "<gold>Historias en la carpeta <white>historias/<gold>:");
                 for (String id : st.available())
                     Txt.send(s, (id.equals(st.id()) ? "<green>▶ " : "<gray>  ") + "<white>" + id + (id.equals(st.id()) ? " <green>(en uso)" : ""));
+                List<String> sv = new ArrayList<>(st.savedIds());
+                sv.removeAll(st.available());
+                if (!sv.isEmpty()) Txt.send(s, "<gray>Guardadas (sin poner): <white>" + String.join("<gray>, <white>", sv) + " <gray>→ <white>/historia poner <nombre>");
                 Txt.send(s, "<gray>Crear: <white>/historia nueva <nombre> <gray>· Cambiar: <white>/historia usar <nombre>");
+                Txt.send(s, "<gray>Sacar: <white>/historia quitar <nombre> <gray>· Copia en zip: <white>/historia exportar <nombre>");
+            }
+            case "exportar", "quitar", "poner" -> {
+                if (a.length < 2) {
+                    Txt.send(s, "<yellow>Uso: <white>/historia " + a[0].toLowerCase(java.util.Locale.ROOT) + " <nombre>");
+                    return true;
+                }
+                String id = StoryParser.slug(a[1]);
+                String act = a[0].toLowerCase(java.util.Locale.ROOT);
+                try {
+                    if (act.equals("poner")) {
+                        java.io.File z = new java.io.File(st.saved(), id + ".zip");
+                        if (!z.exists()) {
+                            Txt.send(s, "<red>No hay <white>historias-guardadas/" + id + ".zip<red>. Pon el .zip en la carpeta historias/ y usa /historia lista.");
+                            return true;
+                        }
+                        if (st.available().contains(id)) {
+                            Txt.send(s, "<yellow>'" + id + "' ya está puesta. <gray>(Para reemplazarla con el zip, quítala primero.)");
+                            return true;
+                        }
+                        String got = st.install(z);
+                        Txt.send(s, got == null ? "<red>Ese zip no trae historia.txt." : "<green>✔ Puse la historia <white>" + got + "<green>. Juégala con <white>/historia usar " + got);
+                        return true;
+                    }
+                    if (!st.available().contains(id)) {
+                        Txt.send(s, "<red>No existe la historia '" + id + "'. Mira /historia lista");
+                        return true;
+                    }
+                    if (act.equals("exportar")) {
+                        java.io.File f = st.export(id);
+                        Txt.send(s, "<green>✔ Copia lista: <white>plugins/AventuraMaker/historias-guardadas/" + f.getName());
+                        Txt.send(s, "<gray>Pásala a otro servidor y ponla en su carpeta historias/ (se instala sola).");
+                    } else {
+                        if (id.equals(st.id())) {
+                            Txt.send(s, "<red>Esa historia se está jugando. Cambia a otra primero con /historia usar.");
+                            return true;
+                        }
+                        java.io.File f = st.remove(id);
+                        Txt.send(s, "<green>✔ Saqué '" + id + "'. Quedó guardada en <white>historias-guardadas/" + f.getName());
+                        Txt.send(s, "<gray>Para volver a ponerla: <white>/historia poner " + id);
+                    }
+                } catch (java.io.IOException ex) {
+                    Txt.send(s, "<red>No se pudo: " + escape(ex.getMessage()));
+                }
             }
             case "nueva" -> {
                 if (a.length < 2) {
@@ -142,7 +190,7 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
                     return true;
                 }
                 if (a.length < 3 || !a[2].equalsIgnoreCase("confirmar")) {
-                    Txt.send(s, "<yellow>⚠ Cambiar de historia reinicia las misiones de todos los jugadores (no su nivel).");
+                    Txt.send(s, "<yellow>⚠ Se guardan las misiones de '" + st.id() + "' y se sigue donde se quedó cada uno en '" + id + "' (nivel y objetos no cambian).");
                     Txt.send(s, "<yellow>Escribe <white>/historia usar " + id + " confirmar <yellow>para continuar.");
                     return true;
                 }
@@ -158,8 +206,8 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
                     showProblems(s, r.problems(), 8, true);
                     return true;
                 }
-                resetQuests(plugin);
-                Txt.send(s, "<green>✔ Ahora se juega <white>" + r.doc().title + "<green>. Las misiones empiezan de cero.");
+                switchQuests(plugin, prev, id);
+                Txt.send(s, "<green>✔ Ahora se juega <white>" + r.doc().title + "<green>. Las misiones de '" + prev + "' quedaron guardadas.");
             }
             default -> Txt.send(s, "<yellow>Subcomandos: <white>" + String.join(", ", SUBS));
         }
@@ -176,7 +224,7 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
         long err = st.errorCount(), warn = st.problems().size() - err;
         Txt.send(s, err > 0 ? "<red>✖ " + err + " error(es) <gray>— /historia errores" : "<green>✔ Sin errores" + (warn > 0 ? " <yellow>(" + warn + " avisos)" : ""));
         Txt.send(s, "<gray>Archivo: <white>plugins/AventuraMaker/historias/" + st.id() + "/historia.txt");
-        Txt.send(s, "<gray>Comandos: <white>editor · revisar · recargar · errores · colocar · skins · lugares · lista · nueva · usar");
+        Txt.send(s, "<gray>Comandos: <white>editor · revisar · recargar · errores · colocar · skins · lugares · lista · nueva · usar · quitar · poner · exportar");
         Txt.send(s, LINE);
     }
 
@@ -195,6 +243,30 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
 
     private static String escape(String m) {
         return m.replace("<", "\\<");
+    }
+
+    /** Guarda el avance de misiones de la historia anterior y recupera el de la nueva (cada historia lleva el suyo). */
+    public static void switchQuests(EclipseRPG plugin, String from, String to) {
+        if (from == null || from.equals(to)) return;
+        plugin.data().saveAll();
+        java.io.File[] files = new java.io.File(plugin.getDataFolder(), "jugadores").listFiles((dir, n) -> n.endsWith(".yml"));
+        if (files != null) for (java.io.File f : files) {
+            var y = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(f);
+            y.set("historias." + from + ".mision", y.getInt("historia.mision", 0));
+            y.set("historias." + from + ".aceptada", y.getBoolean("historia.aceptada", false));
+            y.set("historias." + from + ".progreso", y.getIntegerList("historia.progreso"));
+            y.set("historias." + from + ".marcas", y.getStringList("historia.marcas"));
+            y.set("historia.marcas", y.getStringList("historias." + to + ".marcas"));
+            y.set("historia.mision", y.getInt("historias." + to + ".mision", 0));
+            y.set("historia.aceptada", y.getBoolean("historias." + to + ".aceptada", false));
+            y.set("historia.progreso", y.getIntegerList("historias." + to + ".progreso"));
+            try {
+                y.save(f);
+            } catch (java.io.IOException ignored) {
+                // no importa
+            }
+        }
+        for (Player p : Bukkit.getOnlinePlayers()) plugin.data().reload(p);
     }
 
     public static void resetQuests(EclipseRPG plugin) {
@@ -236,8 +308,10 @@ public final class StoryCommand implements org.bukkit.command.CommandExecutor, T
             for (String x : SUBS) if (x.startsWith(a[0].toLowerCase(Locale.ROOT))) out.add(x);
         } else if (a.length == 2 && a[0].equalsIgnoreCase("colocar")) {
             for (String x : plugin.npcs().ids()) if (x.startsWith(a[1].toLowerCase(Locale.ROOT))) out.add(x);
-        } else if (a.length == 2 && a[0].equalsIgnoreCase("usar")) {
+        } else if (a.length == 2 && (a[0].equalsIgnoreCase("usar") || a[0].equalsIgnoreCase("quitar") || a[0].equalsIgnoreCase("exportar"))) {
             out.addAll(plugin.story().available());
+        } else if (a.length == 2 && a[0].equalsIgnoreCase("poner")) {
+            out.addAll(plugin.story().savedIds());
         } else if (a.length == 3 && a[0].equalsIgnoreCase("colocar")) {
             out.add("auto");
         } else if (a.length == 3 && a[0].equalsIgnoreCase("usar")) {

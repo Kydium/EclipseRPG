@@ -1258,6 +1258,24 @@ public final class SmokeTest {
         } catch (Exception ex) {
             fail("no se pudo leer historias/coronas/historia.txt: " + ex);
         }
+        // historias extraíbles: quitar → zip en historias-guardadas, poner → vuelve igual
+        try {
+            var stm = plugin.story();
+            java.util.List<String> before = java.nio.file.Files.readAllLines(cor.toPath());
+            java.io.File z = stm.remove("coronas");
+            boolean gone = !stm.available().contains("coronas") && z.exists();
+            String got = stm.install(z);
+            boolean back = "coronas".equals(got) && stm.available().contains("coronas")
+                    && java.nio.file.Files.readAllLines(cor.toPath()).equals(before);
+            // un zip suelto en historias/ se instala solo
+            java.io.File drop = new java.io.File(stm.root(), "prueba_zip.zip");
+            stm.zipDir(new java.io.File(stm.root(), "coronas"), "prueba_zip", drop);
+            boolean auto = stm.installZips().contains("prueba_zip") && stm.available().contains("prueba_zip") && !drop.exists();
+            java.nio.file.Files.deleteIfExists(stm.remove("prueba_zip").toPath());
+            check(gone && back && auto, "las historias se pueden quitar, guardar en zip y volver a poner");
+        } catch (Exception ex) {
+            fail("historias extraíbles: " + ex);
+        }
         var w0 = plugin.getServer().getWorlds().get(0);
         check("norte".equals(pe.kydium.eclipserpg.mobs.Raids.direction(new Location(w0, 0, 64, 0), new Location(w0, 0, 64, -40)))
                 && "este".equals(pe.kydium.eclipserpg.mobs.Raids.direction(new Location(w0, 0, 64, 0), new Location(w0, 40, 64, 0)))

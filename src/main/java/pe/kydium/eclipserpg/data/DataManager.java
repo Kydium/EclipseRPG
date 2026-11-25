@@ -88,8 +88,14 @@ public final class DataManager {
         for (int v : d.questProgress) qp.add(v);
         y.set("historia.progreso", qp);
         y.set("historia.marcas", new ArrayList<>(d.flags));
+        File file = new File(folder, uuid + ".yml");
+        // el avance guardado de las otras historias (al cambiar con /historia usar) se conserva
+        if (file.exists()) {
+            ConfigurationSection other = YamlConfiguration.loadConfiguration(file).getConfigurationSection("historias");
+            if (other != null) y.set("historias", other);
+        }
         try {
-            y.save(new File(folder, uuid + ".yml"));
+            y.save(file);
             d.dirty = false;
         } catch (IOException ex) {
             plugin.getLogger().warning("No se pudo guardar " + uuid + ": " + ex.getMessage());
@@ -105,6 +111,12 @@ public final class DataManager {
     public void unload(UUID uuid) {
         save(uuid);
         cache.remove(uuid);
+    }
+
+    /** Vuelve a leer del archivo los datos de un jugador conectado (tras cambiar de historia). */
+    public void reload(org.bukkit.entity.Player p) {
+        cache.remove(p.getUniqueId());
+        get(p);
     }
 
     public void saveAll() {

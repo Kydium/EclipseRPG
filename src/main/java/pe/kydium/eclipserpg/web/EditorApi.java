@@ -316,7 +316,7 @@ public final class EditorApi {
                                 plugin.getConfig().set("historia", prev);
                                 plugin.saveConfig();
                                 plugin.reloadStory(false);
-                            } else pe.kydium.eclipserpg.story.StoryCommand.resetQuests(plugin);
+                            } else pe.kydium.eclipserpg.story.StoryCommand.switchQuests(plugin, prev, id);
                             return rr;
                         });
                         JsonObject o = result(r);

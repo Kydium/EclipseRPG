@@ -752,3 +752,22 @@ el juego te dice exactamente en qué línea.
  segundos, suena el cuerno y te dice por dónde vienen ("¡Una oleada viene
  del noreste!"). Caminan hacia ti. config.yml → misiones.oleadas.
 
+========================================================================
+30. HISTORIAS EXTRAÍBLES (poner y sacar historias como un cartucho)
+========================================================================
+Cada historia es una carpeta en plugins/AventuraMaker/historias/ (eclipse, coronas…).
+Se pueden tener varias a la vez; solo se juega la que digas con /historia usar.
+
+  /historia lista              → las que están puestas y las guardadas
+  /historia usar coronas confirmar   → jugar Las Siete Coronas
+  /historia usar eclipse confirmar   → volver a Crónicas del Eclipse
+  /historia quitar coronas     → la saca y la guarda en historias-guardadas/coronas.zip
+  /historia poner coronas      → la vuelve a poner desde ese zip
+  /historia exportar eclipse   → copia en zip para pasarla a otro servidor
+
+Instalar una historia nueva: copia su .zip dentro de historias/ y reinicia
+(o escribe /historia lista). Se descomprime sola y el zip pasa a historias-guardadas/.
+
+Al cambiar de historia NO se pierde nada: cada jugador guarda en qué misión iba
+en cada historia y sigue ahí cuando vuelves. El nivel, los soles y los objetos
+son los mismos en todas las historias.
